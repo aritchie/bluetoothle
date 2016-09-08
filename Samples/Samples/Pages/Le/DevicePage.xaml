@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TabbedPage
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:le="clr-namespace:Samples.Pages.Le;assembly=Samples"
+	xmlns:acr="clr-namespace:Acr.XamForms;assembly=Acr.XamForms"
+    x:Class="Samples.Pages.Le.DevicePage"
+    Title="{Binding Name}">
+    <TabbedPage.Children>
+        <ContentPage Title="Info">
+            <TableView Intent="Form">
+                <TableRoot>
+                    <TableSection Title="Information">
+                        <TextCell Text="Connection Status" Detail="{Binding Status}" />
+                        <TextCell Text="Name" Detail="{Binding Name}" />
+                        <TextCell Text="RSSI" Detail="{Binding Rssi}" />
+						<SwitchCell Text="Auto-Reconnect" On="{Binding AutoReconnect}" />
+                    </TableSection>
+                    <TableSection>
+                        <TextCell Text="{Binding ConnectText}" Command="{Binding ConnectionToggle}" />
+                    </TableSection>
+                </TableRoot>
+            </TableView>
+        </ContentPage>
+
+		
+    	<ContentPage Title="Characteristics">
+		    <StackLayout>
+		        <SearchBar x:Name="SearchBar" Text="{Binding SearchText}" Placeholder="Search For Characteristic" />
+
+		        <acr:ListView 
+					ItemsSource="{Binding GattCharacteristics}" 
+					IsGroupingEnabled="true" 
+					GroupDisplayBinding="{Binding Name}"
+					ItemClickCommand="{Binding SelectCharacteristic}"
+					HasUnevenRows="true">
+					<ListView.GroupHeaderTemplate>
+						<DataTemplate>
+							<ViewCell Height="30">
+								<ContentView Padding="20,0,0,0">
+									<Label Text="{Binding Name, StringFormat='Service {0}'}" FontSize="18" FontAttributes="Bold" />
+								</ContentView>
+							</ViewCell>
+						</DataTemplate>						
+					</ListView.GroupHeaderTemplate>
+		            <ListView.ItemTemplate>
+		                <DataTemplate>
+		                    <ViewCell Height="200">
+		                        <ViewCell.View>
+		                            <StackLayout>
+		                                <Label Text="{Binding Description}" FontAttributes="Bold" TextColor="Red" />
+		                                <Label Text="{Binding Uuid, StringFormat='UUID: {0}'}" FontAttributes="Italic" />
+		                                <Label Text="{Binding Properties, StringFormat='Properties: {0}'}" />
+										<Label Text="{Binding IsNotifying, StringFormat='Notifying: {0}'}" IsVisible="{Binding CanNotify}" />
+										<Label Text="{Binding Value, StringFormat='Value: {0}'}" IsVisible="{Binding IsValueAvailable}" />
+										<Label Text="{Binding LastValue, StringFormat='Last Read: {0:hh:mm:ss tt}'}" IsVisible="{Binding IsValueAvailable}" />
+		                            </StackLayout>
+		                        </ViewCell.View>
+		                    </ViewCell>
+		                </DataTemplate>
+		            </ListView.ItemTemplate>
+		        </acr:ListView>
+		    </StackLayout>			
+		</ContentPage>
+
+		<ContentPage Title="Descriptors">
+		    <acr:ListView ItemsSource="{Binding GattDescriptors}" RowHeight="150" ItemClickCommand="{Binding SelectDescriptor}">
+		        <ListView.ItemTemplate>
+		            <DataTemplate>
+						<ViewCell>
+							<ViewCell.View>
+								<StackLayout>
+									<Label Text="{Binding Description}" />
+									<Label Text="{Binding Uuid, StringFormat='UUID: {0}'}" />
+									<Label Text="{Binding Value, StringFormat='Value: {0}'}" IsVisible="{Binding IsValueAvailable}" />
+									<Label Text="{Binding LastValue, StringFormat='Last Value: {0:hh:mm:ss tt}'}" IsVisible="{Binding IsValueAvailable}" />
+								</StackLayout>
+							</ViewCell.View>
+						</ViewCell>
+		            </DataTemplate>
+		        </ListView.ItemTemplate>
+		    </acr:ListView>
+		</ContentPage>
+    </TabbedPage.Children>
+</TabbedPage>

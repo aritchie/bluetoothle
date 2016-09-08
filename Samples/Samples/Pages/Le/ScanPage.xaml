@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<acr:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:acr="clr-namespace:Acr.XamForms;assembly=Acr.XamForms"
+             x:Class="Samples.Pages.Le.ScanPage"
+             Title="{Binding Title}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="{Binding ScanText}" Command="{Binding ScanToggle}" />
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.Content>
+        <StackLayout>
+            <SearchBar x:Name="SearchBar" Placeholder="Search for Device" Text="{Binding SearchText}" />
+			<acr:ListView ItemsSource="{Binding Devices}" RowHeight="180" ItemClickCommand="{Binding SelectDevice}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="30" />
+                                        <RowDefinition Height="30" />
+                                        <RowDefinition Height="30" />
+                                        <RowDefinition Height="30" />
+                                        <RowDefinition Height="30" />
+										<RowDefinition Height="30" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label Text="{Binding Name}" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" FontSize="15" />
+                                    <Label Text="{Binding Rssi, StringFormat='RSSI: {0}'}" Grid.Row="0" Grid.Column="1" TextColor="Red" />
+                                    <Label Text="{Binding Uuid, StringFormat='UUID: {0}'}" Grid.Row="1" Grid.ColumnSpan="2" FontAttributes="Italic" />
+
+                                    <Label Text="{Binding IsConnectable, StringFormat='Connectable: {0}'}" Grid.Row="2" Grid.Column="0" />
+                                    <Label Text="{Binding ServiceCount, StringFormat='{0} Services'}" Grid.Row="2" Grid.Column="1" />
+
+                                    <Label Text="{Binding ManufacturerData, StringFormat='Manufactuer Data: {0}'}" Grid.Row="3" Grid.ColumnSpan="2" />
+
+                                    <Label Text="{Binding LocalName, StringFormat='Local Name: {0}'}" Grid.Row="4" Grid.Column="0" />
+                                    <Label Text="{Binding TxPower, StringFormat='TX Power: {0}'}" Grid.Row="4" Grid.Column="1" />
+
+									<Label Text="Device Connected" IsVisible="{Binding IsConnected}" BackgroundColor="Yellow" TextColor="Black"  HorizontalTextAlignment="Center" Grid.ColumnSpan="2" Grid.Row="5" />
+                                </Grid>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </acr:ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</acr:ContentPage>

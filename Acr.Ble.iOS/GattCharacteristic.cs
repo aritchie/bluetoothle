@@ -1,0 +1,140 @@
+﻿using System;
+using System.Reactive.Linq;
+using CoreBluetooth;
+using Foundation;
+
+namespace Acr.Ble
+{
+    public class GattCharacteristic : AbstractGattCharacteristic
+    {
+        readonly CBCharacteristic native;
+
+
+        public GattCharacteristic(IGattService service, CBCharacteristic native) : base(service, native.UUID.ToGuid(), (CharacteristicProperties)(int)native.Properties)
+        {
+            this.native = native;
+        }
+
+
+        public override IObservable<object> Write(byte[] value)
+        {
+            this.AssertWrite();
+
+            return Observable.Create<object>(ob =>
+            {
+                var data = NSData.FromArray(value);
+                var p = this.native.Service.Peripheral;
+                var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
+                {
+                    if (args.Characteristic.UUID.Equals(this.native.UUID))
+                    {
+                        if (args.Error != null)
+                            ob.OnError(new ArgumentException($"Error writing characteristic - {args.Error.LocalizedDescription}"));
+                        else 
+                        {
+                            this.Value = value;
+                            ob.OnNext(new object());
+                            ob.OnCompleted();
+                        }
+                    }
+                });
+
+                if (this.Properties.HasFlag(CharacteristicProperties.WriteNoResponse)) 
+                {
+                    p.WriteValue(data, this.native, CBCharacteristicWriteType.WithoutResponse);
+                    this.Value = value;
+                    ob.OnNext(new object());
+                    ob.OnCompleted();
+                }
+                else 
+                {
+                    p.WroteCharacteristicValue += handler;
+                    p.WriteValue(data, this.native, CBCharacteristicWriteType.WithResponse);
+                }
+                return () => p.WroteCharacteristicValue -= handler;
+            });
+        }
+
+
+        public override IObservable<byte[]> Read()
+        {
+            this.AssertRead();
+            
+            return Observable.Create<byte[]>(ob =>
+            {
+                var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
+                {
+                    if (args.Characteristic.UUID.Equals(this.native.UUID)) 
+                    {
+                        ob.OnNext(this.native.Value.ToArray());
+                        ob.OnCompleted();
+                    }
+                });
+                this.native.Service.Peripheral.UpdatedCharacterteristicValue += handler;
+                this.native.Service.Peripheral.ReadValue(this.native);
+
+                return () => this.native.Service.Peripheral.UpdatedCharacterteristicValue -= handler;
+            });
+        }
+
+
+        IObservable<byte[]> notifyOb;
+        public override IObservable<byte[]> WhenNotificationOccurs()
+        {
+            this.AssertNotify();
+
+            this.notifyOb = this.notifyOb ?? Observable
+                .Create<byte[]>(ob =>
+                {
+                    var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
+                    {
+                        if (args.Characteristic.UUID.Equals(this.native.UUID))
+                            ob.OnNext(this.native.Value.ToArray());
+                    });
+                    this.native.Service.Peripheral.UpdatedCharacterteristicValue += handler;
+                    this.native.Service.Peripheral.SetNotifyValue(true, this.native);
+
+                    return () =>
+                    {
+                        this.native.Service.Peripheral.SetNotifyValue(false, this.native);
+                        this.native.Service.Peripheral.UpdatedCharacterteristicValue -= handler;
+                    };
+                })
+                .Publish()
+                .RefCount();
+
+            return this.notifyOb;
+        }
+
+
+        IObservable<IGattDescriptor> descriptorOb;
+        public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
+        {
+            this.descriptorOb = this.descriptorOb ?? Observable
+                .Create<IGattDescriptor>(ob =>
+                {
+                    var p = this.native.Service.Peripheral;
+                    var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
+                    {
+                        if (native.Descriptors == null)
+                            return;
+
+                        foreach (var dnative in native.Descriptors) 
+                        {
+                            var wrap = new GattDescriptor(this, dnative);
+                            ob.OnNext(wrap);
+                        }
+                    });
+                    p.DiscoveredDescriptor += handler;
+                    p.DiscoverDescriptors(native);
+
+                    return () => p.DiscoveredDescriptor -= handler;
+                })
+                .Distinct(x => x.Uuid)
+                .Publish()
+                .RefCount();
+
+            return this.descriptorOb;
+        }
+    }
+}

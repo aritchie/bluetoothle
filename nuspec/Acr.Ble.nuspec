@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Acr.Ble</id>
+        <version>0.9.0</version>
+        <title>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</title>
+        <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
+        <description>
+Cross Platform Reactive Bluetooth LE Plugin
+
+Supported Platforms
+iOS 6+
+Android 4.3+
+Windows UWP Support Coming Soon
+        </description>
+        <authors>Allan Ritchie</authors>
+        <owners>Allan Ritchie</owners>
+        <iconUrl>https://github.com/aritchie/bluetoothle/icon.png</iconUrl>
+        <licenseUrl>https://github.com/aritchie/bluetoothle/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/aritchie/bluetoothle</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <tags>ios android xamarin rx reactive ble bluetooth</tags>
+        <dependencies>
+            <dependency id="rx-main" version="[2.2.5, 3)" />
+        </dependencies>
+        <releaseNotes>
+1.0.0
+Initial Release
+        </releaseNotes>
+    </metadata>
+    <files>
+        <!-- PCL -->
+        <file src="..\Acr.Ble\bin\Release\Acr.Ble.*" target="lib\portable-win+net45+wp8+win8+wpa81" />
+
+        <!-- android -->
+        <file src="..\Acr.Ble.Android\bin\Release\Acr.Ble.*" target="lib\MonoAndroid10" />
+
+        <!-- ios -->
+        <file src="..\Acr.Ble.iOS\bin\Release\Acr.Ble.*" target="lib\Xamarin.iOS10" />
+
+        <!-- uwp -->
+        <!--<file src="..\Acr.Ble.Uwp\bin\Release\Acr.Ble.*" target="lib\uap10.0" />-->
+    </files>
+</package>
