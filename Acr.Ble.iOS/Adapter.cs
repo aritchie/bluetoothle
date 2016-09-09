@@ -2,7 +2,6 @@ using System;
 using System.Reactive.Linq;
 using CoreBluetooth;
 using CoreFoundation;
-using System.Linq;
 using System.Reactive.Subjects;
 
 
@@ -10,10 +9,6 @@ namespace Acr.Ble
 {
     public class Adapter : IAdapter
     {
-        static readonly PeripheralScanningOptions scanOptions = new PeripheralScanningOptions
-        {
-            AllowDuplicatesKey = true
-        };
         readonly DeviceManager deviceManager;
         readonly CBCentralManager manager;
         readonly Subject<bool> scanStatusChanged;
@@ -82,6 +77,7 @@ namespace Acr.Ble
                     );
                 });
                 this.manager.DiscoveredPeripheral += handler;
+                this.manager.ScanForPeripherals(null, new PeripheralScanningOptions { AllowDuplicatesKey = true });
                 this.scanStatusChanged.OnNext(true);
 
                 return () =>
@@ -138,3 +134,19 @@ namespace Acr.Ble
         }
     }
 }
+       //if (filter == null)
+                //{
+                //    this.manager.ScanForPeripherals(null, scanOptions);
+                //}
+                //else
+                //{
+                //    if (filter.ServiceUuid != Guid.Empty)
+                //    {
+                //        this.manager.ScanForPeripherals(CBUUID.FromBytes(filter.ServiceUuid.ToByteArray()), scanOptions.Dictionary);
+                //    }
+                //    else
+                //    {
+                //        var ids = filter.DeviceUuids.Select(x => CBUUID.FromBytes(x.ToByteArray())).ToArray();
+                //        this.manager.ScanForPeripherals(ids, scanOptions);
+                //    }
+                //}
