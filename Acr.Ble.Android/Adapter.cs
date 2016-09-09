@@ -68,11 +68,12 @@ namespace Acr.Ble
         }
 
 
-        public IObservable<IScanResult> Scan(ScanFilter filter = null)
+        IObservable<IScanResult> scanner;
+        public IObservable<IScanResult> Scan()
         {
-            return Observable.Create<IScanResult>(ob =>
+            this.scanner = this.scanner ?? Observable.Create<IScanResult>(ob =>
             {
-                this.context.StartScan(this.ForcePreLollipopScanner, filter, x =>
+                this.context.StartScan(this.ForcePreLollipopScanner, x =>
                 {
                     var dev = this.context.Devices.GetDevice(x.Device, TaskScheduler.Current);
                     ob.OnNext(new ScanResult(dev, x.Rssi, x.AdvertisementData));
@@ -83,7 +84,11 @@ namespace Acr.Ble
                     this.context.StopScan();
                     this.scanStatusChanged.OnNext(false);
                 };
-            });
+            })
+            .Publish()
+            .RefCount();
+
+            return this.scanner;
         }
 
 

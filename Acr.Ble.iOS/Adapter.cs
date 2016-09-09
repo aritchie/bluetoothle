@@ -61,16 +61,14 @@ namespace Acr.Ble
 
         public IObservable<bool> WhenScanningStatusChanged()
         {
-            throw new NotImplementedException();
+            return this.scanStatusChanged;
         }
 
 
-        public IObservable<IScanResult> Scan(ScanFilter filter = null)
+        IObservable<IScanResult> scanner;
+        public IObservable<IScanResult> Scan()
         {
-            if (this.manager.IsScanning)
-                throw new ArgumentException("A scan is already in progress");
-
-            return Observable.Create<IScanResult>(ob =>
+            this.scanner = this.scanner ?? Observable.Create<IScanResult>(ob =>
             {
                 this.deviceManager.Clear();
 
@@ -84,22 +82,6 @@ namespace Acr.Ble
                     );
                 });
                 this.manager.DiscoveredPeripheral += handler;
-                if (filter == null)
-                {
-                    this.manager.ScanForPeripherals(null, scanOptions);
-                }
-                else
-                {
-                    if (filter.ServiceUuid != Guid.Empty)
-                    {
-                        this.manager.ScanForPeripherals(CBUUID.FromBytes(filter.ServiceUuid.ToByteArray()), scanOptions.Dictionary);
-                    }
-                    else
-                    {
-                        var ids = filter.DeviceUuids.Select(x => CBUUID.FromBytes(x.ToByteArray())).ToArray();
-                        this.manager.ScanForPeripherals(ids, scanOptions);
-                    }
-                }
                 this.scanStatusChanged.OnNext(true);
 
                 return () =>
@@ -108,7 +90,11 @@ namespace Acr.Ble
                     this.manager.DiscoveredPeripheral -= handler;
                     this.scanStatusChanged.OnNext(false);
                 };
-            });
+            })
+            .Publish()
+            .RefCount();
+
+            return this.scanner;
         }
 
 

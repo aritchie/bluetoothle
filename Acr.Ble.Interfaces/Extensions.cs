@@ -33,12 +33,12 @@ namespace Acr.Ble
         }
 
 
-        public static IObservable<IScanResult> PeriodicScan(this IAdapter adapter, TimeSpan timeSpan, ScanFilter filter = null)
+        public static IObservable<IScanResult> PeriodicScan(this IAdapter adapter, TimeSpan timeSpan)
         {
             return Observable.Create<IScanResult>(ob =>
             {
                 var scanner = adapter
-                    .Scan(filter)
+                    .Scan()
                     .Subscribe(ob.OnNext);
 
                 var timer = Observable
@@ -48,7 +48,7 @@ namespace Acr.Ble
                         if (scanner == null)
                         {
                             scanner = adapter
-                                .Scan(filter)
+                                .Scan()
                                 .Subscribe(ob.OnNext);
                         }
                         else
@@ -78,7 +78,7 @@ namespace Acr.Ble
         public static bool CanWrite(this IGattCharacteristic ch)
         {
             return ch.Properties.HasFlag(CharacteristicProperties.WriteNoResponse) ||
-                    ch.Properties.HasFlag(CharacteristicProperties.Write);
+                   ch.Properties.HasFlag(CharacteristicProperties.Write);
         }
 
 

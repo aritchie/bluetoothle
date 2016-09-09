@@ -33,30 +33,70 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 
 ### Scan for Devices
 
-    var scanner = BleService.Adapter.Scan().Subscribe(scanResult => {
+    var scanner = BleService.Adapter.Scan().Subscribe(scanResult => 
+    {
         // do something with it
+        // the scanresult contains the device, RSSI, and advertisement packet
+        
     });
 
     scanner.Dispose(); // to stop scanning
 
+### Connect/Disconnect to a device
+
+    // connect
+    await device.Connect(); // this is an observable so you can do other funky timeouts
+
+    device.Disconnect();
+
+
+### Monitor device states
+
+    // This will tell you if the device name changes during a connection
+    device.WhenNameChanged().Subscribe(string => {});
+
+    // this will monitor the RSSI of the connected device
+    device.WhenRssiChanged().Subscribe(rssi => {});
+
+    // this will watch the connection states to the device
+    device.WhenStatusChanged().Subscribe(connectionState => {});
+
+
+### Smart/Persistent Connection
+
+    var connection = device.PersistentConnect().Subscribe(connectionState => 
+    {
+        // you can see the connection transitions here
+        // dont try to manage reconnections, this guy will do it for you!
+    });
+
+    connection.Dispose(); // this will close the connection and stop reconnection attempts.  The GC can also get at this for you!
+
+
 ### Discover services on a device
 
-    //Once you have successfully scanned for a device, use the instance
-
+    // once you have successfully scanned for a device, use the instance to discover services
+    // NOTE: you can call this repeatedly during the connection lifecycle to see all of the discovered services
     Device.WhenServicesDiscovered().Subscribe(service => 
     {
-        service.W
     });
 
 
 
 ### Discover characteristics on service
 
-    Service.
+    Service.WhenCharacteristicDiscovered().Subscribe(characteristic => {});
 
 ### Read and Write to a characteristic
 
+    // once you have your characteristic instance from the service discovery
+    await Characteristic.Read();
+
+
 ### Register for Notifications on a characteristic
+
+    // once you have your characteristic instance from the service discovery
+    
 
 ### Discover descriptors on a characteristic
 

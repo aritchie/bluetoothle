@@ -58,7 +58,7 @@ namespace Acr.Ble
         }
 
 
-        public IObservable<IScanResult> Scan(ScanFilter filter = null)
+        public IObservable<IScanResult> Scan()
         {
             return Observable.Create<IScanResult>(ob =>
             {
@@ -84,17 +84,6 @@ namespace Acr.Ble
                     });
 
                 var scanner = new BluetoothLEAdvertisementWatcher();
-                if (filter != null)
-                {
-                    //this.currentScanner.AdvertisementFilter = new BluetoothLEAdvertisementFilter
-                    //{
-                    //    Advertisement = new BluetoothLEAdvertisement
-                    //    {
-                    //        LocalName = "",
-                    //        //ServiceUuids =
-                    //    }
-                    //};
-                }
                 scanner.Received += handler;
                 scanner.Start();
                 this.IsScanning = true;

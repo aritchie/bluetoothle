@@ -24,7 +24,8 @@ namespace Acr.Ble.Internals
 
         public DeviceManager Devices { get; }
 
-        public void StartScan(bool forcePreLollipop, ScanFilter scanFilter, Action<ScanEventArgs> callback)
+        // TODO: background scan mode and serviceUuid filter
+        public void StartScan(bool forcePreLollipop, Action<ScanEventArgs> callback)
         {
             this.Devices.Clear();
             if (!forcePreLollipop && Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)

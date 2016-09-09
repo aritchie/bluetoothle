@@ -2,11 +2,11 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>0.9.0</version>
+        <version>0.9.1</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
-Cross Platform Reactive Bluetooth LE Plugin
+Cross Platform Reactive Bluetooth LE Plugin for Xamarin and Windows
 
 Supported Platforms
 iOS 6+
@@ -19,7 +19,7 @@ Windows UWP Support Coming Soon
         <licenseUrl>https://github.com/aritchie/bluetoothle/LICENSE.md</licenseUrl>
         <projectUrl>https://github.com/aritchie/bluetoothle</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <tags>ios android xamarin rx reactive ble bluetooth</tags>
+        <tags>ios android windows xamarin rx reactive ble bluetooth</tags>
         <dependencies>
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
