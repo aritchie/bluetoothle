@@ -98,6 +98,12 @@ namespace Acr.Ble
         }
 
 
+        public IObservable<IScanResult> BackgroundScan(Guid serviceUuid)
+        {
+            return null;
+        }
+
+
         public IObservable<AdapterStatus> WhenStatusChanged()
         {
             return Observable.Create<AdapterStatus>(ob =>

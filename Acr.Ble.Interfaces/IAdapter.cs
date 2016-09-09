@@ -10,7 +10,7 @@ namespace Acr.Ble
 
         IObservable<bool> WhenScanningStatusChanged();
         IObservable<IScanResult> Scan();
-        //IObservable<IScanResult> BackgroundScan(Guid serviceUuid);
+        IObservable<IScanResult> BackgroundScan(Guid serviceUuid);
         IObservable<AdapterStatus> WhenStatusChanged();
         IObservable<IDevice> WhenDeviceStatusChanged();
     }

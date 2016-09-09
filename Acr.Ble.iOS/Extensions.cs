@@ -23,6 +23,12 @@ namespace Acr.Ble
         }
 
 
+        public static CBUUID ToCBUuid(this Guid guid)
+        {
+            return CBUUID.FromBytes(guid.ToByteArray());
+        }
+
+
         public static NSUuid ToNSUuid(this Guid guid)
         {
             return new NSUuid(guid.ToByteArray());

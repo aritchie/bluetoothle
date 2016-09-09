@@ -63,34 +63,16 @@ namespace Acr.Ble
         IObservable<IScanResult> scanner;
         public IObservable<IScanResult> Scan()
         {
-            this.scanner = this.scanner ?? Observable.Create<IScanResult>(ob =>
-            {
-                this.deviceManager.Clear();
-
-                var handler = new EventHandler<CBDiscoveredPeripheralEventArgs>((sender, args) =>
-                {
-                    var device = this.deviceManager.GetDevice(args.Peripheral);
-                    ob.OnNext(new ScanResult(
-                        device,
-                        args.RSSI?.Int32Value ?? 0,
-                        new AdvertisementData(args.AdvertisementData))
-                    );
-                });
-                this.manager.DiscoveredPeripheral += handler;
-                this.manager.ScanForPeripherals(null, new PeripheralScanningOptions { AllowDuplicatesKey = true });
-                this.scanStatusChanged.OnNext(true);
-
-                return () =>
-                {
-                    this.manager.StopScan();
-                    this.manager.DiscoveredPeripheral -= handler;
-                    this.scanStatusChanged.OnNext(false);
-                };
-            })
-            .Publish()
-            .RefCount();
-
+            this.scanner = this.scanner ?? this.CreateScanner();
             return this.scanner;
+        }
+
+
+        IObservable<IScanResult> bgScanner;
+        public IObservable<IScanResult> BackgroundScan(Guid serviceUuid)
+        {
+            this.bgScanner = this.bgScanner ?? this.CreateScanner(serviceUuid);
+            return this.bgScanner;
         }
 
 
@@ -132,21 +114,46 @@ namespace Acr.Ble
                 };
             });
         }
+
+
+
+        IObservable<IScanResult> CreateScanner(Guid? serviceUuid = null)
+        {
+            return Observable.Create<IScanResult>(ob =>
+            {
+                this.deviceManager.Clear();
+
+                var handler = new EventHandler<CBDiscoveredPeripheralEventArgs>((sender, args) =>
+                {
+                    var device = this.deviceManager.GetDevice(args.Peripheral);
+                    ob.OnNext(new ScanResult(
+                        device,
+                        args.RSSI?.Int32Value ?? 0,
+                        new AdvertisementData(args.AdvertisementData))
+                    );
+                });
+                this.manager.DiscoveredPeripheral += handler;
+                if (serviceUuid == null)
+                {
+                    this.manager.ScanForPeripherals(null, new PeripheralScanningOptions { AllowDuplicatesKey = true });
+                }
+                else
+                {
+                    var uuid = serviceUuid.Value.ToCBUuid();
+                    this.manager.ScanForPeripherals(uuid);
+                }
+
+                this.scanStatusChanged.OnNext(true);
+
+                return () =>
+                {
+                    this.manager.StopScan();
+                    this.manager.DiscoveredPeripheral -= handler;
+                    this.scanStatusChanged.OnNext(false);
+                };
+            })
+            .Publish()
+            .RefCount();
+        }
     }
 }
-       //if (filter == null)
-                //{
-                //    this.manager.ScanForPeripherals(null, scanOptions);
-                //}
-                //else
-                //{
-                //    if (filter.ServiceUuid != Guid.Empty)
-                //    {
-                //        this.manager.ScanForPeripherals(CBUUID.FromBytes(filter.ServiceUuid.ToByteArray()), scanOptions.Dictionary);
-                //    }
-                //    else
-                //    {
-                //        var ids = filter.DeviceUuids.Select(x => CBUUID.FromBytes(x.ToByteArray())).ToArray();
-                //        this.manager.ScanForPeripherals(ids, scanOptions);
-                //    }
-                //}

@@ -18,7 +18,6 @@ namespace Acr.Ble
 
         public Adapter()
         {
-            // TODO: >= 4.3
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Application.BluetoothService);
             this.context = new BleContext(this.manager);
             this.scanStatusChanged = new Subject<bool>();
@@ -71,24 +70,16 @@ namespace Acr.Ble
         IObservable<IScanResult> scanner;
         public IObservable<IScanResult> Scan()
         {
-            this.scanner = this.scanner ?? Observable.Create<IScanResult>(ob =>
-            {
-                this.context.StartScan(this.ForcePreLollipopScanner, x =>
-                {
-                    var dev = this.context.Devices.GetDevice(x.Device, TaskScheduler.Current);
-                    ob.OnNext(new ScanResult(dev, x.Rssi, x.AdvertisementData));
-                });
-                this.scanStatusChanged.OnNext(true);
-                return () =>
-                {
-                    this.context.StopScan();
-                    this.scanStatusChanged.OnNext(false);
-                };
-            })
-            .Publish()
-            .RefCount();
-
+            this.scanner = this.scanner ?? this.CreateScanner();
             return this.scanner;
+        }
+
+
+        IObservable<IScanResult> bgScanner;
+        public IObservable<IScanResult> BackgroundScan(Guid serviceUuid)
+        {
+            this.bgScanner = this.bgScanner ?? this.CreateScanner(serviceUuid);
+            return this.bgScanner;
         }
 
 
@@ -118,6 +109,27 @@ namespace Acr.Ble
                 this.context.Callbacks.ConnectionStateChanged += handler;
                 return () => this.context.Callbacks.ConnectionStateChanged -= handler;
             });
+        }
+
+
+        IObservable<IScanResult> CreateScanner(Guid? serviceUuid = null)
+        {
+            return Observable.Create<IScanResult>(ob =>
+            {
+                this.context.StartScan(this.ForcePreLollipopScanner, x =>
+                {
+                    var dev = this.context.Devices.GetDevice(x.Device, TaskScheduler.Current);
+                    ob.OnNext(new ScanResult(dev, x.Rssi, x.AdvertisementData));
+                });
+                this.scanStatusChanged.OnNext(true);
+                return () =>
+                {
+                    this.context.StopScan();
+                    this.scanStatusChanged.OnNext(false);
+                };
+            })
+            .Publish()
+            .RefCount();
         }
     }
 }
