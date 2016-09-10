@@ -9,6 +9,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 
 ## FEATURES
 ```
+
 * Scan for advertisement packets and devices
 * Monitor adapter status
 * Connect to device and monitor status
@@ -16,11 +17,12 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 * Read, write, & receive notifications for characteristics
 * Read & write descriptors
 
-## SETUP
 
+## SETUP
 ```
+
 Be sure to install the Acr.Ble nuget package in all of your main platform projects as well as your core/PCL project
-(https://img.shields.io/nuget/vpre/Acr.Ble.svg?label=NuGet)](https://www.nuget.org/packages/Acr.Ble)
+[![NuGet MvvMCross](https://img.shields.io/nuget/v/Acr.Ble.svg?label=NuGet)](https://www.nuget.org/packages/Acr.Ble)
 
 **Android**
 
