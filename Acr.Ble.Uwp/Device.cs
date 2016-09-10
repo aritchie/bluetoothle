@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Devices.Enumeration;
 using Windows.Foundation;
 
 
@@ -30,9 +33,16 @@ namespace Acr.Ble
         }
 
 
-        public async Task Connect()
+        public IObservable<object> Connect()
         {
-            this.connection = await BluetoothLEDevice.FromBluetoothAddressAsync(this.bluetoothAddress);
+             //var devices = await DeviceInformation.FindAllAsync(BluetoothLEDevice.GetDeviceSelector());
+                //await BluetoothLEDevice.FromIdAsync(devices[0].Id)
+                //DeviceInformation.FindAllAsync(GattDeviceService.)
+            return Observable.Create<object>(async ob =>
+            {
+                this.connection = await BluetoothLEDevice.FromBluetoothAddressAsync(this.bluetoothAddress);
+
+            });
         }
 
 
@@ -48,11 +58,6 @@ namespace Acr.Ble
             this.connection = null;
         }
 
-
-        IObservable<object> IDevice.Connect()
-        {
-            throw new NotImplementedException();
-        }
 
 
         public ConnectionStatus Status
@@ -90,8 +95,11 @@ namespace Acr.Ble
         {
             return Observable.Create<IGattService>(ob =>
             {
-                //var services = await GattDeviceService.FromIdAsync(this.native.DeviceInformation.Id);
-                return () => { };
+                foreach (var service in this.connection.GattServices)
+                {
+
+                }
+                return Disposable.Empty;
             });
         }
 
@@ -105,12 +113,6 @@ namespace Acr.Ble
                 //return () => this.native.NameChanged -= handler;
                 return () => { };
             });
-        }
-
-
-        public async Task<int> ReadRssi()
-        {
-            return -1;
         }
     }
 }

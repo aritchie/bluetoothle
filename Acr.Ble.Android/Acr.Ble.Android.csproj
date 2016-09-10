@@ -83,7 +83,6 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Internals\GattContext.cs" />
     <Compile Include="Internals\InternalScanRecord.cs" />
-    <Compile Include="Internals\AdvertisementRecordType.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Acr.Ble.Interfaces\Acr.Ble.Interfaces.csproj">

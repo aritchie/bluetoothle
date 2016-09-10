@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Windows.Foundation;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Radios;
@@ -13,10 +13,12 @@ namespace Acr.Ble
     {
         readonly DeviceManager deviceManager;
         readonly Lazy<Radio> radio;
+        readonly Subject<bool> scanStatus;
 
 
         public Adapter()
         {
+            this.scanStatus = new Subject<bool>();
             this.deviceManager = new DeviceManager();
             this.radio = new Lazy<Radio>(() =>
                 Radio
@@ -54,47 +56,39 @@ namespace Acr.Ble
 
         public IObservable<bool> WhenScanningStatusChanged()
         {
-            throw new NotImplementedException();
+            return this.scanStatus;
         }
 
 
+        IObservable<IScanResult> scanner;
         public IObservable<IScanResult> Scan()
         {
-            return Observable.Create<IScanResult>(ob =>
+            this.scanner = this.scanner ?? Observable.Create<IScanResult>(ob =>
             {
-
-                //var devices = await DeviceInformation.FindAllAsync(BluetoothLEDevice.GetDeviceSelector());
-                //await BluetoothLEDevice.FromIdAsync(devices[0].Id)
-                //DeviceInformation.FindAllAsync(GattDeviceService.)
                 var handler = new TypedEventHandler
                     <BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>(
                     (sender, args) =>
                     {
-                        try
-                        {
-                            var device = this.deviceManager.GetDevice(args);
-                            var adData = new AdvertisementData(args.Advertisement);
-                            var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
-                            ob.OnNext(scanResult);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"Failed to get device - {ex}");
-                        }
+                        var device = this.deviceManager.GetDevice(args);
+                        var adData = new AdvertisementData(args.Advertisement);
+                        var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
+                        ob.OnNext(scanResult);
                     });
 
-                var scanner = new BluetoothLEAdvertisementWatcher();
-                scanner.Received += handler;
-                scanner.Start();
-                this.IsScanning = true;
+                var watcher = new BluetoothLEAdvertisementWatcher();
+                watcher.Received += handler;
+                watcher.Start();
+
+                this.SetScanStatus(true);
 
                 return () =>
                 {
-                    scanner.Stop();
-                    scanner.Received -= handler;
-                    this.IsScanning = false;
+                    watcher.Stop();
+                    watcher.Received -= handler;
+                    this.SetScanStatus(false);
                 };
             });
+            return this.scanner;
         }
 
 
@@ -125,6 +119,13 @@ namespace Acr.Ble
 
                 return () => {};
             });
+        }
+
+
+        protected virtual void SetScanStatus(bool isScanning)
+        {
+            this.scanStatus.OnNext(isScanning);
+            this.IsScanning = isScanning;
         }
     }
 }

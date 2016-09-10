@@ -111,6 +111,9 @@
     <Compile Include="Device.cs" />
     <Compile Include="Adapter.cs" />
     <Compile Include="DeviceManager.cs" />
+    <Compile Include="GattCharacteristic.cs" />
+    <Compile Include="GattDescriptor.cs" />
+    <Compile Include="GattService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Acr.Ble.rd.xml" />
   </ItemGroup>
