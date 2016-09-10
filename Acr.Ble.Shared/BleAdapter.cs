@@ -3,7 +3,7 @@
 
 namespace Acr.Ble
 {
-    public static class BleService
+    public static class BleAdapter
     {
 
         static readonly Lazy<IAdapter> instanceInit = new Lazy<IAdapter>(() =>
@@ -17,7 +17,7 @@ namespace Acr.Ble
 
 
         static IAdapter customInstance;
-        public static IAdapter Adapter
+        public static IAdapter Current
         {
             get { return customInstance ?? instanceInit.Value; }
             set { customInstance = value; }

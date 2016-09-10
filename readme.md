@@ -7,23 +7,36 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 * iOS 6+
 * Windows UWP (COMING SOON)
 
+## FEATURES
+```
+* Scan for advertisement packets and devices
+* Monitor adapter status
+* Connect to device and monitor status
+* Discover services, characteristics, and descriptors
+* Read, write, & receive notifications for characteristics
+* Read & write descriptors
+
 ## SETUP
 
-### Android
+```
+Be sure to install the Acr.Ble nuget package in all of your main platform projects as well as your core/PCL project
+(https://img.shields.io/nuget/vpre/Acr.Ble.svg?label=NuGet)](https://www.nuget.org/packages/Acr.Ble)
+
+**Android**
 
     Add the following to your AndroidManifest.xml
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 
-### iOS
+**iOS**
 
     If you want to use background BLE periperhals, add the following to your Info.plist
     <array>
 	<string>bluetooth-central</string>
 
-### Windows
+**Windows**
 
-    Add to your app manifest file
+Add to your app manifest file
     <Capabilities>
         <Capability Name="internetClient" />
         <DeviceCapability Name="bluetooth" />
@@ -33,7 +46,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 
 ### Scan for Devices
 
-    var scanner = BleService.Adapter.Scan().Subscribe(scanResult => 
+    var scanner = BleAdapter.Current.Scan().Subscribe(scanResult => 
     {
         // do something with it
         // the scanresult contains the device, RSSI, and advertisement packet

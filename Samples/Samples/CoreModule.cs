@@ -17,7 +17,7 @@ namespace Samples
             base.Load(builder);
 
             builder
-                .Register(x => BleService.Adapter)
+                .Register(x => BleAdapter.Current)
                 .As<IAdapter>()
                 .SingleInstance();
 
