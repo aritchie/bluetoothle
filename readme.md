@@ -8,6 +8,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 * Windows UWP (COMING SOON)
 
 ## FEATURES
+
 ```
 
 * Scan for advertisement packets and devices
@@ -19,6 +20,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 
 
 ## SETUP
+
 ```
 
 Be sure to install the Acr.Ble nuget package in all of your main platform projects as well as your core/PCL project
@@ -26,110 +28,132 @@ Be sure to install the Acr.Ble nuget package in all of your main platform projec
 
 **Android**
 
-    Add the following to your AndroidManifest.xml
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+Add the following to your AndroidManifest.xml
+
+```xml
+<uses-permission android:name="android.permission.BLUETOOTH"/>
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+```
 
 **iOS**
 
-    If you want to use background BLE periperhals, add the following to your Info.plist
-    <array>
-	<string>bluetooth-central</string>
+If you want to use background BLE periperhals, add the following to your Info.plist
+
+```xml    
+<array>
+<string>bluetooth-central</string>
+```
 
 **Windows**
 
 Add to your app manifest file
-    <Capabilities>
-        <Capability Name="internetClient" />
-        <DeviceCapability Name="bluetooth" />
-    </Capabilities>
-
+```xml
+<Capabilities>
+    <Capability Name="internetClient" />
+    <DeviceCapability Name="bluetooth" />
+</Capabilities>
+```
 ## HOW TO USE
 
-### Scan for Devices
+**Scan for Devices**
 
-    var scanner = BleAdapter.Current.Scan().Subscribe(scanResult => 
-    {
-        // do something with it
-        // the scanresult contains the device, RSSI, and advertisement packet
+```csharp
+var scanner = BleAdapter.Current.Scan().Subscribe(scanResult => 
+{
+    // do something with it
+    // the scanresult contains the device, RSSI, and advertisement packet
         
-    });
+});
 
-    scanner.Dispose(); // to stop scanning
-
-### Connect/Disconnect to a device
-
-    // connect
-    await device.Connect(); // this is an observable so you can do other funky timeouts
-
-    device.Disconnect();
+scanner.Dispose(); // to stop scanning
+```
 
 
-### Monitor device states
+**Connect/Disconnect to a device**
 
-    // This will tell you if the device name changes during a connection
-    device.WhenNameChanged().Subscribe(string => {});
+```csharp
+// connect
+await device.Connect(); // this is an observable so you can do other funky timeouts
 
-    // this will monitor the RSSI of the connected device
-    device.WhenRssiChanged().Subscribe(rssi => {});
-
-    // this will watch the connection states to the device
-    device.WhenStatusChanged().Subscribe(connectionState => {});
+device.Disconnect();
+```
 
 
-### Smart/Persistent Connection
+**Monitor device states**
 
-    var connection = device.PersistentConnect().Subscribe(connectionState => 
-    {
-        // you can see the connection transitions here
-        // dont try to manage reconnections, this guy will do it for you!
-    });
+```csharp
+// This will tell you if the device name changes during a connection
+device.WhenNameChanged().Subscribe(string => {});
 
-    connection.Dispose(); // this will close the connection and stop reconnection attempts.  The GC can also get at this for you!
+// this will monitor the RSSI of the connected device
+device.WhenRssiChanged().Subscribe(rssi => {});
 
-
-### Discover services on a device
-
-    // once you have successfully scanned for a device, use the instance to discover services
-    // NOTE: you can call this repeatedly during the connection lifecycle to see all of the discovered services
-    Device.WhenServicesDiscovered().Subscribe(service => 
-    {
-    });
+// this will watch the connection states to the device
+device.WhenStatusChanged().Subscribe(connectionState => {});
+```
 
 
+**Smart/Persistent Connection**
 
-### Discover characteristics on service
+```csharp
+var connection = device.PersistentConnect().Subscribe(connectionState => 
+{
+    // you can see the connection transitions here
+    // dont try to manage reconnections, this guy will do it for you!
+});
 
-    Service.WhenCharacteristicDiscovered().Subscribe(characteristic => {});
-
-
-### Read and Write to a characteristic
-
-    // once you have your characteristic instance from the service discovery
-    await Characteristic.Read();
-
-    await Characteristic.Write(bytes);
+connection.Dispose(); // this will close the connection and stop reconnection attempts.  The GC can also get at this for you!
+```
 
 
-### Register for Notifications on a characteristic
+**Discover services on a device**
 
-    // once you have your characteristic instance from the service discovery
-    var sub = characteristic.WhenNotificationOccurs().Subscribe(bytes => {});
+```csharp
+// once you have successfully scanned for a device, use the instance to discover services
+// NOTE: you can call this repeatedly during the connection lifecycle to see all of the discovered services
+Device.WhenServicesDiscovered().Subscribe(service => 
+{
+});
+```
 
-    sub.Dispose(); // to unsubscribe
 
-### Discover descriptors on a characteristic
+**Discover characteristics on service**
+```csharp
+Service.WhenCharacteristicDiscovered().Subscribe(characteristic => {});
+```
 
-    // once you have your characteristic instance from the service discovery
-    var sub = characteristic.WhenNotificationOccurs().Subscribe(bytes => {});
+**Read and Write to a characteristic**
+```csharp
+// once you have your characteristic instance from the service discovery
+await Characteristic.Read();
 
-    characteristic.WhenDescriptorsDiscovered().Subscribe(descriptor => {});
+await Characteristic.Write(bytes);
+```
 
-# Read/Write to a Descriptor
+**Register for Notifications on a characteristic**
+```csharp
+// once you have your characteristic instance from the service discovery
+var sub = characteristic.WhenNotificationOccurs().Subscribe(bytes => {});
 
+sub.Dispose(); // to unsubscribe
+```
+
+**Discover descriptors on a characteristic**
+```csharp
+// once you have your characteristic instance from the service discovery
+var sub = characteristic.WhenNotificationOccurs().Subscribe(bytes => {});
+
+characteristic.WhenDescriptorsDiscovered().Subscribe(descriptor => {});
+```
+
+**Read/Write to a Descriptor**
+```csharp
     // once you have your characteristic instance from the characteristic
+```
 
 ## FAQ
+
+```
 
 Q. Why is everything reactive instead of events/async
 A. I wanted event streams as I was scanning devices.  I also wanted to throttle things like characteristic notification feeds.  Lastly, was the proper cleanup of events and resources.   
