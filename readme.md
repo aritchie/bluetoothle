@@ -9,8 +9,6 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 
 ## FEATURES
 
-```
-
 * Scan for advertisement packets and devices
 * Monitor adapter status
 * Connect to device and monitor status
@@ -21,10 +19,8 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 
 ## SETUP
 
-```
-
 Be sure to install the Acr.Ble nuget package in all of your main platform projects as well as your core/PCL project
-[![NuGet MvvMCross](https://img.shields.io/nuget/v/Acr.Ble.svg?label=NuGet)](https://www.nuget.org/packages/Acr.Ble)
+[![NuGet](https://img.shields.io/nuget/v/Nuget.Core.svg?maxAge=2592000)](https://www.nuget.org/packages/Acr.Ble/)
 
 **Android**
 
@@ -53,7 +49,16 @@ Add to your app manifest file
     <DeviceCapability Name="bluetooth" />
 </Capabilities>
 ```
+
 ## HOW TO USE
+
+**Monitor and read status of adapter**
+```csharp
+BleAdapter.Current.Status
+
+BleAdapter.Current.WhenStatusChanged().Subscribe(status => {});
+
+```
 
 **Scan for Devices**
 
@@ -102,7 +107,10 @@ var connection = device.PersistentConnect().Subscribe(connectionState =>
     // dont try to manage reconnections, this guy will do it for you!
 });
 
-connection.Dispose(); // this will close the connection and stop reconnection attempts.  The GC can also get at this for you!
+// this will close the connection and stop reconnection attempts.
+//The GC can also get at this for you!
+connection.Dispose();  
+
 ```
 
 
@@ -115,7 +123,6 @@ Device.WhenServicesDiscovered().Subscribe(service =>
 {
 });
 ```
-
 
 **Discover characteristics on service**
 ```csharp
@@ -152,8 +159,6 @@ characteristic.WhenDescriptorsDiscovered().Subscribe(descriptor => {});
 ```
 
 ## FAQ
-
-```
 
 Q. Why is everything reactive instead of events/async
 A. I wanted event streams as I was scanning devices.  I also wanted to throttle things like characteristic notification feeds.  Lastly, was the proper cleanup of events and resources.   
