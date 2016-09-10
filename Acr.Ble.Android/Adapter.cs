@@ -70,7 +70,7 @@ namespace Acr.Ble
         IObservable<IScanResult> scanner;
         public IObservable<IScanResult> Scan()
         {
-            this.scanner = this.scanner ?? this.CreateScanner();
+            this.scanner = this.scanner ?? this.CreateScanner(null);
             return this.scanner;
         }
 
@@ -112,11 +112,11 @@ namespace Acr.Ble
         }
 
 
-        IObservable<IScanResult> CreateScanner(Guid? serviceUuid = null)
+        IObservable<IScanResult> CreateScanner(Guid? serviceUuid)
         {
             return Observable.Create<IScanResult>(ob =>
             {
-                this.context.StartScan(this.ForcePreLollipopScanner, x =>
+                this.context.StartScan(this.ForcePreLollipopScanner, serviceUuid, x =>
                 {
                     var dev = this.context.Devices.GetDevice(x.Device, TaskScheduler.Current);
                     ob.OnNext(new ScanResult(dev, x.Rssi, x.AdvertisementData));
