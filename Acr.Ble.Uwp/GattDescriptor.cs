@@ -1,4 +1,5 @@
 ﻿using System;
+using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattDescriptor;
 
 
 namespace Acr.Ble
