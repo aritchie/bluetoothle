@@ -158,6 +158,18 @@ characteristic.WhenDescriptorsDiscovered().Subscribe(descriptor => {});
     // once you have your characteristic instance from the characteristic
 ```
 
+
+**Extensions**
+```csharp
+
+// discover all characteristics
+device.WhenAnyCharacteristic().Subscribe(characteristic => {});
+
+
+// discover all descriptors
+device.WhenAnyDescriptor().Subscribe(descriptor => {});
+```
+
 ## FAQ
 
 * Q. Why is everything reactive instead of events/async

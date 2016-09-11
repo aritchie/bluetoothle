@@ -6,20 +6,47 @@ using System.Threading.Tasks;
 
 namespace Acr.Ble
 {
-    public static class Rx
+    public static class Extensions
     {
-        public static async Task<IList<IGattCharacteristic>> GetAllCharacteristics(this IDevice device, int waitMillis = 2000)
+        public static IObservable<IGattCharacteristic> WhenAnyCharacteristic(this IDevice device)
         {
-            var characteristics = await device
+            return device
                 .WhenServiceDiscovered()
-                .SelectMany(x => x.WhenCharacteristicDiscovered().Select(y => y))
-                .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(waitMillis))
-                .ToList();
-            return characteristics;
+                .SelectMany(x => x.WhenCharacteristicDiscovered().Select(y => y));
         }
 
 
-        public static IObservable<byte[]> PeriodicRead(this IGattCharacteristic character, TimeSpan timeSpan)
+        public static IObservable<IGattDescriptor> WhenyAnyDescriptor(this IDevice device)
+        {
+            return device
+                .WhenAnyCharacteristic()
+                .SelectMany(x => x.WhenDescriptorDiscovered().Select(y => y));
+        }
+
+
+        public static async Task<IList<IGattCharacteristic>> GetAllCharacteristics(this IDevice device, int waitMillis = 2000)
+        {
+            var result = await device
+                .WhenAnyCharacteristic()
+                .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(waitMillis))
+                .ToList();
+
+            return result;
+        }
+
+
+        public static async Task<IList<IGattDescriptor>> GetAllDescriptors(this IDevice device, int waitMillis = 2000)
+        {
+            var result = await device
+                .WhenyAnyDescriptor()
+                .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(waitMillis))
+                .ToList();
+
+            return result;
+        }
+
+
+        public static IObservable<byte[]> ReadInterval(this IGattCharacteristic character, TimeSpan timeSpan)
         {
             return Observable.Create<byte[]>(ob =>
                 Observable
@@ -33,7 +60,7 @@ namespace Acr.Ble
         }
 
 
-        public static IObservable<IScanResult> PeriodicScan(this IAdapter adapter, TimeSpan timeSpan)
+        public static IObservable<IScanResult> ScanInterval(this IAdapter adapter, TimeSpan timeSpan)
         {
             return Observable.Create<IScanResult>(ob =>
             {
