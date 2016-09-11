@@ -60,7 +60,6 @@ namespace Acr.Ble
         }
 
 
-        //http://www.c-sharpcorner.com/code/1912/uwp-bluetooth-le-implementation.aspx
         IObservable<IScanResult> scanner;
         public IObservable<IScanResult> Scan()
         {
