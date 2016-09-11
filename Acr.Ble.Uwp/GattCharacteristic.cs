@@ -21,8 +21,28 @@ namespace Acr.Ble
         }
 
 
+        IObservable<IGattDescriptor> descriptorOb;
+        public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
+        {
+            this.descriptorOb = this.descriptorOb ?? Observable.Create<IGattDescriptor>(ob =>
+            {
+                var natives = this.native.GetAllDescriptors();
+                foreach (var dnative in natives)
+                {
+                    var descriptor = new GattDescriptor(dnative, this);
+                    ob.OnNext(descriptor);
+                }
+                return Disposable.Empty;
+            })
+            .Replay();
+            return this.descriptorOb;
+        }
+
+
         public override IObservable<byte[]> Read()
         {
+            this.AssertRead();
+
             return Observable.Create<byte[]>(async ob =>
             {
                 var result = await this.native.ReadValueAsync(BluetoothCacheMode.Uncached);
@@ -40,14 +60,11 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
-        {
-            throw new NotImplementedException();
-        }
-
 
         public override IObservable<object> Write(byte[] value)
         {
+            this.AssertWrite();
+
             return Observable.Create<byte[]>(async ob =>
             {
                 var result = await this.native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse);
@@ -68,6 +85,8 @@ namespace Acr.Ble
         IObservable<byte[]> notificationOb;
         public override IObservable<byte[]> WhenNotificationOccurs()
         {
+            this.AssertNotify();
+
             this.notificationOb = this.notificationOb ?? Observable.Create<byte[]>(async ob =>
             {
                 var handler = new TypedEventHandler<Native, GattValueChangedEventArgs>((sender, args) =>
