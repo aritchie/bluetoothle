@@ -17,7 +17,7 @@ namespace Acr.Ble
             this.context = context;
             this.native = native;
         }
-                                            
+
 
         public override IObservable<object> Write(byte[] data)
         {
@@ -35,7 +35,7 @@ namespace Acr.Ble
                             ob.OnNext(new object());
                             ob.OnCompleted();
                         }
-                    }   
+                    }
                 });
                 this.context.Callbacks.DescriptorWrite += handler;
                 this.native.SetValue(data);
@@ -62,8 +62,8 @@ namespace Acr.Ble
                             ob.OnNext(this.Value);
                             ob.OnCompleted();
                         }
-                    }   
-                });                
+                    }
+                });
                 this.context.Callbacks.DescriptorRead += handler;
                 this.context.Gatt.ReadDescriptor(this.native);
                 return () => this.context.Callbacks.DescriptorRead -= handler;

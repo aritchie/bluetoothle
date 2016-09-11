@@ -60,6 +60,7 @@ namespace Acr.Ble
         }
 
 
+        //http://www.c-sharpcorner.com/code/1912/uwp-bluetooth-le-implementation.aspx
         IObservable<IScanResult> scanner;
         public IObservable<IScanResult> Scan()
         {
@@ -69,6 +70,8 @@ namespace Acr.Ble
                     <BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>(
                     (sender, args) =>
                     {
+                        //var device = await BluetoothLEDevice.FromBluetoothAddressAsync(btAdv.BluetoothAddress);
+                        // TODO: to connect to gatt -  var service = await GattDeviceService.FromIdAsync(device.Id);
                         var device = this.deviceManager.GetDevice(args);
                         var adData = new AdvertisementData(args.Advertisement);
                         var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);

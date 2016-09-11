@@ -160,11 +160,11 @@ characteristic.WhenDescriptorsDiscovered().Subscribe(descriptor => {});
 
 ## FAQ
 
-Q. Why is everything reactive instead of events/async
-A. I wanted event streams as I was scanning devices.  I also wanted to throttle things like characteristic notification feeds.  Lastly, was the proper cleanup of events and resources.   
+* Q. Why is everything reactive instead of events/async
+  A. I wanted event streams as I was scanning devices.  I also wanted to throttle things like characteristic notification feeds.  Lastly, was the proper cleanup of events and resources.   
 
-Q. Why are Device.Connect, Characteristic.Read, and Descriptor.Read observable when async would do just fine?
-A. True, but observables with RX are actually awaitable as well and far easier to chain into other things.
+* Q. Why are Device.Connect, Characteristic.Read, and Descriptor.Read observable when async would do just fine?
+  A. True, but observables with RX are actually awaitable as well and far easier to chain into other things.
 
-Q. Why have a Adapter.BackgroundScan with a service UUID?  This is not a problem on Android
-A. Also, true, but consistency is what I was aiming for.  iOS only allows you to scan in the background with a serviceUUID and on Android, I set the scanmode to low power.
+* Q. Why have a Adapter.BackgroundScan with a service UUID?  This is not a problem on Android
+  A. Also, true, but consistency is what I was aiming for.  iOS only allows you to scan in the background with a serviceUUID and on Android, I set the scanmode to low power.

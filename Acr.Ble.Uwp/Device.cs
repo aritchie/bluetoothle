@@ -95,6 +95,7 @@ namespace Acr.Ble
         {
             return Observable.Create<IGattService>(ob =>
             {
+
                 foreach (var service in this.connection.GattServices)
                 {
 

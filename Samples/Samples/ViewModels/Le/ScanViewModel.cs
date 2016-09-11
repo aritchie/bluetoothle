@@ -104,8 +104,8 @@ namespace Samples.ViewModels.Le
 
         void OnSearch(string search)
         {
-            //lock (this.allDevices)
-            //{
+            Device.BeginInvokeOnMainThread(() =>
+            {
                 var list = this.allDevices
                     .Where(x => !this.IsFiltered(x.Device))
                     .ToList();
@@ -113,11 +113,11 @@ namespace Samples.ViewModels.Le
                 this.Devices.Clear();
                 foreach (var dev in list)
                     this.Devices.Add(dev);
-            //}
+            });
         }
 
 
-        void StopScan() 
+        void StopScan()
         {
             this.ScanText = "Scan";
             this.scan?.Dispose();

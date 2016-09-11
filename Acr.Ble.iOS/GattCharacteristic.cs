@@ -30,7 +30,7 @@ namespace Acr.Ble
                     {
                         if (args.Error != null)
                             ob.OnError(new ArgumentException($"Error writing characteristic - {args.Error.LocalizedDescription}"));
-                        else 
+                        else
                         {
                             this.Value = value;
                             ob.OnNext(new object());
@@ -39,14 +39,14 @@ namespace Acr.Ble
                     }
                 });
 
-                if (this.Properties.HasFlag(CharacteristicProperties.WriteNoResponse)) 
+                if (this.Properties.HasFlag(CharacteristicProperties.WriteNoResponse))
                 {
                     p.WriteValue(data, this.native, CBCharacteristicWriteType.WithoutResponse);
                     this.Value = value;
                     ob.OnNext(new object());
                     ob.OnCompleted();
                 }
-                else 
+                else
                 {
                     p.WroteCharacteristicValue += handler;
                     p.WriteValue(data, this.native, CBCharacteristicWriteType.WithResponse);
@@ -59,12 +59,12 @@ namespace Acr.Ble
         public override IObservable<byte[]> Read()
         {
             this.AssertRead();
-            
+
             return Observable.Create<byte[]>(ob =>
             {
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (args.Characteristic.UUID.Equals(this.native.UUID)) 
+                    if (args.Characteristic.UUID.Equals(this.native.UUID))
                     {
                         ob.OnNext(this.native.Value.ToArray());
                         ob.OnCompleted();
@@ -116,17 +116,17 @@ namespace Acr.Ble
                     var p = this.native.Service.Peripheral;
                     var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                     {
-                        if (native.Descriptors == null)
+                        if (this.native.Descriptors == null)
                             return;
 
-                        foreach (var dnative in native.Descriptors) 
+                        foreach (var dnative in this.native.Descriptors)
                         {
                             var wrap = new GattDescriptor(this, dnative);
                             ob.OnNext(wrap);
                         }
                     });
                     p.DiscoveredDescriptor += handler;
-                    p.DiscoverDescriptors(native);
+                    p.DiscoverDescriptors(this.native);
 
                     return () => p.DiscoveredDescriptor -= handler;
                 })

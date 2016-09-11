@@ -4,9 +4,8 @@ using CoreBluetooth;
 using Foundation;
 
 
-namespace Acr.Ble 
+namespace Acr.Ble
 {
-
     public class GattDescriptor : AbstractGattDescriptor
     {
         readonly CBDescriptor native;
