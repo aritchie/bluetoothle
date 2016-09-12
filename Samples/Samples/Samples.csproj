@@ -58,6 +58,7 @@
     <Compile Include="Services\Impl\CoreServicesImpl.cs" />
     <Compile Include="Services\Impl\ViewModelManagerImpl.cs" />
     <Compile Include="Services\IViewModelManager.cs" />
+    <Compile Include="Tasks\BackgroundScanTask.cs" />
     <Compile Include="ViewModels\AbstractRootViewModel.cs" />
     <Compile Include="ViewModels\Le\GattCharacteristicViewModel.cs" />
     <Compile Include="ViewModels\IViewModel.cs" />
