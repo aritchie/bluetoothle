@@ -16,7 +16,7 @@ Mac Support (Coming Soon)
         </description>
         <authors>Allan Ritchie</authors>
         <owners>Allan Ritchie</owners>
-        <iconUrl>https://github.com/aritchie/bluetoothle/icon.png</iconUrl>
+        <iconUrl>https://github.com/aritchie/bluetoothle/raw/master/icon.png</iconUrl>
         <licenseUrl>https://github.com/aritchie/bluetoothle/LICENSE.md</licenseUrl>
         <projectUrl>https://github.com/aritchie/bluetoothle</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
