@@ -40,7 +40,7 @@ namespace Acr.Ble
                 else
                 {
                     token = ch
-                        .PeriodicRead(TimeSpan.FromSeconds(3))
+                        .ReadInterval(TimeSpan.FromSeconds(3))
                         .Subscribe(data => DecodeHeartRate(ob, data));
                 }
 

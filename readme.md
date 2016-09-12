@@ -162,6 +162,9 @@ characteristic.WhenDescriptorsDiscovered().Subscribe(descriptor => {});
 **Extensions**
 ```csharp
 
+// read a characteristic on a given interval
+characteristic.ReadInterval(TimeSpan).Subscribe(bytes => {});
+
 // discover all characteristics
 device.WhenAnyCharacteristic().Subscribe(characteristic => {});
 
@@ -169,6 +172,11 @@ device.WhenAnyCharacteristic().Subscribe(characteristic => {});
 // discover all descriptors
 device.WhenAnyDescriptor().Subscribe(descriptor => {});
 ```
+
+**Heart Rate**
+```csharp
+```
+
 
 ## FAQ
 

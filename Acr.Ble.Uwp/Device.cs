@@ -12,19 +12,17 @@ namespace Acr.Ble
 {
     public class Device : IDevice
     {
-        readonly ulong bluetoothAddress;
-        BluetoothLEDevice connection;
+        readonly GattDeviceService native;
 
 
-        public Device(ulong bluetoothAddress, string localName)
+        public Device(GattDeviceService native)
         {
-            this.bluetoothAddress = bluetoothAddress;
-            this.Name = localName;
+            this.native = native;
         }
 
 
-        public string Name { get; private set; }
-        public Guid Uuid { get; } = Guid.Empty;
+        public string Name => this.native.Device.Name;
+        public Guid Uuid => this.native.Uuid;
 
 
         public IObservable<ConnectionStatus> PersistentConnect()
@@ -40,8 +38,6 @@ namespace Acr.Ble
                 //DeviceInformation.FindAllAsync(GattDeviceService.)
             return Observable.Create<object>(async ob =>
             {
-                this.connection = await BluetoothLEDevice.FromBluetoothAddressAsync(this.bluetoothAddress);
-
             });
         }
 
@@ -54,8 +50,6 @@ namespace Acr.Ble
 
         public void Disconnect()
         {
-            this.connection.Dispose();
-            this.connection = null;
         }
 
 
@@ -64,10 +58,7 @@ namespace Acr.Ble
         {
             get
             {
-                if (this.connection == null)
-                    return ConnectionStatus.Disconnected;
-
-                switch (this.connection.ConnectionStatus)
+                switch (this.native.Device.ConnectionStatus)
                 {
                     case BluetoothConnectionStatus.Connected:
                         return ConnectionStatus.Connected;
@@ -83,20 +74,23 @@ namespace Acr.Ble
         {
             return Observable.Create<ConnectionStatus>(ob =>
             {
-                var handler = new TypedEventHandler<BluetoothLEDevice, object>((sender, args) => ob.OnNext(this.Status));
-                //this.native.ConnectionStatusChanged += handler;
-                //return () => this.native.ConnectionStatusChanged -= handler;
-                return () => { };
+                ob.OnNext(this.Status);
+                var handler = new TypedEventHandler<BluetoothLEDevice, object>(
+                    (sender, args) => ob.OnNext(this.Status)
+                );
+                this.native.Device.ConnectionStatusChanged += handler;
+                return () => this.native.Device.ConnectionStatusChanged -= handler;
             });
         }
 
 
+        IObservable<IGattService> serviceOb;
         public IObservable<IGattService> WhenServiceDiscovered()
         {
             return Observable.Create<IGattService>(ob =>
             {
 
-                foreach (var service in this.connection.GattServices)
+                foreach (var service in this.native.Device.GattServices)
                 {
 
                 }
@@ -109,10 +103,12 @@ namespace Acr.Ble
         {
             return Observable.Create<string>(ob =>
             {
-                var handler = new TypedEventHandler<BluetoothLEDevice, object>((sender, args) => ob.OnNext(this.Name));
-                //this.native.NameChanged += handler;
-                //return () => this.native.NameChanged -= handler;
-                return () => { };
+                ob.OnNext(this.Name);
+                var handler = new TypedEventHandler<BluetoothLEDevice, object>(
+                    (sender, args) => ob.OnNext(this.Name)
+                );
+                this.native.Device.NameChanged += handler;
+                return () => this.native.Device.NameChanged -= handler;;
             });
         }
     }

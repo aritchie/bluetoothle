@@ -65,17 +65,15 @@ namespace Acr.Ble
         {
             this.scanner = this.scanner ?? Observable.Create<IScanResult>(ob =>
             {
-                var handler = new TypedEventHandler
-                    <BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>(
-                    (sender, args) =>
+                var handler = new TypedEventHandler<BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>(
+                    async (sender, args) =>
                     {
-                        //var device = await BluetoothLEDevice.FromBluetoothAddressAsync(btAdv.BluetoothAddress);
-                        // TODO: to connect to gatt -  var service = await GattDeviceService.FromIdAsync(device.Id);
-                        var device = this.deviceManager.GetDevice(args);
+                        var device = await this.deviceManager.GetDevice(args);
                         var adData = new AdvertisementData(args.Advertisement);
                         var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
                         ob.OnNext(scanResult);
-                    });
+                    }
+                );
 
                 var watcher = new BluetoothLEAdvertisementWatcher();
                 watcher.Received += handler;
@@ -116,11 +114,7 @@ namespace Acr.Ble
 
         public IObservable<IDevice> WhenDeviceStatusChanged()
         {
-            return Observable.Create<IDevice>(ob =>
-            {
-
-                return () => {};
-            });
+            return Observable.Empty<IDevice>(); // TODO
         }
 
 
