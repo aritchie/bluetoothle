@@ -27,6 +27,7 @@ namespace Acr.Ble
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
                         var deviceId = BluetoothLEDevice.GetDeviceSelectorFromBluetoothAddress(deviceInfo.BluetoothAddress);
+                        
                         var native = await GattDeviceService.FromIdAsync(deviceId);
                         var device = new Device(native);
                         this.devices.Add(deviceInfo.BluetoothAddress, device);
