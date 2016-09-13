@@ -5,17 +5,16 @@ using System.Reactive.Linq;
 
 namespace Acr.Ble.Plugins
 {
-
     [Flags]
     public enum BleLogFlags
     {
         AdapterEvents = 1,
         ScanEvents = 2,
         DeviceEvents = 4,
-        CharacteristicNotifications = 8,
-        All = AdapterEvents | ScanEvents | DeviceEvents | CharacteristicNotifications
-        // TODO: characteristic read/writes
-        // TODO: descriptor read/writes
+        CharacteristicEvents = 8,
+        CharacteristicNotifications = 16,
+        DescriptorEvents = 32,
+        All = AdapterEvents | ScanEvents | DeviceEvents | CharacteristicEvents | CharacteristicNotifications | DescriptorEvents
     }
 
 
@@ -66,7 +65,7 @@ namespace Acr.Ble.Plugins
                                 if (device.Status == ConnectionStatus.Connected)
                                 {
                                     var reg = new List<IDisposable>();
-                                    HookDeviceEvents(reg, device, ob, flags.HasFlag(BleLogFlags.CharacteristicNotifications));
+                                    HookDeviceEvents(reg, device, ob, flags);
                                     deviceEvents.Add(device.Uuid, reg);
                                 }
                                 else if (deviceEvents.ContainsKey(device.Uuid))
@@ -91,7 +90,7 @@ namespace Acr.Ble.Plugins
         }
 
 
-        static void HookDeviceEvents(IList<IDisposable> registrations, IDevice device, IObserver<string> ob, bool includeCharacteristicNotifications)
+        static void HookDeviceEvents(IList<IDisposable> registrations, IDevice device, IObserver<string> ob, BleLogFlags flags)
         {
             registrations.Add(device
                 .WhenServiceDiscovered()
@@ -105,15 +104,22 @@ namespace Acr.Ble.Plugins
                 {
                     ob.OnNext($"[Characteristic] {ch.Uuid} discovered");
 
-                    if (includeCharacteristicNotifications && ch.CanNotify())
+                    if (flags.HasFlag(BleLogFlags.CharacteristicEvents))
+                    {
+                        registrations.Add(ch
+                            .WhenWritten()
+                            .Subscribe(bytes => Write(ob, "Characteristic", "written", ch.Uuid, bytes))
+                        );
+                        registrations.Add(ch
+                            .WhenRead()
+                            .Subscribe(bytes => Write(ob, "Characteristic", "read", ch.Uuid, bytes))
+                        );
+                    }
+                    if (flags.HasFlag(BleLogFlags.CharacteristicNotifications) && ch.CanNotify())
                     {
                         registrations.Add(ch
                             .WhenNotificationOccurs()
-                            .Subscribe(bytes =>
-                            {
-                                var value = BitConverter.ToString(bytes);
-                                ob.OnNext($"[Characteristic] {ch.Uuid} notification - Value: {value}");
-                            })
+                            .Subscribe(bytes => Write(ob, "Characteristic", "notifications", ch.Uuid, bytes))
                         );
                     }
                 })
@@ -121,9 +127,29 @@ namespace Acr.Ble.Plugins
             registrations.Add(device
                 .WhenyAnyDescriptor()
                 .Subscribe(desc =>
-                    ob.OnNext($"[Descriptor] {desc.Uuid} discovered")
-                )
+                {
+                    ob.OnNext($"[Descriptor]({desc.Uuid}) discovered");
+                    if (flags.HasFlag(BleLogFlags.DescriptorEvents))
+                    {
+                        registrations.Add(desc
+                            .WhenRead()
+                            .Subscribe(bytes => Write(ob, "Descriptor", "read", desc.Uuid, bytes))
+                        );
+                        registrations.Add(desc
+                            .WhenWritten()
+                            .Subscribe(bytes => Write(ob, "Descriptor", "written", desc.Uuid, bytes))
+                        );
+                    }
+                })
             );
+        }
+
+
+        static void Write(IObserver<string> ob, string category, string subcategory, Guid uuid, byte[] bytes)
+        {
+            var value = BitConverter.ToString(bytes);
+            var msg = $"[{category}]({uuid}) {subcategory}: {value}";
+            ob.OnNext(msg);
         }
     }
 }
