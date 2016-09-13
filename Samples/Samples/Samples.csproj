@@ -44,8 +44,8 @@
     <Compile Include="Pages\Le\LeBackgroundPage.xaml.cs">
       <DependentUpon>BackgroundPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Le\ReadLogPage.xaml.cs">
-      <DependentUpon>ReadLogPage.xaml</DependentUpon>
+    <Compile Include="Pages\Le\LogPage.xaml.cs">
+      <DependentUpon>LogPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Le\ScanPage.xaml.cs">
       <DependentUpon>ScanPage.xaml</DependentUpon>
@@ -62,14 +62,14 @@
     <Compile Include="Services\Impl\ViewModelManagerImpl.cs" />
     <Compile Include="Services\IViewModelManager.cs" />
     <Compile Include="Tasks\BackgroundScanTask.cs" />
-    <Compile Include="Tasks\LogTask.cs" />
+    <Compile Include="Tasks\LogToFileTask.cs" />
     <Compile Include="ViewModels\AbstractRootViewModel.cs" />
     <Compile Include="ViewModels\Le\GattCharacteristicViewModel.cs" />
     <Compile Include="ViewModels\IViewModel.cs" />
     <Compile Include="ViewModels\AbstractViewModel.cs" />
     <Compile Include="ViewModels\Le\DeviceViewModel.cs" />
     <Compile Include="ViewModels\Le\BackgroundViewModel.cs" />
-    <Compile Include="ViewModels\Le\ReadLogViewModel.cs" />
+    <Compile Include="ViewModels\Le\LogViewModel.cs" />
     <Compile Include="ViewModels\Le\ScanResultViewModel.cs" />
     <Compile Include="ViewModels\Le\ScanViewModel.cs" />
     <Compile Include="ViewModels\MenuViewModel.cs" />
@@ -196,7 +196,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Pages\Le\ReadLogPage.xaml">
+    <EmbeddedResource Include="Pages\Le\LogPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </EmbeddedResource>

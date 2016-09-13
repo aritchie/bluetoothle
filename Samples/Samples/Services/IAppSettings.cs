@@ -9,5 +9,6 @@ namespace Samples.Services
         bool AreNotificationsEnabled { get; set; }
         Guid BleServerServiceUuid { get; set; }
         bool BleServerEnabled { get; set; }
+        bool IsBackgroundLoggingEnabled { get; set; }
     }
 }

@@ -3,7 +3,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 
-namespace Acr.Ble
+namespace Acr.Ble.Plugins
 {
     public static class HeartRateExtensions
     {
@@ -20,7 +20,7 @@ namespace Acr.Ble
 
         public static IObservable<ushort> MonitorHeartRateBpm(this IDevice device)
         {
-           AssertConnected(device);
+            AssertConnected(device);
 
             return Observable.Create<ushort>(async ob =>
             {

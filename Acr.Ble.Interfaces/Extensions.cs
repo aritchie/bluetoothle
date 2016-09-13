@@ -92,6 +92,17 @@ namespace Acr.Ble
         }
 
 
+        public static IObservable<byte[]> WhenReadOrNotify(this IGattCharacteristic character, TimeSpan readInterval)
+        {
+            if (character.CanNotify())
+                return character.WhenNotificationOccurs();
+
+            if (character.CanRead())
+                return character.ReadInterval(readInterval);
+
+            throw new ArgumentException($"Characteristic {character.Uuid} does not have read or notify permissions");
+        }
+
         public static IObservable<IScanResult> ScanInterval(this IAdapter adapter, TimeSpan timeSpan)
         {
             return Observable.Create<IScanResult>(ob =>

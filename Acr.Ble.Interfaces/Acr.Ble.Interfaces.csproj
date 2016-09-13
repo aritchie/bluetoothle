@@ -47,7 +47,8 @@
     <Compile Include="ConnectionStatus.cs" />
     <Compile Include="Dictionaries.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="HeartRate.cs" />
+    <Compile Include="Plugins\HeartRate.cs" />
+    <Compile Include="Plugins\Logging.cs" />
     <Compile Include="IAdapter.cs" />
     <Compile Include="IAdvertisementData.cs" />
     <Compile Include="IGattCharacteristic.cs" />

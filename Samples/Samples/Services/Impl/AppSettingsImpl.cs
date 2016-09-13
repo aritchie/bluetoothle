@@ -10,5 +10,6 @@ namespace Samples.Services.Impl
         [Reactive] public bool AreNotificationsEnabled { get; set; }
         [Reactive] public Guid BleServerServiceUuid { get; set; }
         [Reactive] public bool BleServerEnabled { get; set; }
+        [Reactive] public bool IsBackgroundLoggingEnabled { get; set; }
     }
 }

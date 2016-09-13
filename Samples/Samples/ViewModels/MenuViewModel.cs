@@ -34,7 +34,7 @@ namespace Samples.ViewModels
                 new MenuItem
                 {
                     Text = "Read Log",
-                    Command = new Command(() => manager.SetDetail<ReadLogViewModel>())
+                    Command = new Command(() => manager.SetDetail<LogViewModel>())
                 }
             };
         }

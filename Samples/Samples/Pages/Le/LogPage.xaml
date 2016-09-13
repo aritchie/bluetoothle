@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<acr:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:acr="clr-namespace:Acr.XamForms;assembly=Acr.XamForms"
+    x:Class="Samples.Pages.Le.LogPage"
+    Title="Log">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Clear" Command="{Binding Clear}" />
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+        </Grid>
+        <ScrollView x:Name="scrollView" Orientation="Vertical" Grid.Row="0">
+            <Label x:Name="lblOutput" Text="{Binding Output}" />
+        </ScrollView>
+        <StackLayout Orientation="Horizontal" Grid.Row="1">
+            <Switch IsToggled="{Binding IsBackgroundLoggingEnabled}" />
+            <Label Text="Background Logging Enabled" />
+        </StackLayout>
+    </ContentPage.Content>
+</acr:ContentPage>
