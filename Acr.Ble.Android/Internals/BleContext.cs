@@ -25,48 +25,19 @@ namespace Acr.Ble.Internals
 
 
         public DeviceManager Devices { get; }
+        public event EventHandler<ScanEventArgs> Scanned;
 
-        public void StartScan(bool forcePreLollipop, Guid? bgServiceUuid, Action<ScanEventArgs> callback)
+
+        public void StartScan(bool forcePreLollipop, Guid? bgServiceUuid)
         {
             this.Devices.Clear();
             if (!forcePreLollipop && Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
             {
-                this.newCallback = new LollipopScanCallback(callback);
-
-                if (bgServiceUuid == null)
-                {
-                    this.manager.Adapter.BluetoothLeScanner.StartScan(
-                        null,
-                        new ScanSettings
-                            .Builder()
-                            .SetScanMode(ScanMode.Balanced)
-                            .Build(),
-                        this.newCallback
-                    );
-                }
-                else
-                {
-                    this.manager.Adapter.BluetoothLeScanner.StartScan(
-                        new List<ScanFilter>
-                        {
-                            new ScanFilter
-                                .Builder()
-                                .SetServiceUuid(bgServiceUuid.Value.ToParcelUuid())
-                                .Build()
-                        },
-                        new ScanSettings
-                            .Builder()
-                            .SetScanMode(ScanMode.LowPower)
-                            .Build(),
-                        this.newCallback
-                    );
-                }
+                this.StartNewScanner(bgServiceUuid);
             }
             else
             {
-                this.oldCallback = new PreLollipopScanCallback(callback);
-                // first arg takes UUID[] args
-                this.manager.Adapter.StartLeScan(this.oldCallback);
+                this.StartPreLollipopScan(bgServiceUuid);
             }
         }
 
@@ -80,6 +51,58 @@ namespace Acr.Ble.Internals
             else
             {
                 this.manager.Adapter.StopLeScan(this.oldCallback);
+            }
+        }
+
+
+        protected virtual void StartNewScanner(Guid? bgServiceUuid)
+        {
+            this.newCallback = new LollipopScanCallback(args => this.Scanned?.Invoke(this, args));
+
+            if (bgServiceUuid == null)
+            {
+                this.manager.Adapter.BluetoothLeScanner.StartScan(
+                    null,
+                    new ScanSettings
+                        .Builder()
+                        .SetScanMode(ScanMode.Balanced)
+                        .Build(),
+                    this.newCallback
+                );
+            }
+            else
+            {
+                this.manager.Adapter.BluetoothLeScanner.StartScan(
+                    new List<ScanFilter>
+                    {
+                        new ScanFilter
+                            .Builder()
+                            .SetServiceUuid(bgServiceUuid.Value.ToParcelUuid())
+                            .Build()
+                    },
+                    new ScanSettings
+                        .Builder()
+                        .SetScanMode(ScanMode.LowPower)
+                        .Build(),
+                    this.newCallback
+                );
+            }
+        }
+
+
+        protected virtual void StartPreLollipopScan(Guid? bgServiceUuid)
+        {
+            this.oldCallback = new PreLollipopScanCallback(args => this.Scanned?.Invoke(this, args));
+            if (bgServiceUuid == null)
+            {
+                this.manager.Adapter.StartLeScan(this.oldCallback);
+            }
+            else
+            {
+                this.manager.Adapter.StartLeScan(
+                    new[] { bgServiceUuid.Value.ToUuid() },
+                    this.oldCallback
+                );
             }
         }
     }

@@ -17,6 +17,11 @@ namespace Acr.Ble
         {
             return ParcelUuid.FromString(guid.ToString());
         }
+
+
+        public static UUID ToUuid(this Guid guid)
+        {
+            return UUID.FromString(guid.ToString());
+        }
     }
 }
-

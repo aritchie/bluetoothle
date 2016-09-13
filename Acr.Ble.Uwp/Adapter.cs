@@ -98,6 +98,12 @@ namespace Acr.Ble
         }
 
 
+        public IObservable<IScanResult> ScanListen()
+        {
+            return null;
+        }
+
+
         public IObservable<AdapterStatus> WhenStatusChanged()
         {
             return Observable.Create<AdapterStatus>(ob =>

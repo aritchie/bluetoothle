@@ -73,6 +73,13 @@ var scanner = BleAdapter.Current.Scan().Subscribe(scanResult =>
 scanner.Dispose(); // to stop scanning
 ```
 
+**Listen to scans for decoupled components
+With the use of observables everywhere, the option to hook up to the scan result events were taken away.  There are good cases to have listening options without actually starting a scan.  This is that option!
+```csharp
+
+BleAdapter.Current.ScanListen().Subscribe(scanResult => {});
+
+```
 
 **Connect/Disconnect to a device**
 
@@ -188,3 +195,9 @@ device.WhenAnyDescriptor().Subscribe(descriptor => {});
 
 * Q. Why have a Adapter.BackgroundScan with a service UUID?  This is not a problem on Android
   A. Also, true, but consistency is what I was aiming for.  iOS only allows you to scan in the background with a serviceUUID and on Android, I set the scanmode to low power.
+
+* Q. Why are devices cleared on a new scan?
+  A. Some platforms yield a "new" device and therefore new hooks.  This was observed on some android devices.
+
+* Q. My characteristic read/writes/notifications are not working
+  A. If you store your discovered characteristics in your own variables, make sure to refresh them with each (re)connect

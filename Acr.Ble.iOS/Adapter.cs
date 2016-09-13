@@ -23,8 +23,6 @@ namespace Acr.Ble
         }
 
 
-        public bool IsScanning => this.manager.IsScanning;
-
         public AdapterStatus Status
         {
             get
@@ -54,6 +52,22 @@ namespace Acr.Ble
         }
 
 
+        public IObservable<AdapterStatus> WhenStatusChanged()
+        {
+            return Observable.Create<AdapterStatus>(ob =>
+            {
+                ob.OnNext(this.Status);
+                var handler = new EventHandler((sender, args) => ob.OnNext(this.Status));
+                this.manager.UpdatedState += handler;
+
+                return () => this.manager.UpdatedState -= handler;
+            });
+        }
+
+
+        public bool IsScanning => this.manager.IsScanning;
+
+
         public IObservable<bool> WhenScanningStatusChanged()
         {
             return this.scanStatusChanged;
@@ -76,16 +90,24 @@ namespace Acr.Ble
         }
 
 
-        public IObservable<AdapterStatus> WhenStatusChanged()
+        IObservable<IScanResult> scanListenOb;
+        public IObservable<IScanResult> ScanListen()
         {
-            return Observable.Create<AdapterStatus>(ob =>
+            this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
             {
-                ob.OnNext(this.Status);
-                var handler = new EventHandler((sender, args) => ob.OnNext(this.Status));
-                this.manager.UpdatedState += handler;
-
-                return () => this.manager.UpdatedState -= handler;
+                var handler = new EventHandler<CBDiscoveredPeripheralEventArgs>((sender, args) =>
+                {
+                    var device = this.deviceManager.GetDevice(args.Peripheral);
+                    ob.OnNext(new ScanResult(
+                        device,
+                        args.RSSI?.Int32Value ?? 0,
+                        new AdvertisementData(args.AdvertisementData))
+                    );
+                });
+                this.manager.DiscoveredPeripheral += handler;
+                return () => this.manager.DiscoveredPeripheral -= handler;;
             });
+            return this.scanListenOb;
         }
 
 
@@ -116,23 +138,13 @@ namespace Acr.Ble
         }
 
 
-
         IObservable<IScanResult> CreateScanner(Guid? serviceUuid = null)
         {
             return Observable.Create<IScanResult>(ob =>
             {
                 this.deviceManager.Clear();
+                var scan = this.ScanListen().Subscribe(ob.OnNext);
 
-                var handler = new EventHandler<CBDiscoveredPeripheralEventArgs>((sender, args) =>
-                {
-                    var device = this.deviceManager.GetDevice(args.Peripheral);
-                    ob.OnNext(new ScanResult(
-                        device,
-                        args.RSSI?.Int32Value ?? 0,
-                        new AdvertisementData(args.AdvertisementData))
-                    );
-                });
-                this.manager.DiscoveredPeripheral += handler;
                 if (serviceUuid == null)
                 {
                     this.manager.ScanForPeripherals(null, new PeripheralScanningOptions { AllowDuplicatesKey = true });
@@ -148,7 +160,7 @@ namespace Acr.Ble
                 return () =>
                 {
                     this.manager.StopScan();
-                    this.manager.DiscoveredPeripheral -= handler;
+                    scan.Dispose();
                     this.scanStatusChanged.OnNext(false);
                 };
             })

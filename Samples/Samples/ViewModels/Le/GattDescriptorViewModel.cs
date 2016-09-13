@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Threading.Tasks;
@@ -27,20 +28,21 @@ namespace Samples.ViewModels.Le
         [Reactive] public bool IsValueAvailable { get; private set; }
         [Reactive] public string Value { get; private set; }
 
-        public void Select() 
+
+        public void Select()
         {
             this.dialogs.ActionSheet(new ActionSheetConfig()
                 .SetTitle($"Description - {this.Description} - {this.Uuid}")
-                .SetCancel()                                     
-                .Add("Read", async () => await this.Read()) 
+                .SetCancel()
+                .Add("Read", async () => await this.Read())
                 .Add("Write", async () => await this.Write())
             );
         }
 
 
-        async Task Read() 
+        async Task Read()
         {
-            var value = await this.Descriptor.Read().ToTask();
+            var value = await this.Descriptor.Read();
 
             this.LastValue = DateTime.Now;
             this.IsValueAvailable = true;

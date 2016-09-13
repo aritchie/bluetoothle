@@ -16,6 +16,7 @@ namespace Acr.Ble
         readonly BleContext context;
         readonly Subject<bool> scanStatusChanged;
 
+
         public Adapter()
         {
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Application.BluetoothService);
@@ -26,6 +27,7 @@ namespace Acr.Ble
 
         public bool ForcePreLollipopScanner { get; set; }
         public bool IsScanning => this.manager.Adapter.IsDiscovering;
+
 
         public AdapterStatus Status
         {
@@ -61,6 +63,20 @@ namespace Acr.Ble
         }
 
 
+        public IObservable<AdapterStatus> WhenStatusChanged()
+        {
+            return Observable.Create<AdapterStatus>(ob =>
+            {
+                ob.OnNext(this.Status);
+                var aob = BluetoothObservables
+                    .WhenAdapterStatusChanged()
+                    .Subscribe(_ => ob.OnNext(this.Status));
+
+                return aob.Dispose;
+            });
+        }
+
+
         public IObservable<bool> WhenScanningStatusChanged()
         {
             return this.scanStatusChanged;
@@ -83,17 +99,23 @@ namespace Acr.Ble
         }
 
 
-        public IObservable<AdapterStatus> WhenStatusChanged()
+        IObservable<IScanResult> scanListenOb;
+        public IObservable<IScanResult> ScanListen()
         {
-            return Observable.Create<AdapterStatus>(ob =>
+            this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
             {
-                ob.OnNext(this.Status);
-                var aob = BluetoothObservables
-                    .WhenAdapterStatusChanged()
-                    .Subscribe(_ => ob.OnNext(this.Status));
+                var handler = new EventHandler<ScanEventArgs>((sender, args) =>
+                {
+                    var dev = this.context.Devices.GetDevice(args.Device, TaskScheduler.Current);
+                    ob.OnNext(new ScanResult(dev, args.Rssi, args.AdvertisementData));
+                });
+                this.context.Scanned += handler;
+                return () => this.context.Scanned -= handler;
+            })
+            .Publish()
+            .RefCount();
 
-                return aob.Dispose;
-            });
+            return this.scanListenOb;
         }
 
 
@@ -116,15 +138,16 @@ namespace Acr.Ble
         {
             return Observable.Create<IScanResult>(ob =>
             {
-                this.context.StartScan(this.ForcePreLollipopScanner, serviceUuid, x =>
-                {
-                    var dev = this.context.Devices.GetDevice(x.Device, TaskScheduler.Current);
-                    ob.OnNext(new ScanResult(dev, x.Rssi, x.AdvertisementData));
-                });
+                this.context.Devices.Clear();
+
+                var scan = this.ScanListen().Subscribe(ob.OnNext);
+                this.context.StartScan(this.ForcePreLollipopScanner, serviceUuid);
                 this.scanStatusChanged.OnNext(true);
+
                 return () =>
                 {
                     this.context.StopScan();
+                    scan.Dispose();
                     this.scanStatusChanged.OnNext(false);
                 };
             })

@@ -30,6 +30,11 @@ namespace Samples.ViewModels
                 {
                     Text = "BLE Background",
                     Command = new Command(() => manager.SetDetail<BackgroundViewModel>())
+                },
+                new MenuItem
+                {
+                    Text = "Read Log",
+                    Command = new Command(() => manager.SetDetail<ReadLogViewModel>())
                 }
             };
         }
