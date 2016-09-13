@@ -10,11 +10,23 @@ namespace Acr.Ble
         readonly BluetoothLEAdvertisement adData;
 
 
-        public AdvertisementData(BluetoothLEAdvertisement adData)
+        public AdvertisementData(BluetoothLEAdvertisementReceivedEventArgs args)
         {
-            this.adData = adData;
+            this.adData = args.Advertisement;
+
+            switch (args.AdvertisementType)
+            {
+                case BluetoothLEAdvertisementType.ConnectableDirected:
+                case BluetoothLEAdvertisementType.ConnectableUndirected:
+                    this.IsConnectable = true;
+                    break;
+
+                default:
+                    this.IsConnectable = false;
+                    break;
+            }
             //adData.ManufacturerData[0].Data.ToArray();
-            //this.adData.GetSectionsByType((byte)AdvertisementRecordType.TxPowerLevel)
+            //this.adData.GetSectionsByType((byte)AdvertisementRecordType.TxPowerLevel);
         }
 
         public string LocalName => this.adData.LocalName;

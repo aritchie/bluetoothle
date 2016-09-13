@@ -24,6 +24,38 @@ namespace Acr.Ble
         }
 
 
+        public static IObservable<CharacteristicNotification> WhenAnyCharacteristicNotificationOccurs(this IDevice device)
+        {
+            return Observable.Create<CharacteristicNotification>(ob =>
+            {
+                var list = new List<IDisposable>();
+
+                var all = device
+                    .WhenAnyCharacteristic()
+                    .Subscribe(ch =>
+                    {
+                        var token = ch
+                            .WhenNotificationOccurs()
+                            .Subscribe(data =>
+                            {
+                                var notification = new CharacteristicNotification(ch, data);
+                                ob.OnNext(notification);
+                            });
+
+                        list.Add(token);
+                    });
+
+                list.Add(all);
+
+                return () =>
+                {
+                    foreach (var item in list)
+                        item.Dispose();
+                };
+            });
+        }
+
+
         public static async Task<IList<IGattCharacteristic>> GetAllCharacteristics(this IDevice device, int waitMillis = 2000)
         {
             var result = await device

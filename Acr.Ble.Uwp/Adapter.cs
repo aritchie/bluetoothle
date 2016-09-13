@@ -69,7 +69,7 @@ namespace Acr.Ble
                     async (sender, args) =>
                     {
                         var device = await this.deviceManager.GetDevice(args);
-                        var adData = new AdvertisementData(args.Advertisement);
+                        var adData = new AdvertisementData(args);
                         var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
                         ob.OnNext(scanResult);
                     }

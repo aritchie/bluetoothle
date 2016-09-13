@@ -53,7 +53,6 @@ namespace Acr.Ble
         }
 
 
-
         public ConnectionStatus Status
         {
             get
@@ -84,15 +83,15 @@ namespace Acr.Ble
         }
 
 
-        IObservable<IGattService> serviceOb;
         public IObservable<IGattService> WhenServiceDiscovered()
         {
             return Observable.Create<IGattService>(ob =>
             {
-
-                foreach (var service in this.native.Device.GattServices)
+                // TODO: don't repeat
+                foreach (var nservice in this.native.Device.GattServices)
                 {
-
+                    var service = new GattService(nservice, this);
+                    ob.OnNext(service);
                 }
                 return Disposable.Empty;
             });
