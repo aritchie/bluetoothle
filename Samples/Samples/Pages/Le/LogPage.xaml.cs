@@ -8,9 +8,10 @@ namespace Samples.Pages.Le
 {
     public partial class LogPage : Acr.XamForms.ContentPage
     {
-        public LogPage()
+        public LogPage(LogViewModel viewModel)
         {
             InitializeComponent();
+            this.BindingContext = viewModel;
         }
 
 

@@ -29,28 +29,14 @@ namespace Samples.Services.Impl
         public Task Push<TViewModel>(object args = null) where TViewModel : class, IViewModel
         {
 			var page = this.CreatePage<TViewModel>(args);
-			return GetDetailNav().PushAsync(page);
+			return Application.Current.MainPage.Navigation.PushAsync(page);
         }
 
 
         public Task Pop()
         {
-
-			return GetDetailNav().PopAsync(true);
+			return Application.Current.MainPage.Navigation.PopAsync(true);
         }
-
-
-		public void SetDetail<TViewModel>(object args = null) where TViewModel : class, IViewModel
-		{
-			var page = this.CreatePage<TViewModel>(args);
-			var master = Application.Current.MainPage as MasterDetailPage;
-			if (master == null)
-				throw new ArgumentException("Root page is not a masterdetailpage");
-
-			// TODO: ensure this calls disappear
-			master.Detail = new NavigationPage(page);
-		    master.IsPresented = false;
-		}
 
 
 		public Page CreatePage<TViewModel>(object args) where TViewModel : class, IViewModel

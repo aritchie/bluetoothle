@@ -12,8 +12,5 @@ namespace Samples.Services
 		Page CreatePage<TViewModel>(object args = null) where TViewModel : class, IViewModel;
 		Task Push<TViewModel>(object args = null) where TViewModel : class, IViewModel;
         Task Pop();
-
-		void SetDetail<TViewModel>(object args = null) where TViewModel : class, IViewModel;
-        //ICommand PushCommand<TViewModel>(Func<object> funcArgs = null) where TViewModel : class, IViewModel;
     }
 }
