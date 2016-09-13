@@ -27,37 +27,39 @@ namespace Samples.ViewModels.Le
             this.WhenAnyValue(x => x.IsBackgroundLoggingEnabled)
                 .Skip(1)
                 .Subscribe(enabled => settings.IsBackgroundLoggingEnabled = enabled);
+
+            this.WhenAnyValue(x => x.IsForegroundLoggingEnabled)
+                .Subscribe(enabled =>
+                {
+                    if (enabled)
+                    {
+                        this.logger = this.adapter
+                            .WhenActionOccurs(BleLogFlags.All)
+                            .Subscribe(this.Write);
+                    }
+                    else
+                    {
+                        this.logger?.Dispose();
+                    }
+                });
         }
 
 
         public ICommand Clear { get; }
+        [Reactive] public bool IsForegroundLoggingEnabled { get; set; }
         [Reactive] public bool IsBackgroundLoggingEnabled { get; set; }
         [Reactive] public string Log { get; private set; }
         // TODO: Save/Share log with another app (ie. Dropbox)
         // TODO: email log
-        // TODO: clear log
-
-        public override void OnActivate()
-        {
-            base.OnActivate();
-            this.logger = this.adapter
-                .WhenActionOccurs()
-                .Subscribe(this.Write);
-        }
-
-
-        public override void OnDeactivate()
-        {
-            base.OnDeactivate();
-            this.logger.Dispose();
-        }
 
 
         void Write(string msg)
         {
             Device.BeginInvokeOnMainThread(() =>
-                this.Log += Environment.NewLine + msg
-            );
+            {
+                var final = $"[{DateTime.Now:T}] {msg}";
+                this.Log = final + Environment.NewLine + this.Log;
+            });
         }
     }
 }

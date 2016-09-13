@@ -32,7 +32,7 @@ namespace Samples.Tasks
                     if (doLog)
                     {
                         this.sub = this.adapter
-                            .WhenActionOccurs()
+                            .WhenActionOccurs(BleLogFlags.All)
                             .Subscribe(this.WriteLog);
                     }
                     else
