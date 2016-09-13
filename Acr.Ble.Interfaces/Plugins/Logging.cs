@@ -41,7 +41,7 @@ namespace Acr.Ble.Plugins
                     list.Add(adapter
                         .ScanListen()
                         .Subscribe(scanResult =>
-                            ob.OnNext($"[Scan] {scanResult.Device.Name} ({scanResult.Device}) with RSSI of {scanResult.Rssi}")
+                            ob.OnNext($"[Scan] {scanResult.Device.Name} ({scanResult.Device.Uuid}) with RSSI of {scanResult.Rssi}")
                         )
                     );
 
