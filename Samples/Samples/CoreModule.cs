@@ -55,6 +55,12 @@ namespace Samples
 
             builder
                 .RegisterAssemblyTypes(this.ThisAssembly)
+                .Where(x => x.Namespace.StartsWith("Samples.Pages"))
+                .AsSelf()
+                .InstancePerDependency();
+
+            builder
+                .RegisterAssemblyTypes(this.ThisAssembly)
                 .Where(x => x.Namespace.StartsWith("Samples.ViewModels"))
                 .AsSelf()
                 .InstancePerDependency();

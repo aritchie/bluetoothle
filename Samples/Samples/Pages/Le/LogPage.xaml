@@ -15,17 +15,17 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+            <ScrollView x:Name="scrollView" Orientation="Vertical" Grid.Row="0">
+                <Label x:Name="lblOutput" Text="{Binding Output}" />
+            </ScrollView>
+            <StackLayout Orientation="Horizontal" Grid.Row="1">
+                <Switch IsToggled="{Binding IsForegroundLoggingEnabled}" />
+                <Label Text="Log to Screen (Here)" />
+            </StackLayout>
+            <StackLayout Orientation="Horizontal" Grid.Row="2">
+                <Switch IsToggled="{Binding IsBackgroundLoggingEnabled}" />
+                <Label Text="Background Logging Enabled" />
+            </StackLayout>
         </Grid>
-        <ScrollView x:Name="scrollView" Orientation="Vertical" Grid.Row="0">
-            <Label x:Name="lblOutput" Text="{Binding Output}" />
-        </ScrollView>
-        <StackLayout Orientation="Horizontal" Grid.Row="1">
-            <Switch IsToggled="{Binding IsForegroundLoggingEnabled}" />
-            <Label Text="Log to Screen (Here)" />
-        </StackLayout>
-        <StackLayout Orientation="Horizontal" Grid.Row="2">
-            <Switch IsToggled="{Binding IsBackgroundLoggingEnabled}" />
-            <Label Text="Background Logging Enabled" />
-        </StackLayout>
     </ContentPage.Content>
 </acr:ContentPage>

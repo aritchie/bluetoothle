@@ -1,17 +1,17 @@
 ﻿using System;
 using Acr.XamForms;
+using Autofac;
 using Samples.ViewModels.Le;
 
 
 namespace Samples.Pages.Le
 {
-
     public partial class ScanPage : ContentPage
     {
-        public ScanPage(ScanViewModel viewModel)
+        public ScanPage()
         {
             this.InitializeComponent();
-            this.BindingContext = viewModel;
+            this.BindingContext = App.Container.Resolve<ScanViewModel>();
             this.SearchBar.SearchButtonPressed += (sender, args) =>
             {
                 this.SearchBar.Unfocus();

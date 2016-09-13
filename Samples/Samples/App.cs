@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Acr;
 using Autofac;
+using Samples.Pages;
 using Samples.Services;
 using Xamarin.Forms;
 
@@ -10,12 +11,12 @@ namespace Samples
 {
     public class App : Application
     {
-        readonly IContainer container;
+        public static IContainer Container { get; private set; }
 
 
         public App(IContainer container)
         {
-            this.container = container;
+            Container = container;
             this.MainPage = container.Resolve<MainPage>();
         }
 
@@ -23,14 +24,14 @@ namespace Samples
         protected override void OnResume()
         {
             base.OnResume();
-            this.container.Resolve<IEnumerable<IAppLifecycle>>().Each(x => x.OnForeground());
+            Container.Resolve<IEnumerable<IAppLifecycle>>().Each(x => x.OnForeground());
         }
 
 
         protected override void OnSleep()
         {
             base.OnSleep();
-            this.container.Resolve<IEnumerable<IAppLifecycle>>().Each(x => x.OnBackground());
+            Container.Resolve<IEnumerable<IAppLifecycle>>().Each(x => x.OnBackground());
         }
     }
 }
