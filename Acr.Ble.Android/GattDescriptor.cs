@@ -32,6 +32,7 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = data;
+                            this.WriteSubject.OnNext(data);
                             ob.OnNext(new object());
                             ob.OnCompleted();
                         }
@@ -59,6 +60,7 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = this.native.GetValue();
+                            this.ReadSubject.OnNext(this.Value);
                             ob.OnNext(this.Value);
                             ob.OnCompleted();
                         }

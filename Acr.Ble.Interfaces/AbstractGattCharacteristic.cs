@@ -18,7 +18,7 @@ namespace Acr.Ble
         protected Subject<byte[]> WriteSubject { get; } = new Subject<byte[]>();
 
         public IGattService Service { get; }
-        public virtual string Description => Dictionaries.GetCharacteristicDescription(this.Uuid.ToString());
+        public virtual string Description => Dictionaries.GetCharacteristicDescription(this.Uuid);
         public bool IsNotifying { get; protected set; }
         public Guid Uuid { get; }
         public CharacteristicProperties Properties { get; }

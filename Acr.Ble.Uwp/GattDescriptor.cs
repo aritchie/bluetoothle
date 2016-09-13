@@ -25,13 +25,15 @@ namespace Acr.Ble
             return Observable.Create<object>(async ob =>
             {
                 var result = await this.native.WriteValueAsync(data.AsBuffer());
-                if (result == GattCommunicationStatus.Success)
+                if (result != GattCommunicationStatus.Success)
                 {
-                    ob.Respond(null);
+                    ob.OnError(new Exception("Not able to write to descriptor"));
                 }
                 else
                 {
-                    ob.OnError(new Exception("Not able to write to descriptor"));
+                    this.Value = data;
+                    this.WriteSubject.OnNext(this.Value);
+                    ob.Respond(null);
                 }
                 return Disposable.Empty;
             });
@@ -50,6 +52,8 @@ namespace Acr.Ble
                 else
                 {
                     var bytes = result.Value.ToArray();
+                    this.Value = bytes;
+                    this.ReadSubject.OnNext(this.Value);
                     ob.Respond(bytes);
                 }
                 return Disposable.Empty;

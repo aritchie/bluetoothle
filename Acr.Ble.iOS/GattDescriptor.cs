@@ -32,8 +32,8 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = ((NSData)args.Descriptor.Value).ToArray();
-                            ob.OnNext(this.Value);
-                            ob.OnCompleted();
+                            this.ReadSubject.OnNext(this.Value);
+                            ob.Respond(this.Value);
                         }
                     }
                 });
@@ -59,7 +59,8 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = data;
-                            ob.OnCompleted();
+                            this.WriteSubject.OnNext(this.Value);
+                            ob.Respond(this.Value);
                         }
                     }
                 });

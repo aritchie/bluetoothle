@@ -11,6 +11,8 @@ namespace Acr.Ble
         string Description { get; }
         byte[] Value { get; }
         IObservable<object> Write(byte[] data);
+        IObservable<byte[]> WhenWritten();
         IObservable<byte[]> Read();
+        IObservable<byte[]> WhenRead();
     }
 }

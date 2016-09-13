@@ -62,7 +62,6 @@ namespace Acr.Ble
         }
 
 
-
         public override IObservable<object> Write(byte[] value)
         {
             this.AssertWrite();
@@ -71,15 +70,15 @@ namespace Acr.Ble
             {
                 var result = await this.native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse);
 
-                if (result == GattCommunicationStatus.Success)
+                if (result != GattCommunicationStatus.Success)
                 {
-                    this.WriteSubject.OnNext(value);
-                    this.Value = value;
-                    ob.Respond(null);
+                    ob.OnError(new Exception("Error writing characteristic"));
                 }
                 else
                 {
-                    ob.OnError(new Exception("Error writing characteristic"));
+                    this.Value = value;
+                    this.WriteSubject.OnNext(this.Value);
+                    ob.Respond(null);
                 }
                 return Disposable.Empty;
             });

@@ -16,7 +16,7 @@ namespace Acr.Ble
         public IDevice Device { get; }
         public Guid Uuid { get; }
         public bool IsPrimary { get; }
-        public virtual string Description => Dictionaries.GetServiceDescription(this.Uuid.ToString());
+        public virtual string Description => Dictionaries.GetServiceDescription(this.Uuid);
         public abstract IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();
     }
 }

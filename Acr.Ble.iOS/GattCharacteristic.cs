@@ -34,8 +34,7 @@ namespace Acr.Ble
                         {
                             this.Value = value;
                             this.WriteSubject.OnNext(this.Value);
-                            ob.OnNext(new object());
-                            ob.OnCompleted();
+                            ob.Respond(null);
                         }
                     }
                 });
@@ -45,8 +44,7 @@ namespace Acr.Ble
                     p.WriteValue(data, this.native, CBCharacteristicWriteType.WithoutResponse);
                     this.Value = value;
                     this.WriteSubject.OnNext(this.Value);
-                    ob.OnNext(new object());
-                    ob.OnCompleted();
+                    ob.Respond(null);
                 }
                 else
                 {
@@ -68,8 +66,9 @@ namespace Acr.Ble
                 {
                     if (args.Characteristic.UUID.Equals(this.native.UUID))
                     {
-                        ob.OnNext(this.native.Value.ToArray());
-                        ob.OnCompleted();
+                        var value = this.native.Value.ToArray();
+                        this.Value = value;
+                        ob.Respond(this.Value);
                     }
                 });
                 this.native.Service.Peripheral.UpdatedCharacterteristicValue += handler;
@@ -91,7 +90,10 @@ namespace Acr.Ble
                     var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                     {
                         if (args.Characteristic.UUID.Equals(this.native.UUID))
-                            ob.OnNext(this.native.Value.ToArray());
+                        {
+                            var bytes = this.native.Value.ToArray();
+                            ob.OnNext(bytes);
+                        }
                     });
                     this.native.Service.Peripheral.UpdatedCharacterteristicValue += handler;
                     this.native.Service.Peripheral.SetNotifyValue(true, this.native);

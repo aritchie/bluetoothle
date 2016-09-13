@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>0.9.2</version>
+        <version>0.9.3</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -28,6 +28,7 @@ Mac Support (Coming Soon)
 0.9.3
 Add heartrate plugin (extension method)
 Add super logging plugin (extension method)
+Characteristics and Descriptors now have WhenRead/WhenWritten events to monitor calls externally
 
 0.9.2
 ScanListen for working with scan results from a background or decoupled component
