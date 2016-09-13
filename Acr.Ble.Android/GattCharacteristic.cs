@@ -34,13 +34,14 @@ namespace Acr.Ble
                 {
                     if (args.Characteristic.Uuid.Equals(this.native.Uuid))
                     {
-                        if (!args.IsSuccessful) 
+                        if (!args.IsSuccessful)
                         {
                             ob.OnError(new ArgumentException($"Failed to write characteristic - {args.Status}"));
                         }
                         else
                         {
                             this.Value = value;
+                            this.WriteSubject.OnNext(this.Value);
                             ob.OnNext(new object());
                             ob.OnCompleted();
                         }
@@ -53,10 +54,12 @@ namespace Acr.Ble
                 {
                     this.native.WriteType = GattWriteType.NoResponse;
                     this.context.Gatt.WriteCharacteristic(this.native);
+                    this.Value = value;
+                    this.WriteSubject.OnNext(this.Value);
                     ob.OnNext(new object());
                     ob.OnCompleted();
                 }
-                else 
+                else
                 {
                     this.native.WriteType = GattWriteType.Default;
                     this.context.Gatt.WriteCharacteristic(this.native);
@@ -69,18 +72,19 @@ namespace Acr.Ble
         public override IObservable<byte[]> Read()
         {
             this.AssertRead();
-            
+
             return Observable.Create<byte[]>(ob =>
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (args.Characteristic.Uuid.Equals(this.native.Uuid)) 
+                    if (args.Characteristic.Uuid.Equals(this.native.Uuid))
                     {
                         if (!args.IsSuccessful)
                             ob.OnError(new ArgumentException($"Failed to read characteristic - {args.Status}"));
-                        else 
+                        else
                         {
                             this.Value = args.Characteristic.GetValue();
+                            this.ReadSubject.OnNext(this.Value);
                             ob.OnNext(this.Value);
                             ob.OnCompleted();
                         }
@@ -112,7 +116,7 @@ namespace Acr.Ble
                     this.EnableNotifications(true);
                     this.context.Callbacks.CharacteristicChanged += handler;
 
-                    return () => 
+                    return () =>
                     {
                         this.EnableNotifications(false);
                         this.context.Callbacks.CharacteristicChanged -= handler;
@@ -120,7 +124,7 @@ namespace Acr.Ble
                 })
                 .Publish()
                 .RefCount();
-            
+
             return this.notifyOb;
         }
 

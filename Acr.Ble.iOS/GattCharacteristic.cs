@@ -33,6 +33,7 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = value;
+                            this.WriteSubject.OnNext(this.Value);
                             ob.OnNext(new object());
                             ob.OnCompleted();
                         }
@@ -43,6 +44,7 @@ namespace Acr.Ble
                 {
                     p.WriteValue(data, this.native, CBCharacteristicWriteType.WithoutResponse);
                     this.Value = value;
+                    this.WriteSubject.OnNext(this.Value);
                     ob.OnNext(new object());
                     ob.OnCompleted();
                 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Subjects;
 
 
 namespace Acr.Ble
@@ -13,6 +14,9 @@ namespace Acr.Ble
         }
 
 
+        protected Subject<byte[]> ReadSubject { get; } = new Subject<byte[]>();
+        protected Subject<byte[]> WriteSubject { get; } = new Subject<byte[]>();
+
         public IGattService Service { get; }
         public virtual string Description => Dictionaries.GetCharacteristicDescription(this.Uuid.ToString());
         public bool IsNotifying { get; protected set; }
@@ -25,25 +29,28 @@ namespace Acr.Ble
         public abstract IObservable<byte[]> WhenNotificationOccurs();
         public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();
 
+        public virtual IObservable<byte[]> WhenRead() => this.ReadSubject;
+        public virtual IObservable<byte[]> WhenWritten() => this.WriteSubject;
+
 
         protected virtual void AssertWrite()
         {
             if (!this.CanWrite())
-                throw new ArgumentException($"This characteristic '{this.Uuid}' does not support writes");        
+                throw new ArgumentException($"This characteristic '{this.Uuid}' does not support writes");
         }
 
 
         protected virtual void AssertRead()
         {
             if (!this.CanRead())
-                throw new ArgumentException($"This characteristic '{this.Uuid}' does not support reads");        
+                throw new ArgumentException($"This characteristic '{this.Uuid}' does not support reads");
         }
 
 
         protected virtual void AssertNotify()
         {
             if (!this.CanNotify())
-                throw new ArgumentException($"This characteristic '{this.Uuid}' does not support notifications");        
+                throw new ArgumentException($"This characteristic '{this.Uuid}' does not support notifications");
         }
     }
 }

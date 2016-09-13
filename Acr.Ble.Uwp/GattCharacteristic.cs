@@ -53,6 +53,8 @@ namespace Acr.Ble
                 else
                 {
                     var bytes = result.Value.ToArray();
+                    this.Value = bytes;
+                    this.ReadSubject.OnNext(bytes);
                     ob.Respond(bytes);
                 }
                 return Disposable.Empty;
@@ -71,6 +73,8 @@ namespace Acr.Ble
 
                 if (result == GattCommunicationStatus.Success)
                 {
+                    this.WriteSubject.OnNext(value);
+                    this.Value = value;
                     ob.Respond(null);
                 }
                 else

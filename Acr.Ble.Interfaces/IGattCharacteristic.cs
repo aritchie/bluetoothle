@@ -15,6 +15,8 @@ namespace Acr.Ble
         IObservable<byte[]> WhenNotificationOccurs();
         IObservable<IGattDescriptor> WhenDescriptorDiscovered();
         IObservable<object> Write(byte[] value);
+        IObservable<byte[]> WhenWritten();
         IObservable<byte[]> Read();
+        IObservable<byte[]> WhenRead();
     }
 }
