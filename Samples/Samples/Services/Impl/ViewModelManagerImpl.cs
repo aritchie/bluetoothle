@@ -29,13 +29,13 @@ namespace Samples.Services.Impl
         public Task Push<TViewModel>(object args = null) where TViewModel : class, IViewModel
         {
 			var page = this.CreatePage<TViewModel>(args);
-			return Application.Current.MainPage.Navigation.PushAsync(page);
+			return this.GetCurrentNav().PushAsync(page);
         }
 
 
         public Task Pop()
         {
-			return Application.Current.MainPage.Navigation.PopAsync(true);
+			return this.GetCurrentNav().PopAsync(true);
         }
 
 
@@ -61,13 +61,17 @@ namespace Samples.Services.Impl
 		}
 
 
-		static INavigation GetDetailNav()
-		{
-			var master = Application.Current.MainPage as MasterDetailPage;
-			if (master == null)
-				throw new ArgumentException("Root page is not a masterdetailpage");
+        INavigation GetCurrentNav()
+        {
+            var tabs = Application.Current.MainPage as TabbedPage;
+            if (tabs == null)
+                throw new ArgumentException("Top page should be tabs");
 
-			return master.Detail.Navigation;
-		}
+            var nav = tabs.CurrentPage as NavigationPage;
+            if (nav == null)
+                throw new ArgumentException("Current tab is not a navpage");
+
+            return nav.Navigation;
+        }
     }
 }

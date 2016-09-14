@@ -12,10 +12,6 @@ namespace Samples.Pages.Le
         {
             this.InitializeComponent();
             this.BindingContext = App.Container.Resolve<ScanViewModel>();
-            this.SearchBar.SearchButtonPressed += (sender, args) =>
-            {
-                this.SearchBar.Unfocus();
-            };
         }
     }
 }

@@ -56,8 +56,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IAppLifecycle.cs" />
     <Compile Include="Services\IAppSettings.cs" />
+    <Compile Include="Services\IAppState.cs" />
     <Compile Include="Services\Impl\AppSettingsImpl.cs" />
     <Compile Include="Services\ICoreServices.cs" />
+    <Compile Include="Services\Impl\AppStateImpl.cs" />
     <Compile Include="Services\Impl\CoreServicesImpl.cs" />
     <Compile Include="Services\Impl\ViewModelManagerImpl.cs" />
     <Compile Include="Services\IViewModelManager.cs" />

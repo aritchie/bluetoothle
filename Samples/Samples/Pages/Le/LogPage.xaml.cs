@@ -14,25 +14,5 @@ namespace Samples.Pages.Le
             InitializeComponent();
             this.BindingContext = App.Container.Resolve<LogViewModel>();
         }
-
-
-        IDisposable outputMon;
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            var vm = (LogViewModel)this.BindingContext;
-            this.outputMon = vm
-                .WhenAnyValue(x => x.Log)
-                .Subscribe(_ => Device.BeginInvokeOnMainThread(() =>
-                    this.scrollView.ScrollToAsync(this.lblOutput, ScrollToPosition.End, true)
-                ));
-        }
-
-
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
-            this.outputMon.Dispose();
-        }
     }
 }

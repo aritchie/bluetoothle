@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
+using System.Text;
 using System.Windows.Input;
 using Acr.Ble;
 using Acr.Ble.Plugins;
@@ -18,10 +20,10 @@ namespace Samples.ViewModels.Le
         IDisposable logger;
 
 
-        public LogViewModel(IAdapter adapter, IAppSettings settings)
+        public LogViewModel(IAdapter adapter, IAppSettings settings, IAppState appState)
         {
             this.adapter = adapter;
-            this.Clear = new Command(() => Device.BeginInvokeOnMainThread(() => this.Log = String.Empty));
+            this.Clear = new Command(() => Device.BeginInvokeOnMainThread(() => this.Output = String.Empty));
 
             this.IsBackgroundLoggingEnabled = settings.IsBackgroundLoggingEnabled;
             this.WhenAnyValue(x => x.IsBackgroundLoggingEnabled)
@@ -35,6 +37,7 @@ namespace Samples.ViewModels.Le
                     {
                         this.logger = this.adapter
                             .WhenActionOccurs(BleLogFlags.All)
+                            .Buffer(TimeSpan.FromSeconds(3))
                             .Subscribe(this.Write);
                     }
                     else
@@ -42,23 +45,31 @@ namespace Samples.ViewModels.Le
                         this.logger?.Dispose();
                     }
                 });
+
+            appState
+                .WhenBackgrounding()
+                .Subscribe(_ => this.logger?.Dispose());
         }
 
 
         public ICommand Clear { get; }
         [Reactive] public bool IsForegroundLoggingEnabled { get; set; }
         [Reactive] public bool IsBackgroundLoggingEnabled { get; set; }
-        [Reactive] public string Log { get; private set; }
+        [Reactive] public string Output { get; private set; }
         // TODO: Save/Share log with another app (ie. Dropbox)
         // TODO: email log
 
 
-        void Write(string msg)
+        void Write(IList<string> messages)
         {
             Device.BeginInvokeOnMainThread(() =>
             {
-                var final = $"[{DateTime.Now:T}] {msg}";
-                this.Log = final + Environment.NewLine + this.Log;
+                var sb = new StringBuilder();
+                foreach (var msg in messages)
+                {
+                    sb.AppendLine($"[{DateTime.Now:T}] {msg}");
+                }
+                this.Output = sb + this.Output;
             });
         }
     }

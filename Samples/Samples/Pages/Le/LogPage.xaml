@@ -15,8 +15,8 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <ScrollView x:Name="scrollView" Orientation="Vertical" Grid.Row="0">
-                <Label x:Name="lblOutput" Text="{Binding Output}" />
+            <ScrollView Orientation="Vertical" Grid.Row="0">
+                <Label Text="{Binding Output}" />
             </ScrollView>
             <StackLayout Orientation="Horizontal" Grid.Row="1">
                 <Switch IsToggled="{Binding IsForegroundLoggingEnabled}" />

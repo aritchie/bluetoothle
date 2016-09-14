@@ -22,6 +22,6 @@ namespace Samples.ViewModels
         protected IViewModelManager VmManager => this.services.VmManager;
         public IAppSettings AppSettings => this.services.AppSettings;
         public IAdapter BleAdapter => this.services.BleAdapter;
-        public ICoreServices Core => this.services;
+        public IAppState AppState => this.services.AppState;
     }
 }
