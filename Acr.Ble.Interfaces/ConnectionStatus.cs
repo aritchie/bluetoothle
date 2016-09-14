@@ -5,9 +5,9 @@ namespace Acr.Ble
 {
     public enum ConnectionStatus
     {
-        Connected,
-        Connecting,
         Disconnected,
-        Disconnecting
+        Disconnecting,
+        Connected,
+        Connecting
     }
 }
