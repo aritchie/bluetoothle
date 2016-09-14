@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reactive.Linq;
+using System.Text;
 using Acr.Ble;
 using Acr.Ble.Plugins;
 using Autofac;
@@ -33,6 +36,7 @@ namespace Samples.Tasks
                     {
                         this.sub = this.adapter
                             .WhenActionOccurs(BleLogFlags.All)
+                            .Buffer(TimeSpan.FromSeconds(3))
                             .Subscribe(this.WriteLog);
                     }
                     else
@@ -44,9 +48,13 @@ namespace Samples.Tasks
         }
 
 
-        void WriteLog(string message)
+        void WriteLog(IList<string> msgs)
         {
-            var log = $"[{DateTime.Now:T}] {message}";
+            var sb = new StringBuilder();
+            foreach (var msg in msgs)
+            {
+                sb.AppendLine($"[{DateTime.Now:T}] {msg}");
+            }
             lock(this.syncLock)
             {
                 // TODO
