@@ -99,7 +99,7 @@ namespace Acr.Ble.Plugins
                 )
             );
             registrations.Add(device
-                .WhenAnyCharacteristic()
+                .WhenAnyCharacteristicDiscovered()
                 .Subscribe(ch =>
                 {
                     ob.OnNext($"[Characteristic] {ch.Uuid} discovered");
@@ -125,7 +125,7 @@ namespace Acr.Ble.Plugins
                 })
             );
             registrations.Add(device
-                .WhenyAnyDescriptor()
+                .WhenyAnyDescriptorDiscovered()
                 .Subscribe(desc =>
                 {
                     ob.OnNext($"[Descriptor]({desc.Uuid}) discovered");

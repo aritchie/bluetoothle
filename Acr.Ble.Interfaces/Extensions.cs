@@ -8,7 +8,7 @@ namespace Acr.Ble
 {
     public static class Extensions
     {
-        public static IObservable<IGattCharacteristic> WhenAnyCharacteristic(this IDevice device)
+        public static IObservable<IGattCharacteristic> WhenAnyCharacteristicDiscovered(this IDevice device)
         {
             return device
                 .WhenServiceDiscovered()
@@ -16,33 +16,38 @@ namespace Acr.Ble
         }
 
 
-        public static IObservable<IGattDescriptor> WhenyAnyDescriptor(this IDevice device)
+        public static IObservable<IGattDescriptor> WhenyAnyDescriptorDiscovered(this IDevice device)
         {
             return device
-                .WhenAnyCharacteristic()
+                .WhenAnyCharacteristicDiscovered()
                 .SelectMany(x => x.WhenDescriptorDiscovered().Select(y => y));
         }
 
 
-        public static IObservable<CharacteristicNotification> WhenAnyCharacteristicNotificationOccurs(this IDevice device)
+        public static IObservable<CharacteristicNotification> WhenAnyCharacteristicNotificationReceived(this IDevice device, bool doSubscriptions)
         {
             return Observable.Create<CharacteristicNotification>(ob =>
             {
                 var list = new List<IDisposable>();
 
                 var all = device
-                    .WhenAnyCharacteristic()
+                    .WhenAnyCharacteristicDiscovered()
                     .Subscribe(ch =>
                     {
-                        var token = ch
-                            .SubscribeToNotifications()
-                            .Subscribe(data =>
-                            {
-                                var notification = new CharacteristicNotification(ch, data);
-                                ob.OnNext(notification);
-                            });
-
-                        list.Add(token);
+                        if (doSubscriptions)
+                        {
+                            list.Add(ch
+                                .SubscribeToNotifications()
+                                .Subscribe(data => Trigger(ob, ch, data))
+                            );
+                        }
+                        else
+                        {
+                            list.Add(ch
+                                .WhenNotificationReceived()
+                                .Subscribe(data => Trigger(ob, ch, data))
+                            );
+                        }
                     });
 
                 list.Add(all);
@@ -59,7 +64,7 @@ namespace Acr.Ble
         public static async Task<IList<IGattCharacteristic>> GetAllCharacteristics(this IDevice device, int waitMillis = 2000)
         {
             var result = await device
-                .WhenAnyCharacteristic()
+                .WhenAnyCharacteristicDiscovered()
                 .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(waitMillis))
                 .ToList();
 
@@ -70,7 +75,7 @@ namespace Acr.Ble
         public static async Task<IList<IGattDescriptor>> GetAllDescriptors(this IDevice device, int waitMillis = 2000)
         {
             var result = await device
-                .WhenyAnyDescriptor()
+                .WhenyAnyDescriptorDiscovered()
                 .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(waitMillis))
                 .ToList();
 
@@ -102,6 +107,7 @@ namespace Acr.Ble
 
             throw new ArgumentException($"Characteristic {character.Uuid} does not have read or notify permissions");
         }
+
 
         public static IObservable<IScanResult> ScanInterval(this IAdapter adapter, TimeSpan timeSpan)
         {
@@ -161,6 +167,13 @@ namespace Acr.Ble
         public static bool CanNotify(this IGattCharacteristic ch)
         {
             return ch.Properties.HasFlag(CharacteristicProperties.Notify);
+        }
+
+
+        static void Trigger(IObserver<CharacteristicNotification> ob, IGattCharacteristic characteristic, byte[] data)
+        {
+            var notification = new CharacteristicNotification(characteristic, data);
+            ob.OnNext(notification);
         }
     }
 }
