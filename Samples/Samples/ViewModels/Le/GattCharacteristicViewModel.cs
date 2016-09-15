@@ -59,23 +59,23 @@ namespace Samples.ViewModels.Le
                 });
             }
 
-            if (this.Characteristic.CanNotify()) 
+            if (this.Characteristic.CanNotify())
             {
                 if (this.watcher == null)
                 {
-                    cfg.Add("Notify", async () => 
+                    cfg.Add("Notify", async () =>
                     {
                         var utf8 = await this.dialogs.ConfirmAsync("Display Value as UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
                         this.watcher = this.Characteristic
-                            .WhenNotificationOccurs()
+                            .SubscribeToNotifications()
                             .Subscribe(x => this.SetReadValue(x, utf8));
 
                         this.IsNotifying = true;
                     });
                 }
-                else 
+                else
                 {
-                    cfg.Add("Stop Notifying", () => 
+                    cfg.Add("Stop Notifying", () =>
                     {
                         this.watcher.Dispose();
                         this.watcher = null;
@@ -130,7 +130,7 @@ namespace Samples.ViewModels.Le
 
             if (value == null)
                 this.Value = "EMPTY";
-            else 
+            else
                 this.Value = fromUtf8 ? Encoding.UTF8.GetString(value, 0, value.Length) : BitConverter.ToString(value);
         }
     }

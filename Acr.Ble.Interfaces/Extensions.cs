@@ -35,7 +35,7 @@ namespace Acr.Ble
                     .Subscribe(ch =>
                     {
                         var token = ch
-                            .WhenNotificationOccurs()
+                            .SubscribeToNotifications()
                             .Subscribe(data =>
                             {
                                 var notification = new CharacteristicNotification(ch, data);
@@ -95,7 +95,7 @@ namespace Acr.Ble
         public static IObservable<byte[]> WhenReadOrNotify(this IGattCharacteristic character, TimeSpan readInterval)
         {
             if (character.CanNotify())
-                return character.WhenNotificationOccurs();
+                return character.SubscribeToNotifications();
 
             if (character.CanRead())
                 return character.ReadInterval(readInterval);

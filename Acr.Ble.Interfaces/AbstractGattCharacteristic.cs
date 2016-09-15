@@ -14,6 +14,7 @@ namespace Acr.Ble
         }
 
 
+        protected Subject<byte[]> NotifySubject { get; } = new Subject<byte[]>();
         protected Subject<byte[]> ReadSubject { get; } = new Subject<byte[]>();
         protected Subject<byte[]> WriteSubject { get; } = new Subject<byte[]>();
 
@@ -24,12 +25,12 @@ namespace Acr.Ble
         public CharacteristicProperties Properties { get; }
         public byte[] Value { get; protected set; }
 
-        public abstract IObservable<byte[]> Read();
-        public abstract IObservable<object> Write(byte[] value);
-        public abstract IObservable<byte[]> WhenNotificationOccurs();
         public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();
-
+        public abstract IObservable<byte[]> SubscribeToNotifications();
+        public virtual IObservable<byte[]> WhenNotificationReceived() => this.NotifySubject;
+        public abstract IObservable<byte[]> Read();
         public virtual IObservable<byte[]> WhenRead() => this.ReadSubject;
+        public abstract IObservable<object> Write(byte[] value);
         public virtual IObservable<byte[]> WhenWritten() => this.WriteSubject;
 
 

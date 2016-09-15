@@ -144,10 +144,23 @@ await Characteristic.Read();
 await Characteristic.Write(bytes);
 ```
 
-**Register for Notifications on a characteristic**
+**Monitor Characteristic Read/Writes**
+```csharp
+// TODO
+```
+
+**Register for notifications on a characteristic**
 ```csharp
 // once you have your characteristic instance from the service discovery
-var sub = characteristic.WhenNotificationOccurs().Subscribe(bytes => {});
+var sub = characteristic.SubscribeToNotifications().Subscribe(bytes => {});
+
+sub.Dispose(); // to unsubscribe
+```
+
+**Monitor Characteristic Notifications**
+```csharp
+// once you have your characteristic instance from the service discovery
+var sub = characteristic.WhenNotificationReceived().Subscribe(bytes => {});
 
 sub.Dispose(); // to unsubscribe
 ```
@@ -163,6 +176,14 @@ characteristic.WhenDescriptorsDiscovered().Subscribe(descriptor => {});
 **Read/Write to a Descriptor**
 ```csharp
     // once you have your characteristic instance from the characteristic
+    await descriptor.Write(bytes);
+
+    await descriptor.Read();
+```
+
+**Monitor Descriptor Read/Writes**
+```csharp
+// TODO
 ```
 
 
@@ -182,6 +203,12 @@ device.WhenAnyDescriptor().Subscribe(descriptor => {});
 
 **Heart Rate**
 ```csharp
+// TODO
+```
+
+**Logging**
+```csharp
+// TODO
 ```
 
 

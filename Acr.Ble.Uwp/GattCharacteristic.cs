@@ -86,7 +86,7 @@ namespace Acr.Ble
 
 
         IObservable<byte[]> notificationOb;
-        public override IObservable<byte[]> WhenNotificationOccurs()
+        public override IObservable<byte[]> SubscribeToNotifications()
         {
             this.AssertNotify();
 
@@ -98,6 +98,7 @@ namespace Acr.Ble
                     {
                         var bytes = args.CharacteristicValue.ToArray();
                         ob.OnNext(bytes);
+                        this.NotifySubject.OnNext(bytes);
                     }
                 });
                 this.native.ValueChanged += handler;

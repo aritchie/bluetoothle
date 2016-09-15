@@ -80,7 +80,7 @@ namespace Acr.Ble
 
 
         IObservable<byte[]> notifyOb;
-        public override IObservable<byte[]> WhenNotificationOccurs()
+        public override IObservable<byte[]> SubscribeToNotifications()
         {
             this.AssertNotify();
 
@@ -91,8 +91,9 @@ namespace Acr.Ble
                     {
                         if (args.Characteristic.UUID.Equals(this.native.UUID))
                         {
-                            var bytes = this.native.Value.ToArray();
-                            ob.OnNext(bytes);
+                            this.Value = this.native.Value.ToArray();
+                            ob.OnNext(this.Value);
+                            this.NotifySubject.OnNext(this.Value);
                         }
                     });
                     this.native.Service.Peripheral.UpdatedCharacterteristicValue += handler;

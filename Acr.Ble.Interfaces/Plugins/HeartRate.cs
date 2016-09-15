@@ -31,32 +31,22 @@ namespace Acr.Ble.Plugins
                 {
                     ob.OnError(new ArgumentException("Device does not appear to be a heart rate sensor"));
                 }
-                else if (ch.CanNotify())
-                {
-                    token = ch
-                        .WhenNotificationOccurs()
-                        .Subscribe(data => DecodeHeartRate(ob, data));
-                }
                 else
                 {
                     token = ch
-                        .ReadInterval(TimeSpan.FromSeconds(3))
-                        .Subscribe(data => DecodeHeartRate(ob, data));
-                }
+                    .WhenReadOrNotify(TimeSpan.FromSeconds(3))
+                    .Subscribe(data =>
+                    {
+                        if ((data[0] & 0x01) == 0)
+                            ob.OnNext(data[1]);
 
+                        var bpm = (ushort)data [1];
+                        bpm = (ushort)(((bpm >> 8) & 0xFF) | ((bpm << 8) & 0xFF00));
+                        ob.OnNext(bpm);
+                    });
+                }      
                 return () => token?.Dispose();
             });
-        }
-
-
-        static void DecodeHeartRate(IObserver<ushort> ob, byte[] data)
-        {
-			if ((data[0] & 0x01) == 0)
-				ob.OnNext(data[1]);
-
-            var bpm = (ushort)data [1];
-			bpm = (ushort)(((bpm >> 8) & 0xFF) | ((bpm << 8) & 0xFF00));
-            ob.OnNext(bpm);
         }
 
 

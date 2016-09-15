@@ -118,7 +118,7 @@ namespace Acr.Ble.Plugins
                     if (flags.HasFlag(BleLogFlags.CharacteristicNotifications) && ch.CanNotify())
                     {
                         registrations.Add(ch
-                            .WhenNotificationOccurs()
+                            .WhenNotificationReceived()
                             .Subscribe(bytes => Write(ob, "Characteristic", "notifications", ch.Uuid, bytes))
                         );
                     }

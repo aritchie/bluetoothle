@@ -98,7 +98,7 @@ namespace Acr.Ble
 
 
         IObservable<byte[]> notifyOb;
-        public override IObservable<byte[]> WhenNotificationOccurs()
+        public override IObservable<byte[]> SubscribeToNotifications()
         {
             this.AssertNotify();
 
@@ -111,6 +111,7 @@ namespace Acr.Ble
                         {
                             this.Value = args.Characteristic.GetValue();
                             ob.OnNext(this.Value);
+                            this.NotifySubject.OnNext(this.Value);
                         }
                     });
                     this.EnableNotifications(true);
@@ -135,7 +136,7 @@ namespace Acr.Ble
             this.descriptorOb = this.descriptorOb ?? Observable
                 .Create<IGattDescriptor>(ob =>
                 {
-                    foreach (var nd in native.Descriptors)
+                    foreach (var nd in this.native.Descriptors)
                     {
                         var wrap = new GattDescriptor(this, this.context, nd);
                         ob.OnNext(wrap);
