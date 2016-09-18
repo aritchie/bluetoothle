@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using CoreBluetooth;
 using Foundation;
 
@@ -55,10 +54,7 @@ namespace Acr.Ble
                 var connect = new EventHandler<CBPeripheralEventArgs>((sender, args) =>
                 {
                     if (args.Peripheral.Equals(this.peripheral))
-                    {
-                        ob.OnNext(new object());
-                        ob.OnCompleted();
-                    }
+                        ob.Respond(null);
                 });
 
                 this.manager.ConnectedPeripheral += connect;
@@ -152,10 +148,10 @@ namespace Acr.Ble
             {
                 var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
                 {
-                    if (peripheral.Services == null)
+                    if (this.peripheral.Services == null)
                         return;
 
-                    foreach (var native in peripheral.Services)
+                    foreach (var native in this.peripheral.Services)
                     {
                         var service = new GattService(this, native);
                         if (!this.Services.ContainsKey(service.Uuid))
