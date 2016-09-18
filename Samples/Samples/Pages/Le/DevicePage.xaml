@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <acr:ContentPage
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -13,7 +13,6 @@
                         <TextCell Text="Connection Status" Detail="{Binding Status}" />
                         <TextCell Text="Name" Detail="{Binding Name}" />
                         <TextCell Text="RSSI" Detail="{Binding Rssi}" />
-                        <SwitchCell Text="Auto-Reconnect" On="{Binding AutoReconnect}" />
                     </TableSection>
                     <TableSection>
                         <TextCell Text="{Binding ConnectText}" Command="{Binding ConnectionToggle}" />

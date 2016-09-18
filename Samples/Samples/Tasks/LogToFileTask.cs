@@ -52,14 +52,13 @@ namespace Samples.Tasks
 
         void WriteLog(IList<string> msgs)
         {
-            this.data.RunInTransaction(() => this.data.InsertAll(
+            this.data.InsertAll(
                 msgs
                     .Select(msg => new BleRecord
                     {
                         Description = msg,
                         TimestampLocal = DateTime.Now
-                    })
-                    .ToArray()
+                    }
             ));
         }
     }
