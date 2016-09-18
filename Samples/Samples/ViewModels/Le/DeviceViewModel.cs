@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
-using Acr;
 using Acr.Ble;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -21,10 +19,6 @@ namespace Samples.ViewModels.Le
 
         public DeviceViewModel(ICoreServices services) : base(services)
         {
-            this.WhenAnyValue(x => x.CharacteristicSearchText)
-                .Throttle(TimeSpan.FromMilliseconds(300))
-                .Subscribe(x => this.OnFilterCharacteristics());
-
             this.SelectCharacteristic = new Acr.Command<GattCharacteristicViewModel>(x => x.Select());
             this.SelectDescriptor = new Acr.Command<GattDescriptorViewModel>(x => x.Select());
 
@@ -76,9 +70,8 @@ namespace Samples.ViewModels.Le
 
             this.device
                 .WhenStatusChanged()
-                .Subscribe (x =>
+                .Subscribe (x => Device.BeginInvokeOnMainThread(() =>
                 {
-
                     this.Status = x;
 
                     switch (x)
@@ -102,7 +95,7 @@ namespace Samples.ViewModels.Le
                                 .Subscribe(rssi => this.Rssi = rssi);
                             break;
                     }
-                });
+                }));
 
             this.device
                 .WhenServiceDiscovered()
@@ -111,23 +104,23 @@ namespace Samples.ViewModels.Le
                     var group = new Group<GattCharacteristicViewModel>(service.Uuid.ToString());
                     var characters = service
                         .WhenCharacteristicDiscovered()
-                        
+
                         .Subscribe(character =>
                         {
-                            Device.BeginInvokeOnMainThread(() => 
+                            Device.BeginInvokeOnMainThread(() =>
                             {
                                 var vm = new GattCharacteristicViewModel(this.Dialogs, character);
                                 group.Add(vm);
-                                if (group.Count == 1) 
+                                if (group.Count == 1)
                                     this.GattCharacteristics.Add(group);
                             });
                             character
                                 .WhenDescriptorDiscovered()
-                                .Subscribe(desc =>
+                                .Subscribe(desc => Device.BeginInvokeOnMainThread(() =>
                                 {
                                     var dvm = new GattDescriptorViewModel(this.Dialogs, desc);
                                     this.GattDescriptors.Add(dvm);
-                                });
+                                }));
                         });
                 });
         }
@@ -151,26 +144,7 @@ namespace Samples.ViewModels.Le
         [Reactive] public Guid Uuid { get; private set; }
         [Reactive] public int Rssi { get; private set; }
         [Reactive] public ConnectionStatus Status { get; private set; } = ConnectionStatus.Disconnected;
-        [Reactive] public string CharacteristicSearchText { get; set; }
         public ObservableCollection<Group<GattCharacteristicViewModel>> GattCharacteristics { get; } = new ObservableCollection<Group<GattCharacteristicViewModel>>();
         public ObservableCollection<GattDescriptorViewModel> GattDescriptors { get; } = new ObservableCollection<GattDescriptorViewModel>();
-
-
-        // use derived lists
-        void OnFilterCharacteristics()
-        {
-            //var query = this.allCharacteristics.AsQueryable();
-            //if (!String.IsNullOrWhiteSpace(this.CharacteristicSearchText))
-            //    query = query.Where(x =>
-            //        x.Uuid.ToString().Contains(this.CharacteristicSearchText) ||
-            //        x.Description.Contains(this.CharacteristicSearchText)
-            //    );
-
-            //this.GattCharacteristics = query
-            //    .OrderBy(x => x.Description)
-            //    //.ThenBy(x => x.U)
-            //    .ToList();
-        }
-
     }
 }

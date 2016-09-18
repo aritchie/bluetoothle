@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Devices.Bluetooth.Advertisement;
 
 
@@ -8,31 +10,47 @@ namespace Acr.Ble
     public class AdvertisementData : IAdvertisementData
     {
         readonly BluetoothLEAdvertisement adData;
+        readonly Lazy<byte[]> manufacturerData;
+        readonly Lazy<int> txPower;
 
 
         public AdvertisementData(BluetoothLEAdvertisementReceivedEventArgs args)
         {
             this.adData = args.Advertisement;
+            this.IsConnectable = args.AdvertisementType == BluetoothLEAdvertisementType.ConnectableDirected ||
+                                 args.AdvertisementType == BluetoothLEAdvertisementType.ConnectableUndirected;
 
-            switch (args.AdvertisementType)
+            this.manufacturerData = this.GetLazy(AdvertisementRecordType.ManufacturerSpecificData, sections =>
             {
-                case BluetoothLEAdvertisementType.ConnectableDirected:
-                case BluetoothLEAdvertisementType.ConnectableUndirected:
-                    this.IsConnectable = true;
-                    break;
-
-                default:
-                    this.IsConnectable = false;
-                    break;
-            }
-            //adData.ManufacturerData[0].Data.ToArray();
-            //this.adData.GetSectionsByType((byte)AdvertisementRecordType.TxPowerLevel);
+                var data = sections.Last().Data.ToArray();
+                return data;
+            });
+            this.txPower = this.GetLazy<int>(AdvertisementRecordType.TxPowerLevel, sections =>
+            {
+                var bytes = sections.Last().Data.ToArray();
+                return bytes[0];
+            });
         }
+
 
         public string LocalName => this.adData.LocalName;
         public bool IsConnectable { get; }
-        public byte[] ManufacturerData { get; }
+        public byte[] ManufacturerData => this.manufacturerData.Value;
         public Guid[] ServiceUuids => this.adData.ServiceUuids.ToArray();
-        public int TxPower { get; }
+        public int TxPower => this.txPower.Value;
+
+
+        Lazy<TResult> GetLazy<TResult>(AdvertisementRecordType recordType, Func<IReadOnlyList<BluetoothLEAdvertisementDataSection>, TResult> parseAction)
+        {
+            return new Lazy<TResult>(() =>
+            {
+                var sections = this.adData.GetSectionsByType((byte) recordType);
+                if (!sections?.Any() ?? true)
+                    return default(TResult);
+
+                var result = parseAction(sections);
+                return result;
+            });
+        }
     }
 }

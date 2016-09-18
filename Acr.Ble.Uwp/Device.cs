@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Reactive.Disposables;
+using System.Collections.Generic;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
-using Windows.Devices.Enumeration;
 using Windows.Foundation;
 
 
@@ -12,6 +10,7 @@ namespace Acr.Ble
 {
     public class Device : IDevice
     {
+        readonly IList<IGattService> services = new List<IGattService>();
         readonly GattDeviceService native;
 
 
@@ -27,24 +26,27 @@ namespace Acr.Ble
 
         public IObservable<ConnectionStatus> PersistentConnect()
         {
-            throw new NotImplementedException();
+            return Observable.Create<ConnectionStatus>(async ob =>
+            {
+                var status = this
+                    .WhenStatusChanged()
+                    .Subscribe(ob.OnNext);
+                await this.Connect();
+
+                return status;
+            });
         }
 
 
         public IObservable<object> Connect()
         {
-             //var devices = await DeviceInformation.FindAllAsync(BluetoothLEDevice.GetDeviceSelector());
-                //await BluetoothLEDevice.FromIdAsync(devices[0].Id)
-                //DeviceInformation.FindAllAsync(GattDeviceService.)
-            return Observable.Create<object>(async ob =>
-            {
-            });
+            return Observable.Empty<object>();
         }
 
 
         public IObservable<int> WhenRssiUpdated(TimeSpan? frequency = null)
         {
-            throw new NotImplementedException();
+            return Observable.Empty<int>();
         }
 
 
@@ -69,9 +71,10 @@ namespace Acr.Ble
         }
 
 
+        IObservable<ConnectionStatus> statusOb;
         public IObservable<ConnectionStatus> WhenStatusChanged()
         {
-            return Observable.Create<ConnectionStatus>(ob =>
+            this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
             {
                 ob.OnNext(this.Status);
                 var handler = new TypedEventHandler<BluetoothLEDevice, object>(
@@ -79,36 +82,55 @@ namespace Acr.Ble
                 );
                 this.native.Device.ConnectionStatusChanged += handler;
                 return () => this.native.Device.ConnectionStatusChanged -= handler;
-            });
+            })
+            .Publish()
+            .RefCount();
+
+            return this.statusOb;
         }
 
 
+        IObservable<IGattService> serviceOb;
         public IObservable<IGattService> WhenServiceDiscovered()
         {
-            return Observable.Create<IGattService>(ob =>
-            {
-                // TODO: don't repeat
-                foreach (var nservice in this.native.Device.GattServices)
-                {
-                    var service = new GattService(nservice, this);
-                    ob.OnNext(service);
-                }
-                return Disposable.Empty;
-            });
+            this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
+                this
+                    .WhenStatusChanged()
+                    .Where(x => x == ConnectionStatus.Connected)
+                    .Subscribe(x =>
+                    {
+                        this.services.Clear();
+                        foreach (var nservice in this.native.Device.GattServices)
+                        {
+                            var service = new GattService(nservice, this);
+                            ob.OnNext(service);
+                        }
+                    })
+            )
+            .Publish()
+            .RefCount();
+
+            return this.serviceOb;
         }
 
 
+        IObservable<string> nameOb;
         public IObservable<string> WhenNameUpdated()
         {
-            return Observable.Create<string>(ob =>
+            this.nameOb = this.nameOb ?? Observable.Create<string>(ob =>
             {
                 ob.OnNext(this.Name);
+
                 var handler = new TypedEventHandler<BluetoothLEDevice, object>(
                     (sender, args) => ob.OnNext(this.Name)
                 );
                 this.native.Device.NameChanged += handler;
-                return () => this.native.Device.NameChanged -= handler;;
-            });
+                return () => this.native.Device.NameChanged -= handler;
+            })
+            .Publish()
+            .RefCount();
+
+            return this.nameOb;
         }
     }
 }

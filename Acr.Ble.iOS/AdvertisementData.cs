@@ -24,18 +24,14 @@ namespace Acr.Ble
             this.manufacturerData = this.GetLazy(CBAdvertisement.DataManufacturerDataKey, x => ((NSData)x).ToArray());
             this.serviceUuids = this.GetLazy(CBAdvertisement.DataServiceUUIDsKey, x =>
             {
-                return new Guid[0];
-                //var uuids = new List<Guid>();
-                //var array = (NSArray)x;
-
-                //for (nuint i = 0; i < array.Count; i++) 
-                //{
-                //    var uuid = array.GetItem<CBUUID>(i);
-                //    var bytes = uuid.Data.ToArray();
-                //    var guid = new Guid(bytes);
-                //    uuids.Add(guid);
-                //}
-                //return uuids.ToArray();
+                var array = (NSArray)x;
+                var list = new List<Guid>();
+                for (nuint i = 0; i < array.Count; i++)
+                {
+                    var guid = array.GetItem<CBUUID>(i).ToGuid();
+                    list.Add(guid);
+                }
+                return list.ToArray();
             });
         }
 
@@ -65,7 +61,7 @@ namespace Acr.Ble
         {
             if (this.adData == null)
                 return null;
-            
+
             if (!this.adData.ContainsKey(key))
                 return null;
 
