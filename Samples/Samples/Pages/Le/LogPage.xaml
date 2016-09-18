@@ -13,18 +13,17 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <ScrollView Orientation="Vertical" Grid.Row="0">
-                <Label Text="{Binding Output}" />
-            </ScrollView>
+            <ListView ItemsSource="{Binding Data}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextCell Text="{Binding TimestampLocal, StringFormat='{0:hh:mm:ss tt}'}" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
             <StackLayout Orientation="Horizontal" Grid.Row="1">
-                <Switch IsToggled="{Binding IsForegroundLoggingEnabled}" />
-                <Label Text="Log to Screen (Here)" />
-            </StackLayout>
-            <StackLayout Orientation="Horizontal" Grid.Row="2">
-                <Switch IsToggled="{Binding IsBackgroundLoggingEnabled}" />
-                <Label Text="Background Logging Enabled" />
+                <Switch IsToggled="{Binding IsLoggingEnabled}" />
+                <Label Text="Enable Logging" />
             </StackLayout>
         </Grid>
     </ContentPage.Content>
