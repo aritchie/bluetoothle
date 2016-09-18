@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Windows.Input;
+using Acr;
 using Acr.Ble;
 using Acr.Ble.Plugins;
+using Acr.UserDialogs;
 using Autofac;
 using ReactiveUI;
 using Samples.Models;
@@ -20,11 +23,16 @@ namespace Samples.Tasks
         IDisposable sub;
 
 
-        public LogToFileTask(IAdapter adapter, IAppSettings settings, SampleDbConnection data)
+        public LogToFileTask(IAdapter adapter, 
+                             IAppSettings settings, 
+                             IUserDialogs dialogs, 
+                             SampleDbConnection data)
         {
             this.adapter = adapter;
             this.settings = settings;
             this.data = data;
+
+            this.Show = new Command<BleRecord>(rec => dialogs.Alert(rec.Description, "Info"));
         }
 
 
@@ -61,5 +69,8 @@ namespace Samples.Tasks
                     }
             ));
         }
+
+
+        public ICommand Show { get; }
     }
 }
