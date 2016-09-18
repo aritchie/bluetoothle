@@ -63,9 +63,10 @@ namespace Acr.Ble
         }
 
 
+        IObservable<AdapterStatus> statusOb;
         public IObservable<AdapterStatus> WhenStatusChanged()
         {
-            return Observable.Create<AdapterStatus>(ob =>
+            this.statusOb = this.statusOb ?? Observable.Create<AdapterStatus>(ob =>
             {
                 ob.OnNext(this.Status);
                 var aob = BluetoothObservables
@@ -73,7 +74,11 @@ namespace Acr.Ble
                     .Subscribe(_ => ob.OnNext(this.Status));
 
                 return aob.Dispose;
-            });
+            })
+            .Publish()
+            .RefCount();
+
+            return this.statusOb;
         }
 
 

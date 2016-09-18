@@ -10,6 +10,10 @@ namespace Samples.Uwp
         {
             base.Load(builder);
             builder.RegisterModule(new CoreModule());
+            //builder
+            //    .Register(x => new SampleDbConnection(new SQLitePlatformWinRT(), ""))
+            //    .AsSelf()
+            //    .SingleInstance();
         }
     }
 }

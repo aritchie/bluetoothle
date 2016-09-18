@@ -52,16 +52,20 @@ namespace Acr.Ble
         }
 
 
+        IObservable<AdapterStatus> statusOb;
         public IObservable<AdapterStatus> WhenStatusChanged()
         {
-            return Observable.Create<AdapterStatus>(ob =>
+            this.statusOb = this.statusOb ?? Observable.Create<AdapterStatus>(ob =>
             {
                 ob.OnNext(this.Status);
                 var handler = new EventHandler((sender, args) => ob.OnNext(this.Status));
                 this.manager.UpdatedState += handler;
 
                 return () => this.manager.UpdatedState -= handler;
-            });
+            })
+            .Publish()
+            .RefCount();
+            return this.statusOb;
         }
 
 
@@ -111,9 +115,10 @@ namespace Acr.Ble
         }
 
 
+        IObservable<IDevice> deviceStatusOb;
         public IObservable<IDevice> WhenDeviceStatusChanged()
         {
-            return Observable.Create<IDevice>(observer =>
+            this.deviceStatusOb = this.deviceStatusOb ?? Observable.Create<IDevice>(observer =>
             {
                 var chandler = new EventHandler<CBPeripheralEventArgs>((sender, args) =>
                 {
@@ -135,6 +140,7 @@ namespace Acr.Ble
                     this.manager.DisconnectedPeripheral -= dhandler;
                 };
             });
+            return this.deviceStatusOb;
         }
 
 

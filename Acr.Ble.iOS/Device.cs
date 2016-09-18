@@ -11,33 +11,12 @@ namespace Acr.Ble
     {
         readonly CBCentralManager manager;
         readonly CBPeripheral peripheral;
-        readonly Subject<IGattService> subject;
 
 
         public Device(CBCentralManager manager, CBPeripheral peripheral) : base(peripheral.Name, peripheral.Identifier.ToGuid())
         {
             this.manager = manager;
             this.peripheral = peripheral;
-            this.subject = new Subject<IGattService>();
-
-            this.WhenStatusChanged()
-                .Subscribe(x =>
-                {
-                    switch (x)
-                    {
-                        case ConnectionStatus.Connected:
-                            this.Services.Clear();
-                            this.peripheral.DiscoveredService += this.OnServiceDiscovered;
-                            this.peripheral.DiscoverServices();
-                            break;
-
-                        case ConnectionStatus.Disconnected:
-                            this.peripheral.DiscoveredService -= this.OnServiceDiscovered;
-                            this.Services.Clear();
-                            break;
-                    }
-                });
-
         }
 
 
@@ -107,22 +86,28 @@ namespace Acr.Ble
         }
 
 
+        IObservable<string> nameOb;
         public override IObservable<string> WhenNameUpdated()
         {
-            return Observable.Create<string>(ob =>
+            this.nameOb = this.nameOb ?? Observable.Create<string>(ob =>
             {
                 ob.OnNext(this.Name);
                 var handler = new EventHandler((sender, args) => ob.OnNext(this.Name));
                 this.peripheral.UpdatedName += handler;
 
                 return () => this.peripheral.UpdatedName -= handler;
-            });
+            })
+            .Publish()
+            .RefCount();
+
+            return this.nameOb;
         }
 
 
+        IObservable<ConnectionStatus> statusOb;
         public override IObservable<ConnectionStatus> WhenStatusChanged()
         {
-            return Observable.Create<ConnectionStatus>(ob =>
+            this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
             {
                 ob.OnNext(this.Status);
 
@@ -152,19 +137,54 @@ namespace Acr.Ble
                     this.manager.DisconnectedPeripheral -= dhandler;
                     this.manager.FailedToConnectPeripheral -= error;
                 };
-            });
+            })
+            .Publish()
+            .RefCount();
+
+            return this.statusOb;
         }
 
 
+        IObservable<IGattService> servicesOb;
         public override IObservable<IGattService> WhenServiceDiscovered()
         {
-            return Observable.Create<IGattService>(ob =>
+            this.servicesOb = this.servicesOb ?? Observable.Create<IGattService>(ob =>
             {
-                foreach (var service in this.Services.Values)
-                    ob.OnNext(service);
+                var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
+                {
+                    if (peripheral.Services == null)
+                        return;
 
-                return this.subject.Subscribe(ob.OnNext);
-            });
+                    foreach (var native in peripheral.Services)
+                    {
+                        var service = new GattService(this, native);
+                        if (!this.Services.ContainsKey(service.Uuid))
+                        {
+                            this.Services.Add(service.Uuid, service);
+                            ob.OnNext(service);
+                        }
+                    }
+                });
+                this.peripheral.DiscoveredService += handler;
+
+                var sub = this.WhenStatusChanged()
+                    .Where(x => x == ConnectionStatus.Connected)
+                    .Subscribe(_ =>
+                    {
+                        this.Services.Clear();
+                        this.peripheral.DiscoverServices();
+                    });
+
+                return () =>
+                {
+                    this.peripheral.DiscoveredService -= handler;
+                    sub.Dispose();
+                };
+            })
+            .Publish()
+            .RefCount();
+
+            return this.servicesOb;
         }
 
 
@@ -187,23 +207,6 @@ namespace Acr.Ble
                     this.peripheral.RssiRead -= handler;
                 };
             });
-        }
-
-
-        protected virtual void OnServiceDiscovered(object sender, NSErrorEventArgs args)
-        {
-            if (peripheral.Services == null)
-                return;
-
-            foreach (var native in peripheral.Services)
-            {
-                var service = new GattService(this, native);
-                if (!this.Services.ContainsKey(service.Uuid))
-                {
-                    this.Services.Add(service.Uuid, service);
-                    this.subject.OnNext(service);
-                }
-            }
         }
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Acr.Ble.Internals;
 using Android.App;
@@ -16,7 +15,6 @@ namespace Acr.Ble
         readonly BluetoothDevice native;
         readonly GattCallbacks callbacks;
         readonly TaskScheduler scheduler;
-        readonly Subject<IGattService> serviceSubject;
         readonly IObservable<ConnectionStatus> connectOb;
         IObserver<ConnectionStatus> connectObserver;
         GattContext context;
@@ -31,7 +29,6 @@ namespace Acr.Ble
             this.native = native;
             this.callbacks = callbacks;
             this.scheduler = scheduler; // this is the thread that the device was scanned on (required by some devices)
-            this.serviceSubject = new Subject<IGattService>();
 
             this.connectOb = Observable.Create<ConnectionStatus>(ob =>
             {
@@ -40,23 +37,7 @@ namespace Acr.Ble
                 var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
                 {
                     if (args.Gatt.Device.Equals(this.native))
-                    {
                         ob.OnNext(this.Status);
-                        switch (this.Status)
-                        {
-                            case ConnectionStatus.Connected:
-                                this.Services.Clear();
-                                this.callbacks.ServicesDiscovered += this.OnServicesDiscovered;
-                                this.context.Gatt.DiscoverServices();
-                                break;
-
-                            case ConnectionStatus.Disconnected:
-                                this.context.Callbacks.ServicesDiscovered -= this.OnServicesDiscovered;
-                                this.Services.Clear();
-                                break;
-                        }
-                    }
-
                 });
                 this.callbacks.ConnectionStateChanged += handler;
 
@@ -115,19 +96,24 @@ namespace Acr.Ble
         {
             if (this.context == null)
                 return;
-            
+
             this.context?.Dispose();
             this.context = null;
             this.connectObserver.OnNext(ConnectionStatus.Disconnected);
         }
 
 
+        IObservable<string> nameOb;
         public override IObservable<string> WhenNameUpdated()
         {
-            return BluetoothObservables
+            this.nameOb = this.nameOb ?? BluetoothObservables
                 .WhenDeviceNameChanged()
                 .Where(x => x.Equals(this.native))
-                .Select(x => this.Name);
+                .Select(x => this.Name)
+                .Publish()
+                .RefCount();
+
+            return this.nameOb;
         }
 
 
@@ -137,18 +123,42 @@ namespace Acr.Ble
         }
 
 
+        IObservable<IGattService> servicesOb;
         public override IObservable<IGattService> WhenServiceDiscovered()
         {
-            return Observable.Create<IGattService>(ob =>
+            this.servicesOb = this.servicesOb ?? Observable.Create<IGattService>(ob =>
             {
-                foreach (var service in this.Services.Values)
-                    ob.OnNext(service);
+                var handler = new EventHandler<GattEventArgs>((sender, args) =>
+                {
+                    if (args.Gatt.Device.Equals(this.native))
+                    {
+                        foreach (var ns in args.Gatt.Services)
+                        {
+                            var service = new GattService(this, this.context, ns);
+                            ob.OnNext(service);
+                        }
+                    }
+                });
+                this.callbacks.ServicesDiscovered += handler;
 
-                return this
-                    .serviceSubject
-                    .Subscribe(ob.OnNext);
-            });
+                var sub = this.WhenStatusChanged()
+                    .Where(x => x == ConnectionStatus.Connected)
+                    .Subscribe(_ =>
+                    {
+                        this.Services.Clear();
+                        this.context.Gatt.DiscoverServices();
+                    });
 
+                return () =>
+                {
+                    this.callbacks.ServicesDiscovered -= null;
+                    sub.Dispose();
+                };
+            })
+            .Publish()
+            .RefCount();
+
+            return this.servicesOb;
         }
 
 
@@ -171,19 +181,6 @@ namespace Acr.Ble
                     this.context.Callbacks.ReadRemoteRssi -= handler;
                 };
             });
-        }
-
-
-        protected virtual void OnServicesDiscovered(object sender, GattEventArgs args)
-        {
-            if (args.Gatt.Device.Equals(this.native))
-            {
-                foreach (var ns in args.Gatt.Services)
-                {
-                    var service = new GattService(this, this.context, ns);
-                    this.serviceSubject.OnNext(service);
-                }
-            }
         }
 
 
