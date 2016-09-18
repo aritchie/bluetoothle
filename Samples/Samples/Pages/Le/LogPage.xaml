@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <acr:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:acr="clr-namespace:Acr.XamForms;assembly=Acr.XamForms"
@@ -17,7 +17,7 @@
             <ListView ItemsSource="{Binding Data}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <TextCell Text="{Binding TimestampLocal, StringFormat='{0:hh:mm:ss tt}'}" />
+                        <TextCell Text="{Binding TimestampLocal, StringFormat='{0:hh:mm:ss tt}'}" Detail="{Binding Description}" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

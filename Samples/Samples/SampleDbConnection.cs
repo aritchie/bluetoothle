@@ -17,6 +17,6 @@ namespace Samples
         }
 
 
-        public TableQuery<BleRecord> BleRecords { get; }
+        public TableQuery<BleRecord> BleRecords => this.Table<BleRecord>();
     }
 }
