@@ -49,6 +49,8 @@ namespace Samples.ViewModels.Le
                 .Skip(1)
                 .Subscribe(enabled =>
                 {
+                    settings.IsLoggingEnabled = enabled;
+
                     if (enabled)
                     {
                         this.logger = this.adapter

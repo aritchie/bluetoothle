@@ -30,19 +30,22 @@ namespace Acr.Ble
             this.callbacks = callbacks;
             this.scheduler = scheduler; // this is the thread that the device was scanned on (required by some devices)
 
-            this.connectOb = Observable.Create<ConnectionStatus>(ob =>
-            {
-                this.connectObserver = ob;
-
-                var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
+            this.connectOb = Observable
+                .Create<ConnectionStatus>(ob =>
                 {
-                    if (args.Gatt.Device.Equals(this.native))
-                        ob.OnNext(this.Status);
-                });
-                this.callbacks.ConnectionStateChanged += handler;
+                    this.connectObserver = ob;
 
-                return () => this.callbacks.ConnectionStateChanged -= handler;
-            });
+                    var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
+                    {
+                        if (args.Gatt.Device.Equals(this.native))
+                            ob.OnNext(this.Status);
+                    });
+                    this.callbacks.ConnectionStateChanged += handler;
+
+                    return () => this.callbacks.ConnectionStateChanged -= handler;
+                })
+                .Publish()
+                .RefCount();
         }
 
 
@@ -78,11 +81,7 @@ namespace Acr.Ble
                     .WhenStatusChanged()
                     .Take(1)
                     .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ =>
-                    {
-                        ob.OnNext(null);
-                        ob.OnCompleted();
-                    });
+                    .Subscribe(_ => ob.Respond(null));
 
                 var conn = this.native.ConnectGatt(Application.Context, true, this.callbacks);
                 this.context = new GattContext(conn, this.callbacks);
@@ -94,11 +93,10 @@ namespace Acr.Ble
 
         public override void Disconnect()
         {
-            if (this.context == null)
+            if (this.Status != ConnectionStatus.Connected)
                 return;
 
             this.context?.Dispose();
-            this.context = null;
             this.connectObserver.OnNext(ConnectionStatus.Disconnected);
         }
 
@@ -168,16 +166,30 @@ namespace Acr.Ble
 
             return Observable.Create<int>(ob =>
             {
+                IDisposable timer = null;
                 var handler = new EventHandler<GattRssiEventArgs>((sender, args) => ob.OnNext(args.Rssi));
                 this.context.Callbacks.ReadRemoteRssi += handler;
-                var innerOb = Observable
-                    .Interval(ts)
-                    .Where(x => this.Status == ConnectionStatus.Connected)
-                    .Subscribe(_ => this.context.Gatt.ReadRemoteRssi());
+
+                var sub = this
+                    .WhenStatusChanged()
+                    .Subscribe(x => 
+                    {
+                        if (x == ConnectionStatus.Connected)
+                        {
+                            timer = Observable
+                                .Interval(ts)
+                                .Subscribe(_ => this.context.Gatt.ReadRemoteRssi());
+                        }
+                        else 
+                        {
+                            timer.Dispose();
+                        }
+                    });
 
                 return () =>
                 {
-                    innerOb.Dispose();
+                    timer?.Dispose();
+                    sub.Dispose();
                     this.context.Callbacks.ReadRemoteRssi -= handler;
                 };
             });

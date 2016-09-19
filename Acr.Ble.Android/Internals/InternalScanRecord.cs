@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-
+using System.Text;
 
 namespace Acr.Ble.Internals
 {
@@ -11,6 +11,7 @@ namespace Acr.Ble.Internals
         {
             var sr = new InternalScanRecord();
             var index = 0;
+            var others = new List<AdRecord>();
 
             while (index < scanRecord.Length)
             {
@@ -31,23 +32,36 @@ namespace Acr.Ble.Internals
                         sr.TxPower = (sbyte)data[0];
                         break;
 
-                    case AdvertisementRecordType.ShortLocalName:
-                    //case AdvertisementRecordType.CompleteLocalName:
-                        sr.LocalName = BitConverter.ToString(data);
+                    case AdvertisementRecordType.CompleteLocalName:
+                        sr.LocalName = Encoding.UTF8.GetString(data, 0, data.Length);
+                        break;
+                        
+                    case AdvertisementRecordType.ShortLocalName:    
+                        if (sr.LocalName == null)
+                            sr.LocalName = Encoding.UTF8.GetString(data, 0, data.Length);
                         break;
 
                     case AdvertisementRecordType.ManufacturerSpecificData:
                         sr.ManufacturerData = data;
                         break;
+             
+                    default:
+                        var rec = new AdRecord((AdvertisementRecordType)type, data);
+                        others.Add(rec);
+                        break;
                 }
                 index += len;
-            }            
+            }
+            others
+                .Where(x => 
+                    x.Type.ToString().Contains("Uuid") &&
+                    x.Data.Length == 16
+                )
+                .Select(x => new Guid(x.Data))
+                .ToList()
+                .ForEach(sr.ServiceUuids.Add);
+
             return sr;
-        }
-
-
-        InternalScanRecord()
-        {
         }
 
 
@@ -56,5 +70,19 @@ namespace Acr.Ble.Internals
         public bool IsConnectable { get; private set; }
         public int TxPower { get; private set; } 
         public IList<Guid> ServiceUuids { get; } = new List<Guid>();
+    }
+
+
+    public class AdRecord 
+    {
+        public AdRecord(AdvertisementRecordType type, byte[] data)
+        {
+            this.Data = data;
+            this.Type = type;
+        }
+
+
+        public byte[] Data { get; }
+        public AdvertisementRecordType Type { get; }
     }
 }
