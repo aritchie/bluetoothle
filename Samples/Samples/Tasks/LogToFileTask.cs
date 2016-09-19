@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using Acr;
 using Acr.Ble;
@@ -43,6 +44,7 @@ namespace Samples.Tasks
                     {
                         this.sub = this.adapter
                             .WhenActionOccurs(BleLogFlags.All)
+                            .Timestamp()
                             .Buffer(TimeSpan.FromSeconds(5))
                             .Subscribe(this.WriteLog);
                     }
@@ -54,14 +56,14 @@ namespace Samples.Tasks
         }
 
 
-        void WriteLog(IList<string> msgs)
+        void WriteLog(IList<Timestamped<BleLogEvent>> events)
         {
             this.data.InsertAll(
-                msgs
-                    .Select(msg => new BleRecord
+                events
+                    .Select(e => new BleRecord
                     {
-                        Description = msg,
-                        TimestampLocal = DateTime.Now
+                        Description = $"[{e.Value.Category}]({e.Value.Uuid}) {e.Value.Details}",
+                        TimestampLocal = e.Timestamp.LocalDateTime
                     }
             ));
         }

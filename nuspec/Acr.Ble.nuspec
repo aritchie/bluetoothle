@@ -26,6 +26,7 @@ Mac Support (Coming Soon)
         </dependencies>
         <releaseNotes>
 0.9.6
+Vastly improved logging
 Improvements to observable allocations
 Improvements in service discovery
 
