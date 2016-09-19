@@ -3,7 +3,7 @@ using System.Reactive.Linq;
 using CoreBluetooth;
 using CoreFoundation;
 using System.Reactive.Subjects;
-
+using System.Diagnostics;
 
 namespace Acr.Ble
 {
@@ -63,8 +63,9 @@ namespace Acr.Ble
 
                 return () => this.manager.UpdatedState -= handler;
             })
-            .Publish()
+            .Replay(1)
             .RefCount();
+            
             return this.statusOb;
         }
 

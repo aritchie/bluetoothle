@@ -75,7 +75,7 @@ namespace Acr.Ble
 
                 return aob.Dispose;
             })
-            .Publish()
+            .Replay(1)
             .RefCount();
 
             return this.statusOb;
@@ -124,9 +124,10 @@ namespace Acr.Ble
         }
 
 
+        IObservable<IDevice> deviceStatusOb;
         public IObservable<IDevice> WhenDeviceStatusChanged()
         {
-            return Observable.Create<IDevice>(ob =>
+            this.deviceStatusOb = this.deviceStatusOb ?? Observable.Create<IDevice>(ob =>
             {
                 var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
                 {
@@ -135,7 +136,11 @@ namespace Acr.Ble
                 });
                 this.context.Callbacks.ConnectionStateChanged += handler;
                 return () => this.context.Callbacks.ConnectionStateChanged -= handler;
-            });
+            })
+            .Publish()
+            .RefCount();
+
+            return this.deviceStatusOb;
         }
 
 

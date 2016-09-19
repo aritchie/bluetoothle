@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Windows.Input;
 using Acr;
 using Acr.Ble;
 using Acr.Ble.Plugins;
@@ -31,30 +30,27 @@ namespace Samples.Tasks
             this.adapter = adapter;
             this.settings = settings;
             this.data = data;
-
-            this.Show = new Command<BleRecord>(rec => dialogs.Alert(rec.Description, "Info"));
         }
 
 
         public void Start()
         {
-            //this.settings
-            //    .WhenAnyValue(x => x.IsLoggingEnabled)
-            //    .Subscribe(doLog =>
-            //    {
-            //        if (doLog)
-            //        {
-            //            this.sub = this.adapter
-            //                .WhenActionOccurs(BleLogFlags.All)
-            //                .Buffer(TimeSpan.FromSeconds(5))
-            //                .Subscribe(this.WriteLog);
-            //        }
-            //        else
-            //        {
-            //            this.sub?.Dispose();
-            //        }
-            //    });
-
+            this.settings
+                .WhenAnyValue(x => x.IsLoggingEnabled)
+                .Subscribe(doLog =>
+                {
+                    if (doLog)
+                    {
+                        this.sub = this.adapter
+                            .WhenActionOccurs(BleLogFlags.All)
+                            .Buffer(TimeSpan.FromSeconds(5))
+                            .Subscribe(this.WriteLog);
+                    }
+                    else
+                    {
+                        this.sub?.Dispose();
+                    }
+                });
         }
 
 
@@ -69,8 +65,5 @@ namespace Samples.Tasks
                     }
             ));
         }
-
-
-        public ICommand Show { get; }
     }
 }

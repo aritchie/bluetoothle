@@ -5,7 +5,7 @@
 	x:Class="Samples.Pages.MainPage"
 	Title="ACR BluetoothLE">
 	<TabbedPage.Children>
-        <le:ScanPage Title="{Binding Name}" />
+        <le:ScanPage Title="Scan" />
         <le:BackgroundPage Title="Background" />
         <le:LogPage Title="Logs" />
 	</TabbedPage.Children>

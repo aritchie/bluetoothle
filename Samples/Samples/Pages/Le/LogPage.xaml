@@ -14,7 +14,12 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <acr:ListView ItemsSource="{Binding Data}" ItemClickCommand="{Binding Show}">
+            <acr:ListView 
+					ItemsSource="{Binding Data}" 
+					IsPullToRefreshEnabled="true" 
+					IsRefreshing="{Binding IsRefreshing}" 
+					RefreshCommand="{Binding Refresh}"
+					ItemClickCommand="{Binding Show}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <TextCell Text="{Binding TimestampLocal, StringFormat='{0:hh:mm:ss tt}'}" Detail="{Binding Description}" />

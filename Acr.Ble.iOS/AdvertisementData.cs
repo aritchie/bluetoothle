@@ -15,6 +15,7 @@ namespace Acr.Ble
         readonly Lazy<int> txpower;
         readonly Lazy<Guid[]> serviceUuids;
 
+
         public AdvertisementData(NSDictionary adData)
         {
             this.adData = adData;

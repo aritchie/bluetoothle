@@ -11,7 +11,7 @@ namespace Samples
     public class SampleDbConnection : SQLiteConnection
     {
 
-        public SampleDbConnection(ISQLitePlatform platform, string databasePath) : base(platform, Path.Combine(databasePath, "beacons_150.db"))
+        public SampleDbConnection(ISQLitePlatform platform, string databasePath) : base(platform, Path.Combine(databasePath, "ble.db"))
         {
             this.CreateTable<BleRecord>();
         }

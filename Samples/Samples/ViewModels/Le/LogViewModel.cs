@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Windows.Input;
+using Acr;
 using Acr.Ble;
 using Acr.Ble.Plugins;
 using Acr.UserDialogs;
@@ -39,6 +40,8 @@ namespace Samples.ViewModels.Le
                     this.LoadData();
                 }
             });
+            this.Refresh = new Command(this.LoadData);
+            this.Show = new Command<BleRecord>(rec => dialogs.Alert(rec.Description, "Info"));
 
             this.IsLoggingEnabled = settings.IsLoggingEnabled;
       
@@ -78,15 +81,21 @@ namespace Samples.ViewModels.Le
 
         void LoadData()
         {
+            this.IsRefreshing = true;
             this.Data = this.data
                 .BleRecords
-                .OrderBy(x => x.TimestampLocal)
+                .OrderByDescending(x => x.TimestampLocal)
                 .ToList();
+
+            this.IsRefreshing = false;
         }
 
         public ICommand Clear { get; }
+        public ICommand Refresh { get; }
+        public ICommand Show { get; }
         [Reactive] public bool IsLoggingEnabled { get; set; }
         [Reactive] public IList<BleRecord> Data { get; private set; }
+        [Reactive] public bool IsRefreshing { get; private set; }
         // TODO: Save/Share log with another app (ie. Dropbox)
         // TODO: email log
     }
