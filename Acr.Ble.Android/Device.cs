@@ -188,9 +188,14 @@ namespace Acr.Ble
 
                 return () =>
                 {
+<<<<<<< HEAD
                     timer?.Dispose();
                     sub.Dispose();
                     this.context.Callbacks.ReadRemoteRssi -= handler;
+=======
+                    innerOb.Dispose();
+                    this.context.Callbacks.ReadRemoteRssi -= handler; // TODO: this will NRE on disconnect
+>>>>>>> origin/master
                 };
             });
         }
