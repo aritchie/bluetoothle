@@ -1,24 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:le="clr-namespace:Samples.Pages.Le;assembly=Samples"
-             x:Class="Samples.Pages.MainPage"
-             Title="ACR BluetoothLE">
-    <TabbedPage.Children>
-        <NavigationPage Title="Scan">
-            <x:Arguments>
-                <le:ScanPage />
-            </x:Arguments>
-        </NavigationPage>
-        <NavigationPage Title="Background">
-            <x:Arguments>
-                <le:BackgroundPage />
-            </x:Arguments>
-        </NavigationPage>
-        <NavigationPage Title="Logs">
-            <x:Arguments>
-                <le:LogPage />
-            </x:Arguments>
-        </NavigationPage>
-    </TabbedPage.Children>
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:le="clr-namespace:Samples.Pages.Le;assembly=Samples"
+	x:Class="Samples.Pages.MainPage"
+	Title="ACR BluetoothLE">
+	<TabbedPage.Children>
+        <le:ScanPage Title="{Binding Name}" />
+        <le:BackgroundPage Title="Background" />
+        <le:LogPage Title="Logs" />
+	</TabbedPage.Children>
 </TabbedPage>

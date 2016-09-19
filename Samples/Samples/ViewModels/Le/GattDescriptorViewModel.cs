@@ -2,10 +2,10 @@
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Reactive.Threading.Tasks;
 using Acr.UserDialogs;
 using Acr.Ble;
 using ReactiveUI.Fody.Helpers;
+
 
 namespace Samples.ViewModels.Le
 {
@@ -22,7 +22,7 @@ namespace Samples.ViewModels.Le
 
 
         public IGattDescriptor Descriptor { get; }
-        public string Description => this.Descriptor.Description;
+        public string Description => this.Descriptor.Value == null ? this.Descriptor.Description : BitConverter.ToString(this.Descriptor.Value);
         public string Uuid => this.Descriptor.Uuid.ToString();
         [Reactive] public DateTime LastValue { get; private set; }
         [Reactive] public bool IsValueAvailable { get; private set; }

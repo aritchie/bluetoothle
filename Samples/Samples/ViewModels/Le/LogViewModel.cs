@@ -33,16 +33,17 @@ namespace Samples.ViewModels.Le
                     .SetMessage("Are you sure you wish to delete the log?")
                     .UseYesNo()
                 );
-                if (result)
+                if (result) 
+                {                    
                     this.data.DeleteAll<BleRecord>();
+                    this.LoadData();
+                }
             });
 
             this.IsLoggingEnabled = settings.IsLoggingEnabled;
+      
             this.WhenAnyValue(x => x.IsLoggingEnabled)
                 .Skip(1)
-                .Subscribe(enabled => settings.IsLoggingEnabled = enabled);
-
-            this.WhenAnyValue(x => x.IsLoggingEnabled)
                 .Subscribe(enabled =>
                 {
                     if (enabled)

@@ -63,14 +63,15 @@ namespace Samples.Services.Impl
 
         INavigation GetCurrentNav()
         {
-            var tabs = Application.Current.MainPage as TabbedPage;
-            if (tabs == null)
+            var nav = Application.Current.MainPage as NavigationPage;
+            if (nav == null)
                 throw new ArgumentException("Top page should be tabs");
 
-            var nav = tabs.CurrentPage as NavigationPage;
-            if (nav == null)
-                throw new ArgumentException("Current tab is not a navpage");
+            //var nav = tabs.CurrentPage as NavigationPage;
+            //if (nav == null)
+                //throw new ArgumentException("Current tab is not a navpage");
 
+            //return nav.Navigation;
             return nav.Navigation;
         }
     }

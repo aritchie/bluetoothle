@@ -17,7 +17,8 @@ namespace Samples
         public App(IContainer container)
         {
             Container = container;
-            this.MainPage = container.Resolve<MainPage>();
+            var page = container.Resolve<MainPage>();
+            this.MainPage = new NavigationPage(page);
         }
 
 

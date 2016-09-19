@@ -38,22 +38,22 @@ namespace Samples.Tasks
 
         public void Start()
         {
-            this.settings
-                .WhenAnyValue(x => x.IsLoggingEnabled)
-                .Subscribe(doLog =>
-                {
-                    if (doLog)
-                    {
-                        this.sub = this.adapter
-                            .WhenActionOccurs(BleLogFlags.All)
-                            .Buffer(TimeSpan.FromSeconds(5))
-                            .Subscribe(this.WriteLog);
-                    }
-                    else
-                    {
-                        this.sub?.Dispose();
-                    }
-                });
+            //this.settings
+            //    .WhenAnyValue(x => x.IsLoggingEnabled)
+            //    .Subscribe(doLog =>
+            //    {
+            //        if (doLog)
+            //        {
+            //            this.sub = this.adapter
+            //                .WhenActionOccurs(BleLogFlags.All)
+            //                .Buffer(TimeSpan.FromSeconds(5))
+            //                .Subscribe(this.WriteLog);
+            //        }
+            //        else
+            //        {
+            //            this.sub?.Dispose();
+            //        }
+            //    });
 
         }
 
