@@ -3,7 +3,7 @@
     "Acr.Mvvm": "1.2.0",
     "Acr.Notifications": "2.0.1",
     "Acr.Settings": "5.1.1",
-    "Acr.UserDialogs": "6.2.0",
+    "Acr.UserDialogs": "6.2.3",
     "Acr.XamForms": "2.4.1",
     "Autofac": "3.5.2",
     "Microsoft.ApplicationInsights": "2.1.0",
@@ -13,7 +13,7 @@
     "reactiveui": "6.5.2",
     "Rx-Main": "2.2.5",
     "SQLite.Net-PCL": "3.1.1",
-    "Xamarin.Forms": "2.3.1.114"
+    "Xamarin.Forms": "2.3.2.127"
   },
   "frameworks": {
     "uap10.0": {}

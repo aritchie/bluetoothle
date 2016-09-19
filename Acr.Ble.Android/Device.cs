@@ -178,7 +178,7 @@ namespace Acr.Ble
                 return () =>
                 {
                     innerOb.Dispose();
-                    this.context.Callbacks.ReadRemoteRssi -= handler;
+                    this.context.Callbacks.ReadRemoteRssi -= handler; // TODO: this will NRE on disconnect
                 };
             });
         }
