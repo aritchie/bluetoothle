@@ -42,8 +42,7 @@ namespace Acr.Ble
                         {
                             this.Value = value;
                             this.WriteSubject.OnNext(this.Value);
-                            ob.OnNext(new object());
-                            ob.OnCompleted();
+                            ob.Respond(this.Value);
                         }
                     }
                 });
@@ -56,8 +55,7 @@ namespace Acr.Ble
                     this.context.Gatt.WriteCharacteristic(this.native);
                     this.Value = value;
                     this.WriteSubject.OnNext(this.Value);
-                    ob.OnNext(new object());
-                    ob.OnCompleted();
+                    ob.Respond(this.Value);
                 }
                 else
                 {
@@ -80,13 +78,14 @@ namespace Acr.Ble
                     if (args.Characteristic.Uuid.Equals(this.native.Uuid))
                     {
                         if (!args.IsSuccessful)
+                        {
                             ob.OnError(new ArgumentException($"Failed to read characteristic - {args.Status}"));
+                        }
                         else
                         {
                             this.Value = args.Characteristic.GetValue();
                             this.ReadSubject.OnNext(this.Value);
-                            ob.OnNext(this.Value);
-                            ob.OnCompleted();
+                            ob.Respond(this.Value);
                         }
                     }
                 });
@@ -110,8 +109,8 @@ namespace Acr.Ble
                         if (args.Characteristic.Equals(this.native))
                         {
                             this.Value = args.Characteristic.GetValue();
-                            ob.OnNext(this.Value);
                             this.NotifySubject.OnNext(this.Value);
+                            ob.OnNext(this.Value);
                         }
                     });
                     this.EnableNotifications(true);
