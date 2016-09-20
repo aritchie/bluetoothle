@@ -19,7 +19,7 @@ namespace Acr.Ble.Plugins
         CharacteristicRead = 64,
         CharacteristicWrite = 128,
         CharacteristicNotify = 256,
-        CharacteristicAll = CharacteristicRead | CharacteristicWrite | CharacteristicNotify,
+        CharacteristicAll = CharacteristicDiscovered | CharacteristicRead | CharacteristicWrite | CharacteristicNotify,
 
         DescriptorDiscovered = 512,
         DescriptorRead = 1024,

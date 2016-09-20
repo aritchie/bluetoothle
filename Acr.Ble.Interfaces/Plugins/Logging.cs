@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reactive.Linq;
 
 
@@ -18,27 +19,21 @@ namespace Acr.Ble.Plugins
                 {
                     list.Add(adapter
                         .WhenStatusChanged()
-                        .Subscribe(status =>
-                            ob.OnNext(new BleLogEvent(BleLogFlags.AdapterStatus, null, $"Changed to {status}"))
-                        )
+                        .Subscribe(status => Write(ob, BleLogFlags.AdapterStatus, null, $"Changed to {status}"))
                     );
                 }
                 if (flags.HasFlag(BleLogFlags.AdapterScanResults))
                 {
                     list.Add(adapter
                         .ScanListen()
-                        .Subscribe(scanResult =>
-                            ob.OnNext(new BleLogEvent(BleLogFlags.AdapterScanResults, null, $"Device: {scanResult.Device.Uuid} - RSSI: {scanResult.Rssi}"))
-                        )
+                        .Subscribe(scanResult => Write(ob, BleLogFlags.AdapterScanResults, null, $"Device: {scanResult.Device.Uuid} - RSSI: {scanResult.Rssi}"))
                     );
                 }
                 if (flags.HasFlag(BleLogFlags.AdapterScanStatus))
                 {
                     list.Add(adapter
                         .WhenScanningStatusChanged()
-                        .Subscribe(status =>
-                            ob.OnNext(new BleLogEvent(BleLogFlags.AdapterScanStatus, null, $"Changed to {status}")) 
-                        )
+                        .Subscribe(status => Write(ob, BleLogFlags.AdapterScanStatus, null, $"Changed to {status}"))
                     );
                 }
  
@@ -47,23 +42,28 @@ namespace Acr.Ble.Plugins
                     .Subscribe(device =>
                     {
                         if (flags.HasFlag(BleLogFlags.DeviceStatus))
-                            ob.OnNext(new BleLogEvent(BleLogFlags.DeviceStatus, device.Uuid, $"Changed to {device.Status}"));
-                    
+                            Write(ob, BleLogFlags.DeviceStatus, device.Uuid, $"Changed to {device.Status}");
+
                         lock(deviceEvents)
                         {
-                            if (device.Status == ConnectionStatus.Connected)
+                            switch (device.Status) 
                             {
-                                var reg = new List<IDisposable>();
-                                HookDeviceEvents(reg, device, ob, flags);
-                                deviceEvents.Add(device.Uuid, reg);
-                            }
-                            else if (deviceEvents.ContainsKey(device.Uuid))
-                            {
-                                var reg = deviceEvents[device.Uuid];
-                                foreach (var item in reg)
-                                    item.Dispose();
+                                case ConnectionStatus.Disconnected:
+                                    if (deviceEvents.ContainsKey(device.Uuid))
+                                    {
+                                        var registration = deviceEvents[device.Uuid];
+                                        foreach (var item in registration)
+                                            item.Dispose();
 
-                                deviceEvents.Remove(device.Uuid);
+                                        deviceEvents.Remove(device.Uuid);
+                                    } 
+                                    break;
+
+                                case ConnectionStatus.Connected:
+                                    var reg = new List<IDisposable>();
+                                    HookDeviceEvents(reg, device, ob, flags);
+                                    deviceEvents.Add(device.Uuid, reg);
+                                    break;
                             }
                         }
                     })
@@ -84,9 +84,7 @@ namespace Acr.Ble.Plugins
             {
                 registrations.Add(device
                     .WhenServiceDiscovered()
-                    .Subscribe(serv =>
-                        ob.OnNext(new BleLogEvent(BleLogFlags.ServiceDiscovered, serv.Uuid, String.Empty))
-                    )
+                    .Subscribe(serv => Write(ob, BleLogFlags.ServiceDiscovered, serv.Uuid, String.Empty))
                 );
             }
             registrations.Add(device
@@ -101,7 +99,6 @@ namespace Acr.Ble.Plugins
                             .WhenRead()
                             .Subscribe(bytes => Write(ob, BleLogFlags.CharacteristicRead, ch.Uuid, bytes))
                         );
-
                     
                     if (flags.HasFlag(BleLogFlags.CharacteristicWrite))                    
                         registrations.Add(ch
@@ -139,11 +136,19 @@ namespace Acr.Ble.Plugins
         }
 
 
-        static void Write(IObserver<BleLogEvent> ob, BleLogFlags flag, Guid uuid, byte[] bytes)
+        static void Write(IObserver<BleLogEvent> ob, BleLogFlags flag, Guid? uuid, string value)
         {
-            var value = BitConverter.ToString(bytes);
-            ob.OnNext(new BleLogEvent(flag, uuid, "Value: " + value));
+            var ev = new BleLogEvent(flag, uuid, value);
+            Debug.WriteLine($"[{flag}]({uuid}) {value}");
+            ob.OnNext(ev);
+        }
 
+
+        static void Write(IObserver<BleLogEvent> ob, BleLogFlags flag, Guid uuid, byte[] bytes)
+        {   
+            var value = BitConverter.ToString(bytes);
+            Debug.WriteLine($"[{flag}]({uuid}) {value}");
+            ob.OnNext(new BleLogEvent(flag, uuid, "Value: " + value));
         }
     }
 }
