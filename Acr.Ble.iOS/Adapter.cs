@@ -3,7 +3,7 @@ using System.Reactive.Linq;
 using CoreBluetooth;
 using CoreFoundation;
 using System.Reactive.Subjects;
-using System.Diagnostics;
+
 
 namespace Acr.Ble
 {
