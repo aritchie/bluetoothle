@@ -208,7 +208,9 @@ device.WhenAnyDescriptor().Subscribe(descriptor => {});
 
 **Logging**
 ```csharp
-// TODO
+adapter
+    .WhenActionOccurs(BleLogFlags.All)
+    .Subscribe(record => {})
 ```
 
 
