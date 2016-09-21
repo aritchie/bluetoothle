@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>0.9.6</version>
+        <version>0.9.7</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -25,6 +25,10 @@ Mac Support (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+0.9.7
+Fixes in error notifications on read/writes
+[droid] Read/Write callbacks now passing values back properly
+
 0.9.6
 Vastly improved logging
 Improvements to observable allocations
