@@ -134,18 +134,21 @@ namespace Acr.Ble
                     this.manager.FailedToConnectPeripheral -= error;
                 };
             })
-            .Publish()
+            .Replay(1)
             .RefCount();
 
             return this.statusOb;
         }
 
 
-        IObservable<IGattService> servicesOb;
         public override IObservable<IGattService> WhenServiceDiscovered()
         {
-            this.servicesOb = this.servicesOb ?? Observable.Create<IGattService>(ob =>
+            return Observable.Create<IGattService>(ob =>
             {
+                // broadcast existing service discoveries
+                foreach (var service in this.Services.Values)
+                    ob.OnNext(service);
+
                 var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
                 {
                     if (this.peripheral.Services == null)
@@ -164,11 +167,18 @@ namespace Acr.Ble
                 this.peripheral.DiscoveredService += handler;
 
                 var sub = this.WhenStatusChanged()
-                    .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ =>
+                    .Subscribe(status =>
                     {
-                        this.Services.Clear();
-                        this.peripheral.DiscoverServices();
+                        switch (status)
+                        {
+                            case ConnectionStatus.Connected:
+                                this.peripheral.DiscoverServices();
+                                break;
+
+                            default:
+                                this.Services.Clear();
+                                break;
+                        }
                     });
 
                 return () =>
@@ -176,11 +186,7 @@ namespace Acr.Ble
                     this.peripheral.DiscoveredService -= handler;
                     sub.Dispose();
                 };
-            })
-            .Publish()
-            .RefCount();
-
-            return this.servicesOb;
+            });
         }
 
 

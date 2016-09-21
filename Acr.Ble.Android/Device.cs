@@ -39,12 +39,14 @@ namespace Acr.Ble
                     {
                         if (args.Gatt.Device.Equals(this.native))
                             ob.OnNext(this.Status);
+
+
                     });
                     this.callbacks.ConnectionStateChanged += handler;
 
                     return () => this.callbacks.ConnectionStateChanged -= handler;
                 })
-                .Publish()
+                .Replay(1)
                 .RefCount();
         }
 
@@ -121,11 +123,14 @@ namespace Acr.Ble
         }
 
 
-        IObservable<IGattService> servicesOb;
         public override IObservable<IGattService> WhenServiceDiscovered()
         {
-            this.servicesOb = this.servicesOb ?? Observable.Create<IGattService>(ob =>
+            return Observable.Create<IGattService>(ob =>
             {
+                // broadcast existing discovered services
+                foreach (var service in this.Services.Values)
+                    ob.OnNext(service);
+
                 var handler = new EventHandler<GattEventArgs>((sender, args) =>
                 {
                     if (args.Gatt.Device.Equals(this.native))
@@ -133,30 +138,36 @@ namespace Acr.Ble
                         foreach (var ns in args.Gatt.Services)
                         {
                             var service = new GattService(this, this.context, ns);
-                            ob.OnNext(service);
+                            if (!this.Services.ContainsKey(service.Uuid))
+                            {
+                                this.Services.Add(service.Uuid, service);
+                                ob.OnNext(service);
+                            }
                         }
                     }
                 });
                 this.callbacks.ServicesDiscovered += handler;
 
-                var sub = this.WhenStatusChanged()
-                    .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ =>
+                var sub = this.WhenStatusChanged().Subscribe(status =>
+                {
+                    switch (status)
                     {
-                        this.Services.Clear();
-                        this.context.Gatt.DiscoverServices();
-                    });
+                        case ConnectionStatus.Connected:
+                            this.context.Gatt.DiscoverServices();
+                            break;
+
+                        default:
+                            this.Services.Clear();
+                            break;
+                    }
+                });
 
                 return () =>
                 {
-                    this.callbacks.ServicesDiscovered -= null;
+                    this.callbacks.ServicesDiscovered -= handler;
                     sub.Dispose();
                 };
-            })
-            .Publish()
-            .RefCount();
-
-            return this.servicesOb;
+            });
         }
 
 
@@ -172,7 +183,7 @@ namespace Acr.Ble
 
                 var sub = this
                     .WhenStatusChanged()
-                    .Subscribe(x => 
+                    .Subscribe(x =>
                     {
                         if (x == ConnectionStatus.Connected)
                         {
@@ -180,9 +191,9 @@ namespace Acr.Ble
                                 .Interval(ts)
                                 .Subscribe(_ => this.context.Gatt.ReadRemoteRssi());
                         }
-                        else 
+                        else
                         {
-                            timer.Dispose();
+                            timer?.Dispose();
                         }
                     });
 
@@ -206,6 +217,7 @@ namespace Acr.Ble
                 .Where(x => x % 2 == 0)
                 .Select(x => Convert.ToByte(mac.Substring(x, 2), 16))
                 .ToArray();
+
             macBytes.CopyTo(deviceGuid, 10);
             return new Guid(deviceGuid);
         }

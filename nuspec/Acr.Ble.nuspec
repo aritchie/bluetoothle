@@ -26,8 +26,11 @@ Mac Support (Coming Soon)
         </dependencies>
         <releaseNotes>
 0.9.7
-Fixes in error notifications on read/writes
-[droid] Read/Write callbacks now passing values back properly
+[fix] Error notifications on read/writes
+[fix] Make sure to replay last status for connectable observables
+[fix] Service discovery on iOS and Android was not registering subsequent subscriptions properly
+[fix][droid] Read/Write callbacks now passing values back properly
+[breaking] PersistentConnection is now CreateConnection with improvements to status reporting
 
 0.9.6
 Vastly improved logging

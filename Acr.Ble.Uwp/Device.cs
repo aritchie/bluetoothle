@@ -24,7 +24,7 @@ namespace Acr.Ble
         public Guid Uuid => this.native.Uuid;
 
 
-        public IObservable<ConnectionStatus> PersistentConnect()
+        public IObservable<ConnectionStatus> CreateConnection()
         {
             return Observable.Create<ConnectionStatus>(async ob =>
             {

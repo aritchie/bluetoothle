@@ -30,9 +30,10 @@ namespace Acr.Ble
         public abstract IObservable<string> WhenNameUpdated();
 
 
-        public virtual IObservable<ConnectionStatus> PersistentConnect()
+        IObservable<ConnectionStatus> connOb;
+        public virtual IObservable<ConnectionStatus> CreateConnection()
         {
-            return Observable.Create<ConnectionStatus>(async ob =>
+            this.connOb = this.connOb ?? Observable.Create<ConnectionStatus>(async ob =>
             {
                 var state = this.WhenStatusChanged().Subscribe(ob.OnNext);
                 await this.Connect();
@@ -42,7 +43,11 @@ namespace Acr.Ble
                     state.Dispose();
                     this.Disconnect();
                 };
-            });
+            })
+            .Replay(1)
+            .RefCount();
+
+            return this.connOb;
         }
     }
 }

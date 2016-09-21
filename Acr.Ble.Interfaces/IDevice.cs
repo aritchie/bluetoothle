@@ -14,10 +14,10 @@ namespace Acr.Ble
         //void RequestMtu();
 
         /// <summary>
-        /// This is a combination of 3 things - smart disconnect (dispose to dc), connection state monitoring, and reconnection
+        /// This is a combination of 3 things - connection management, disconnect (dispose to dc), and state monitoring.  If you don't dispose, reconnect is implied
         /// </summary>
         /// <returns></returns>
-        IObservable<ConnectionStatus> PersistentConnect();
+        IObservable<ConnectionStatus> CreateConnection();
 
         /// <summary>
         /// Connect to a device

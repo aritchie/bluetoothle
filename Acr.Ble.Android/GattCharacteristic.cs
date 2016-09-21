@@ -62,8 +62,8 @@ namespace Acr.Ble
                     this.native.WriteType = GattWriteType.NoResponse;
                     this.context.Gatt.WriteCharacteristic(this.native);
                     this.Value = value;
-                    this.WriteSubject.OnNext(this.Value);
                     ob.Respond(this.Value);
+                    this.WriteSubject.OnNext(this.Value);
                 }
                 return () => this.context.Callbacks.CharacteristicWrite -= handler;
             });
@@ -86,9 +86,9 @@ namespace Acr.Ble
                         }
                         else
                         {
-                            this.ReadSubject.OnNext(this.Value);
-                            ob.Respond(this.Value);
                             this.Value = args.Characteristic.GetValue();
+                            ob.Respond(this.Value);
+                            this.ReadSubject.OnNext(this.Value);
                         }
                     }
                 });

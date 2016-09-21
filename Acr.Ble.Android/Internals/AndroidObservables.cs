@@ -5,11 +5,7 @@ using Android.App;
 using Android.Content;
 
 
-#if BLE
 namespace Acr.Ble.Internals
-#else
-namespace Acr.Bluetooth.Internals
-#endif
 {
     public static class AndroidObservables
     {
