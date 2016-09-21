@@ -28,19 +28,21 @@ namespace Acr.Ble
                     if (args.Descriptor.Equals(this.native))
                     {
                         if (!args.IsSuccessful)
-                            ob.OnError(new ArgumentException($"Failed to write descriptor value - {this.Uuid}"));
+                        {
+                            ob.OnError(new ArgumentException($"Failed to write descriptor value - {this.Uuid} - {args.Status}"));
+                        }
                         else
                         {
                             this.Value = data;
+                            ob.Respond(this.Value);
                             this.WriteSubject.OnNext(data);
-                            ob.OnNext(new object());
-                            ob.OnCompleted();
                         }
                     }
                 });
                 this.context.Callbacks.DescriptorWrite += handler;
                 this.native.SetValue(data);
                 this.context.Gatt.WriteDescriptor(this.native);
+
                 return () => this.context.Callbacks.DescriptorWrite -= handler;
             });
         }
@@ -56,13 +58,14 @@ namespace Acr.Ble
                     if (args.Descriptor.Equals(this.native))
                     {
                         if (!args.IsSuccessful)
-                            ob.OnError(new ArgumentException($"Failed to read descriptor value - {this.Uuid}"));
+                        {
+                            ob.OnError(new ArgumentException($"Failed to read descriptor value {this.Uuid} - {args.Status}"));
+                        }
                         else
                         {
                             this.Value = this.native.GetValue();
+                            ob.Respond(this.Value);
                             this.ReadSubject.OnNext(this.Value);
-                            ob.OnNext(this.Value);
-                            ob.OnCompleted();
                         }
                     }
                 });

@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using CoreBluetooth;
 using Foundation;
 
+
 namespace Acr.Ble
 {
     public class GattCharacteristic : AbstractGattCharacteristic
@@ -29,27 +30,29 @@ namespace Acr.Ble
                     if (args.Characteristic.UUID.Equals(this.native.UUID))
                     {
                         if (args.Error != null)
-                            ob.OnError(new ArgumentException($"Error writing characteristic - {args.Error.LocalizedDescription}"));
+                        {
+                            ob.OnError(new ArgumentException(args.Error.ToString()));
+                        }
                         else
                         {
                             this.Value = value;
+                            ob.Respond(this.Value);
                             this.WriteSubject.OnNext(this.Value);
-                            ob.Respond(null);
                         }
                     }
                 });
 
-                if (this.Properties.HasFlag(CharacteristicProperties.WriteNoResponse))
-                {
-                    p.WriteValue(data, this.native, CBCharacteristicWriteType.WithoutResponse);
-                    this.Value = value;
-                    this.WriteSubject.OnNext(this.Value);
-                    ob.Respond(null);
-                }
-                else
+                if (this.Properties.HasFlag(CharacteristicProperties.Write))
                 {
                     p.WroteCharacteristicValue += handler;
                     p.WriteValue(data, this.native, CBCharacteristicWriteType.WithResponse);
+                }
+                else
+                {
+                    p.WriteValue(data, this.native, CBCharacteristicWriteType.WithoutResponse);
+                    this.Value = value;
+                    ob.Respond(this.Value);
+                    this.WriteSubject.OnNext(this.Value);
                 }
                 return () => p.WroteCharacteristicValue -= handler;
             });
@@ -66,9 +69,17 @@ namespace Acr.Ble
                 {
                     if (args.Characteristic.UUID.Equals(this.native.UUID))
                     {
-                        var value = this.native.Value.ToArray();
-                        this.Value = value;
-                        ob.Respond(this.Value);
+                        if (args.Error != null)
+                        {
+                            ob.OnError(new ArgumentException(args.Error.ToString()));
+                        }
+                        else
+                        {
+                            var value = this.native.Value.ToArray();
+                            this.Value = value;
+                            ob.Respond(this.Value);
+                            this.ReadSubject.OnNext(this.Value);
+                        }
                     }
                 });
                 this.native.Service.Peripheral.UpdatedCharacterteristicValue += handler;
@@ -91,9 +102,16 @@ namespace Acr.Ble
                     {
                         if (args.Characteristic.UUID.Equals(this.native.UUID))
                         {
-                            this.Value = this.native.Value.ToArray();
-                            ob.OnNext(this.Value);
-                            this.NotifySubject.OnNext(this.Value);
+                            if (args.Error != null)
+                            {
+                                ob.OnError(new ArgumentException(args.Error.ToString()));
+                            }
+                            else
+                            {
+                                this.Value = this.native.Value.ToArray();
+                                ob.OnNext(this.Value);
+                                this.NotifySubject.OnNext(this.Value);
+                            }
                         }
                     });
                     this.native.Service.Peripheral.UpdatedCharacterteristicValue += handler;

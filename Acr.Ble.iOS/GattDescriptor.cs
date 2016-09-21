@@ -28,12 +28,14 @@ namespace Acr.Ble
                     if (args.Descriptor.UUID.Equals(this.native.UUID))
                     {
                         if (args.Error != null)
+                        {
                             ob.OnError(new ArgumentException(args.Error.ToString()));
+                        }
                         else
                         {
-                            this.Value = ((NSData)args.Descriptor.Value).ToArray();
-                            this.ReadSubject.OnNext(this.Value);
+                            this.Value = ((NSData) args.Descriptor.Value).ToArray();
                             ob.Respond(this.Value);
+                            this.ReadSubject.OnNext(this.Value);
                         }
                     }
                 });
@@ -55,12 +57,14 @@ namespace Acr.Ble
                     if (args.Descriptor.UUID.Equals(this.native.UUID))
                     {
                         if (args.Error != null)
+                        {
                             ob.OnError(new ArgumentException(args.Error.ToString()));
+                        }
                         else
                         {
                             this.Value = data;
-                            this.WriteSubject.OnNext(this.Value);
                             ob.Respond(this.Value);
+                            this.WriteSubject.OnNext(this.Value);
                         }
                     }
                 });

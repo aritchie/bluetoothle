@@ -16,6 +16,9 @@ namespace Acr.Ble
         readonly BluetoothGattCharacteristic native;
         readonly GattContext context;
 
+        // read/write locks should be across a device
+        //static readonly object syncLock = new object()
+
 
         public GattCharacteristic(IGattService service, GattContext context, BluetoothGattCharacteristic native) : base(service, native.Uuid.ToGuid(), (CharacteristicProperties)(int)native.Properties)
         {
@@ -41,26 +44,26 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = value;
-                            this.WriteSubject.OnNext(this.Value);
                             ob.Respond(this.Value);
+                            this.WriteSubject.OnNext(this.Value);
                         }
                     }
                 });
                 this.context.Callbacks.CharacteristicWrite += handler;
                 this.native.SetValue(value);
 
-                if (this.Properties.HasFlag(CharacteristicProperties.WriteNoResponse))
+                if (this.Properties.HasFlag(CharacteristicProperties.Write))
+                {
+                    this.native.WriteType = GattWriteType.Default;
+                    this.context.Gatt.WriteCharacteristic(this.native);
+                }
+                else
                 {
                     this.native.WriteType = GattWriteType.NoResponse;
                     this.context.Gatt.WriteCharacteristic(this.native);
                     this.Value = value;
                     this.WriteSubject.OnNext(this.Value);
                     ob.Respond(this.Value);
-                }
-                else
-                {
-                    this.native.WriteType = GattWriteType.Default;
-                    this.context.Gatt.WriteCharacteristic(this.native);
                 }
                 return () => this.context.Callbacks.CharacteristicWrite -= handler;
             });
@@ -83,9 +86,9 @@ namespace Acr.Ble
                         }
                         else
                         {
-                            this.Value = args.Characteristic.GetValue();
                             this.ReadSubject.OnNext(this.Value);
                             ob.Respond(this.Value);
+                            this.Value = args.Characteristic.GetValue();
                         }
                     }
                 });
@@ -106,11 +109,18 @@ namespace Acr.Ble
                 {
                     var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                     {
-                        if (args.Characteristic.Equals(this.native))
+                        if (args.Characteristic.Uuid.Equals(this.native.Uuid))
                         {
-                            this.Value = args.Characteristic.GetValue();
-                            this.NotifySubject.OnNext(this.Value);
-                            ob.OnNext(this.Value);
+                            if (!args.IsSuccessful)
+                            {
+                                ob.OnError(new ArgumentException("Error subscribing to " + args.Characteristic.Uuid));
+                            }
+                            else
+                            {
+                                this.Value = args.Characteristic.GetValue();
+                                ob.OnNext(this.Value);
+                                this.NotifySubject.OnNext(this.Value);
+                            }
                         }
                     });
                     this.EnableNotifications(true);
