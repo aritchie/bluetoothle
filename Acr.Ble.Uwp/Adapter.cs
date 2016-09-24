@@ -2,13 +2,9 @@
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Devices.Bluetooth.Advertisement;
-using Windows.Devices.Bluetooth.GenericAttributeProfile;
-using Windows.Devices.Enumeration;
 using Windows.Devices.Radios;
-using Windows.UI.Core;
 
 
 namespace Acr.Ble
@@ -19,7 +15,6 @@ namespace Acr.Ble
         readonly Lazy<Radio> radio;
         readonly Subject<bool> scanStatusSubject;
         readonly BluetoothLEAdvertisementWatcher watcher;
-        readonly DeviceWatcher deviceWatcher;
 
 
         public Adapter()
@@ -27,12 +22,6 @@ namespace Acr.Ble
             this.scanStatusSubject = new Subject<bool>();
             this.deviceManager = new DeviceManager();
             this.watcher = new BluetoothLEAdvertisementWatcher();
-
-            // this only sees paired devices though
-            this.deviceWatcher = DeviceInformation.CreateWatcher(
-                GattDeviceService.GetDeviceSelectorFromUuid(GattServiceUuids.GenericAccess),
-                null
-            );
 
             this.radio = new Lazy<Radio>(() =>
                 Radio
@@ -83,17 +72,18 @@ namespace Acr.Ble
             {
                 var sub = this.ScanListen().Subscribe(ob.OnNext);
                 this.watcher.Start();
-                this.deviceWatcher.Start();
                 this.scanStatusSubject.OnNext(true);
 
                 return () =>
                 {
                     this.watcher.Stop();
-                    this.deviceWatcher.Stop();
                     this.scanStatusSubject.OnNext(false);
                     sub.Dispose();
                 };
-            });
+            })
+            .Publish()
+            .RefCount();
+
             return this.scanner;
         }
 
@@ -115,55 +105,19 @@ namespace Acr.Ble
         {
             this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
             {
-                var stopWatcher = false;
                 var adHandler = new TypedEventHandler<BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>
                 (
                     (sender, args) =>
                     {
-                        IDevice device = null;
-                        if (!this.deviceManager.TryGetDevice(args.BluetoothAddress, out device))
-                            return;
-
                         var adData = new AdvertisementData(args);
+                        var device = this.deviceManager.GetDevice(adData);
                         var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
                         ob.OnNext(scanResult);
                     }
                 );
-                var deviceHandler = new TypedEventHandler<DeviceWatcher, DeviceInformation>(async (sender, args) =>
-                {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                        CoreDispatcherPriority.Low,
-                        async () =>
-                        {
-                            var native = await GattDeviceService.FromIdAsync(args.Id);
-                            this.deviceManager.GetDevice(native);
-                        }
-                    );
-                });
-                var deviceEnumHandler = new TypedEventHandler<DeviceWatcher, Object>(async (watcher, obj) =>
-                {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                        CoreDispatcherPriority.Low,
-                        () =>
-                        {
-                            if (!stopWatcher)
-                                this.deviceWatcher.Start();
-                        }
-                    );
-                });
-
-
                 this.watcher.Received += adHandler;
-                this.deviceWatcher.Added += deviceHandler;
-                this.deviceWatcher.EnumerationCompleted += deviceEnumHandler;
 
-                return () =>
-                {
-                    stopWatcher = true;
-                    this.watcher.Received -= adHandler;
-                    this.deviceWatcher.Added -= deviceHandler;
-                    this.deviceWatcher.EnumerationCompleted -= deviceEnumHandler;
-                };
+                return () => this.watcher.Received -= adHandler;
             })
             .Publish()
             .RefCount();

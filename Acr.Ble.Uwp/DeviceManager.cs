@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using Windows.Devices.Bluetooth.GenericAttributeProfile;
 
 
 namespace Acr.Ble
@@ -10,17 +9,11 @@ namespace Acr.Ble
         readonly ConcurrentDictionary<ulong, IDevice> devices = new ConcurrentDictionary<ulong, IDevice>();
 
 
-        public bool TryGetDevice(ulong bluetoothAddress, out IDevice device)
-        {
-            return this.devices.TryGetValue(bluetoothAddress, out device);
-        }
-
-
-        public IDevice GetDevice(GattDeviceService native)
+        public IDevice GetDevice(AdvertisementData data)
         {
             return this.devices.GetOrAdd(
-                native.Device.BluetoothAddress,
-                x => new Device(native)
+                data.BluetoothAddress,
+                x => new Device(args)
             );
         }
     }

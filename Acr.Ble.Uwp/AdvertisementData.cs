@@ -9,14 +9,14 @@ namespace Acr.Ble
 {
     public class AdvertisementData : IAdvertisementData
     {
-        readonly BluetoothLEAdvertisement adData;
+        readonly BluetoothLEAdvertisementReceivedEventArgs adData;
         readonly Lazy<byte[]> manufacturerData;
         readonly Lazy<int> txPower;
 
 
         public AdvertisementData(BluetoothLEAdvertisementReceivedEventArgs args)
         {
-            this.adData = args.Advertisement;
+            this.adData = args;
             this.IsConnectable = args.AdvertisementType == BluetoothLEAdvertisementType.ConnectableDirected ||
                                  args.AdvertisementType == BluetoothLEAdvertisementType.ConnectableUndirected;
 
@@ -33,10 +33,11 @@ namespace Acr.Ble
         }
 
 
-        public string LocalName => this.adData.LocalName;
+        public ulong BluetoothAddress => this.adData.BluetoothAddress;
+        public string LocalName => this.adData.Advertisement.LocalName;
         public bool IsConnectable { get; }
         public byte[] ManufacturerData => this.manufacturerData.Value;
-        public Guid[] ServiceUuids => this.adData.ServiceUuids.ToArray();
+        public Guid[] ServiceUuids => this.adData.Advertisement.ServiceUuids.ToArray();
         public int TxPower => this.txPower.Value;
 
 
@@ -44,7 +45,7 @@ namespace Acr.Ble
         {
             return new Lazy<TResult>(() =>
             {
-                var sections = this.adData.GetSectionsByType((byte) recordType);
+                var sections = this.adData.Advertisement.GetSectionsByType((byte) recordType);
                 if (!sections?.Any() ?? true)
                     return default(TResult);
 

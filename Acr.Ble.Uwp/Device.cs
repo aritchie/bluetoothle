@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reactive.Linq;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Devices.Enumeration;
 using Windows.Foundation;
 
 
@@ -10,18 +10,17 @@ namespace Acr.Ble
 {
     public class Device : IDevice
     {
-        readonly IList<IGattService> services = new List<IGattService>();
-        readonly GattDeviceService native;
+        readonly AdvertisementData adData;
+        GattDeviceService native;
 
-
-        public Device(GattDeviceService native)
+        public Device(AdvertisementData adData)
         {
-            this.native = native;
+            this.adData = adData;
         }
 
 
-        public string Name => this.native.Device.Name;
-        public Guid Uuid => this.native.Uuid;
+        public string Name => this.adData.LocalName; // need complete name?
+        public Guid Uuid => Guid.Empty; //this.native.Uuid;
 
 
         public IObservable<ConnectionStatus> CreateConnection()
@@ -40,7 +39,22 @@ namespace Acr.Ble
 
         public IObservable<object> Connect()
         {
-            return Observable.Empty<object>();
+            return Observable.Create<object>(async ob =>
+            {
+                var all = await DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(GattServiceUuids.GenericAccess), null);
+
+                //var all = await DeviceInformation.FindAllAsync(BluetoothLEDevice.GetDeviceSelectorFromBluetoothAddress(this.adData.BluetoothAddress));
+                //var devInfo = all.SingleOrDefault();
+
+                //var ble = await BluetoothLEDevice.FromBluetoothAddressAsync(this.adData.BluetoothAddress);
+                //var p = ble.DeviceInformation.Pairing;
+                //if (p.CanPair && p.IsPaired)
+                //    await p.PairAsync();
+
+                //this.native = await BluetoothLEDevice.FromIdAsync(ble.DeviceId);
+
+                return () => { };
+            });
         }
 
 
@@ -52,6 +66,11 @@ namespace Acr.Ble
 
         public void Disconnect()
         {
+            if (this.Status != ConnectionStatus.Connected)
+                return;
+
+            this.native?.Dispose();
+            this.native = null;
         }
 
 
@@ -59,6 +78,9 @@ namespace Acr.Ble
         {
             get
             {
+                if (this.native == null)
+                    return ConnectionStatus.Disconnected;
+
                 switch (this.native.Device.ConnectionStatus)
                 {
                     case BluetoothConnectionStatus.Connected:
@@ -80,8 +102,10 @@ namespace Acr.Ble
                 var handler = new TypedEventHandler<BluetoothLEDevice, object>(
                     (sender, args) => ob.OnNext(this.Status)
                 );
-                this.native.Device.ConnectionStatusChanged += handler;
-                return () => this.native.Device.ConnectionStatusChanged -= handler;
+                // TODO: when device ready
+                //this.native.Device.ConnectionStatusChanged += handler;
+                //return () => this.native.Device.ConnectionStatusChanged -= handler;
+                return () => { };
             })
             .Publish()
             .RefCount();
@@ -99,7 +123,6 @@ namespace Acr.Ble
                     .Where(x => x == ConnectionStatus.Connected)
                     .Subscribe(x =>
                     {
-                        this.services.Clear();
                         foreach (var nservice in this.native.Device.GattServices)
                         {
                             var service = new GattService(nservice, this);
@@ -107,7 +130,10 @@ namespace Acr.Ble
                         }
                     })
             )
-            .Publish()
+            .ReplayWithReset(this.WhenStatusChanged()
+                .Skip(1)
+                .Where(x => x == ConnectionStatus.Disconnected)
+            )
             .RefCount();
 
             return this.serviceOb;
@@ -124,8 +150,9 @@ namespace Acr.Ble
                 var handler = new TypedEventHandler<BluetoothLEDevice, object>(
                     (sender, args) => ob.OnNext(this.Name)
                 );
-                this.native.Device.NameChanged += handler;
-                return () => this.native.Device.NameChanged -= handler;
+                //this.native.Device.NameChanged += handler;
+                //return () => this.native.Device.NameChanged -= handler;
+                return () => { };
             })
             .Publish()
             .RefCount();
