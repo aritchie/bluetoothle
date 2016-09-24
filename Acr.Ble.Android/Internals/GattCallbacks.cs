@@ -4,7 +4,7 @@ using Android.Bluetooth;
 
 namespace Acr.Ble.Internals
 {
-    public class GattCallbacks : Android.Bluetooth.BluetoothGattCallback
+    public class GattCallbacks : BluetoothGattCallback
     {
 
         public event EventHandler<GattCharacteristicEventArgs> CharacteristicRead;

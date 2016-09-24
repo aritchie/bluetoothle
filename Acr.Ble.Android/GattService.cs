@@ -33,7 +33,8 @@ namespace Acr.Ble
                 }
                 return Disposable.Empty;
             })
-            .Replay();
+            .Replay()
+            .RefCount();
 
             return this.characteristicOb;
         }

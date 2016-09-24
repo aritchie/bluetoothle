@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Acr.Ble.Internals;
@@ -43,7 +44,8 @@ namespace Acr.Ble
 
                 return () => this.callbacks.ConnectionStateChanged -= handler;
             })
-            .Replay(1);
+            .Replay(1)
+            .RefCount();
         }
 
 
@@ -75,24 +77,35 @@ namespace Acr.Ble
         {
             return Observable.Create<object>(ob =>
             {
-                var connected = this
-                    .WhenStatusChanged()
-                    .Take(1)
-                    .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ => ob.Respond(null));
+                if (this.Status == ConnectionStatus.Connected)
+                {
+                    ob.Respond(null);
+                    return Disposable.Empty;
+                }
+                else 
+                {                   
+                    var connected = this
+                        .WhenStatusChanged()
+                        .Take(1)
+                        .Where(x => x == ConnectionStatus.Connected)
+                        .Subscribe(_ => ob.Respond(null));
 
-                try 
-                {
-                    ob.OnNext(ConnectionStatus.Connecting);
-                    var conn = this.native.ConnectGatt(Application.Context, true, this.callbacks);
-                    this.context = new GattContext(conn, this.callbacks);
+                    if (this.Status != ConnectionStatus.Connecting)
+                    {
+                        try 
+                        {
+                            ob.OnNext(ConnectionStatus.Connecting);
+                            var conn = this.native.ConnectGatt(Application.Context, true, this.callbacks);
+                            this.context = new GattContext(conn, this.callbacks);
+                        }
+                        catch (Exception ex)
+                        {
+                            ob.OnNext(ConnectionStatus.Disconnected);
+                            ob.OnError(ex);
+                        }
+                    }
+                    return connected;
                 }
-                catch (Exception ex)
-                {
-                    ob.OnNext(ConnectionStatus.Disconnected);
-                    ob.OnError(ex);
-                }
-                return connected;
             });
         }
 
@@ -150,7 +163,12 @@ namespace Acr.Ble
                     this.callbacks.ServicesDiscovered -= handler;
                 };
             })
-            .ReplayWithReset(this.WhenStatusChanged());
+            .ReplayWithReset(this
+                .WhenStatusChanged()
+                .Skip(1)
+                .Where(x => x == ConnectionStatus.Disconnected)
+            )
+            .RefCount();
 
             return this.serviceOb;
         }
@@ -163,7 +181,11 @@ namespace Acr.Ble
             return Observable.Create<int>(ob =>
             {
                 IDisposable timer = null;
-                var handler = new EventHandler<GattRssiEventArgs>((sender, args) => ob.OnNext(args.Rssi));
+                var handler = new EventHandler<GattRssiEventArgs>((sender, args) => 
+                {
+                    if (args.Gatt.Device.Equals(this.native))
+                        ob.OnNext(args.Rssi);
+                });
                 this.context.Callbacks.ReadRemoteRssi += handler;
 
                 var sub = this
