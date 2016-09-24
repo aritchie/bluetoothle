@@ -5,6 +5,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 
 * Android 4.3+
 * iOS 6+
+* tvOS / Mac (support is here, I haven't had the means to fully test these yet)
 * Windows UWP (COMING SOON)
 
 ## FEATURES

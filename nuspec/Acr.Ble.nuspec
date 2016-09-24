@@ -26,9 +26,10 @@ Mac Support (Coming Soon)
         </dependencies>
         <releaseNotes>
 0.9.8
+adding mac and tvOS libraries (NOT TESTED)
 [fix] createconnection properly persists connection now
-[fix] more logging issues
-[fix] more discovery issues
+[fix] more logging and discovery issues
+[fix][droid] device.readrssi was not working
 [droid] device.whenstatuschanged will now broadcast Connecting/Disconnecting
 [droid] advertisement packet now gets all service UUIDs parsed
 
@@ -77,9 +78,13 @@ Initial Public Release
         <file src="..\Acr.Ble.iOS\bin\Release\Acr.Ble.*" target="lib\Xamarin.iOS10" />
 
         <!-- mac -->
-        <!--<file src="..\Acr.Ble.Mac\bin\Release\Acr.Ble.*" target="lib\Xamarin.Mac20" />-->
+        <file src="..\Acr.Ble.Mac\bin\Release\Acr.Ble.*" target="lib\Xamarin.Mac20" />
+
+        <!-- tvOS -->
+        <file src="..\Acr.Ble.tvOS\bin\Release\Acr.Ble.*" target="lib\Xamarin.tvOS10" />
 
         <!-- uwp -->
         <!--<file src="..\Acr.Ble.Uwp\bin\Release\Acr.Ble.*" target="lib\uap10.0" />-->
+
     </files>
 </package>
