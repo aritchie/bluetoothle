@@ -53,11 +53,8 @@ namespace Acr.Ble.Internals
                 index += len;
             }
             others
-                .Where(x => 
-                    x.Type.ToString().Contains("Uuid") &&
-                    x.Data.Length == 16
-                )
-                .Select(x => new Guid(x.Data))
+                .Where(x => x.Type.ToString().Contains("Uuid"))
+                .Select(x => x.Data.ToGuid())
                 .ToList()
                 .ForEach(sr.ServiceUuids.Add);
 

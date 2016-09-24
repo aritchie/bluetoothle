@@ -16,9 +16,6 @@ namespace Acr.Ble
         readonly BluetoothGattCharacteristic native;
         readonly GattContext context;
 
-        // read/write locks should be across a device
-        //static readonly object syncLock = new object()
-
 
         public GattCharacteristic(IGattService service, GattContext context, BluetoothGattCharacteristic native) : base(service, native.Uuid.ToGuid(), (CharacteristicProperties)(int)native.Properties)
         {
@@ -104,36 +101,35 @@ namespace Acr.Ble
         {
             this.AssertNotify();
 
-            this.notifyOb = this.notifyOb ?? Observable
-                .Create<byte[]>(ob =>
+            this.notifyOb = this.notifyOb ?? Observable.Create<byte[]>(ob =>
+            {
+                var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
-                    var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
+                    if (args.Characteristic.Uuid.Equals(this.native.Uuid))
                     {
-                        if (args.Characteristic.Uuid.Equals(this.native.Uuid))
+                        if (!args.IsSuccessful)
                         {
-                            if (!args.IsSuccessful)
-                            {
-                                ob.OnError(new ArgumentException("Error subscribing to " + args.Characteristic.Uuid));
-                            }
-                            else
-                            {
-                                this.Value = args.Characteristic.GetValue();
-                                ob.OnNext(this.Value);
-                                this.NotifySubject.OnNext(this.Value);
-                            }
+                            ob.OnError(new ArgumentException("Error subscribing to " + args.Characteristic.Uuid));
                         }
-                    });
-                    this.EnableNotifications(true);
-                    this.context.Callbacks.CharacteristicChanged += handler;
+                        else
+                        {
+                            this.Value = args.Characteristic.GetValue();
+                            ob.OnNext(this.Value);
+                            this.NotifySubject.OnNext(this.Value);
+                        }
+                    }
+                });
+                this.EnableNotifications(true);
+                this.context.Callbacks.CharacteristicChanged += handler;
 
-                    return () =>
-                    {
-                        this.EnableNotifications(false);
-                        this.context.Callbacks.CharacteristicChanged -= handler;
-                    };
-                })
-                .Publish()
-                .RefCount();
+                return () =>
+                {
+                    this.EnableNotifications(false);
+                    this.context.Callbacks.CharacteristicChanged -= handler;
+                };
+            })
+            .Publish()
+            .RefCount();
 
             return this.notifyOb;
         }
@@ -142,16 +138,16 @@ namespace Acr.Ble
         IObservable<IGattDescriptor> descriptorOb;
         public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
         {
-            this.descriptorOb = this.descriptorOb ?? Observable
-                .Create<IGattDescriptor>(ob =>
+            this.descriptorOb = this.descriptorOb ?? Observable.Create<IGattDescriptor>(ob =>
+            {
+                foreach (var nd in this.native.Descriptors)
                 {
-                    foreach (var nd in this.native.Descriptors)
-                    {
-                        var wrap = new GattDescriptor(this, this.context, nd);
-                        ob.OnNext(wrap);
-                    }
-                    return Disposable.Empty;
-                });
+                    var wrap = new GattDescriptor(this, this.context, nd);
+                    ob.OnNext(wrap);
+                }
+                return Disposable.Empty;
+            })
+            .Replay();
 
             return this.descriptorOb;
         }

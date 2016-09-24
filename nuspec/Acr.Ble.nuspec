@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>0.9.7</version>
+        <version>0.9.8</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -25,6 +25,13 @@ Mac Support (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+0.9.8
+[fix] createconnection properly persists connection now
+[fix] more logging issues
+[fix] more discovery issues
+[droid] device.whenstatuschanged will now broadcast Connecting/Disconnecting
+[droid] advertisement packet now gets all service UUIDs parsed
+
 0.9.7
 [fix] Error notifications on read/writes
 [fix] Make sure to replay last status for connectable observables

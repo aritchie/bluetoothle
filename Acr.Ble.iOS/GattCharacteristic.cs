@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using CoreBluetooth;
 using Foundation;
@@ -11,7 +12,8 @@ namespace Acr.Ble
         readonly CBCharacteristic native;
 
 
-        public GattCharacteristic(IGattService service, CBCharacteristic native) : base(service, native.UUID.ToGuid(), (CharacteristicProperties)(int)native.Properties)
+        public GattCharacteristic(IGattService service, CBCharacteristic native) 
+                : base(service, native.UUID.ToGuid(), (CharacteristicProperties)(int)native.Properties)
         {
             this.native = native;
         }
@@ -133,29 +135,32 @@ namespace Acr.Ble
         IObservable<IGattDescriptor> descriptorOb;
         public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
         {
-            this.descriptorOb = this.descriptorOb ?? Observable
-                .Create<IGattDescriptor>(ob =>
-                {
-                    var p = this.native.Service.Peripheral;
-                    var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
-                    {
-                        if (this.native.Descriptors == null)
-                            return;
+            this.descriptorOb = this.descriptorOb ?? Observable.Create<IGattDescriptor>(ob =>
+            {
+                var descriptors = new Dictionary<Guid, IGattDescriptor>();
 
-                        foreach (var dnative in this.native.Descriptors)
+                var p = this.native.Service.Peripheral;
+                var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
+                {
+                    if (this.native.Descriptors == null)
+                        return;
+
+                    foreach (var dnative in this.native.Descriptors)
+                    {
+                        var wrap = new GattDescriptor(this, dnative);
+                        if (!descriptors.ContainsKey(wrap.Uuid))
                         {
-                            var wrap = new GattDescriptor(this, dnative);
+                            descriptors.Add(wrap.Uuid, wrap);
                             ob.OnNext(wrap);
                         }
-                    });
-                    p.DiscoveredDescriptor += handler;
-                    p.DiscoverDescriptors(this.native);
+                    }
+                });
+                p.DiscoveredDescriptor += handler;
+                p.DiscoverDescriptors(this.native);
 
-                    return () => p.DiscoveredDescriptor -= handler;
-                })
-                .Distinct(x => x.Uuid)
-                .Publish()
-                .RefCount();
+                return () => p.DiscoveredDescriptor -= handler;
+            })
+            .Replay();
 
             return this.descriptorOb;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reactive.Linq;
 
 
@@ -33,11 +34,24 @@ namespace Acr.Ble
         IObservable<ConnectionStatus> connOb;
         public virtual IObservable<ConnectionStatus> CreateConnection()
         {
-            this.connOb = this.connOb ?? Observable.Create<ConnectionStatus>(async ob =>
+            this.connOb = this.connOb ?? Observable.Create<ConnectionStatus>(ob =>
             {
-                var state = this.WhenStatusChanged().Subscribe(ob.OnNext);
-                await this.Connect();
-
+                var state = this
+                    .WhenStatusChanged()
+                    .Subscribe(async status => 
+                    {
+                        try 
+                        {
+                            ob.OnNext(status);
+                            if (status == ConnectionStatus.Disconnected)
+                                await this.Connect();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("Error connecting to device - " + ex);
+                        }
+                    });
+                
                 return () =>
                 {
                     state.Dispose();

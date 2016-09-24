@@ -24,18 +24,16 @@ namespace Acr.Ble
         IObservable<IGattCharacteristic> characteristicOb;
         public override IObservable<IGattCharacteristic> WhenCharacteristicDiscovered()
         {
-            this.characteristicOb = this.characteristicOb ?? Observable
-                .Create<IGattCharacteristic>(ob =>
+            this.characteristicOb = this.characteristicOb ?? Observable.Create<IGattCharacteristic>(ob =>
+            {
+                foreach (var nch in native.Characteristics) 
                 {
-                    foreach (var nch in native.Characteristics) 
-                    {
-                        var wrap = new GattCharacteristic(this, this.context, nch);
-                        ob.OnNext(wrap);
-                    }
-                    return Disposable.Empty;
-                })
-                .Replay()
-                .RefCount();
+                    var wrap = new GattCharacteristic(this, this.context, nch);
+                    ob.OnNext(wrap);
+                }
+                return Disposable.Empty;
+            })
+            .Replay();
 
             return this.characteristicOb;
         }

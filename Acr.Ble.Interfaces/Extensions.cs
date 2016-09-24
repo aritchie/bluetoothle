@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
 
@@ -8,6 +9,12 @@ namespace Acr.Ble
 {
     public static class Extensions
     {
+        public static IConnectableObservable<TItem> ReplayWithReset<TItem, TReset>(this IObservable<TItem> src, IObservable<TReset> resetTrigger)
+        {
+            return new ClearableReplaySubject<TItem, TReset>(src, resetTrigger);
+        }
+
+
         public static IObservable<IGattCharacteristic> WhenAnyCharacteristicDiscovered(this IDevice device)
         {
             return device

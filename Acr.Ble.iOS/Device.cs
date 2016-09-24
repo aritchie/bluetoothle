@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reactive.Linq;
 using CoreBluetooth;
 using Foundation;
@@ -141,13 +143,13 @@ namespace Acr.Ble
         }
 
 
+        IObservable<IGattService> serviceOb;
         public override IObservable<IGattService> WhenServiceDiscovered()
         {
-            return Observable.Create<IGattService>(ob =>
+            this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
             {
-                // broadcast existing service discoveries
-                foreach (var service in this.Services.Values)
-                    ob.OnNext(service);
+                Debug.WriteLine("Hooked for services for device " + this.Uuid);
+                var services = new Dictionary<Guid, IGattService>();
 
                 var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
                 {
@@ -157,9 +159,9 @@ namespace Acr.Ble
                     foreach (var native in this.peripheral.Services)
                     {
                         var service = new GattService(this, native);
-                        if (!this.Services.ContainsKey(service.Uuid))
+                        if (!services.ContainsKey(service.Uuid))
                         {
-                            this.Services.Add(service.Uuid, service);
+                            services.Add(service.Uuid, service);
                             ob.OnNext(service);
                         }
                     }
@@ -167,26 +169,22 @@ namespace Acr.Ble
                 this.peripheral.DiscoveredService += handler;
 
                 var sub = this.WhenStatusChanged()
-                    .Subscribe(status =>
+                    .Where(x => x == ConnectionStatus.Connected)
+                    .Subscribe(_ => 
                     {
-                        switch (status)
-                        {
-                            case ConnectionStatus.Connected:
-                                this.peripheral.DiscoverServices();
-                                break;
-
-                            default:
-                                this.Services.Clear();
-                                break;
-                        }
+                        this.peripheral.DiscoverServices();
+                        Debug.WriteLine("DiscoverServices for device " + this.Uuid);
                     });
 
-                return () =>
+                return () => 
                 {
-                    this.peripheral.DiscoveredService -= handler;
                     sub.Dispose();
+                    this.peripheral.DiscoveredService -= handler;
                 };
-            });
+            })
+            .ReplayWithReset(this.WhenStatusChanged());
+            
+            return this.serviceOb;
         }
 
 

@@ -30,24 +30,20 @@ namespace Acr.Ble
             this.callbacks = callbacks;
             this.scheduler = scheduler; // this is the thread that the device was scanned on (required by some devices)
 
-            this.connectOb = Observable
-                .Create<ConnectionStatus>(ob =>
+            this.connectOb = Observable.Create<ConnectionStatus>(ob =>
+            {
+                this.connectObserver = ob;
+
+                var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
                 {
-                    this.connectObserver = ob;
+                    if (args.Gatt.Device.Equals(this.native))
+                        ob.OnNext(this.Status);
+                });
+                this.callbacks.ConnectionStateChanged += handler;
 
-                    var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
-                    {
-                        if (args.Gatt.Device.Equals(this.native))
-                            ob.OnNext(this.Status);
-
-
-                    });
-                    this.callbacks.ConnectionStateChanged += handler;
-
-                    return () => this.callbacks.ConnectionStateChanged -= handler;
-                })
-                .Replay(1)
-                .RefCount();
+                return () => this.callbacks.ConnectionStateChanged -= handler;
+            })
+            .Replay(1);
         }
 
 
@@ -85,9 +81,17 @@ namespace Acr.Ble
                     .Where(x => x == ConnectionStatus.Connected)
                     .Subscribe(_ => ob.Respond(null));
 
-                var conn = this.native.ConnectGatt(Application.Context, true, this.callbacks);
-                this.context = new GattContext(conn, this.callbacks);
-
+                try 
+                {
+                    ob.OnNext(ConnectionStatus.Connecting);
+                    var conn = this.native.ConnectGatt(Application.Context, true, this.callbacks);
+                    this.context = new GattContext(conn, this.callbacks);
+                }
+                catch (Exception ex)
+                {
+                    ob.OnNext(ConnectionStatus.Disconnected);
+                    ob.OnError(ex);
+                }
                 return connected;
             });
         }
@@ -98,22 +102,18 @@ namespace Acr.Ble
             if (this.Status != ConnectionStatus.Connected)
                 return;
 
+            this.connectObserver.OnNext(ConnectionStatus.Disconnecting);
             this.context?.Dispose();
             this.connectObserver.OnNext(ConnectionStatus.Disconnected);
         }
 
 
-        IObservable<string> nameOb;
         public override IObservable<string> WhenNameUpdated()
         {
-            this.nameOb = this.nameOb ?? BluetoothObservables
+            return BluetoothObservables
                 .WhenDeviceNameChanged()
                 .Where(x => x.Equals(this.native))
-                .Select(x => this.Name)
-                .Publish()
-                .RefCount();
-
-            return this.nameOb;
+                .Select(x => this.Name);
         }
 
 
@@ -123,14 +123,11 @@ namespace Acr.Ble
         }
 
 
+        IObservable<IGattService> serviceOb;
         public override IObservable<IGattService> WhenServiceDiscovered()
         {
-            return Observable.Create<IGattService>(ob =>
+            this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
             {
-                // broadcast existing discovered services
-                foreach (var service in this.Services.Values)
-                    ob.OnNext(service);
-
                 var handler = new EventHandler<GattEventArgs>((sender, args) =>
                 {
                     if (args.Gatt.Device.Equals(this.native))
@@ -138,36 +135,20 @@ namespace Acr.Ble
                         foreach (var ns in args.Gatt.Services)
                         {
                             var service = new GattService(this, this.context, ns);
-                            if (!this.Services.ContainsKey(service.Uuid))
-                            {
-                                this.Services.Add(service.Uuid, service);
-                                ob.OnNext(service);
-                            }
+                            ob.OnNext(service);
                         }
                     }
                 });
                 this.callbacks.ServicesDiscovered += handler;
+                var sub = this.WhenStatusChanged()
+                    .Where(x => x == ConnectionStatus.Connected)
+                    .Subscribe(_ => this.context.Gatt.DiscoverServices());
 
-                var sub = this.WhenStatusChanged().Subscribe(status =>
-                {
-                    switch (status)
-                    {
-                        case ConnectionStatus.Connected:
-                            this.context.Gatt.DiscoverServices();
-                            break;
+                return () => this.callbacks.ServicesDiscovered -= handler;
+            })
+            .ReplayWithReset(this.WhenStatusChanged());
 
-                        default:
-                            this.Services.Clear();
-                            break;
-                    }
-                });
-
-                return () =>
-                {
-                    this.callbacks.ServicesDiscovered -= handler;
-                    sub.Dispose();
-                };
-            });
+            return this.serviceOb;
         }
 
 
