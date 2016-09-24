@@ -47,6 +47,7 @@ Global
 		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{89f4b2db-539d-467d-b9b1-74608e636349}*SharedItemsImports = 4
 		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{8a0fc475-221d-4fe0-8308-3f703dc08f52}*SharedItemsImports = 4
 		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{b6cfbf05-04e5-4ae6-8516-c6527c7a2be8}*SharedItemsImports = 13
+		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{e9bc91b2-a392-4eed-9000-a0629e69d5a7}*SharedItemsImports = 4
 		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{f44febba-7ea7-4b92-bf25-ebdcc1db1830}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

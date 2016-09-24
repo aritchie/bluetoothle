@@ -9,10 +9,11 @@
 Cross Platform Reactive Bluetooth LE Plugin for Xamarin and Windows
 
 Supported Platforms
-iOS 6+
 Android 4.3+
+iOS 6+
+tvOS (testing)
 Windows UWP (Coming Soon)
-Mac Support (Coming Soon)
+Mac (Coming Soon)
         </description>
         <authors>Allan Ritchie</authors>
         <owners>Allan Ritchie</owners>
@@ -26,7 +27,7 @@ Mac Support (Coming Soon)
         </dependencies>
         <releaseNotes>
 0.9.8
-adding mac and tvOS libraries (NOT TESTED)
+adding tvOS libraries to package (NOT TESTED)
 [fix] createconnection properly persists connection now
 [fix] more logging and discovery issues
 [fix][droid] device.readrssi was not working
@@ -78,7 +79,7 @@ Initial Public Release
         <file src="..\Acr.Ble.iOS\bin\Release\Acr.Ble.*" target="lib\Xamarin.iOS10" />
 
         <!-- mac -->
-        <file src="..\Acr.Ble.Mac\bin\Release\Acr.Ble.*" target="lib\Xamarin.Mac20" />
+        <!--<file src="..\Acr.Ble.Mac\bin\Release\Acr.Ble.*" target="lib\Xamarin.Mac20" />-->
 
         <!-- tvOS -->
         <file src="..\Acr.Ble.tvOS\bin\Release\Acr.Ble.*" target="lib\Xamarin.tvOS10" />
