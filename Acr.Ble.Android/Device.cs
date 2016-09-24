@@ -144,7 +144,11 @@ namespace Acr.Ble
                     .Where(x => x == ConnectionStatus.Connected)
                     .Subscribe(_ => this.context.Gatt.DiscoverServices());
 
-                return () => this.callbacks.ServicesDiscovered -= handler;
+                return () => 
+                {
+                    sub.Dispose();
+                    this.callbacks.ServicesDiscovered -= handler;
+                };
             })
             .ReplayWithReset(this.WhenStatusChanged());
 
