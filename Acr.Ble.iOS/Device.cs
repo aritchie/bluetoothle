@@ -122,8 +122,7 @@ namespace Acr.Ble
                 var error = new EventHandler<CBPeripheralErrorEventArgs>((sender, args) =>
                 {
                     if (args.Peripheral.Equals(this.peripheral))
-                        ob.OnNext(this.Status);
-                        //ob.OnError(new Exception(args.Error.ToString()));
+                        ob.OnError(new Exception(args.Error.ToString()));
                 });
                 this.manager.ConnectedPeripheral += chandler;
                 this.manager.DisconnectedPeripheral += dhandler;
@@ -182,7 +181,12 @@ namespace Acr.Ble
                     this.peripheral.DiscoveredService -= handler;
                 };
             })
-            .ReplayWithReset(this.WhenStatusChanged());
+            .ReplayWithReset(this
+                .WhenStatusChanged()
+                .Skip(1)
+                .Where(x => x == ConnectionStatus.Disconnected)
+            )
+            .RefCount();
             
             return this.serviceOb;
         }

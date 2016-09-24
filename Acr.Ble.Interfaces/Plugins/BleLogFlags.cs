@@ -25,7 +25,7 @@ namespace Acr.Ble.Plugins
 
         AdapterAll = AdapterStatus | AdapterScanStatus | AdapterScanResults,
         CharacteristicAll = CharacteristicDiscovered | CharacteristicRead | CharacteristicWrite | CharacteristicNotify,
-        DescriptorAll = DescriptorRead | DescriptorWrite | DescriptorWrite,
+        DescriptorAll = DescriptorDiscovered | DescriptorRead | DescriptorWrite,
         All = AdapterAll | DeviceStatus | ServiceDiscovered | CharacteristicAll | DescriptorAll
     }
 }

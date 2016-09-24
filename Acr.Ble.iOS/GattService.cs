@@ -43,7 +43,8 @@ namespace Acr.Ble
 
                 return () => this.native.Peripheral.DiscoveredCharacteristic -= handler;
             })
-            .Replay();
+            .Replay()
+            .RefCount();
 
             return this.characteristicOb;
         }

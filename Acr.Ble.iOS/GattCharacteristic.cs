@@ -160,7 +160,8 @@ namespace Acr.Ble
 
                 return () => p.DiscoveredDescriptor -= handler;
             })
-            .Replay();
+            .Replay()
+            .RefCount();
 
             return this.descriptorOb;
         }

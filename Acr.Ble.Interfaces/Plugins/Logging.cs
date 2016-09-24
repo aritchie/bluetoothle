@@ -99,7 +99,7 @@ namespace Acr.Ble.Plugins
                 .Subscribe(ch =>
                 {
                     if (flags.HasFlag(BleLogFlags.CharacteristicDiscovered))
-                        ob.OnNext(new BleLogEvent(BleLogFlags.CharacteristicDiscovered, ch.Uuid, String.Empty));
+                        Write(ob, BleLogFlags.CharacteristicDiscovered, ch.Uuid, String.Empty);
 
                     if (flags.HasFlag(BleLogFlags.CharacteristicRead))
                         registrations.Add(ch
@@ -125,7 +125,7 @@ namespace Acr.Ble.Plugins
                 .Subscribe(desc =>
                 {
                     if (flags.HasFlag(BleLogFlags.DescriptorDiscovered))
-                        ob.OnNext(new BleLogEvent(BleLogFlags.DescriptorDiscovered, desc.Uuid, String.Empty));
+                        Write(ob, BleLogFlags.DescriptorDiscovered, desc.Uuid, String.Empty);
 
                     if (flags.HasFlag(BleLogFlags.DescriptorRead))
                         registrations.Add(desc
@@ -153,9 +153,17 @@ namespace Acr.Ble.Plugins
 
         static void Write(IObserver<BleLogEvent> ob, BleLogFlags flag, Guid uuid, byte[] bytes)
         {
-            var value = BitConverter.ToString(bytes);
-            Debug.WriteLine($"[{flag}]({uuid}) {value}");
-            ob.OnNext(new BleLogEvent(flag, uuid, "Value: " + value));
+            if (bytes == null)
+            {
+                ob.OnNext(new BleLogEvent(flag, uuid, String.Empty));
+                Debug.WriteLine($"[{flag}]({uuid})"); 
+            }
+            else 
+            {
+                var value = BitConverter.ToString(bytes);
+                Debug.WriteLine($"[{flag}]({uuid}) {value}"); 
+                ob.OnNext(new BleLogEvent(flag, uuid, "Value: " + value));
+            }
         }
     }
 }
