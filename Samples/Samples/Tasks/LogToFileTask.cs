@@ -43,7 +43,7 @@ namespace Samples.Tasks
                     if (doLog)
                     {
                         this.sub = this.adapter
-                            .WhenActionOccurs(BleLogFlags.All)
+                            .CreateLogger(BleLogFlags.All)
                             .Timestamp()
                             .Buffer(TimeSpan.FromSeconds(5))
                             .Subscribe(this.WriteLog);

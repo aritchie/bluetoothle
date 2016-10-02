@@ -54,7 +54,7 @@ namespace Samples.ViewModels.Le
                     if (enabled)
                     {
                         this.logger = this.adapter
-                            .WhenActionOccurs(BleLogFlags.All)
+                            .CreateLogger(BleLogFlags.All)
                             .Buffer(TimeSpan.FromSeconds(5))
                             .Where(x => x.Count > 0)
                             .Subscribe(x => this.LoadData());
