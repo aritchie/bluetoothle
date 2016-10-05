@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Acr.Ble;
-using Acr;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Samples.Services;
@@ -32,12 +30,17 @@ namespace Samples.ViewModels.Le
                         vm.IsConnected = x.Status == ConnectionStatus.Connected;
                 });
 
-            this.AppState.WhenBackgrounding().Subscribe(_ => this.StopScan());
+            this.AppState.WhenBackgrounding().Subscribe(_ => this.scan?.Dispose());
+            this.BleAdapter.WhenScanningStatusChanged().Subscribe(on =>
+            {
+                this.IsScanning = on;
+                this.ScanText = on ? "Stop Scan" : "Scan";
+            });
             this.Devices = new ObservableCollection<ScanResultViewModel>();
 
             this.SelectDevice = new Acr.Command<ScanResultViewModel>(x =>
             {
-                this.StopScan();
+                this.scan?.Dispose();
                 services.VmManager.Push<DeviceViewModel>(x.Device);
             });
 
@@ -48,7 +51,11 @@ namespace Samples.ViewModels.Le
                 ),
                 x =>
                 {
-                    if (this.ScanText == "Scan")
+                    if (this.IsScanning)
+                    {
+                        this.scan?.Dispose();
+                    }
+                    else
                     {
                         this.Devices.Clear();
                         this.ScanText = "Stop Scan";
@@ -58,10 +65,6 @@ namespace Samples.ViewModels.Le
                             .Subscribe(
                                 this.OnScanResult
                             );
-                    }
-                    else
-                    {
-                        this.StopScan();
                     }
                     return Task.FromResult<object>(null);
                 }
@@ -85,16 +88,10 @@ namespace Samples.ViewModels.Le
         public ICommand ScanToggle { get; }
         public Acr.Command<ScanResultViewModel> SelectDevice { get; }
         public ObservableCollection<ScanResultViewModel> Devices { get; }
+        [Reactive] public bool IsScanning { get; private set; }
         [Reactive] public bool IsSupported { get; private set; }
-        [Reactive] public string ScanText { get; private set; } = "Scan";
+        [Reactive] public string ScanText { get; private set; }
         [Reactive] public string Title { get; private set; }
-
-
-        void StopScan()
-        {
-            this.ScanText = "Scan";
-            this.scan?.Dispose();
-        }
 
 
         void OnScanResult(IScanResult result)

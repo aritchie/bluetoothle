@@ -61,7 +61,12 @@ namespace Acr.Ble
 
         public IObservable<bool> WhenScanningStatusChanged()
         {
-            return this.scanStatusSubject;
+
+            return Observable.Create<bool>(ob =>
+            {
+                ob.OnNext(this.IsScanning);
+                return this.scanStatusSubject.AsObservable().Subscribe(ob.OnNext);
+            });
         }
 
 
@@ -138,7 +143,7 @@ namespace Acr.Ble
                 this.radio.Value.StateChanged += handler;
                 return () => this.radio.Value.StateChanged -= handler;
             })
-            .Publish()
+            .Replay(1)
             .RefCount();
 
             return this.statusOb;

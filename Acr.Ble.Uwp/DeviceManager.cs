@@ -13,7 +13,7 @@ namespace Acr.Ble
         {
             return this.devices.GetOrAdd(
                 data.BluetoothAddress,
-                x => new Device(args)
+                x => new Device(data)
             );
         }
     }

@@ -49,6 +49,7 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </acr:ListView>
+            <ActivityIndicator IsRunning="{Binding IsScanning}" />
         </StackLayout>
     </ContentPage.Content>
 </acr:ContentPage>
