@@ -8,7 +8,7 @@ namespace Acr.Ble.Plugins
 {
     public static class Logging
     {
-        public static IObservable<BleLogEvent> WhenActionOccurs(this IAdapter adapter, BleLogFlags flags = BleLogFlags.AdapterStatus | BleLogFlags.DeviceStatus)
+        public static IObservable<BleLogEvent> CreateLogger(this IAdapter adapter, BleLogFlags flags = BleLogFlags.AdapterStatus | BleLogFlags.DeviceStatus)
         {
             return Observable.Create<BleLogEvent>(ob =>
             {
@@ -145,25 +145,17 @@ namespace Acr.Ble.Plugins
 
         static void Write(IObserver<BleLogEvent> ob, BleLogFlags flag, Guid? uuid, string value)
         {
-            var ev = new BleLogEvent(flag, uuid, value);
+            var ev = new BleLogEvent(flag, uuid, null, value);
             Debug.WriteLine($"[{flag}]({uuid}) {value}");
             ob.OnNext(ev);
         }
 
 
-        static void Write(IObserver<BleLogEvent> ob, BleLogFlags flag, Guid uuid, byte[] bytes)
+        static void Write(IObserver<BleLogEvent> ob, BleLogFlags flag, Guid uuid, byte[] data)
         {
-            if (bytes == null)
-            {
-                ob.OnNext(new BleLogEvent(flag, uuid, String.Empty));
-                Debug.WriteLine($"[{flag}]({uuid})"); 
-            }
-            else 
-            {
-                var value = BitConverter.ToString(bytes);
-                Debug.WriteLine($"[{flag}]({uuid}) {value}"); 
-                ob.OnNext(new BleLogEvent(flag, uuid, "Value: " + value));
-            }
+            var dataString = data == null ? String.Empty : BitConverter.ToString(data);
+            ob.OnNext(new BleLogEvent(flag, uuid, data, null));
+            Debug.WriteLine($"[{flag}]({uuid}) {dataString}"); 
         }
     }
 }

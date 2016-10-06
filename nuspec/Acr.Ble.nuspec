@@ -26,6 +26,10 @@ Mac (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+0.9.9
+[breaking] WhenActionOccurs renamed to CreateLogger
+Logging now returns actual packet received where applicable
+
 0.9.8
 adding tvOS libraries to package (NOT TESTED)
 [fix] createconnection properly persists connection now
