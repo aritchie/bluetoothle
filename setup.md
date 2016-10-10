@@ -13,11 +13,9 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 * Scan for advertisement packets and devices
 * Monitor adapter status
 * Connect to device and monitor status
-* Discover services, characteristics, & descriptors
+* Discover services, characteristics, and descriptors
 * Read, write, & receive notifications for characteristics
 * Read & write descriptors
-* Monitor all aspects of the BLE plugin via CreateLogging extension
-* Connect to heart rate monitors
 
 
 ## SETUP
@@ -60,20 +58,9 @@ Add to your app manifest file
 </Capabilities>
 ```
 
-## HOW TO USE BASICS
+## HOW TO USE
 
-TODO
 
-## DOCUMENTATION
-
-* (Adapter)[https://github.com/aritchie/bluetoothle/adapter.md]
-* (Device)[https://github.com/aritchie/bluetoothle/devices.md]
-* (Services)[https://github.com/aritchie/bluetoothle/services.md]
-* (Characteristics)[https://github.com/aritchie/bluetoothle/characteristics.md]
-* (Descriptors)[https://github.com/aritchie/bluetoothle/descriptors.md]
-* Plugins
-    * (Logging)[https://github.com/aritchie/bluetoothle/logging.md]
-    * (Heart Rate)[https://github.com/aritchie/bluetoothle/heartrate.md]
 
 ## FAQ
 

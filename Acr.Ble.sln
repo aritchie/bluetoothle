@@ -40,6 +40,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acr.Ble.Mac", "Acr.Ble.Mac\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acr.Ble.tvOS", "Acr.Ble.tvOS\Acr.Ble.tvOS.csproj", "{E9BC91B2-A392-4EED-9000-A0629E69D5A7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E72A2C1E-FB4B-4037-9B10-C675EF2F139C}"
+	ProjectSection(SolutionItems) = preProject
+		adapter.md = adapter.md
+		characteristics.md = characteristics.md
+		descriptors.md = descriptors.md
+		device.md = device.md
+		heartrate.md = heartrate.md
+		logging.md = logging.md
+		readme.md = readme.md
+		services.md = services.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{57d5ff44-345d-4229-aefc-e3f7f260a665}*SharedItemsImports = 4
