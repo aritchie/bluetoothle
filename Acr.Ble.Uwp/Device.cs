@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text.RegularExpressions;
 using Windows.Devices.Bluetooth;
-using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
 
@@ -16,11 +15,13 @@ namespace Acr.Ble
     {
         readonly AdvertisementData adData;
         readonly Subject<bool> deviceSubject;
-        GattDeviceService native;
+        readonly IAdapter adapter;
+        BluetoothLEDevice native;
 
 
-        public Device(AdvertisementData adData)
+        public Device(IAdapter adapter, AdvertisementData adData)
         {
+            this.adapter = adapter;
             this.adData = adData;
             this.deviceSubject = new Subject<bool>();
 
@@ -41,7 +42,13 @@ namespace Acr.Ble
             {
                 var status = this
                     .WhenStatusChanged()
-                    .Subscribe(ob.OnNext);
+                    .Subscribe(s =>
+                    {
+                        ob.OnNext(s);
+                        // may not want to do this on UWP
+                        //if (s == ConnectionStatus.Disconnected)
+                        //    this.Connect();
+                    });
                 // TODO: reconnect
                 await this.Connect();
 
@@ -61,19 +68,17 @@ namespace Acr.Ble
                 else
                 {
                     // TODO: connecting
-                    var selector = BluetoothLEDevice.GetDeviceSelectorFromBluetoothAddress(this.adData.BluetoothAddress);
-                    var devices = await DeviceInformation.FindAllAsync(selector);
-                    var devInfo = devices.FirstOrDefault();
-                    if (devInfo == null)
+                    this.native = await BluetoothLEDevice.FromBluetoothAddressAsync(this.adData.BluetoothAddress);
+
+                    if (this.native == null)
                         throw new ArgumentException("Device Not Found");
 
-                    if (devInfo.Pairing.CanPair && !devInfo.Pairing.IsPaired)
+                    if (this.native.DeviceInformation.Pairing.CanPair && !this.native.DeviceInformation.Pairing.IsPaired)
                     {
-                        var dpr = await devInfo.Pairing.PairAsync(DevicePairingProtectionLevel.None);
+                        var dpr = await this.native.DeviceInformation.Pairing.PairAsync(DevicePairingProtectionLevel.None);
                         if (dpr.Status != DevicePairingResultStatus.Paired)
                             throw new ArgumentException($"Pairing to device failed - " + dpr.Status);
                     }
-                    this.native = await GattDeviceService.FromIdAsync(devInfo.Id);
                     ob.Respond(null);
                     this.deviceSubject.OnNext(true);
                 }
@@ -84,7 +89,10 @@ namespace Acr.Ble
 
         public IObservable<int> WhenRssiUpdated(TimeSpan? frequency = null)
         {
-            return Observable.Empty<int>();
+            return this.adapter
+                .Scan()
+                .Where(x => x.Device.Uuid.Equals(this.Uuid))
+                .Select(x => x.Rssi);
         }
 
 
@@ -105,7 +113,7 @@ namespace Acr.Ble
                 if (this.native == null)
                     return ConnectionStatus.Disconnected;
 
-                switch (this.native.Device.ConnectionStatus)
+                switch (this.native.ConnectionStatus)
                 {
                     case BluetoothConnectionStatus.Connected:
                         return ConnectionStatus.Connected;
@@ -133,14 +141,14 @@ namespace Acr.Ble
                     {
                         ob.OnNext(this.Status);
                         if (this.native != null)
-                            this.native.Device.ConnectionStatusChanged += handler;
+                            this.native.ConnectionStatusChanged += handler;
                     });
 
                 return () =>
                 {
                     sub.Dispose();
                     if (this.native != null)
-                        this.native.Device.ConnectionStatusChanged -= handler;
+                        this.native.ConnectionStatusChanged -= handler;
                 };
             })
             .Replay(1);
@@ -158,7 +166,7 @@ namespace Acr.Ble
                     .Where(x => x == ConnectionStatus.Connected)
                     .Subscribe(x =>
                     {
-                        foreach (var nservice in this.native.Device.GattServices)
+                        foreach (var nservice in this.native.GattServices)
                         {
                             var service = new GattService(nservice, this);
                             ob.OnNext(service);
@@ -186,13 +194,13 @@ namespace Acr.Ble
                 );
                 var sub = this.WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(x => this.native.Device.NameChanged += handler);
+                    .Subscribe(x => this.native.NameChanged += handler);
 
                 return () =>
                 {
                     sub.Dispose();
                     if (this.native != null)
-                        this.native.Device.NameChanged -= handler;
+                        this.native.NameChanged -= handler;
                 };
             })
             .Publish()

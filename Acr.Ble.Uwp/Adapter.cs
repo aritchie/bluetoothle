@@ -20,7 +20,7 @@ namespace Acr.Ble
         public Adapter()
         {
             this.scanStatusSubject = new Subject<bool>();
-            this.deviceManager = new DeviceManager();
+            this.deviceManager = new DeviceManager(this);
             this.watcher = new BluetoothLEAdvertisementWatcher();
 
             this.radio = new Lazy<Radio>(() =>
@@ -134,7 +134,7 @@ namespace Acr.Ble
         IObservable<AdapterStatus> statusOb;
         public IObservable<AdapterStatus> WhenStatusChanged()
         {
-            this.statusOb = this.statusOb ??Observable.Create<AdapterStatus>(ob =>
+            this.statusOb = this.statusOb ?? Observable.Create<AdapterStatus>(ob =>
             {
                 ob.OnNext(this.Status);
                 var handler = new TypedEventHandler<Radio, object>((sender, args) =>
