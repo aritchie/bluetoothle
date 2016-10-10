@@ -37,7 +37,7 @@ var sub = characteristic.WhenNotificationReceived().Subscribe(bytes => {});
 sub.Dispose(); // to unsubscribe
 ```
 
-**Monitor Reads/Writes
+**Monitor Reads/Writes**
 ```csharp
 characteristic.WhenRead().Subscribe(bytes => {});
 characteristic.WhenWritten().Subscribe(bytes => {});
