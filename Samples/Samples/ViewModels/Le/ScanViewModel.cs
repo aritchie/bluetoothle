@@ -62,9 +62,7 @@ namespace Samples.ViewModels.Le
 
                         this.scan = this.BleAdapter
                             .Scan()
-                            .Subscribe(
-                                this.OnScanResult
-                            );
+                            .Subscribe(this.OnScanResult);
                     }
                     return Task.FromResult<object>(null);
                 }

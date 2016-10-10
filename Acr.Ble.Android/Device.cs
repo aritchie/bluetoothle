@@ -82,30 +82,27 @@ namespace Acr.Ble
                     ob.Respond(null);
                     return Disposable.Empty;
                 }
-                else 
-                {                   
-                    var connected = this
-                        .WhenStatusChanged()
-                        .Take(1)
-                        .Where(x => x == ConnectionStatus.Connected)
-                        .Subscribe(_ => ob.Respond(null));
+                var connected = this
+                    .WhenStatusChanged()
+                    .Take(1)
+                    .Where(x => x == ConnectionStatus.Connected)
+                    .Subscribe(_ => ob.Respond(null));
 
-                    if (this.Status != ConnectionStatus.Connecting)
+                if (this.Status != ConnectionStatus.Connecting)
+                {
+                    try
                     {
-                        try 
-                        {
-                            ob.OnNext(ConnectionStatus.Connecting);
-                            var conn = this.native.ConnectGatt(Application.Context, true, this.callbacks);
-                            this.context = new GattContext(conn, this.callbacks);
-                        }
-                        catch (Exception ex)
-                        {
-                            ob.OnNext(ConnectionStatus.Disconnected);
-                            ob.OnError(ex);
-                        }
+                        ob.OnNext(ConnectionStatus.Connecting);
+                        var conn = this.native.ConnectGatt(Application.Context, true, this.callbacks);
+                        this.context = new GattContext(conn, this.callbacks);
                     }
-                    return connected;
+                    catch (Exception ex)
+                    {
+                        ob.OnNext(ConnectionStatus.Disconnected);
+                        ob.OnError(ex);
+                    }
                 }
+                return connected;
             });
         }
 
@@ -157,7 +154,7 @@ namespace Acr.Ble
                     .Where(x => x == ConnectionStatus.Connected)
                     .Subscribe(_ => this.context.Gatt.DiscoverServices());
 
-                return () => 
+                return () =>
                 {
                     sub.Dispose();
                     this.callbacks.ServicesDiscovered -= handler;
@@ -181,7 +178,7 @@ namespace Acr.Ble
             return Observable.Create<int>(ob =>
             {
                 IDisposable timer = null;
-                var handler = new EventHandler<GattRssiEventArgs>((sender, args) => 
+                var handler = new EventHandler<GattRssiEventArgs>((sender, args) =>
                 {
                     if (args.Gatt.Device.Equals(this.native))
                         ob.OnNext(args.Rssi);

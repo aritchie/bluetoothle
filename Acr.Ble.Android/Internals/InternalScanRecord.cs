@@ -35,8 +35,8 @@ namespace Acr.Ble.Internals
                     case AdvertisementRecordType.CompleteLocalName:
                         sr.LocalName = Encoding.UTF8.GetString(data, 0, data.Length);
                         break;
-                        
-                    case AdvertisementRecordType.ShortLocalName:    
+
+                    case AdvertisementRecordType.ShortLocalName:
                         if (sr.LocalName == null)
                             sr.LocalName = Encoding.UTF8.GetString(data, 0, data.Length);
                         break;
@@ -44,7 +44,7 @@ namespace Acr.Ble.Internals
                     case AdvertisementRecordType.ManufacturerSpecificData:
                         sr.ManufacturerData = data;
                         break;
-             
+
                     default:
                         var rec = new AdRecord((AdvertisementRecordType)type, data);
                         others.Add(rec);
@@ -65,12 +65,12 @@ namespace Acr.Ble.Internals
         public string LocalName { get; private set; }
         public byte[] ManufacturerData { get; private set; }
         public bool IsConnectable { get; private set; }
-        public int TxPower { get; private set; } 
+        public int TxPower { get; private set; }
         public IList<Guid> ServiceUuids { get; } = new List<Guid>();
     }
 
 
-    public class AdRecord 
+    public class AdRecord
     {
         public AdRecord(AdvertisementRecordType type, byte[] data)
         {
