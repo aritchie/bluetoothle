@@ -66,14 +66,14 @@ TODO
 
 ## DOCUMENTATION
 
-* [Adapter](https://github.com/aritchie/bluetoothle/adapter.md)
-* [Device](https://github.com/aritchie/bluetoothle/devices.md)
-* [Services](https://github.com/aritchie/bluetoothle/services.md)
-* [Characteristics](https://github.com/aritchie/bluetoothle/characteristics.md)
-* [Descriptors](https://github.com/aritchie/bluetoothle/descriptors.md)
+* [Adapter](doc/adapter.md)
+* [Device](docs/devices.md)
+* [Services](docs/services.md)
+* [Characteristics](docs/characteristics.md)
+* [Descriptors](docs/descriptors.md)
 * Plugins
-    * [Logging](https://github.com/aritchie/bluetoothle/logging.md)
-    * [Heart Rate](https://github.com/aritchie/bluetoothle/heartrate.md)
+    * [Logging](docs/logging.md)
+    * [Heart Rate](docs/heartrate.md)
 
 ## FAQ
 

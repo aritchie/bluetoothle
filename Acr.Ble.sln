@@ -42,14 +42,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acr.Ble.tvOS", "Acr.Ble.tvO
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E72A2C1E-FB4B-4037-9B10-C675EF2F139C}"
 	ProjectSection(SolutionItems) = preProject
-		adapter.md = adapter.md
-		characteristics.md = characteristics.md
-		descriptors.md = descriptors.md
-		device.md = device.md
-		heartrate.md = heartrate.md
-		logging.md = logging.md
+		docs\adapter.md = docs\adapter.md
+		docs\characteristics.md = docs\characteristics.md
+		docs\descriptors.md = docs\descriptors.md
+		docs\device.md = docs\device.md
+		docs\heartrate.md = docs\heartrate.md
+		docs\logging.md = docs\logging.md
 		readme.md = readme.md
-		services.md = services.md
+		docs\services.md = docs\services.md
+		docs\setup.md = docs\setup.md
 	EndProjectSection
 EndProject
 Global
