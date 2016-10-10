@@ -23,6 +23,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 ## SETUP
 
 Be sure to install the Acr.Ble nuget package in all of your main platform projects as well as your core/PCL project
+
 [![NuGet](https://img.shields.io/nuget/v/Acr.Ble.svg?maxAge=2592000)](https://www.nuget.org/packages/Acr.Ble/)
 
 **Android**
