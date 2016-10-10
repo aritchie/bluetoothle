@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
@@ -10,6 +11,19 @@ namespace Acr.Ble.Plugins
         public static Guid HeartRateServiceUuid = new Guid("0000180d-0000-1000-8000-00805f9b34fb");
 
 
+        /// <summary>
+        /// Scan for heart rate sensors.  Note that a lot of heart rate sensors do not advertise their service UUID
+        /// </summary>
+        /// <param name="adapter"></param>
+        /// <returns></returns>
+        public static IObservable<IScanResult> ScanForHeartRateSensors(this IAdapter adapter)
+        {
+            return adapter
+                .Scan()
+                .Where(x => x.AdvertisementData.ServiceUuids?.Contains(HeartRateServiceUuid) ?? false);
+        }
+
+
         public static async Task<bool> HasHeartSensor(this IDevice device)
         {
             AssertConnected(device);
@@ -18,7 +32,7 @@ namespace Acr.Ble.Plugins
         }
 
 
-        public static IObservable<ushort> MonitorHeartRateBpm(this IDevice device)
+        public static IObservable<ushort> WhenHeartRateBpm(this IDevice device)
         {
             AssertConnected(device);
 
@@ -44,7 +58,7 @@ namespace Acr.Ble.Plugins
                         bpm = (ushort)(((bpm >> 8) & 0xFF) | ((bpm << 8) & 0xFF00));
                         ob.OnNext(bpm);
                     });
-                }      
+                }
                 return () => token?.Dispose();
             });
         }

@@ -1,5 +1,8 @@
 # Adapter
 
+The adapter is where everything begins and ends.  Unlike the platform implementations of the adapter scan, the BLE plugin Scan()
+method will scan continuously (or restart the scan when the cycle completes) until you dispose of the Scan() token.
+
 **Monitor and read status of adapter**
 ```csharp
 BleAdapter.Current.Status
@@ -26,6 +29,11 @@ With the use of observables everywhere, the option to hook up to the scan result
 ```csharp
 
 BleAdapter.Current.ScanListen().Subscribe(scanResult => {});
-
-
 ```
+
+## Extensions
+```csharp
+// this essentially recreates the scan cycles like on Android
+adapter.ScanInterval(TimeSpan).Subscribe(scanResult => {});
+
+```csharp

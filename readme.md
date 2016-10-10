@@ -49,7 +49,6 @@ To add a description to the Bluetooth request message (on iOS 10 this is require
 <string>YOUR CUSTOM MESSAGE</string>
 ```
 
-
 **Windows**
 
 Add to your app manifest file
@@ -62,11 +61,29 @@ Add to your app manifest file
 
 ## HOW TO USE BASICS
 
-TODO
+```csharp
+
+// discover some devices
+BleAdapter.Current.Scan().Subscribe(scanResult => {});
+
+// Once finding the device/scanresult you want
+await scanResult.Device.Connect();
+
+Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
+    // read, write, or subscribe to notifications here
+    var bytes = await characteristic.Read();
+    await characteristic.Write(bytes);
+
+    characteristic.SubscribeToNotifications(bytes => {
+    
+    });
+});
+
+```
 
 ## DOCUMENTATION
 
-* [Adapter](doc/adapter.md)
+* [Adapter](docs/adapter.md)
 * [Device](docs/devices.md)
 * [Services](docs/services.md)
 * [Characteristics](docs/characteristics.md)
