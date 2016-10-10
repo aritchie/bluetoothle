@@ -24,7 +24,7 @@ var scanner = BleAdapter.Current.Scan().Subscribe(scanResult =>
 scanner.Dispose(); // to stop scanning
 ```
 
-**Listen to scans for decoupled components
+**Listen to scans for decoupled components**
 With the use of observables everywhere, the option to hook up to the scan result events were taken away.  There are good cases to have listening options without actually starting a scan.  This is that option!
 ```csharp
 
@@ -36,4 +36,4 @@ BleAdapter.Current.ScanListen().Subscribe(scanResult => {});
 // this essentially recreates the scan cycles like on Android
 adapter.ScanInterval(TimeSpan).Subscribe(scanResult => {});
 
-```csharp
+```

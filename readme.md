@@ -85,7 +85,7 @@ Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
 ## DOCUMENTATION
 
 * [Adapter](docs/adapter.md)
-* [Device](docs/devices.md)
+* [Device](docs/device.md)
 * [Services](docs/services.md)
 * [Characteristics](docs/characteristics.md)
 * [Descriptors](docs/descriptors.md)
