@@ -66,28 +66,32 @@ TODO
 
 ## DOCUMENTATION
 
-* (Adapter)[https://github.com/aritchie/bluetoothle/adapter.md]
-* (Device)[https://github.com/aritchie/bluetoothle/devices.md]
-* (Services)[https://github.com/aritchie/bluetoothle/services.md]
-* (Characteristics)[https://github.com/aritchie/bluetoothle/characteristics.md]
-* (Descriptors)[https://github.com/aritchie/bluetoothle/descriptors.md]
+* [Adapter](https://github.com/aritchie/bluetoothle/adapter.md)
+* [Device](https://github.com/aritchie/bluetoothle/devices.md)
+* [Services](https://github.com/aritchie/bluetoothle/services.md)
+* [Characteristics](https://github.com/aritchie/bluetoothle/characteristics.md)
+* [Descriptors](https://github.com/aritchie/bluetoothle/descriptors.md)
 * Plugins
-    * (Logging)[https://github.com/aritchie/bluetoothle/logging.md]
-    * (Heart Rate)[https://github.com/aritchie/bluetoothle/heartrate.md]
+    * [Logging](https://github.com/aritchie/bluetoothle/logging.md)
+    * [Heart Rate](https://github.com/aritchie/bluetoothle/heartrate.md)
 
 ## FAQ
 
-* Q. Why is everything reactive instead of events/async
-  A. I wanted event streams as I was scanning devices.  I also wanted to throttle things like characteristic notification feeds.  Lastly, was the proper cleanup of events and resources.   
+Q. Why is everything reactive instead of events/async
 
-* Q. Why are Device.Connect, Characteristic.Read, and Descriptor.Read observable when async would do just fine?
-  A. True, but observables with RX are actually awaitable as well and far easier to chain into other things.
+> I wanted event streams as I was scanning devices.  I also wanted to throttle things like characteristic notification feeds.  Lastly, was the proper cleanup of events and resources.   
 
-* Q. Why have a Adapter.BackgroundScan with a service UUID?  This is not a problem on Android
-  A. Also, true, but consistency is what I was aiming for.  iOS only allows you to scan in the background with a serviceUUID and on Android, I set the scanmode to low power.
+Q. Why are Device.Connect, Characteristic.Read, and Descriptor.Read observable when async would do just fine?
 
-* Q. Why are devices cleared on a new scan?
-  A. Some platforms yield a "new" device and therefore new hooks.  This was observed on some android devices.
+> True, but observables with RX are actually awaitable as well and far easier to chain into other things.
 
-* Q. My characteristic read/writes/notifications are not working
-  A. If you store your discovered characteristics in your own variables, make sure to refresh them with each (re)connect
+Q. Why have a Adapter.BackgroundScan with a service UUID?  This is not a problem on Android
+
+> Also, true, but consistency is what I was aiming for.  iOS only allows you to scan in the background with a serviceUUID and on Android, I set the scanmode to low power.
+
+Q. Why are devices cleared on a new scan?
+
+> Some platforms yield a "new" device and therefore new hooks.  This was observed on some android devices.
+
+Q. My characteristic read/writes/notifications are not working
+> If you store your discovered characteristics in your own variables, make sure to refresh them with each (re)connect
