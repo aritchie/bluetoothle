@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Acr.Ble.Internals;
 using Android.App;
@@ -93,8 +94,14 @@ namespace Acr.Ble
                     try
                     {
                         ob.OnNext(ConnectionStatus.Connecting);
-                        var conn = this.native.ConnectGatt(Application.Context, true, this.callbacks);
+                        var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
                         this.context = new GattContext(conn, this.callbacks);
+                        Task.Factory.StartNew(
+                            () => conn.Connect(), // this could still fire even if we cancel it thereby tying up the connection
+                            CancellationToken.None,
+                            TaskCreationOptions.None,
+                            this.scheduler
+                        );
                     }
                     catch (Exception ex)
                     {
