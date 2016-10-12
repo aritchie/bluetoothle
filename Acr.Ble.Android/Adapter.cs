@@ -84,7 +84,13 @@ namespace Acr.Ble
 
         public IObservable<bool> WhenScanningStatusChanged()
         {
-            return this.scanStatusChanged;
+            return Observable.Create<bool>(ob =>
+            {
+                ob.OnNext(this.IsScanning);
+                return this.scanStatusChanged
+                    .AsObservable()
+                    .Subscribe(ob.OnNext);
+            });
         }
 
 
