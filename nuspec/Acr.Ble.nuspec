@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>0.9.8</version>
+        <version>0.9.9</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -28,7 +28,9 @@ Mac (Coming Soon)
         <releaseNotes>
 0.9.9
 [breaking] WhenActionOccurs renamed to CreateLogger
+[fix] ensure WhenScanStatusChanged() broadcasts its current state on registration
 Logging now returns actual packet received where applicable
+
 
 0.9.8
 adding tvOS libraries to package (NOT TESTED)
