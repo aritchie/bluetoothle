@@ -83,6 +83,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Internals\GattContext.cs" />
     <Compile Include="Internals\InternalScanRecord.cs" />
+    <Compile Include="AndroidConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Acr.Ble.Interfaces\Acr.Ble.Interfaces.csproj">
