@@ -187,7 +187,7 @@ namespace Acr.Ble
 
         void ToggleScanStatus(bool isScanning) 
         {
-            this.scanStatusChanged.OnNext(true);
+            this.scanStatusChanged.OnNext(isScanning);
 #if MAC
             this.IsScanning = isScanning;
 #endif
