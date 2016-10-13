@@ -64,9 +64,11 @@ namespace Acr.Ble
 
                 this.manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
                 {
-                    NotifyOnConnection = true,
                     NotifyOnDisconnection = true,
+#if __IOS__
+                    NotifyOnConnection = true,
                     NotifyOnNotification = true
+#endif                        
                 });
 
                 return () =>
