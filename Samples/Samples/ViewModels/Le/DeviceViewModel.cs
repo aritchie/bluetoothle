@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Acr.Ble;
 using ReactiveUI;
@@ -13,6 +15,7 @@ namespace Samples.ViewModels.Le
 
     public class DeviceViewModel : AbstractRootViewModel
     {
+        IDisposable conn;
         IDisposable readRssiTimer;
         IDevice device;
 
@@ -27,26 +30,18 @@ namespace Samples.ViewModels.Le
                     x => x.Status,
                     x => x.Value != ConnectionStatus.Disconnecting
                 ),
-                async x =>
+                x =>
                 {
-                    try
+                    if (this.conn == null)
                     {
-                        switch (this.device.Status)
-                        {
-                            case ConnectionStatus.Connecting:
-                            case ConnectionStatus.Connected:
-                                this.device.Disconnect();
-                                break;
-
-                            default:
-                                await this.device.Connect().FirstAsync();
-                                break;
-                        }
+                        this.conn = this.device.CreateConnection().Subscribe();
                     }
-                    catch (Exception ex)
+                    else 
                     {
-                        this.Dialogs.Alert(ex.ToString());
+                        this.conn?.Dispose();
+                        this.conn = null;
                     }
+                    return Task.FromResult(Unit.Default);
                 }
             );
         }
@@ -133,6 +128,8 @@ namespace Samples.ViewModels.Le
             this.device.Disconnect();
             this.readRssiTimer?.Dispose();
             this.readRssiTimer = null;
+            this.conn?.Dispose();
+            this.conn = null;
         }
 
 
