@@ -70,7 +70,11 @@ namespace Acr.Ble
         }
 
 
+#if __IOS__
         public bool IsScanning => this.manager.IsScanning;
+#else
+        public bool IsScanning { get; private set; }
+#endif
 
 
         public IObservable<bool> WhenScanningStatusChanged()
@@ -167,18 +171,26 @@ namespace Acr.Ble
                     var uuid = serviceUuid.Value.ToCBUuid();
                     this.manager.ScanForPeripherals(uuid);
                 }
-
-                this.scanStatusChanged.OnNext(true);
+                this.ToggleScanStatus(true);
 
                 return () =>
                 {
                     this.manager.StopScan();
                     scan.Dispose();
-                    this.scanStatusChanged.OnNext(false);
+                    this.ToggleScanStatus(false);
                 };
             })
             .Publish()
             .RefCount();
+        }
+
+
+        void ToggleScanStatus(bool isScanning) 
+        {
+            this.scanStatusChanged.OnNext(isScanning);
+#if MAC
+            this.IsScanning = isScanning;
+#endif
         }
     }
 }

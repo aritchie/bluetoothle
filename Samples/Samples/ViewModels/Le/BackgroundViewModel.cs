@@ -12,24 +12,26 @@ namespace Samples.ViewModels.Le
     {
         public BackgroundViewModel(IAppSettings settings, IUserDialogs dialogs)
         {
-            this.ServiceUuid = settings.BleServerServiceUuid.ToString();
-            this.IsEnabled = settings.BleServerEnabled;
+            this.ServiceUuid = settings.BackgroundScanServiceUuid.ToString();
+            this.IsEnabled = settings.EnableBackgroundScan;
 
             this.WhenAnyValue(x => x.IsEnabled)
                 .Skip(1)
                 .Subscribe(x =>
                 {
                     if (!x)
-                        settings.BleServerEnabled = false;
+                        settings.EnableBackgroundScan = false;
                     else
                     {
                         var uuid = Guid.Empty;
                         if (!Guid.TryParse(this.ServiceUuid, out uuid))
-                            dialogs.Alert("Invalid UUID");
-                        else
                         {
-                            settings.BleServerEnabled = true;
-                            settings.BleServerServiceUuid = uuid;
+                            dialogs.Alert("Invalid UUID");
+                        }
+                        else
+                        {                            
+                            settings.EnableBackgroundScan = true;
+                            settings.BackgroundScanServiceUuid = uuid;
                             dialogs.Alert("Background Settings Updated", "Success");
                         }
                     }

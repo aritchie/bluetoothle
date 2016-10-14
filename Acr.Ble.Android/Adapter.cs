@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Acr.Ble.Internals;
 using Android.App;
 using Android.Bluetooth;
+using Android.Content.PM;
 using Android.OS;
 
 
@@ -25,7 +26,6 @@ namespace Acr.Ble
         }
 
 
-        public bool ForcePreLollipopScanner { get; set; }
         public bool IsScanning => this.manager.Adapter.IsDiscovering;
 
 
@@ -36,7 +36,9 @@ namespace Acr.Ble
                 if (Build.VERSION.SdkInt < BuildVersionCodes.JellyBeanMr2)
                     return AdapterStatus.Unsupported;
 
-                //this.context.AppContext.PackageManager.HasSystemFeature(PackageManager.FeatureBluetoothLe)
+                //if (!Application.Context.PackageManager.HasSystemFeature(PackageManager.FeatureBluetoothLe))
+                //    return AdapterStatus.Unsupported;
+                
                 if (this.manager?.Adapter == null)
                     return AdapterStatus.Unsupported;
 
@@ -157,7 +159,7 @@ namespace Acr.Ble
                 this.context.Devices.Clear();
 
                 var scan = this.ScanListen().Subscribe(ob.OnNext);
-                this.context.StartScan(this.ForcePreLollipopScanner, serviceUuid);
+                this.context.StartScan(AndroidConfig.ForcePreLollipopScanner, serviceUuid);
                 this.scanStatusChanged.OnNext(true);
 
                 return () =>

@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 using Acr.Ble.Internals;
 using Android.App;
 using Android.Bluetooth;
-
+using Android.OS;
+using B = Android.OS.Build;
 
 namespace Acr.Ble
 {
@@ -96,12 +97,20 @@ namespace Acr.Ble
                         ob.OnNext(ConnectionStatus.Connecting);
                         var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
                         this.context = new GattContext(conn, this.callbacks);
-                        Task.Factory.StartNew(
-                            () => conn.Connect(), // this could still fire even if we cancel it thereby tying up the connection
-                            CancellationToken.None,
-                            TaskCreationOptions.None,
-                            this.scheduler
-                        );
+
+                        if (this.ConnectOnMainThread()) 
+                        {
+                            Task.Factory.StartNew(
+                                () => conn.Connect(), // this could still fire even if we cancel it thereby tying up the connection
+                                CancellationToken.None,
+                                TaskCreationOptions.None,
+                                this.scheduler
+                            );
+                        }
+                        else 
+                        {
+                            conn.Connect();
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -231,6 +240,21 @@ namespace Acr.Ble
 
             macBytes.CopyTo(deviceGuid, 10);
             return new Guid(deviceGuid);
+        }
+
+
+        protected virtual bool ConnectOnMainThread() 
+        {
+            if (AndroidConfig.ForceConnectOnMainThread)
+                return true;
+            
+            if (!B.Manufacturer.Equals("samsung", StringComparison.CurrentCultureIgnoreCase))
+                return false;
+
+            if (B.VERSION.SdkInt > BuildVersionCodes.Kitkat)
+                return false;
+
+            return true;
         }
     }
 }

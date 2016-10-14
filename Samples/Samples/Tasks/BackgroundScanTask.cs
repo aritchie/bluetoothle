@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Acr.Ble;
 using Acr.Notifications;
 using Samples.Services;
@@ -11,6 +12,7 @@ namespace Samples.Tasks
         readonly IAdapter adapter;
         readonly IAppSettings settings;
         readonly INotifications notifications;
+        IDisposable bgScan;
 
 
         public BackgroundScanTask(IAdapter adapter, IAppSettings settings, INotifications notifications)
@@ -24,21 +26,27 @@ namespace Samples.Tasks
         public void OnForeground()
         {
             this.notifications.Badge = 0;
+            this.bgScan?.Dispose();
         }
 
 
         public void OnBackground()
         {
-            if (!this.settings.BleServerEnabled)
+            if (!this.settings.EnableBackgroundScan)
                 return;
 
-            this.adapter
-                .BackgroundScan(this.settings.BleServerServiceUuid)
+            Debug.WriteLine("Starting Background Scan");
+            this.bgScan = this.adapter
+                .BackgroundScan(this.settings.BackgroundScanServiceUuid)
                 .Subscribe(x =>
                 {
-                    this.notifications.Badge = this.notifications.Badge + 1;
-                    this.notifications.Send("BLE Device Found", $"A device with service UUID {this.settings.BleServerServiceUuid} was found");
-                });
+                    Debug.WriteLine($"[background] {x.Device.Name} - {x.Device.Uuid}");
+                    //this.notifications.Badge = this.notifications.Badge + 1;
+                    //this.notifications.Send("BLE Device Found", $"A device with service UUID {this.settings.BleServerServiceUuid} was found");
+                },
+                ex => Debug.WriteLine($"Background Scan Error - " + ex),
+                ()=> Debug.WriteLine("Killing Background Scan")
+            );
         }
     }
 }
