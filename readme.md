@@ -35,6 +35,10 @@ Add the following to your AndroidManifest.xml
 <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 ```
 
+__In Android v6, you should also request permissions for 
+
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
 **iOS**
 
 If you want to use background BLE periperhals, add the following to your Info.plist
