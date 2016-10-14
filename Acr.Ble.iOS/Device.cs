@@ -65,10 +65,10 @@ namespace Acr.Ble
                 this.manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
                 {
                     NotifyOnDisconnection = true,
-#if __IOS__
+#if __IOS__ || __TVOS__
                     NotifyOnConnection = true,
                     NotifyOnNotification = true
-#endif                        
+#endif
                 });
 
                 return () =>
@@ -171,13 +171,13 @@ namespace Acr.Ble
 
                 var sub = this.WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ => 
+                    .Subscribe(_ =>
                     {
                         this.peripheral.DiscoverServices();
                         Debug.WriteLine("DiscoverServices for device " + this.Uuid);
                     });
 
-                return () => 
+                return () =>
                 {
                     sub.Dispose();
                     this.peripheral.DiscoveredService -= handler;
@@ -189,7 +189,7 @@ namespace Acr.Ble
                 .Where(x => x == ConnectionStatus.Disconnected)
             )
             .RefCount();
-            
+
             return this.serviceOb;
         }
 

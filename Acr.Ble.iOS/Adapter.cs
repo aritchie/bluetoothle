@@ -70,7 +70,7 @@ namespace Acr.Ble
         }
 
 
-#if __IOS__
+#if __IOS__ || __TVOS__
         public bool IsScanning => this.manager.IsScanning;
 #else
         public bool IsScanning { get; private set; }
@@ -185,7 +185,7 @@ namespace Acr.Ble
         }
 
 
-        void ToggleScanStatus(bool isScanning) 
+        void ToggleScanStatus(bool isScanning)
         {
             this.scanStatusChanged.OnNext(isScanning);
 #if MAC
