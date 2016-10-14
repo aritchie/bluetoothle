@@ -28,16 +28,16 @@ namespace Acr.Ble.Internals
         public event EventHandler<ScanEventArgs> Scanned;
 
 
-        public void StartScan(bool forcePreLollipop, Guid? bgServiceUuid)
+        public void StartScan(bool forcePreLollipop, bool bgScan)
         {
             this.Devices.Clear();
             if (!forcePreLollipop && Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
             {
-                this.StartNewScanner(bgServiceUuid);
+                this.StartNewScanner(bgScan);
             }
             else
             {
-                this.StartPreLollipopScan(bgServiceUuid);
+                this.StartPreLollipopScan();
             }
         }
 
@@ -55,55 +55,25 @@ namespace Acr.Ble.Internals
         }
 
 
-        protected virtual void StartNewScanner(Guid? bgServiceUuid)
+        protected virtual void StartNewScanner(bool bgScan)
         {
             this.newCallback = new LollipopScanCallback(args => this.Scanned?.Invoke(this, args));
-
-            if (bgServiceUuid == null)
-            {
-                this.manager.Adapter.BluetoothLeScanner.StartScan(
-                    null,
-                    new ScanSettings
-                        .Builder()
-                        .SetScanMode(ScanMode.Balanced)
-                        .Build(),
-                    this.newCallback
-                );
-            }
-            else
-            {
-                this.manager.Adapter.BluetoothLeScanner.StartScan(
-                    new List<ScanFilter>
-                    {
-                        new ScanFilter
-                            .Builder()
-                            .SetServiceUuid(bgServiceUuid.Value.ToParcelUuid())
-                            .Build()
-                    },
-                    new ScanSettings
-                        .Builder()
-                        .SetScanMode(ScanMode.LowPower)
-                        .Build(),
-                    this.newCallback
-                );
-            }
+            var scanMode = bgScan ? ScanMode.LowPower : ScanMode.Balanced;
+            this.manager.Adapter.BluetoothLeScanner.StartScan(
+                null,
+                new ScanSettings
+                    .Builder()
+                    .SetScanMode(scanMode)
+                    .Build(),
+                this.newCallback
+            );
         }
 
 
-        protected virtual void StartPreLollipopScan(Guid? bgServiceUuid)
+        protected virtual void StartPreLollipopScan()
         {
             this.oldCallback = new PreLollipopScanCallback(args => this.Scanned?.Invoke(this, args));
-            if (bgServiceUuid == null)
-            {
-                this.manager.Adapter.StartLeScan(this.oldCallback);
-            }
-            else
-            {
-                this.manager.Adapter.StartLeScan(
-                    new[] { bgServiceUuid.Value.ToUuid() },
-                    this.oldCallback
-                );
-            }
+            this.manager.Adapter.StartLeScan(this.oldCallback);
         }
     }
 }

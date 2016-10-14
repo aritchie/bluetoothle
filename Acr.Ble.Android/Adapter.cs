@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace Acr.Ble
 
                 //if (!Application.Context.PackageManager.HasSystemFeature(PackageManager.FeatureBluetoothLe))
                 //    return AdapterStatus.Unsupported;
-                
+
                 if (this.manager?.Adapter == null)
                     return AdapterStatus.Unsupported;
 
@@ -159,7 +160,7 @@ namespace Acr.Ble
                 this.context.Devices.Clear();
 
                 var scan = this.ScanListen().Subscribe(ob.OnNext);
-                this.context.StartScan(AndroidConfig.ForcePreLollipopScanner, serviceUuid);
+                this.context.StartScan(AndroidConfig.ForcePreLollipopScanner, serviceUuid != null);
                 this.scanStatusChanged.OnNext(true);
 
                 return () =>
@@ -169,6 +170,15 @@ namespace Acr.Ble
                     this.scanStatusChanged.OnNext(false);
                 };
             })
+            .Where(scanResult =>
+                serviceUuid == null ||
+                (
+                    scanResult
+                        .AdvertisementData
+                        .ServiceUuids?
+                        .Any(y => y.Equals(serviceUuid.Value)) ?? false
+                )
+            )
             .Publish()
             .RefCount();
         }
