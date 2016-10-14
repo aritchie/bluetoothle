@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using Acr.Ble.Internals;
@@ -18,8 +19,7 @@ namespace Acr.Ble
         readonly BluetoothDevice native;
         readonly GattCallbacks callbacks;
         readonly TaskScheduler scheduler;
-        readonly IObservable<ConnectionStatus> connectOb;
-        IObserver<ConnectionStatus> connectObserver;
+        readonly Subject<ConnectionStatus> connSubject;
         GattContext context;
 
 
@@ -32,22 +32,7 @@ namespace Acr.Ble
             this.native = native;
             this.callbacks = callbacks;
             this.scheduler = scheduler; // this is the thread that the device was scanned on (required by some devices)
-
-            this.connectOb = Observable.Create<ConnectionStatus>(ob =>
-            {
-                this.connectObserver = ob;
-
-                var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
-                {
-                    if (args.Gatt.Device.Equals(this.native))
-                        ob.OnNext(this.Status);
-                });
-                this.callbacks.ConnectionStateChanged += handler;
-
-                return () => this.callbacks.ConnectionStateChanged -= handler;
-            })
-            .Replay(1)
-            .RefCount();
+            this.connSubject = new Subject<ConnectionStatus>();
         }
 
 
@@ -128,9 +113,9 @@ namespace Acr.Ble
             if (this.Status != ConnectionStatus.Connected)
                 return;
 
-            this.connectObserver.OnNext(ConnectionStatus.Disconnecting);
+            this.connSubject.OnNext(ConnectionStatus.Disconnecting);
             this.context?.Dispose();
-            this.connectObserver.OnNext(ConnectionStatus.Disconnected);
+            this.connSubject.OnNext(ConnectionStatus.Disconnected);
         }
 
 
@@ -143,9 +128,30 @@ namespace Acr.Ble
         }
 
 
+        IObservable<ConnectionStatus> statusOb;
         public override IObservable<ConnectionStatus> WhenStatusChanged()
         {
-            return this.connectOb;
+            this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
+            {
+                ob.OnNext(this.Status);
+                var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
+                {
+                    if (args.Gatt.Device.Equals(this.native))
+                        ob.OnNext(this.Status);
+                });
+                this.callbacks.ConnectionStateChanged += handler;
+                var sub = this.connSubject.AsObservable().Subscribe(ob.OnNext);
+
+                return () => 
+                {
+                    sub.Dispose();
+                    this.callbacks.ConnectionStateChanged -= handler;
+                };
+            })
+            .Replay(1)
+            .RefCount();
+
+            return this.statusOb;
         }
 
 
@@ -247,11 +253,11 @@ namespace Acr.Ble
         {
             if (AndroidConfig.ForceConnectOnMainThread)
                 return true;
+
+            if (B.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
+                return false;
             
             if (!B.Manufacturer.Equals("samsung", StringComparison.CurrentCultureIgnoreCase))
-                return false;
-
-            if (B.VERSION.SdkInt > BuildVersionCodes.Kitkat)
                 return false;
 
             return true;
