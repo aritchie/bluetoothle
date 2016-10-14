@@ -33,11 +33,10 @@ Add the following to your AndroidManifest.xml
 ```xml
 <uses-permission android:name="android.permission.BLUETOOTH"/>
 <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-```
 
-__In Android v6, you should also request permissions for 
-
+<!--this is necessary for Android v6+ to get the device name and address-->
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+```
 
 **iOS**
 
