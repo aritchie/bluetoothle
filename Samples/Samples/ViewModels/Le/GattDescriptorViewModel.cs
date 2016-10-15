@@ -42,11 +42,18 @@ namespace Samples.ViewModels.Le
 
         async Task Read()
         {
-            var value = await this.Descriptor.Read();
+            try
+            {
+                var value = await this.Descriptor.Read();
 
-            this.LastValue = DateTime.Now;
-            this.IsValueAvailable = true;
-            this.Value = value == null ? "EMPTY" : Encoding.UTF8.GetString(value, 0, value.Length);
+                this.LastValue = DateTime.Now;
+                this.IsValueAvailable = true;
+                this.Value = value == null ? "EMPTY" : Encoding.UTF8.GetString(value, 0, value.Length);
+            }
+            catch (Exception ex)
+            {
+                this.dialogs.Alert($"Error Reading {this.Descriptor.Uuid} - {ex}");
+            }
         }
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading.Tasks;
@@ -53,9 +54,19 @@ namespace Samples.ViewModels.Le
             {
                 cfg.Add("Read", async () =>
                 {
-                    var value = await this.Characteristic.Read().ToTask();
-                    var utf8 = await this.dialogs.ConfirmAsync("Display Value as UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
-                    this.SetReadValue(value, utf8);
+                    try
+                    {
+                        var value = await this.Characteristic
+                            .Read()
+                            .Timeout(TimeSpan.FromSeconds(3))
+                            .ToTask();
+                        var utf8 = await this.dialogs.ConfirmAsync("Display Value as UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
+                        this.SetReadValue(value, utf8);
+                    }
+                    catch (Exception ex)
+                    {
+                        dialogs.Alert($"Error Reading {this.Characteristic.Uuid} - {ex}");
+                    }
                 });
             }
 
@@ -97,13 +108,23 @@ namespace Samples.ViewModels.Le
 
                 if (result.Ok && !result.Text.IsEmpty())
                 {
-                    using (this.dialogs.Loading("Writing Value..."))
+                    try
                     {
-                        var value = result.Text.Trim();
-                        var bytes = utf8 ? Encoding.UTF8.GetBytes(value) : value.FromHexString();
-                        await this.Characteristic.Write(bytes).ToTask();
+                        using (this.dialogs.Loading("Writing Value..."))
+                        {
+                            var value = result.Text.Trim();
+                            var bytes = utf8 ? Encoding.UTF8.GetBytes(value) : value.FromHexString();
+                            await this.Characteristic
+                                .Write(bytes)
+                                .Timeout(TimeSpan.FromSeconds(3))
+                                .ToTask();
 
-                        this.Value = value;
+                            this.Value = value;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.dialogs.Alert($"Error Writing {this.Characteristic.Uuid} - {ex}");
                     }
                 }
             });
