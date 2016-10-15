@@ -146,17 +146,20 @@ namespace Acr.Ble.Plugins
         static void Write(IObserver<BleLogEvent> ob, BleLogFlags flag, Guid? uuid, string value)
         {
             var ev = new BleLogEvent(flag, uuid, null, value);
-            Debug.WriteLine($"[{flag}]({uuid}) {value}");
             ob.OnNext(ev);
+#if DEBUG
+            Debug.WriteLine($"[{flag}]({uuid}) {value}");
+#endif
         }
 
 
         static void Write(IObserver<BleLogEvent> ob, BleLogFlags flag, Guid uuid, byte[] data)
         {
-            var dataString = data == null ? String.Empty : BitConverter.ToString(data);
             ob.OnNext(new BleLogEvent(flag, uuid, data, null));
-            Debug.WriteLine($"[{flag}]({uuid}) {dataString}"); 
+#if DEBUG
+            var dataString = data == null ? String.Empty : BitConverter.ToString(data);
+            Debug.WriteLine($"[{flag}]({uuid}) {dataString}");
+#endif
         }
     }
 }
-

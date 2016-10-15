@@ -12,7 +12,7 @@ namespace Acr.Ble
         readonly CBCharacteristic native;
 
 
-        public GattCharacteristic(IGattService service, CBCharacteristic native) 
+        public GattCharacteristic(IGattService service, CBCharacteristic native)
                 : base(service, native.UUID.ToGuid(), (CharacteristicProperties)(int)native.Properties)
         {
             this.native = native;
@@ -97,35 +97,34 @@ namespace Acr.Ble
         {
             this.AssertNotify();
 
-            this.notifyOb = this.notifyOb ?? Observable
-                .Create<byte[]>(ob =>
+            this.notifyOb = this.notifyOb ?? Observable.Create<byte[]>(ob =>
+            {
+                var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
-                    var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
+                    if (args.Characteristic.UUID.Equals(this.native.UUID))
                     {
-                        if (args.Characteristic.UUID.Equals(this.native.UUID))
+                        if (args.Error != null)
                         {
-                            if (args.Error != null)
-                            {
-                                ob.OnError(new ArgumentException(args.Error.ToString()));
-                            }
-                            else
-                            {
-                                this.Value = this.native.Value.ToArray();
-                                ob.OnNext(this.Value);
-                                this.NotifySubject.OnNext(this.Value);
-                            }
+                            ob.OnError(new ArgumentException(args.Error.ToString()));
                         }
-                    });
-                    this.native.Service.Peripheral.UpdatedCharacterteristicValue += handler;
-                    this.native.Service.Peripheral.SetNotifyValue(true, this.native);
+                        else
+                        {
+                            this.Value = this.native.Value.ToArray();
+                            ob.OnNext(this.Value);
+                            this.NotifySubject.OnNext(this.Value);
+                        }
+                    }
+                });
+                this.native.Service.Peripheral.UpdatedCharacterteristicValue += handler;
+                this.native.Service.Peripheral.SetNotifyValue(true, this.native);
 
-                    return () =>
-                    {
-                        this.native.Service.Peripheral.SetNotifyValue(false, this.native);
-                        this.native.Service.Peripheral.UpdatedCharacterteristicValue -= handler;
-                    };
-                })
-                .Publish()
+                return () =>
+                {
+                    this.native.Service.Peripheral.SetNotifyValue(false, this.native);
+                    this.native.Service.Peripheral.UpdatedCharacterteristicValue -= handler;
+                };
+            })
+            .Publish()
                 .RefCount();
 
             return this.notifyOb;
