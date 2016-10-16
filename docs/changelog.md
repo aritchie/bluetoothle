@@ -1,4 +1,4 @@
-
+# CHANGE LOG
 
 1.0.1
 [fix][all] new adapter scans only clear disconnected devices from cache
