@@ -23,79 +23,10 @@ Mac (Coming Soon)
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <tags>ios android windows mac xamarin rx reactive ble bluetooth</tags>
         <dependencies>
-            <dependency id="rx-main" version="[2.2.5, 3)" />
+            <dependency id="Acr.Ble" version="[1,)" />
         </dependencies>
         <releaseNotes>
-1.0.0
-[fix][droid] WhenStatusChanged firing on subscription and replays properly
-[fix][droid] properly parsing 16 and 32bit UUIDs in advertisement packet
-
-0.9.9
-[breaking] WhenActionOccurs renamed to CreateLogger
-[fix] ensure WhenScanStatusChanged() broadcasts its current state on registration
-Logging now returns actual packet received where applicable
-
-
-0.9.8
-adding tvOS libraries to package (NOT TESTED)
-[fix] createconnection properly persists connection now
-[fix] more logging and discovery issues
-[fix][droid] device.readrssi was not working
-[droid] device.whenstatuschanged will now broadcast Connecting/Disconnecting
-[droid] advertisement packet now gets all service UUIDs parsed
-
-0.9.7
-[fix] Error notifications on read/writes
-[fix] Make sure to replay last status for connectable observables
-[fix] Service discovery on iOS and Android was not registering subsequent subscriptions properly
-[fix][droid] Read/Write callbacks now passing values back properly
-[breaking] PersistentConnection is now CreateConnection with improvements to status reporting
-
-0.9.6
-Vastly improved logging
-Improvements to observable allocations
-Improvements in service discovery
-
-0.9.5
-[breaking] Change extension method names
-
-0.9.4
-[breaking] Characteristic method WhenNotificationOccurs() is now called WhenNotificationReceived().  It also no longer subscribes to notifications.  Use new method SubscribeToNotifications().  WhenNotificationReceived() is for logging purposes
-
-0.9.3
-Add heartrate plugin (extension method)
-Add super logging plugin (extension method)
-Characteristics and Descriptors now have WhenRead/WhenWritten events to monitor calls externally
-
-0.9.2
-ScanListen for working with scan results from a background or decoupled component
-
-0.9.1
-BackgroundScan added and ScanFilter removed
-Multiple entry points can now hook up to scan, but only one will run (connectable refcount observable)
-
-0.9.0
-Initial Public Release
+Acr.Ble redirect
         </releaseNotes>
     </metadata>
-    <files>
-        <!-- PCL -->
-        <file src="..\Acr.Ble\bin\Release\Acr.Ble.*" target="lib\portable-win+net45+wp8+win8+wpa81" />
-
-        <!-- android -->
-        <file src="..\Acr.Ble.Android\bin\Release\Acr.Ble.*" target="lib\MonoAndroid10" />
-
-        <!-- ios -->
-        <file src="..\Acr.Ble.iOS\bin\Release\Acr.Ble.*" target="lib\Xamarin.iOS10" />
-
-        <!-- mac -->
-        <!--<file src="..\Acr.Ble.Mac\bin\Release\Acr.Ble.*" target="lib\Xamarin.Mac20" />-->
-
-        <!-- tvOS -->
-        <file src="..\Acr.Ble.tvOS\bin\Release\Acr.Ble.*" target="lib\Xamarin.tvOS10" />
-
-        <!-- uwp -->
-        <!--<file src="..\Acr.Ble.Uwp\bin\Release\Acr.Ble.*" target="lib\uap10.0" />-->
-
-    </files>
 </package>
