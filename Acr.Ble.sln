@@ -18,6 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE.md = LICENSE.md
 		nuspec\nuget.exe = nuspec\nuget.exe
 		nuspec\pack.cmd = nuspec\pack.cmd
+		nuspec\Plugin.BluetoothLE.nuspec = nuspec\Plugin.BluetoothLE.nuspec
 		nuspec\push.cmd = nuspec\push.cmd
 		readme.md = readme.md
 	EndProjectSection

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Plugin.BluetoothLE</id>
+        <version>1.0.0</version>
+        <title>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</title>
+        <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
+        <description>
+Cross Platform Reactive Bluetooth LE Plugin for Xamarin and Windows
+
+Supported Platforms
+Android 4.3+
+iOS 6+
+tvOS (testing)
+Windows UWP (Coming Soon)
+Mac (Coming Soon)
+        </description>
+        <authors>Allan Ritchie</authors>
+        <owners>Allan Ritchie</owners>
+        <iconUrl>https://github.com/aritchie/bluetoothle/raw/master/icon.png</iconUrl>
+        <licenseUrl>https://github.com/aritchie/bluetoothle/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/aritchie/bluetoothle</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <tags>ios android windows mac xamarin rx reactive ble bluetooth</tags>
+        <dependencies>
+            <dependency id="Acr.Ble" version="[1,)" />
+        </dependencies>
+        <releaseNotes>
+Acr.Ble redirect
+        </releaseNotes>
+    </metadata>
+</package>
