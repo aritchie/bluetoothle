@@ -31,6 +31,17 @@ With the use of observables everywhere, the option to hook up to the scan result
 BleAdapter.Current.ScanListen().Subscribe(scanResult => {});
 ```
 
+**Get Connected Devices**
+
+```csharp
+
+var devices = BleAdapter.Current.GetConnectedDevices();
+foreach (var device in devices)
+{
+    // do something
+}
+```
+
 ## Extensions
 ```csharp
 // this essentially recreates the scan cycles like on Android
