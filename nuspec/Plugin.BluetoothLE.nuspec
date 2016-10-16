@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>Acr.Ble</id>
-        <version>1.0.1</version>
+        <id>Plugin.BluetoothLE</id>
+        <version>1.0.0</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -26,10 +26,6 @@ Mac (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
-1.0.1
-[fix][all] new adapter scans only clear disconnected devices from cache
-[feature] Adapter.GetConnectedDevices
-
 1.0.0
 [fix][droid] WhenStatusChanged firing on subscription and replays properly
 [fix][droid] properly parsing 16 and 32bit UUIDs in advertisement packet
