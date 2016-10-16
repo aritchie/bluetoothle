@@ -43,6 +43,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E72A2C1E-FB4B-4037-9B10-C675EF2F139C}"
 	ProjectSection(SolutionItems) = preProject
 		docs\adapter.md = docs\adapter.md
+		docs\changelog.md = docs\changelog.md
 		docs\characteristics.md = docs\characteristics.md
 		docs\descriptors.md = docs\descriptors.md
 		docs\device.md = docs\device.md

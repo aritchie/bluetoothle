@@ -1,6 +1,10 @@
 # ACR Reactive BluetoothLE Plugin for Xamarin & Windows
 Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UWP COMING SOON)
 
+[Change Log](docs/changlog.md)
+[![NuGet](https://img.shields.io/nuget/v/Acr.Ble.svg?maxAge=2592000)](https://www.nuget.org/packages/Acr.Ble/)
+
+
 ## PLATFORMS
 
 * Android 4.3+
