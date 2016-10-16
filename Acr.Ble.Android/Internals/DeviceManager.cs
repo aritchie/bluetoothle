@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.Bluetooth;
 
@@ -29,9 +31,22 @@ namespace Acr.Ble.Internals
         }
 
 
+        public IEnumerable<IDevice> GetConnectedDevices()
+        {
+            return this.devices
+                .Where(x => x.Value.Status == ConnectionStatus.Connected)
+                .Select(x => x.Value)
+                .ToList();
+        }
+
+
         public void Clear()
         {
-            this.devices.Clear();
+            IDevice _;
+            this.devices
+                .Where(x => x.Value.Status != ConnectionStatus.Connected)
+                .ToList()
+                .ForEach(x => this.devices.TryRemove(x.Key, out _));
         }
     }
 }

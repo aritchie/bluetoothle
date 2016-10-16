@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using CoreBluetooth;
 using CoreFoundation;
@@ -49,6 +50,12 @@ namespace Acr.Ble
                         return AdapterStatus.Unknown;
                 }
             }
+        }
+
+
+        public IEnumerable<IDevice> GetConnectedDevices()
+        {
+            return this.deviceManager.GetConnectedDevices();
         }
 
 

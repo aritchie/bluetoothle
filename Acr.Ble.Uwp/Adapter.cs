@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -34,6 +35,12 @@ namespace Acr.Ble
 
 
         public bool IsScanning => this.watcher.Status == BluetoothLEAdvertisementWatcherStatus.Started;
+
+
+        public IEnumerable<IDevice> GetConnectedDevices()
+        {
+            return this.deviceManager.GetConnectedDevices();
+        }
 
 
         public AdapterStatus Status
@@ -110,6 +117,8 @@ namespace Acr.Ble
         {
             this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
             {
+                this.deviceManager.Clear();
+
                 var adHandler = new TypedEventHandler<BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>
                 (
                     (sender, args) =>

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 
 namespace Acr.Ble
@@ -14,6 +16,12 @@ namespace Acr.Ble
         /// Get current scanning status
         /// </summary>
         bool IsScanning { get; }
+
+        /// <summary>
+        /// Gets a list of connected devices
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<IDevice> GetConnectedDevices();
 
         /// <summary>
         /// Monitor for scanning status changes

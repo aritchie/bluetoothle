@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using CoreBluetooth;
 
 
@@ -26,9 +28,22 @@ namespace Acr.Ble
         }
 
 
-        public void Clear() 
+        public IEnumerable<IDevice> GetConnectedDevices()
         {
-            this.peripherals.Clear();
+            return this.peripherals
+                .Where(x => x.Value.Status == ConnectionStatus.Connected)
+                .Select(x => x.Value)
+                .ToList();
+        }
+
+
+        public void Clear()
+        {
+            IDevice _;
+            this.peripherals
+                .Where(x => x.Value.Status != ConnectionStatus.Connected)
+                .ToList()
+                .ForEach(x => this.peripherals.TryRemove(x.Key, out _));
         }
     }
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -28,6 +30,12 @@ namespace Acr.Ble
 
 
         public bool IsScanning => this.manager.Adapter.IsDiscovering;
+
+
+        public IEnumerable<IDevice> GetConnectedDevices()
+        {
+            return this.context.Devices.GetConnectedDevices();
+        }
 
 
         public AdapterStatus Status
