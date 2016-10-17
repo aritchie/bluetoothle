@@ -83,7 +83,7 @@ namespace Acr.Ble
                         var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
                         this.context = new GattContext(conn, this.callbacks);
 
-                        if (this.ConnectOnMainThread()) 
+                        if (this.ConnectOnMainThread())
                         {
                             Task.Factory.StartNew(
                                 () => conn.Connect(), // this could still fire even if we cancel it thereby tying up the connection
@@ -92,7 +92,7 @@ namespace Acr.Ble
                                 this.scheduler
                             );
                         }
-                        else 
+                        else
                         {
                             conn.Connect();
                         }
@@ -142,7 +142,7 @@ namespace Acr.Ble
                 this.callbacks.ConnectionStateChanged += handler;
                 var sub = this.connSubject.AsObservable().Subscribe(ob.OnNext);
 
-                return () => 
+                return () =>
                 {
                     sub.Dispose();
                     this.callbacks.ConnectionStateChanged -= handler;
@@ -249,18 +249,44 @@ namespace Acr.Ble
         }
 
 
-        protected virtual bool ConnectOnMainThread() 
+        protected virtual bool ConnectOnMainThread()
         {
             if (AndroidConfig.ForceConnectOnMainThread)
                 return true;
 
             if (B.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
                 return false;
-            
+
             if (!B.Manufacturer.Equals("samsung", StringComparison.CurrentCultureIgnoreCase))
                 return false;
 
             return true;
+        }
+
+
+        public override int GetHashCode()
+        {
+            return this.native.GetHashCode();
+        }
+
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as Device;
+            if (other == null)
+                return false;
+
+            // TODO: native might not be ready
+            //if (!this.native.Equals(other.native))
+            //    return false;
+
+            return true;
+        }
+
+
+        public override string ToString()
+        {
+            return this.Uuid.ToString();
         }
     }
 }

@@ -5,7 +5,7 @@
 #tool gitlink
 
 var target = Argument("target", "publish");
-var version = Argument("version", "1.0.0");
+var version = Argument("version", "1.0.1");
 
 Setup(x =>
 {
@@ -50,7 +50,6 @@ Task("publish")
     .IsDependentOn("nuget")
     .Does(() =>
 {
-    /*
     GitLink("./", new GitLinkSettings
     {
          RepositoryUrl = "https://github.com/aritchie/bluetoothle",
@@ -61,7 +60,6 @@ Task("publish")
         Source = "http://www.nuget.org/api/v2/package",
         Verbosity = NuGetVerbosity.Detailed
     });
-    */
     CopyFiles("./output/*.nupkg", "c:\\users\\allan.ritchie\\dropbox\\nuget");
 });
 

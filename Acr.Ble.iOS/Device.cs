@@ -214,5 +214,30 @@ namespace Acr.Ble
                 };
             });
         }
+
+
+        public override int GetHashCode()
+        {
+            return this.peripheral.GetHashCode();
+        }
+
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as Device;
+            if (other == null)
+                return false;
+
+            if (!this.peripheral.Equals(other.peripheral))
+                return false;
+
+            return false;
+        }
+
+
+        public override string ToString()
+        {
+            return this.Uuid.ToString();
+        }
     }
 }

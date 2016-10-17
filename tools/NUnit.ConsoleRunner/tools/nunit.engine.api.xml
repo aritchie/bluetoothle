@@ -4,127 +4,6 @@
         <name>nunit.engine.api</name>
     </assembly>
     <members>
-        <member name="T:NUnit.Engine.ILogger">
-            <summary>
-            Interface for logging within the engine
-            </summary>
-        </member>
-        <member name="M:NUnit.Engine.ILogger.Error(System.String)">
-            <summary>
-            Logs the specified message at the error level.
-            </summary>
-            <param name="message">The message.</param>
-        </member>
-        <member name="M:NUnit.Engine.ILogger.Error(System.String,System.Object[])">
-            <summary>
-            Logs the specified message at the error level.
-            </summary>
-            <param name="message">The message.</param>
-            <param name="args">The arguments.</param>
-        </member>
-        <member name="M:NUnit.Engine.ILogger.Warning(System.String)">
-            <summary>
-            Logs the specified message at the warning level.
-            </summary>
-            <param name="message">The message.</param>
-        </member>
-        <member name="M:NUnit.Engine.ILogger.Warning(System.String,System.Object[])">
-            <summary>
-            Logs the specified message at the warning level.
-            </summary>
-            <param name="message">The message.</param>
-            <param name="args">The arguments.</param>
-        </member>
-        <member name="M:NUnit.Engine.ILogger.Info(System.String)">
-            <summary>
-            Logs the specified message at the info level.
-            </summary>
-            <param name="message">The message.</param>
-        </member>
-        <member name="M:NUnit.Engine.ILogger.Info(System.String,System.Object[])">
-            <summary>
-            Logs the specified message at the info level.
-            </summary>
-            <param name="message">The message.</param>
-            <param name="args">The arguments.</param>
-        </member>
-        <member name="M:NUnit.Engine.ILogger.Debug(System.String)">
-            <summary>
-            Logs the specified message at the debug level.
-            </summary>
-            <param name="message">The message.</param>
-        </member>
-        <member name="M:NUnit.Engine.ILogger.Debug(System.String,System.Object[])">
-            <summary>
-            Logs the specified message at the debug level.
-            </summary>
-            <param name="message">The message.</param>
-            <param name="args">The arguments.</param>
-        </member>
-        <member name="T:NUnit.Engine.InternalTraceLevel">
-            <summary>
-            InternalTraceLevel is an enumeration controlling the
-            level of detailed presented in the internal log.
-            </summary>
-        </member>
-        <member name="F:NUnit.Engine.InternalTraceLevel.Default">
-            <summary>
-            Use the default settings as specified by the user.
-            </summary>
-        </member>
-        <member name="F:NUnit.Engine.InternalTraceLevel.Off">
-            <summary>
-            Do not display any trace messages
-            </summary>
-        </member>
-        <member name="F:NUnit.Engine.InternalTraceLevel.Error">
-            <summary>
-            Display Error messages only
-            </summary>
-        </member>
-        <member name="F:NUnit.Engine.InternalTraceLevel.Warning">
-            <summary>
-            Display Warning level and higher messages
-            </summary>
-        </member>
-        <member name="F:NUnit.Engine.InternalTraceLevel.Info">
-            <summary>
-            Display informational and higher messages
-            </summary>
-        </member>
-        <member name="F:NUnit.Engine.InternalTraceLevel.Debug">
-            <summary>
-            Display debug messages and higher - i.e. all messages
-            </summary>
-        </member>
-        <member name="F:NUnit.Engine.InternalTraceLevel.Verbose">
-            <summary>
-            Display debug messages and higher - i.e. all messages
-            </summary>
-        </member>
-        <member name="T:NUnit.Engine.TestSelectionParserException">
-            <summary>
-            TestSelectionParserException is thrown when an error 
-            is found while parsing the selection expression.
-            </summary>
-        </member>
-        <member name="M:NUnit.Engine.TestSelectionParserException.#ctor(System.String)">
-            <summary>
-            Construct with a message
-            </summary>
-        </member>
-        <member name="M:NUnit.Engine.TestSelectionParserException.#ctor(System.String,System.Exception)">
-            <summary>
-            Construct with a message and inner exception
-            </summary>
-            <param name="message"></param>
-            <param name="innerException"></param>
-        </member>
-        <member name="M:NUnit.Engine.TestSelectionParserException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-            <summary>
-            Serialization constructor
-            </summary>
-        </member>
         <member name="T:NUnit.Engine.Extensibility.TypeExtensionPointAttribute">
             <summary>
             TypeExtensionPointAttribute is used to bind an extension point
@@ -466,6 +345,104 @@
             </summary>
             <param name="name">The property name</param>
             <returns>A collection of values</returns>
+        </member>
+        <member name="T:NUnit.Engine.ILogger">
+            <summary>
+            Interface for logging within the engine
+            </summary>
+        </member>
+        <member name="M:NUnit.Engine.ILogger.Error(System.String)">
+            <summary>
+            Logs the specified message at the error level.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:NUnit.Engine.ILogger.Error(System.String,System.Object[])">
+            <summary>
+            Logs the specified message at the error level.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="args">The arguments.</param>
+        </member>
+        <member name="M:NUnit.Engine.ILogger.Warning(System.String)">
+            <summary>
+            Logs the specified message at the warning level.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:NUnit.Engine.ILogger.Warning(System.String,System.Object[])">
+            <summary>
+            Logs the specified message at the warning level.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="args">The arguments.</param>
+        </member>
+        <member name="M:NUnit.Engine.ILogger.Info(System.String)">
+            <summary>
+            Logs the specified message at the info level.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:NUnit.Engine.ILogger.Info(System.String,System.Object[])">
+            <summary>
+            Logs the specified message at the info level.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="args">The arguments.</param>
+        </member>
+        <member name="M:NUnit.Engine.ILogger.Debug(System.String)">
+            <summary>
+            Logs the specified message at the debug level.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:NUnit.Engine.ILogger.Debug(System.String,System.Object[])">
+            <summary>
+            Logs the specified message at the debug level.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="args">The arguments.</param>
+        </member>
+        <member name="T:NUnit.Engine.InternalTraceLevel">
+            <summary>
+            InternalTraceLevel is an enumeration controlling the
+            level of detailed presented in the internal log.
+            </summary>
+        </member>
+        <member name="F:NUnit.Engine.InternalTraceLevel.Default">
+            <summary>
+            Use the default settings as specified by the user.
+            </summary>
+        </member>
+        <member name="F:NUnit.Engine.InternalTraceLevel.Off">
+            <summary>
+            Do not display any trace messages
+            </summary>
+        </member>
+        <member name="F:NUnit.Engine.InternalTraceLevel.Error">
+            <summary>
+            Display Error messages only
+            </summary>
+        </member>
+        <member name="F:NUnit.Engine.InternalTraceLevel.Warning">
+            <summary>
+            Display Warning level and higher messages
+            </summary>
+        </member>
+        <member name="F:NUnit.Engine.InternalTraceLevel.Info">
+            <summary>
+            Display informational and higher messages
+            </summary>
+        </member>
+        <member name="F:NUnit.Engine.InternalTraceLevel.Debug">
+            <summary>
+            Display debug messages and higher - i.e. all messages
+            </summary>
+        </member>
+        <member name="F:NUnit.Engine.InternalTraceLevel.Verbose">
+            <summary>
+            Display debug messages and higher - i.e. all messages
+            </summary>
         </member>
         <member name="T:NUnit.Engine.IRuntimeFramework">
             <summary>
@@ -1114,6 +1091,29 @@
             </summary>
             <param name="typeName"></param>
             <param name="enabled"></param>
+        </member>
+        <member name="T:NUnit.Engine.TestSelectionParserException">
+            <summary>
+            TestSelectionParserException is thrown when an error 
+            is found while parsing the selection expression.
+            </summary>
+        </member>
+        <member name="M:NUnit.Engine.TestSelectionParserException.#ctor(System.String)">
+            <summary>
+            Construct with a message
+            </summary>
+        </member>
+        <member name="M:NUnit.Engine.TestSelectionParserException.#ctor(System.String,System.Exception)">
+            <summary>
+            Construct with a message and inner exception
+            </summary>
+            <param name="message"></param>
+            <param name="innerException"></param>
+        </member>
+        <member name="M:NUnit.Engine.TestSelectionParserException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Serialization constructor
+            </summary>
         </member>
     </members>
 </doc>

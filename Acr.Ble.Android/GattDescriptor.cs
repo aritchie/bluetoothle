@@ -74,6 +74,31 @@ namespace Acr.Ble
                 return () => this.context.Callbacks.DescriptorRead -= handler;
             });
         }
+
+
+        public override int GetHashCode()
+        {
+            return this.native.GetHashCode();
+        }
+
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as GattDescriptor;
+            if (other == null)
+                return false;
+
+            if (!this.native.Equals(other.native))
+                return false;
+
+            return true;
+        }
+
+
+        public override string ToString()
+        {
+            return this.Uuid.ToString();
+        }
     }
 }
 

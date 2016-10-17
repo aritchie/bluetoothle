@@ -13,7 +13,7 @@ namespace Acr.Ble
         readonly BluetoothGattService native;
 
 
-        public GattService(IDevice device, GattContext context, BluetoothGattService native) 
+        public GattService(IDevice device, GattContext context, BluetoothGattService native)
                 : base(device, native.Uuid.ToGuid(), native.Type == GattServiceType.Primary)
         {
             this.context = context;
@@ -26,7 +26,7 @@ namespace Acr.Ble
         {
             this.characteristicOb = this.characteristicOb ?? Observable.Create<IGattCharacteristic>(ob =>
             {
-                foreach (var nch in native.Characteristics) 
+                foreach (var nch in native.Characteristics)
                 {
                     var wrap = new GattCharacteristic(this, this.context, nch);
                     ob.OnNext(wrap);
@@ -37,6 +37,31 @@ namespace Acr.Ble
             .RefCount();
 
             return this.characteristicOb;
+        }
+
+
+        public override int GetHashCode()
+        {
+            return this.native.GetHashCode();
+        }
+
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as GattService;
+            if (other == null)
+                return false;
+
+            if (!this.native.Equals(other.native))
+                return false;
+
+            return true;
+        }
+
+
+        public override string ToString()
+        {
+            return this.Uuid.ToString();
         }
     }
 }

@@ -1,4 +1,72 @@
-﻿NUnit 3.4 - June 30, 2016
+﻿NUnit 3.5 - October 11, 2016
+
+This is the first version of NUnit where the framework will be released separately from the
+console runner, engine and other extensions. From this point forward, the NUnit console and engine will be
+released on its own schedule that is not bound to that of any other NUnit project and version numbers
+may diverge over time.
+
+This is also the first release where the NUnit Framework will not be included in the installer. Only
+the console runner, engine and extensions will be available as an MSI installer.
+
+Console Runner
+
+ * When running multiple assemblies in their own projects with `--agents` set to a number that is
+   lower than the number of assemblies, the number of concurrent processes is limited to that number.
+   Previously, all processes were created at the start of the run.
+
+Engine
+
+ * All of our extensions have been moved to separate repositories and are now built and
+   distributed separately. This includes the NUnit V2 Driver, NUnit V2 Result Writer,
+   NUnit Project Loader and VS Project Loader. The Teamcity extension was moved to its
+   own repository previously.
+
+* Newer versions of Mono are now detected and used under Windows when requested.
+
+* It is now possible to write a custom framework driver extension for NUnit 3, which will
+  be used instead of the built-in driver.
+
+Issues Resolved Prior to Split (These are in the nunit repository)
+
+ * 1389 specifying solution and --agents is not working with nunit3-console
+ * 1595	Separate installer project
+ * 1596 Eliminate code sharing across projects to be split
+ * 1598 Split framework and console/engine into separate projects
+ * 1600 Split Engine Extensions into separarate projects
+ * 1610 Refactor dependencies in build.cake
+ * 1621 Remove console and command-line option files from common
+ * 1641 Create OSX CI Build on Travis
+ * 1677 Console help should indicate extension needed to use --teamcity
+ * 1687 Create nunit.engine.api NuGet package
+ * 1702 Create separate repo for teamcity event listener extension
+ * 1716 Move installer to new repository
+ * 1717 Change suffix for master builds
+ * 1719 Restore teamcity extension to NUnit.Console and NUnit.Runners packages
+ * 1723 Remove Cake target TestAll
+ * 1727 V2 Framework Driver does not include class or method name in XML
+ * 1732 NullReferenceException when using either --inprocess or --domain=Multiple options
+ * 1739 Create separate copies of MockAssembly for framework, engine and extensions
+ * 1741 --domain=None does not work
+ * 1776 Logger in DefaultTestAssemblyBuilder is retrieved before InternalTrace is initialized
+ * 1800 Remove Console/Engine projects from nunit.linux.sln
+
+Issues Resolved After Split (These are in the nunit-console repository)
+
+ * 2	Split Engine Extensions into separate projects
+ * 30	Error message "File type is not supported" when uses .nunit configuration file
+ * 34	Mono detection on Windows broken
+ * 36	Console runner spawns too many agents
+ * 43	Agent's process stays in memory when it was failed to unload appdomain
+ * 47	Move V2 framework driver extension to its own repo
+ * 48	Move V2 XML result writer to its own repo
+ * 49	Move NUnit project loader to its own repo
+ * 50	Move VS project loader to its own repo
+ * 63	--encoding option for Console stdout
+ * 67	Update text of NUnit.ConsoleRunner NuGet package
+ * 70	Allow custom framework drivers to run before NUnit3DriverFactory
+ * 88	The --labels:All option displays at the wrong time
+
+NUnit 3.4.1 - June 30, 2016
 
 Console Runner
 
