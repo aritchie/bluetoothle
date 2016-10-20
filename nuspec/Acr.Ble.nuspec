@@ -28,6 +28,7 @@ Mac (Coming Soon)
         <releaseNotes>
 1.0.2
 [feature] write without response void method added
+[feature] proper equals check for all ble objects
 
 1.0.1
 [fix][all] new adapter scans only clear disconnected devices from cache
