@@ -12,6 +12,12 @@ namespace Acr.Ble
         CharacteristicProperties Properties { get; }
 
         /// <summary>
+        /// This will fire and forget a write
+        /// </summary>
+        /// <param name="value"></param>
+        void WriteWithoutResponse(byte[] value);
+
+        /// <summary>
         /// The current value of the characteristic
         /// </summary>
         byte[] Value { get; }

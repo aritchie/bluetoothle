@@ -19,9 +19,19 @@ namespace Acr.Ble
         }
 
 
+        public override void WriteWithoutResponse(byte[] value)
+        {
+            this.AssertWrite(false);
+            var data = NSData.FromArray(value);
+            this.native.Service.Peripheral.WriteValue(data, this.native, CBCharacteristicWriteType.WithoutResponse);
+            this.Value = value;
+            this.WriteSubject.OnNext(this.Value);
+        }
+
+
         public override IObservable<object> Write(byte[] value)
         {
-            this.AssertWrite();
+            this.AssertWrite(false);
 
             return Observable.Create<object>(ob =>
             {

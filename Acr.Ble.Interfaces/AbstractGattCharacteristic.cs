@@ -25,6 +25,7 @@ namespace Acr.Ble
         public CharacteristicProperties Properties { get; }
         public byte[] Value { get; protected set; }
 
+        public abstract void WriteWithoutResponse(byte[] value);
         public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();
         public abstract IObservable<byte[]> SubscribeToNotifications();
         public virtual IObservable<byte[]> WhenNotificationReceived() => this.NotifySubject;
@@ -32,26 +33,5 @@ namespace Acr.Ble
         public virtual IObservable<byte[]> WhenRead() => this.ReadSubject;
         public abstract IObservable<object> Write(byte[] value);
         public virtual IObservable<byte[]> WhenWritten() => this.WriteSubject;
-
-
-        protected virtual void AssertWrite()
-        {
-            if (!this.CanWrite())
-                throw new ArgumentException($"This characteristic '{this.Uuid}' does not support writes");
-        }
-
-
-        protected virtual void AssertRead()
-        {
-            if (!this.CanRead())
-                throw new ArgumentException($"This characteristic '{this.Uuid}' does not support reads");
-        }
-
-
-        protected virtual void AssertNotify()
-        {
-            if (!this.CanNotify())
-                throw new ArgumentException($"This characteristic '{this.Uuid}' does not support notifications");
-        }
     }
 }

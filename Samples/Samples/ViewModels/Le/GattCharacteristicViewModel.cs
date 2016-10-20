@@ -45,9 +45,13 @@ namespace Samples.ViewModels.Le
                 .SetTitle($"Characteristic - {this.Description} - {this.Uuid}")
                 .SetCancel();
 
+            if (this.Characteristic.CanWriteWithResponse())
+            {
+                cfg.Add("Write With Response", () => this.TryWrite(true));
+            }
             if (this.Characteristic.CanWrite())
             {
-                cfg.Add("Write", () => this.TryWrite());
+                cfg.Add("Write Without Response", () => this.TryWrite(false));
             }
 
             if (this.Characteristic.CanRead())
@@ -99,7 +103,7 @@ namespace Samples.ViewModels.Le
         }
 
 
-        Task TryWrite()
+        Task TryWrite(bool withResponse)
         {
             return this.Wrap(async () =>
             {
@@ -114,11 +118,17 @@ namespace Samples.ViewModels.Le
                         {
                             var value = result.Text.Trim();
                             var bytes = utf8 ? Encoding.UTF8.GetBytes(value) : value.FromHexString();
-                            await this.Characteristic
-                                .Write(bytes)
-                                .Timeout(TimeSpan.FromSeconds(3))
-                                .ToTask();
-
+                            if (withResponse)
+                            {
+                                await this.Characteristic
+                                    .Write(bytes)
+                                    .Timeout(TimeSpan.FromSeconds(3))
+                                    .ToTask();
+                            }
+                            else
+                            {
+                                this.Characteristic.WriteWithoutResponse(bytes);
+                            }
                             this.Value = value;
                         }
                     }

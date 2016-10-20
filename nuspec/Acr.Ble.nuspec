@@ -26,6 +26,9 @@ Mac (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+1.0.2
+[feature] write without response void method added
+
 1.0.1
 [fix][all] new adapter scans only clear disconnected devices from cache
 [feature] Adapter.GetConnectedDevices

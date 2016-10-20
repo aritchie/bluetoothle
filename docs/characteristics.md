@@ -19,6 +19,11 @@ await Characteristic.Read();
 await Characteristic.Write(bytes);
 ```
 
+**Write Without Response**
+```csharp
+Characteristic.WriteWithoutResponse(bytes);
+```
+
 **Register for notifications on a characteristic**
 ```csharp
 // once you have your characteristic instance from the service discovery

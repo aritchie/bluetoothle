@@ -158,6 +158,12 @@ namespace Acr.Ble
         }
 
 
+        public static bool CanWriteWithResponse(this IGattCharacteristic ch)
+        {
+            return ch.Properties.HasFlag(CharacteristicProperties.Write);
+        }
+
+
         public static bool CanWrite(this IGattCharacteristic ch)
         {
             return ch.Properties.HasFlag(CharacteristicProperties.WriteNoResponse) ||
@@ -174,6 +180,30 @@ namespace Acr.Ble
         public static bool CanNotify(this IGattCharacteristic ch)
         {
             return ch.Properties.HasFlag(CharacteristicProperties.Notify);
+        }
+
+
+        public static void AssertWrite(this IGattCharacteristic characteristic, bool withResponse)
+        {
+            if (!characteristic.CanWrite())
+                throw new ArgumentException($"This characteristic '{characteristic.Uuid}' does not support writes");
+
+            if (withResponse && !characteristic.CanWriteWithResponse())
+                throw new ArgumentException($"This characteristic '{characteristic.Uuid}' does not support writes with response");
+        }
+
+
+        public static void AssertRead(this IGattCharacteristic characteristic)
+        {
+            if (!characteristic.CanRead())
+                throw new ArgumentException($"This characteristic '{characteristic.Uuid}' does not support reads");
+        }
+
+
+        public static void AssertNotify(this IGattCharacteristic characteristic)
+        {
+            if (!characteristic.CanNotify())
+                throw new ArgumentException($"This characteristic '{characteristic.Uuid}' does not support notifications");
         }
 
 
