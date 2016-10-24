@@ -44,6 +44,7 @@ namespace Samples.Tasks
                     {
                         this.sub = this.adapter
                             .CreateLogger(BleLogFlags.All)
+                            //.CreateLogger(BleLogFlags.CharacteristicRead | BleLogFlags.CharacteristicWrite)
                             .Timestamp()
                             .Buffer(TimeSpan.FromSeconds(5))
                             .Subscribe(this.WriteLog);

@@ -44,24 +44,13 @@ namespace Acr.Ble.Plugins
                         if (flags.HasFlag(BleLogFlags.DeviceStatus))
                             Write(ob, BleLogFlags.DeviceStatus, device.Uuid, $"Changed to {device.Status}");
 
-                        lock(deviceEvents)
-                        {
-                            switch (device.Status)
-                            {
-                                case ConnectionStatus.Connected:
-                                    CleanDeviceEvents(deviceEvents, device.Uuid);
-                                    var reg = new List<IDisposable>();
-                                    HookDeviceEvents(reg, device, ob, flags);
-                                    deviceEvents.Add(device.Uuid, reg);
-                                    break;
-
-                                default:
-                                    CleanDeviceEvents(deviceEvents, device.Uuid);
-                                    break;
-                            }
-                        }
-                    })
-                );
+                        HookDevice(device, ob, deviceEvents, flags);
+                    }));
+                
+                foreach (var device in adapter.GetConnectedDevices()) 
+                {
+                    HookDevice(device, ob, deviceEvents, flags);
+                }
 
                 return () =>
                 {
@@ -69,6 +58,27 @@ namespace Acr.Ble.Plugins
                         dispose.Dispose();
                 };
             });
+        }
+
+
+        static void HookDevice(IDevice device, IObserver<BleLogEvent> ob, IDictionary<Guid, List<IDisposable>> deviceEvents, BleLogFlags flags)
+        {
+            lock(deviceEvents)
+            {
+                switch (device.Status)
+                {
+                    case ConnectionStatus.Connected:
+                        CleanDeviceEvents(deviceEvents, device.Uuid);
+                        var reg = new List<IDisposable>();
+                        HookDeviceEvents(reg, device, ob, flags);
+                        deviceEvents.Add(device.Uuid, reg);
+                        break;
+
+                    default:
+                        CleanDeviceEvents(deviceEvents, device.Uuid);
+                        break;
+                }
+            }            
         }
 
 

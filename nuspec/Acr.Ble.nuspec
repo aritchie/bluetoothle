@@ -27,6 +27,7 @@ Mac (Coming Soon)
         </dependencies>
         <releaseNotes>
 1.0.3
+[fix][all] logging would not hook properly to existing connected devices
 [fix][droid] deal with gatt error 133 by delaying service discovery post connection
 
 1.0.2
