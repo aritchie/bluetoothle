@@ -19,21 +19,21 @@ namespace Acr.Ble.Plugins
                 {
                     list.Add(adapter
                         .WhenStatusChanged()
-                        .Subscribe(status => Write(ob, BleLogFlags.AdapterStatus, null, $"Changed to {status}"))
+                        .Subscribe(status => Write(ob, null, BleLogFlags.AdapterStatus, null, $"Changed to {status}"))
                     );
                 }
                 if (flags.HasFlag(BleLogFlags.AdapterScanResults))
                 {
                     list.Add(adapter
                         .ScanListen()
-                        .Subscribe(scanResult => Write(ob, BleLogFlags.AdapterScanResults, null, $"Device: {scanResult.Device.Uuid} - RSSI: {scanResult.Rssi}"))
+                        .Subscribe(scanResult => Write(ob, null, BleLogFlags.AdapterScanResults, null, $"Device: {scanResult.Device.Uuid} - RSSI: {scanResult.Rssi}"))
                     );
                 }
                 if (flags.HasFlag(BleLogFlags.AdapterScanStatus))
                 {
                     list.Add(adapter
                         .WhenScanningStatusChanged()
-                        .Subscribe(status => Write(ob, BleLogFlags.AdapterScanStatus, null, $"Changed to {status}"))
+                        .Subscribe(status => Write(ob, null, BleLogFlags.AdapterScanStatus, null, $"Changed to {status}"))
                     );
                 }
 
@@ -42,24 +42,53 @@ namespace Acr.Ble.Plugins
                     .Subscribe(device =>
                     {
                         if (flags.HasFlag(BleLogFlags.DeviceStatus))
-                            Write(ob, BleLogFlags.DeviceStatus, device.Uuid, $"Changed to {device.Status}");
+                            Write(ob, device, BleLogFlags.DeviceStatus, device.Uuid, $"Changed to {device.Status}");
 
                         HookDevice(device, ob, deviceEvents, flags);
                     }));
-                
-                foreach (var device in adapter.GetConnectedDevices()) 
+
+                foreach (var device in adapter.GetConnectedDevices())
                 {
                     HookDevice(device, ob, deviceEvents, flags);
                 }
 
                 return () =>
                 {
+                    foreach (var deviceList in deviceEvents.Values)
+                        foreach (var device in deviceList)
+                            device.Dispose();
+
                     foreach (var dispose in list)
                         dispose.Dispose();
                 };
             });
         }
 
+
+        public static IObservable<BleLogEvent> CreateLogger(this IDevice device, BleLogFlags flags = BleLogFlags.DeviceStatus | BleLogFlags.CharacteristicAll)
+        {
+            return Observable.Create<BleLogEvent>(ob =>
+            {
+                var list = new List<IDisposable>();
+
+                var deviceOb = device
+                    .WhenStatusChanged()
+                    .Subscribe(status =>
+                    {
+                        if (flags.HasFlag(BleLogFlags.DeviceStatus))
+                            Write(ob, device, BleLogFlags.DeviceStatus, device.Uuid, $"Changed to {device.Status}");
+
+                        HookDeviceEvents(list, device, ob, flags);
+                    });
+
+                return () =>
+                {
+                    deviceOb.Dispose();
+                    foreach (var item in list)
+                        item.Dispose();
+                };
+            });
+        }
 
         static void HookDevice(IDevice device, IObserver<BleLogEvent> ob, IDictionary<Guid, List<IDisposable>> deviceEvents, BleLogFlags flags)
         {
@@ -78,7 +107,7 @@ namespace Acr.Ble.Plugins
                         CleanDeviceEvents(deviceEvents, device.Uuid);
                         break;
                 }
-            }            
+            }
         }
 
 
@@ -153,9 +182,9 @@ namespace Acr.Ble.Plugins
         }
 
 
-        static void Write(IObserver<BleLogEvent> ob, BleLogFlags flag, Guid? uuid, string value)
+        static void Write(IObserver<BleLogEvent> ob, IDevice device, BleLogFlags flag, Guid? uuid, string value)
         {
-            var ev = new BleLogEvent(flag, uuid, null, value);
+            var ev = new BleLogEvent(device, flag, uuid, null, value);
             ob.OnNext(ev);
 #if DEBUG
             Debug.WriteLine($"[{flag}]({uuid}) {value}");
@@ -163,9 +192,9 @@ namespace Acr.Ble.Plugins
         }
 
 
-        static void Write(IObserver<BleLogEvent> ob, BleLogFlags flag, Guid uuid, byte[] data)
+        static void Write(IObserver<BleLogEvent> ob, IDevice device, BleLogFlags flag, Guid uuid, byte[] data)
         {
-            ob.OnNext(new BleLogEvent(flag, uuid, data, null));
+            ob.OnNext(new BleLogEvent(device, flag, uuid, data, null));
 #if DEBUG
             var dataString = data == null ? String.Empty : BitConverter.ToString(data);
             Debug.WriteLine($"[{flag}]({uuid}) {dataString}");

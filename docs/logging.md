@@ -44,3 +44,12 @@ public enum BleLogFlags
     All = AdapterAll | DeviceStatus | ServiceDiscovered | CharacteristicAll | DescriptorAll
 }
 ```
+
+## Device Logging
+```csharp
+
+// you can also log at a device Levels
+
+device.CreateLogger(levels).Subscribe(x => {});
+
+```

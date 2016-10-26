@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>1.0.3</version>
+        <version>1.0.4</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -26,6 +26,10 @@ Mac (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+1.0.4
+[fix] logging cleanup
+[feature] add logging abilities from device reference
+
 1.0.3
 [fix][all] logging would not hook properly to existing connected devices
 [fix][droid] deal with gatt error 133 by delaying service discovery post connection

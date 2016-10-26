@@ -5,8 +5,9 @@ namespace Acr.Ble.Plugins
 {
     public class BleLogEvent
     {
-        public BleLogEvent(BleLogFlags flag, Guid? uuid, byte[] data, string details) 
+        public BleLogEvent(IDevice device, BleLogFlags flag, Guid? uuid, byte[] data, string details)
         {
+            this.Device = device;
             this.Category = flag;
             this.Uuid = uuid;
             this.Data = data;
@@ -14,6 +15,7 @@ namespace Acr.Ble.Plugins
         }
 
 
+        public IDevice Device { get; }
         public Guid? Uuid { get; }
         public BleLogFlags Category { get; }
         public byte[] Data { get; }
