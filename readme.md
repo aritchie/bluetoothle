@@ -97,6 +97,7 @@ Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
 * [Services](docs/services.md)
 * [Characteristics](docs/characteristics.md)
 * [Descriptors](docs/descriptors.md)
+* [Android Troubleshooting](docs/android.md)
 * Plugins
     * [Logging](docs/logging.md)
     * [Heart Rate](docs/heartrate.md)

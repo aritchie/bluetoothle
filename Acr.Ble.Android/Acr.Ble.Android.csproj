@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="Adapter.cs" />
     <Compile Include="AdvertisementData.cs" />
+    <Compile Include="ConnectionThread.cs" />
     <Compile Include="Device.cs" />
     <Compile Include="GattCharacteristic.cs" />
     <Compile Include="GattService.cs" />

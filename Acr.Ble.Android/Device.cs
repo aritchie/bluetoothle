@@ -9,7 +9,7 @@ using Acr.Ble.Internals;
 using Android.App;
 using Android.Bluetooth;
 using Android.OS;
-using B = Android.OS.Build;
+
 
 namespace Acr.Ble
 {
@@ -64,46 +64,66 @@ namespace Acr.Ble
         {
             return Observable.Create<object>(ob =>
             {
+                var cancelSrc = new CancellationTokenSource();
+                IDisposable connected = null;
+
                 if (this.Status == ConnectionStatus.Connected)
                 {
                     ob.Respond(null);
-                    return Disposable.Empty;
                 }
-                var connected = this
-                    .WhenStatusChanged()
-                    .Take(1)
-                    .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ => ob.Respond(null));
-
-                if (this.Status != ConnectionStatus.Connecting)
+                else
                 {
-                    try
-                    {
-                        ob.OnNext(ConnectionStatus.Connecting);
-                        var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
-                        this.context = new GattContext(conn, this.callbacks);
+                    connected = this
+                        .WhenStatusChanged()
+                        .Take(1)
+                        .Where(x => x == ConnectionStatus.Connected)
+                        .Subscribe(_ => ob.Respond(null));
 
-                        if (this.ConnectOnMainThread())
-                        {
-                            Task.Factory.StartNew(
-                                () => conn.Connect(), // this could still fire even if we cancel it thereby tying up the connection
-                                CancellationToken.None,
-                                TaskCreationOptions.None,
-                                this.scheduler
-                            );
-                        }
-                        else
-                        {
-                            conn.Connect();
-                        }
-                    }
-                    catch (Exception ex)
+                    if (this.Status != ConnectionStatus.Connecting)
                     {
-                        ob.OnNext(ConnectionStatus.Disconnected);
-                        ob.OnError(ex);
+                        try
+                        {
+                            ob.OnNext(ConnectionStatus.Connecting);
+                            var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
+                            this.context = new GattContext(conn, this.callbacks);
+
+                            switch (AndroidConfig.ConnectionThread)
+                            {
+                                case ConnectionThread.MainThread:
+                                    Application.SynchronizationContext.Post(_ =>
+                                    {
+                                        conn.Connect();
+                                    }, null);
+                                    break;
+
+                                case ConnectionThread.ScanThread:
+                                    Task.Factory.StartNew(
+                                        () => conn.Connect(), // TODO: if this crashes, need to junk out the observable
+                                        // this could still fire even if we cancel it thereby tying up the connection
+                                        cancelSrc.Token,
+                                        TaskCreationOptions.None,
+                                        this.scheduler
+                                    );
+                                    break;
+
+                                case ConnectionThread.Default:
+                                default:
+                                    conn.Connect();
+                                    break;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            ob.OnNext(ConnectionStatus.Disconnected);
+                            ob.OnError(ex);
+                        }
                     }
                 }
-                return connected;
+                return () =>
+                {
+                    connected?.Dispose();
+                    cancelSrc.Dispose();
+                };
             });
         }
 
@@ -246,21 +266,6 @@ namespace Acr.Ble
 
             macBytes.CopyTo(deviceGuid, 10);
             return new Guid(deviceGuid);
-        }
-
-
-        protected virtual bool ConnectOnMainThread()
-        {
-            if (AndroidConfig.ForceConnectOnMainThread)
-                return true;
-
-            if (B.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
-                return false;
-
-            if (!B.Manufacturer.Equals("samsung", StringComparison.CurrentCultureIgnoreCase))
-                return false;
-
-            return true;
         }
 
 
