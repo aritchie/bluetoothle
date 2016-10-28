@@ -42,7 +42,7 @@ namespace Samples.ViewModels.Le
         public void Select()
         {
             var cfg = new ActionSheetConfig()
-                .SetTitle($"Characteristic - {this.Description} - {this.Uuid}")
+                .SetTitle($"{this.Description} - {this.Uuid}")
                 .SetCancel();
 
             if (this.Characteristic.CanWriteWithResponse())

@@ -194,7 +194,11 @@ namespace Acr.Ble
                 this.callbacks.ServicesDiscovered += handler;
                 var sub = this.WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ => this.context.Gatt.DiscoverServices());
+                    .Subscribe(_ =>
+                    {
+                        Thread.Sleep(1000); // this helps alleviate gatt 133 error
+                        this.context.Gatt.DiscoverServices();
+                    });
 
                 return () =>
                 {
