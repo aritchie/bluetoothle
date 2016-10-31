@@ -130,7 +130,7 @@ namespace Acr.Ble.Plugins
             {
                 registrations.Add(device
                     .WhenServiceDiscovered()
-                    .Subscribe(serv => Write(ob, BleLogFlags.ServiceDiscovered, serv.Uuid, String.Empty))
+                    .Subscribe(serv => Write(ob, device, BleLogFlags.ServiceDiscovered, serv.Uuid, String.Empty))
                 );
             }
             registrations.Add(device
@@ -138,24 +138,24 @@ namespace Acr.Ble.Plugins
                 .Subscribe(ch =>
                 {
                     if (flags.HasFlag(BleLogFlags.CharacteristicDiscovered))
-                        Write(ob, BleLogFlags.CharacteristicDiscovered, ch.Uuid, String.Empty);
+                        Write(ob, device, BleLogFlags.CharacteristicDiscovered, ch.Uuid, String.Empty);
 
                     if (flags.HasFlag(BleLogFlags.CharacteristicRead))
                         registrations.Add(ch
                             .WhenRead()
-                            .Subscribe(bytes => Write(ob, BleLogFlags.CharacteristicRead, ch.Uuid, bytes))
+                            .Subscribe(bytes => Write(ob, device, BleLogFlags.CharacteristicRead, ch.Uuid, bytes))
                         );
 
                     if (flags.HasFlag(BleLogFlags.CharacteristicWrite))
                         registrations.Add(ch
                             .WhenWritten()
-                            .Subscribe(bytes => Write(ob, BleLogFlags.CharacteristicWrite, ch.Uuid, bytes))
+                            .Subscribe(bytes => Write(ob, device, BleLogFlags.CharacteristicWrite, ch.Uuid, bytes))
                         );
 
                     if (flags.HasFlag(BleLogFlags.CharacteristicNotify) && ch.CanNotify())
                         registrations.Add(ch
                             .WhenNotificationReceived()
-                            .Subscribe(bytes => Write(ob, BleLogFlags.CharacteristicNotify, ch.Uuid, bytes))
+                            .Subscribe(bytes => Write(ob, device, BleLogFlags.CharacteristicNotify, ch.Uuid, bytes))
                         );
                 })
             );
@@ -164,18 +164,18 @@ namespace Acr.Ble.Plugins
                 .Subscribe(desc =>
                 {
                     if (flags.HasFlag(BleLogFlags.DescriptorDiscovered))
-                        Write(ob, BleLogFlags.DescriptorDiscovered, desc.Uuid, String.Empty);
+                        Write(ob, device, BleLogFlags.DescriptorDiscovered, desc.Uuid, String.Empty);
 
                     if (flags.HasFlag(BleLogFlags.DescriptorRead))
                         registrations.Add(desc
                             .WhenRead()
-                            .Subscribe(bytes => Write(ob, BleLogFlags.DescriptorRead, desc.Uuid, bytes))
+                            .Subscribe(bytes => Write(ob, device, BleLogFlags.DescriptorRead, desc.Uuid, bytes))
                         );
 
                     if (flags.HasFlag(BleLogFlags.DescriptorWrite))
                         registrations.Add(desc
                             .WhenWritten()
-                            .Subscribe(bytes => Write(ob, BleLogFlags.DescriptorWrite, desc.Uuid, bytes))
+                            .Subscribe(bytes => Write(ob, device, BleLogFlags.DescriptorWrite, desc.Uuid, bytes))
                         );
                 })
             );
