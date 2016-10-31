@@ -20,7 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuspec\pack.cmd = nuspec\pack.cmd
 		nuspec\Plugin.BluetoothLE.nuspec = nuspec\Plugin.BluetoothLE.nuspec
 		nuspec\push.cmd = nuspec\push.cmd
-		readme.md = readme.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Uwp", "samples\Samples.Uwp\Samples.Uwp.csproj", "{6ED7A633-FF4E-4A86-91B9-BE95D626B767}"

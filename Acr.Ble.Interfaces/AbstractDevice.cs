@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reactive.Linq;
 
@@ -16,12 +17,14 @@ namespace Acr.Ble
             this.Name = initialName;
             this.Uuid = uuid;
             this.Services = new Dictionary<Guid, IGattService>();
+            this.DiscoveredServices = new ReadOnlyCollection<IGattService>(this.Services.Values);
         }
 
 
         public string Name { get; protected set; }
         public Guid Uuid { get; protected set; }
         public abstract ConnectionStatus Status { get; }
+        public IReadOnlyCollection<IGattService> DiscoveredServices { get; }
 
         public abstract void Disconnect();
         public abstract IObservable<object> Connect();
@@ -38,9 +41,9 @@ namespace Acr.Ble
             {
                 var state = this
                     .WhenStatusChanged()
-                    .Subscribe(async status => 
+                    .Subscribe(async status =>
                     {
-                        try 
+                        try
                         {
                             ob.OnNext(status);
                             if (status == ConnectionStatus.Disconnected)
@@ -51,7 +54,7 @@ namespace Acr.Ble
                             Debug.WriteLine("Error connecting to device - " + ex);
                         }
                     });
-                
+
                 return () =>
                 {
                     state.Dispose();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 
 namespace Acr.Ble
@@ -18,5 +19,6 @@ namespace Acr.Ble
         public bool IsPrimary { get; }
         public virtual string Description => Dictionaries.GetServiceDescription(this.Uuid);
         public abstract IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();
+        public IReadOnlyCollection<IGattCharacteristic> DiscoveredCharacteristics { get; }
     }
 }

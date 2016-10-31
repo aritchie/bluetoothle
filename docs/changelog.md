@@ -1,5 +1,20 @@
 # CHANGE LOG
 
+1.0.4
+[fix] logging cleanup
+[feature][core] add DiscoveredServices, DiscoveredCharacteristics, and DiscoveredDescriptors for easy access
+[feature][core] add logging abilities from device reference
+[feature][droid] add improved way to deal with Android connection issues (please read docs under Android Troubleshooting)
+
+1.0.3
+[fix][core] logging would not hook properly to existing connected devices
+[fix][droid] deal with gatt error 133 by delaying service discovery post connection
+[workaround] tvOS was having issues. temporarily pulled from nuget
+
+1.0.2
+[feature] write without response void method added
+[feature] proper equals check for all ble objects
+
 1.0.1
 [fix][all] new adapter scans only clear disconnected devices from cache
 [feature] Adapter.GetConnectedDevices
@@ -12,7 +27,6 @@
 [breaking] WhenActionOccurs renamed to CreateLogger
 [fix] ensure WhenScanStatusChanged() broadcasts its current state on registration
 Logging now returns actual packet received where applicable
-
 
 0.9.8
 adding tvOS libraries to package (NOT TESTED)

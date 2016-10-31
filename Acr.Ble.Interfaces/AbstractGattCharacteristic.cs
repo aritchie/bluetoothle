@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Subjects;
 
 
@@ -24,6 +25,7 @@ namespace Acr.Ble
         public Guid Uuid { get; }
         public CharacteristicProperties Properties { get; }
         public byte[] Value { get; protected set; }
+        public IReadOnlyCollection<IGattDescriptor> DiscoveredDescriptors { get; }
 
         public abstract void WriteWithoutResponse(byte[] value);
         public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();

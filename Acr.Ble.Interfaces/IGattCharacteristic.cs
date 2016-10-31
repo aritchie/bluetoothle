@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 
 namespace Acr.Ble
@@ -10,6 +11,7 @@ namespace Acr.Ble
         string Description { get; }
         bool IsNotifying { get; }
         CharacteristicProperties Properties { get; }
+        IReadOnlyCollection<IGattDescriptor> DiscoveredDescriptors { get; }
 
         /// <summary>
         /// This will fire and forget a write

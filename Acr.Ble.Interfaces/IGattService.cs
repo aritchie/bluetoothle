@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 
 namespace Acr.Ble
@@ -10,5 +11,6 @@ namespace Acr.Ble
         Guid Uuid { get; }
         string Description { get; }
         IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();
+        IReadOnlyCollection<IGattCharacteristic> DiscoveredCharacteristics { get; }
     }
 }
