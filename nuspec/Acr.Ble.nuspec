@@ -28,7 +28,6 @@ Mac (Coming Soon)
         <releaseNotes>
 1.0.4
 [fix] logging cleanup
-[feature][core] add DiscoveredServices, DiscoveredCharacteristics, and DiscoveredDescriptors for easy access
 [feature][core] add logging abilities from device reference
 [feature][droid] add improved way to deal with Android connection issues (please read docs under Android Troubleshooting)
 

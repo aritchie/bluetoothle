@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 
 namespace Acr.Ble
@@ -10,7 +9,6 @@ namespace Acr.Ble
         string Name { get; }
         Guid Uuid { get; }
         ConnectionStatus Status { get; }
-        IReadOnlyCollection<IGattService> DiscoveredServices { get; }
 
         void Disconnect();
         //void RequestMtu();
