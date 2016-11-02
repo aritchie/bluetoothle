@@ -31,6 +31,8 @@ Be sure to install the Acr.Ble nuget package in all of your main platform projec
 
 [![NuGet](https://img.shields.io/nuget/v/Acr.Ble.svg?maxAge=2592000)](https://www.nuget.org/packages/Acr.Ble/)
 
+[CHANGE LOG - NOV 1/2016](docs/changelog.md)
+
 **Android**
 
 Add the following to your AndroidManifest.xml
