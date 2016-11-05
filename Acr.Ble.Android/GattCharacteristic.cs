@@ -3,16 +3,18 @@ using System.Linq;
 using System.Threading;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using Acr.Ble;
 using Android.Bluetooth;
 using Acr.Ble.Internals;
+using Java.Util;
+using Observable = System.Reactive.Linq.Observable;
 
 
 namespace Acr.Ble
 {
     public class GattCharacteristic : AbstractGattCharacteristic
     {
-        static readonly Java.Util.UUID NotifyDescriptorId = Java.Util.UUID.FromString("00002902-0000-1000-8000-00805f9b34fb");
-        static readonly byte[] Empty = { 0x0, 0x0 };
+        static readonly UUID NotifyDescriptorId = UUID.FromString("00002902-0000-1000-8000-00805f9b34fb");
         readonly BluetoothGattCharacteristic native;
         readonly GattContext context;
 
@@ -130,12 +132,12 @@ namespace Acr.Ble
                         }
                     }
                 });
-                this.EnableNotifications(true);
+                this.EnableNotifications();
                 this.context.Callbacks.CharacteristicChanged += handler;
 
                 return () =>
                 {
-                    this.EnableNotifications(false);
+                    this.DisableNotifications();
                     this.context.Callbacks.CharacteristicChanged -= handler;
                 };
             })
@@ -165,37 +167,36 @@ namespace Acr.Ble
         }
 
 
-        protected virtual bool EnableNotifications(bool enable)
+        protected virtual bool EnableNotifications()
         {
-            if (!this.CanNotify())
-                return false;
-
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
+            if (descriptor == null)
+                throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
 
-            if (!enable)
+            var success = this.context.Gatt.SetCharacteristicNotification(this.native, true);
+            Thread.Sleep(100);
+
+            if (success)
             {
-                descriptor.SetValue(Empty);
-                this.context.Gatt.WriteDescriptor(descriptor);
-                this.context.Gatt.SetCharacteristicNotification(this.native, false);
-                this.IsNotifying = false;
-                return true;
-            }
-
-            var success = false;
-            if (descriptor != null)
-            {
-                success = this.context.Gatt.SetCharacteristicNotification(this.native, enable);
-                Thread.Sleep(100);
-
+                descriptor.SetValue(BluetoothGattDescriptor.EnableNotificationValue.ToArray());
+                success = this.context.Gatt.WriteDescriptor(descriptor);
                 if (success)
-                {
-                    descriptor.SetValue(BluetoothGattDescriptor.EnableNotificationValue.ToArray());
-                    success = this.context.Gatt.WriteDescriptor(descriptor);
-                    if (success)
-                        this.IsNotifying = true;
-                }
+                    this.IsNotifying = true;
             }
             return success;
+        }
+
+
+        protected virtual void DisableNotifications()
+        {
+            var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
+            if (descriptor == null)
+                throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
+
+            descriptor.SetValue(BluetoothGattDescriptor.DisableNotificationValue.ToArray());
+            this.context.Gatt.WriteDescriptor(descriptor);
+            this.context.Gatt.SetCharacteristicNotification(this.native, false);
+            this.IsNotifying = false;
         }
 
 
