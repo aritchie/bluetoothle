@@ -2,8 +2,8 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>1.0.4</version>
-        <title>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</title>
+        <version>1.0.5</version>
+        <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
 Cross Platform Reactive Bluetooth LE Plugin for Xamarin and Windows
@@ -12,7 +12,6 @@ Supported Platforms
 Android 4.3+
 iOS 6+
 tvOS (testing)
-Windows UWP (Coming Soon)
 Mac (Coming Soon)
         </description>
         <authors>Allan Ritchie</authors>
@@ -26,6 +25,10 @@ Mac (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+1.0.5
+[fix] ability to check for true WriteNoResponse flags
+[fix][droid] ship proper unsubscribe bytes 
+
 1.0.4
 [fix] logging cleanup
 [feature][core] add logging abilities from device reference

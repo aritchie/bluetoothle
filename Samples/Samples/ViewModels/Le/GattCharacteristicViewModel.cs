@@ -8,7 +8,7 @@ using Acr;
 using Acr.Ble;
 using Acr.UserDialogs;
 using ReactiveUI.Fody.Helpers;
-
+using Xamarin.Forms;
 
 namespace Samples.ViewModels.Le
 {
@@ -49,7 +49,7 @@ namespace Samples.ViewModels.Le
             {
                 cfg.Add("Write With Response", () => this.TryWrite(true));
             }
-            if (this.Characteristic.CanWrite())
+            if (this.Characteristic.CanWriteWithoutResponse())
             {
                 cfg.Add("Write Without Response", () => this.TryWrite(false));
             }
@@ -156,13 +156,16 @@ namespace Samples.ViewModels.Le
 
         void SetReadValue(byte[] value, bool fromUtf8)
         {
-            this.IsValueAvailable = true;
-            this.LastValue = DateTime.Now;
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                this.IsValueAvailable = true;
+                this.LastValue = DateTime.Now;
 
-            if (value == null)
-                this.Value = "EMPTY";
-            else
-                this.Value = fromUtf8 ? Encoding.UTF8.GetString(value, 0, value.Length) : BitConverter.ToString(value);
+                if (value == null)
+                    this.Value = "EMPTY";
+                else
+                    this.Value = fromUtf8 ? Encoding.UTF8.GetString(value, 0, value.Length) : BitConverter.ToString(value);
+            });
         }
     }
 }
