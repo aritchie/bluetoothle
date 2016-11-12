@@ -2,11 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-<<<<<<< HEAD
-        <version>1.0.4</version>
-=======
         <version>1.0.5</version>
->>>>>>> origin/master
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -31,7 +27,7 @@ Mac (Coming Soon)
         <releaseNotes>
 1.0.5
 [fix] ability to check for true WriteNoResponse flags
-[fix][droid] ship proper unsubscribe bytes 
+[fix][droid] ship proper unsubscribe bytes
 
 1.0.4
 [fix] logging cleanup
