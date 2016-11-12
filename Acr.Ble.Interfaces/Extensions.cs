@@ -164,6 +164,13 @@ namespace Acr.Ble
         }
 
 
+
+        public static bool CanWriteWithoutResponse(this IGattCharacteristic ch)
+        {
+            return ch.Properties.HasFlag(CharacteristicProperties.WriteNoResponse);
+        }
+
+
         public static bool CanWrite(this IGattCharacteristic ch)
         {
             return ch.Properties.HasFlag(CharacteristicProperties.WriteNoResponse) ||
