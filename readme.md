@@ -49,25 +49,15 @@ Add the following to your AndroidManifest.xml
 
 If you want to use background BLE periperhals, add the following to your Info.plist
 
-```xml    
+```xml
 <array>
 <string>bluetooth-central</string>
 </array>
 
 To add a description to the Bluetooth request message (on iOS 10 this is required!)
-```xml    
+```xml
 <key>NSBluetoothPeripheralUsageDescription</key>
 <string>YOUR CUSTOM MESSAGE</string>
-```
-
-**Windows**
-
-Add to your app manifest file
-```xml
-<Capabilities>
-    <Capability Name="internetClient" />
-    <DeviceCapability Name="bluetooth" />
-</Capabilities>
 ```
 
 ## HOW TO USE BASICS
@@ -86,7 +76,7 @@ Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
     await characteristic.Write(bytes);
 
     characteristic.SubscribeToNotifications(bytes => {
-    
+
     });
 });
 
@@ -108,7 +98,7 @@ Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
 
 Q. Why is everything reactive instead of events/async
 
-> I wanted event streams as I was scanning devices.  I also wanted to throttle things like characteristic notification feeds.  Lastly, was the proper cleanup of events and resources.   
+> I wanted event streams as I was scanning devices.  I also wanted to throttle things like characteristic notification feeds.  Lastly, was the proper cleanup of events and resources.
 
 Q. Why are Device.Connect, Characteristic.Read, and Descriptor.Read observable when async would do just fine?
 

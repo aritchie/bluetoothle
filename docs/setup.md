@@ -13,13 +13,15 @@ Add the following to your AndroidManifest.xml
 
 If you want to use background BLE periperhals, add the following to your Info.plist
 
-```xml    
+```xml
 <array>
 <string>bluetooth-central</string>
 </array>
+```
 
 To add a description to the Bluetooth request message (on iOS 10 this is required!)
-```xml    
+
+```xml
 <key>NSBluetoothPeripheralUsageDescription</key>
 <string>YOUR CUSTOM MESSAGE</string>
 ```
