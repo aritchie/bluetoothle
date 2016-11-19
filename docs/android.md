@@ -33,6 +33,7 @@ public enum ConnectionThread
 
 ```csharp
 AndroidConfig.ConnectionThread = ConnectionThread.SuggestedConnectionThread; // suggested thread is a method I will attempt to maintain over time
+AndroidConfig.WriteOnMainThread = true; // defaults to true.  Background writes on most android devices seem to throw an exception if not connected on the main thread
 ```
 
 

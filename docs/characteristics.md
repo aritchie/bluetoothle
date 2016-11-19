@@ -57,6 +57,21 @@ var sub = characteristic.WhenDescriptorsDiscovered().Subscribe(bytes => {});
 characteristic.WhenDescriptorsDiscovered().Subscribe(descriptor => {});
 ```
 
+**BLOB Writes**
+Used for sending larger arrays or streams of data without working with the 20 byte gap
+
+```csharp
+characteristic.BlobWrite(stream).Subscribe(x => 
+{
+	// subscription will give you current position and pulse every time a buffer is written
+	// if write no response is used, a 100ms gap is placed after each write.  Note that this event will fire quicker as well
+});
+
+
+// same as above but with a byte array
+characteristic.BlobWrite(bytes).Subscribe(x => {}); 
+```
+
 ## Extensions
 
 ```csharp
@@ -69,3 +84,4 @@ device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {});
 
 // subscribe to ALL characteristic that notify (DANGER: you should really pick out your characteristics)
 device.WhenAnyCharacteristicNotificationReceived().Subscribe(characterArgs => {});
+```
