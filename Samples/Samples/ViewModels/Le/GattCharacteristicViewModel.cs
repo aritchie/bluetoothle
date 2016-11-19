@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Acr;
 using Acr.Ble;
@@ -109,21 +111,31 @@ namespace Samples.ViewModels.Le
 
         void SendBlob()
         {
-            var value = RandomString(100);
+            var value = RandomString(5000);
+            var cts = new CancellationTokenSource();
             var bytes = Encoding.UTF8.GetBytes(value);
-            var dlg = this.dialogs.Loading("Sending Blob");
+            var dlg = this.dialogs.Loading("Sending Blob", () => cts.Cancel(), "Cancel");
+            var sw = new Stopwatch();
+            sw.Start();
 
-            this.Characteristic
+            var sub = this.Characteristic
                 .BlobWrite(bytes)
                 .Subscribe(
-                    segement => dlg.Title = $"Sending Blob - {segement}",
+                    s => dlg.Title = $"Sending Blob - Sent {s.Position} of {s.TotalLength} bytes",
                     ex => 
                     {
                         dlg.Dispose();
                         this.dialogs.Alert("Failed writing blob - " + ex);
+                        sw.Stop();
                     },
-                    () => dlg.Dispose()
+                    () => 
+                    {
+                        dlg.Dispose();
+                        sw.Stop();
+                        this.dialogs.Alert("BLOB write took " + sw.Elapsed);
+                    }
                 );
+            cts.Token.Register(() => sub.Dispose());
         }
 
 
