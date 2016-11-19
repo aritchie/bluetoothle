@@ -39,12 +39,21 @@ namespace Acr.Ble.Plugins
 
                 list.Add(adapter
                     .WhenDeviceStatusChanged()
+                    .Where(x => 
+                        x.Status == ConnectionStatus.Connected || 
+                        x.Status == ConnectionStatus.Disconnected
+                    )
                     .Subscribe(device =>
                     {
-                        if (flags.HasFlag(BleLogFlags.DeviceStatus))
-                            Write(ob, device, BleLogFlags.DeviceStatus, device.Uuid, $"Changed to {device.Status}");
+                        if (device.Status == ConnectionStatus.Connected)
+                        {
+                            if (flags.HasFlag(BleLogFlags.DeviceConnected))
+                                Write(ob, device, BleLogFlags.DeviceConnected, device.Uuid, $"Changed to {device.Status}");
 
-                        HookDevice(device, ob, deviceEvents, flags);
+                            HookDevice(device, ob, deviceEvents, flags);
+                        }
+                        else if (flags.HasFlag(BleLogFlags.DeviceDisconnected))
+                            Write(ob, device, BleLogFlags.DeviceDisconnected, device.Uuid, $"Changed to {device.Status}");
                     }));
 
                 foreach (var device in adapter.GetConnectedDevices())
@@ -73,12 +82,21 @@ namespace Acr.Ble.Plugins
 
                 var deviceOb = device
                     .WhenStatusChanged()
+                    .Where(x => 
+                        x == ConnectionStatus.Connected || 
+                        x == ConnectionStatus.Disconnected
+                    )
                     .Subscribe(status =>
                     {
-                        if (flags.HasFlag(BleLogFlags.DeviceStatus))
-                            Write(ob, device, BleLogFlags.DeviceStatus, device.Uuid, $"Changed to {device.Status}");
+                        if (device.Status == ConnectionStatus.Connected)
+                        {
+                            if (flags.HasFlag(BleLogFlags.DeviceConnected))
+                                Write(ob, device, BleLogFlags.DeviceConnected, device.Uuid, $"Changed to {device.Status}");
 
-                        HookDeviceEvents(list, device, ob, flags);
+                            HookDeviceEvents(list, device, ob, flags);
+                        }
+                        else if (flags.HasFlag(BleLogFlags.DeviceDisconnected))
+                            Write(ob, device, BleLogFlags.DeviceDisconnected, device.Uuid, $"Changed to {device.Status}");
                     });
 
                 return () =>

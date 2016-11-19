@@ -10,20 +10,22 @@ namespace Acr.Ble.Plugins
         AdapterScanStatus = 2,
         AdapterScanResults = 4,
 
-        DeviceStatus = 8,
+        DeviceConnected = 8,
+        DeviceDisconnected = 16,
 
-        ServiceDiscovered = 16,
+        ServiceDiscovered = 32,
 
-        CharacteristicDiscovered = 32,
-        CharacteristicRead = 64,
-        CharacteristicWrite = 128,
-        CharacteristicNotify = 256,
+        CharacteristicDiscovered = 64,
+        CharacteristicRead = 128,
+        CharacteristicWrite = 256,
+        CharacteristicNotify = 512,
 
-        DescriptorDiscovered = 512,
-        DescriptorRead = 1024,
-        DescriptorWrite = 2048,
+        DescriptorDiscovered = 1024,
+        DescriptorRead = 2048,
+        DescriptorWrite = 4096,
 
         AdapterAll = AdapterStatus | AdapterScanStatus | AdapterScanResults,
+        DeviceStatus = DeviceConnected | BleLogFlags.DeviceDisconnected,
         CharacteristicAll = CharacteristicDiscovered | CharacteristicRead | CharacteristicWrite | CharacteristicNotify,
         DescriptorAll = DescriptorDiscovered | DescriptorRead | DescriptorWrite,
         All = AdapterAll | DeviceStatus | ServiceDiscovered | CharacteristicAll | DescriptorAll
