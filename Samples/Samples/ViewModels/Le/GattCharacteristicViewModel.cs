@@ -53,6 +53,10 @@ namespace Samples.ViewModels.Le
             {
                 cfg.Add("Write Without Response", () => this.TryWrite(false));
             }
+            if (this.Characteristic.CanWrite())
+            {
+                cfg.Add("Send Test BLOB", () => this.SendBlob());
+            }
 
             if (this.Characteristic.CanRead())
             {
@@ -100,6 +104,35 @@ namespace Samples.ViewModels.Le
             }
             if (cfg.Options.Any())
                 this.dialogs.ActionSheet(cfg.SetCancel());
+        }
+
+
+        void SendBlob()
+        {
+            var value = RandomString(100);
+            var bytes = Encoding.UTF8.GetBytes(value);
+            var dlg = this.dialogs.Loading("Sending Blob");
+
+            this.Characteristic
+                .BlobWrite(bytes)
+                .Subscribe(
+                    segement => dlg.Title = $"Sending Blob - {segement}",
+                    ex => 
+                    {
+                        dlg.Dispose();
+                        this.dialogs.Alert("Failed writing blob - " + ex);
+                    },
+                    () => dlg.Dispose()
+                );
+        }
+
+
+        static Random random = new Random();
+        static string RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                      .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
 
