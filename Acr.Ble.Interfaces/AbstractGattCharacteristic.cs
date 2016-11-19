@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
-
+using System.Threading;
 
 namespace Acr.Ble
 {
@@ -29,9 +31,42 @@ namespace Acr.Ble
         public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();
         public abstract IObservable<byte[]> SubscribeToNotifications();
         public virtual IObservable<byte[]> WhenNotificationReceived() => this.NotifySubject;
+
         public abstract IObservable<byte[]> Read();
         public virtual IObservable<byte[]> WhenRead() => this.ReadSubject;
+
         public abstract IObservable<object> Write(byte[] value);
         public virtual IObservable<byte[]> WhenWritten() => this.WriteSubject;
+
+
+        public virtual IObservable<ArraySegment<byte>> BlobWrite(byte[] value)
+        {
+            // don't need to dispose of memorystream
+            return this.BlobWrite(new MemoryStream(value));
+        }
+
+
+        public virtual IObservable<ArraySegment<byte>> BlobWrite(Stream stream)
+        {
+            
+            return Observable.Create<ArraySegment<byte>>(async ob =>
+            {
+                // TODO: could request MTU increase on droid
+                // TODO: should check MTU size for buffer size in any case
+                var cts = new CancellationTokenSource();
+                var buffer = new byte[20];
+                var read = stream.Read(buffer, 0, buffer.Length);
+
+                while (!cts.IsCancellationRequested && read > 0)
+                {
+                    await this.Write(buffer).RunAsync(cts.Token);
+                    ob.OnNext(new ArraySegment<byte>(buffer, Convert.ToInt32(stream.Position), buffer.Length));
+                    read = stream.Read(buffer, 0, buffer.Length);
+                }
+                ob.OnCompleted();
+
+                return () => cts.Cancel();
+            });            
+        }
     }
 }

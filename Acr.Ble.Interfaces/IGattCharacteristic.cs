@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.IO;
 
 namespace Acr.Ble
 {
@@ -46,11 +46,20 @@ namespace Acr.Ble
         IObservable<object> Write(byte[] value);
 
         /// <summary>
+        /// Used for writing blobs
+        /// </summary>
+        IObservable<ArraySegment<byte>> BlobWrite(byte[] value);
+
+        /// <summary>
+        /// Used for writing blobs
+        /// </summary>
+        IObservable<ArraySegment<byte>> BlobWrite(Stream stream);
+
+        /// <summary>
         /// Monitor write tasks
         /// </summary>
         /// <returns>Bytes that were successfully written</returns>
         IObservable<byte[]> WhenWritten();
-
 
         /// <summary>
         /// Read characteristic remote value
