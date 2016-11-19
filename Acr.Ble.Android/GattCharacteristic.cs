@@ -3,12 +3,11 @@ using System.Linq;
 using System.Threading;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
-using Acr.Ble;
 using Android.Bluetooth;
 using Acr.Ble.Internals;
 using Java.Util;
 using Observable = System.Reactive.Linq.Observable;
-
+using Android.App;
 
 namespace Acr.Ble
 {
@@ -29,11 +28,7 @@ namespace Acr.Ble
         public override void WriteWithoutResponse(byte[] value)
         {
             this.AssertWrite(false);
-            this.native.SetValue(value);
-            this.native.WriteType = GattWriteType.NoResponse;
-            this.context.Gatt.WriteCharacteristic(this.native);
-            this.Value = value;
-            this.WriteSubject.OnNext(this.Value);
+            this.RawWriteNoResponse(value);
         }
 
 
@@ -60,20 +55,16 @@ namespace Acr.Ble
                     }
                 });
                 this.context.Callbacks.CharacteristicWrite += handler;
-                this.native.SetValue(value);
+
 
                 if (this.Properties.HasFlag(CharacteristicProperties.Write))
                 {
-                    this.native.WriteType = GattWriteType.Default;
-                    this.context.Gatt.WriteCharacteristic(this.native);
+                    this.RawWriteNoResponse(value);
                 }
                 else
                 {
-                    this.native.WriteType = GattWriteType.NoResponse;
-                    this.context.Gatt.WriteCharacteristic(this.native);
-                    this.Value = value;
+                    this.RawWriteWithResponse(this.Value);
                     ob.Respond(this.Value);
-                    this.WriteSubject.OnNext(this.Value);
                 }
                 return () => this.context.Callbacks.CharacteristicWrite -= handler;
             });
@@ -222,6 +213,43 @@ namespace Acr.Ble
         public override string ToString()
         {
             return this.Uuid.ToString();
+        }
+
+
+        void RawWriteWithResponse(byte[] bytes)
+        {
+            this.WrapWrite(() =>
+            {
+                this.native.SetValue(bytes);
+                this.native.WriteType = GattWriteType.Default;
+                this.context.Gatt.WriteCharacteristic(this.native);
+            });
+        }
+
+
+        void RawWriteNoResponse(byte[] bytes)
+        {
+            this.WrapWrite(() =>
+            {
+                this.native.SetValue(bytes);            
+                this.native.WriteType = GattWriteType.NoResponse;
+                this.context.Gatt.WriteCharacteristic(this.native);
+                this.Value = bytes;
+                this.WriteSubject.OnNext(this.Value);
+            });
+        }
+
+
+        void WrapWrite(Action action)
+        {
+            if (AndroidConfig.WriteOnMainThread)
+            {
+                Application.SynchronizationContext.Post((state) => action(), null);
+            }
+            else
+            {
+                action();
+            }            
         }
     }
 }

@@ -31,5 +31,8 @@ namespace Acr.Ble
                 return ConnectionThread.Default;
             }
         }
+
+
+        public static bool WriteOnMainThread { get; set; } = true;
     }
 }
