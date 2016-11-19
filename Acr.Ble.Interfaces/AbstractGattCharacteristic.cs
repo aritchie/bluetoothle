@@ -39,29 +39,32 @@ namespace Acr.Ble
         public virtual IObservable<byte[]> WhenWritten() => this.WriteSubject;
 
 
-        public virtual IObservable<ArraySegment<byte>> BlobWrite(byte[] value)
+        public virtual IObservable<BleWriteSegment> BlobWrite(byte[] value)
         {
             // don't need to dispose of memorystream
             return this.BlobWrite(new MemoryStream(value));
         }
 
 
-        public virtual IObservable<ArraySegment<byte>> BlobWrite(Stream stream)
+        public virtual IObservable<BleWriteSegment> BlobWrite(Stream stream)
         {
             
-            return Observable.Create<ArraySegment<byte>>(async ob =>
+            return Observable.Create<BleWriteSegment>(async ob =>
             {
                 // TODO: could request MTU increase on droid
                 // TODO: should check MTU size for buffer size in any case
                 var cts = new CancellationTokenSource();
                 var buffer = new byte[20];
                 var read = stream.Read(buffer, 0, buffer.Length);
+                var pos = read;
+                var len = Convert.ToInt32(stream.Length);
 
                 while (!cts.IsCancellationRequested && read > 0)
                 {
                     await this.Write(buffer).RunAsync(cts.Token);
-                    ob.OnNext(new ArraySegment<byte>(buffer, Convert.ToInt32(stream.Position), buffer.Length));
+                    var seg = new BleWriteSegment(buffer, pos, len);
                     read = stream.Read(buffer, 0, buffer.Length);
+                    pos += read;
                 }
                 ob.OnCompleted();
 

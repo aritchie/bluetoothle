@@ -48,12 +48,12 @@ namespace Acr.Ble
         /// <summary>
         /// Used for writing blobs
         /// </summary>
-        IObservable<ArraySegment<byte>> BlobWrite(byte[] value);
+        IObservable<BleWriteSegment> BlobWrite(byte[] value);
 
         /// <summary>
         /// Used for writing blobs
         /// </summary>
-        IObservable<ArraySegment<byte>> BlobWrite(Stream stream);
+        IObservable<BleWriteSegment> BlobWrite(Stream stream);
 
         /// <summary>
         /// Monitor write tasks

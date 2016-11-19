@@ -62,6 +62,7 @@
     <Compile Include="Plugins\BleLogFlags.cs" />
     <Compile Include="Plugins\BleLogEvent.cs" />
     <Compile Include="ClearableReplaySubject.cs" />
+    <Compile Include="BleWriteSegment.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
