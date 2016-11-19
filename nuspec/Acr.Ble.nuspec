@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>1.0.5</version>
+        <version>1.0.6</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -25,6 +25,11 @@ Mac (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+1.0.6
+[fix][droid] write on main thread (can use AndroidConfig.WriteOnMainThread = false, to disable)
+[feature] Blob write
+[feature] Logging now has deviceconnected/devicedisconnected if you wish to monitor just one of the status'
+
 1.0.5
 [fix] ability to check for true WriteNoResponse flags
 [fix][droid] ship proper unsubscribe bytes
