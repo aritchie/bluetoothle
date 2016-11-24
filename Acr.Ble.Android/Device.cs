@@ -77,7 +77,14 @@ namespace Acr.Ble
                         .WhenStatusChanged()
                         .Take(1)
                         .Where(x => x == ConnectionStatus.Connected)
-                        .Subscribe(_ => ob.Respond(null));
+                        .Subscribe(_ =>
+                        {
+                            if (AndroidConfig.MaxTransmissionUnitSize != null)
+                            {
+                                this.context.Gatt.RequestMtu(AndroidConfig.MaxTransmissionUnitSize.Value);
+                            }
+                            ob.Respond(null);
+                        });
 
                     if (this.Status != ConnectionStatus.Connecting)
                     {

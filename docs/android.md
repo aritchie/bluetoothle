@@ -32,12 +32,18 @@ public enum ConnectionThread
 ## Settings
 
 ```csharp
-AndroidConfig.ConnectionThread = ConnectionThread.SuggestedConnectionThread; // suggested thread is a method I will attempt to maintain over time
-AndroidConfig.WriteOnMainThread = true; // defaults to true.  Background writes on most android devices seem to throw an exception if not connected on the main thread
-```
+// set the thread to connect to the device with
+// suggested thread is a method I will attempt to maintain over time
+AndroidConfig.ConnectionThread = ConnectionThread.SuggestedConnectionThread; 
 
+// defaults to true.  Background writes on most android devices seem to throw an exception if not connected on the main thread
+AndroidConfig.WriteOnMainThread = true; 
 
-## Force Pre-lollipop BLE Scanner
-```csharp
+// The MTU size to negotiate on connection.  This is specific to Android only where this negotiation is not automatic.
+// If you set this, there will be a slight delay post connection as the MTU is negotiated
+// The size can be up to 512, but you should be careful with anything above 255 in practice
+AndroidConfig.MaxTransmissionUnitSize;
+
+// Force Pre-lollipop BLE Scanner - this is more for testing
 AndroidConfig.ForcePreLollipopScanner = true;
 ```

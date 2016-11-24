@@ -9,9 +9,8 @@ namespace Acr.Ble
         string Name { get; }
         Guid Uuid { get; }
         ConnectionStatus Status { get; }
-
+        
         void Disconnect();
-        //void RequestMtu();
 
         /// <summary>
         /// This is a combination of 3 things - connection management, disconnect (dispose to dc), and state monitoring.  If you don't dispose, reconnect is implied

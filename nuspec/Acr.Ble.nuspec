@@ -25,6 +25,9 @@ Mac (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+1.0.7
+[feature][droid] AndroidConfig.MaxTransmissionUnitSize (MTU) can now be set to negotiate MTU upon connections
+
 1.0.6
 [fix][droid] write on main thread (can use AndroidConfig.WriteOnMainThread = false, to disable)
 [feature] Blob write
