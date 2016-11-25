@@ -1,14 +1,20 @@
 # CHANGE LOG
 
+## 1.0.7
+
+[feature] IGattCharacteristic.ReadUntil(endBytes) extension method will read in a loop until end bytes detected
+[feature][droid] AndroidConfig.MaxTransmissionUnitSize (MTU) can now be set to negotiate MTU upon connections
+
 ## 1.0.6
+
 * [fix][droid] write on main thread (can use AndroidConfig.WriteOnMainThread = false, to disable)
 * [feature] Blob write
 * [feature] Logging now has deviceconnected/devicedisconnected if you wish to monitor just one of the status'
 
 ## 1.0.5
+
 * [fix] ability to check for true WriteNoResponse flags
 * [fix][droid] ship proper unsubscribe bytes
-
 
 ## 1.0.4
 

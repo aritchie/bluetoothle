@@ -84,4 +84,7 @@ device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {});
 
 // subscribe to ALL characteristic that notify (DANGER: you should really pick out your characteristics)
 device.WhenAnyCharacteristicNotificationReceived().Subscribe(characterArgs => {});
+
+// will continue to read in a loop until ending bytes (argument) is detected
+device.ReadUntil(new byte[] { 0x0 }).Subscribe(bytes => {});
 ```

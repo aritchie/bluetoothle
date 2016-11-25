@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>1.0.6</version>
+        <version>1.0.7</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -26,6 +26,7 @@ Mac (Coming Soon)
         </dependencies>
         <releaseNotes>
 1.0.7
+[feature] IGattCharacteristic.ReadUntil(endBytes) extension method will read in a loop until end bytes detected
 [feature][droid] AndroidConfig.MaxTransmissionUnitSize (MTU) can now be set to negotiate MTU upon connections
 
 1.0.6

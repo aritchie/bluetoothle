@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -9,6 +11,29 @@ namespace Acr.Ble
 {
     public static class Extensions
     {
+        public static IObservable<byte[]> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
+        {
+            return Observable.Create<byte[]>(async ob =>
+            {
+                var cancelSrc = new CancellationTokenSource();
+                try
+                {
+                    var data = await characteristic.Read().RunAsync(cancelSrc.Token);
+                    while (!data.SequenceEqual(endBytes))
+                    {
+                        ob.OnNext(data);
+                        data = await characteristic.Read().RunAsync(cancelSrc.Token);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    // swallow
+                }
+                return () => cancelSrc.Cancel();
+            });
+        }
+
+
         public static IConnectableObservable<TItem> ReplayWithReset<TItem, TReset>(this IObservable<TItem> src, IObservable<TReset> resetTrigger)
         {
             return new ClearableReplaySubject<TItem, TReset>(src, resetTrigger);
