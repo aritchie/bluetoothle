@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Acr.Ble;
 using Acr.UserDialogs;
 using Android.App;
 using Android.Content.PM;
@@ -28,6 +29,7 @@ namespace Samples.Droid
             FormsAppCompatActivity.ToolbarResource = Resource.Layout.toolbar;
             FormsAppCompatActivity.TabLayoutResource = Resource.Layout.tabs;
 
+            AndroidConfig.MaxTransmissionUnitSize = 255;
             UserDialogs.Init(() => (Activity)Forms.Context);
 
             var builder = new ContainerBuilder();

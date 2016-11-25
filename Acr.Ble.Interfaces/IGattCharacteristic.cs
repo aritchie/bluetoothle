@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+
 namespace Acr.Ble
 {
     public interface IGattCharacteristic
