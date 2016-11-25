@@ -24,6 +24,7 @@ namespace Acr.Ble
                         ob.OnNext(data);
                         data = await characteristic.Read().RunAsync(cancelSrc.Token);
                     }
+                    ob.OnCompleted();
                 }
                 catch (OperationCanceledException)
                 {

@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## 1.0.8
+
+[fix] proper completion of ReadUntil
+
 ## 1.0.7
 
 [feature] IGattCharacteristic.ReadUntil(endBytes) extension method will read in a loop until end bytes detected
