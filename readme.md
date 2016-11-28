@@ -113,4 +113,13 @@ Q. Why are devices cleared on a new scan?
 > Some platforms yield a "new" device and therefore new hooks.  This was observed on some android devices.
 
 Q. My characteristic read/writes/notifications are not working
+
 > If you store your discovered characteristics in your own variables, make sure to refresh them with each (re)connect
+
+Q. I cannot see the device name in Android 6+
+
+> You need to enable permissions for android.permission.ACCESS_COARSE_LOCATION 
+
+Q. I cannot see the device name when scanning in the background on iOS
+
+> This is the work of iOS.  The library cannot fix this.  You should scan by service UUIDs instead
