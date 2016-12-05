@@ -5,9 +5,9 @@ using CoreBluetooth;
 
 namespace Acr.Ble
 {
-    public static class Extensions
+    internal static class BleExtensions
     {
-        public static Guid ToGuid (this NSUuid uuid)
+        public static Guid ToGuid(this NSUuid uuid)
         {
             return Guid.ParseExact(uuid.AsString(), "d");
         }

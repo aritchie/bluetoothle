@@ -81,7 +81,7 @@
     <Compile Include="Internals\PreLollipopScanCallback.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GattDescriptor.cs" />
-    <Compile Include="DroidBleExtensions.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Internals\GattContext.cs" />
     <Compile Include="Internals\InternalScanRecord.cs" />
     <Compile Include="AndroidConfig.cs" />

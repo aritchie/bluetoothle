@@ -4,7 +4,7 @@ using Java.Util;
 
 namespace Acr.Ble
 {
-    public static class DroidBleExtensions
+    internal static class Extensions
     {
         public static Guid ToGuid(this byte[] uuidBytes)
         {
