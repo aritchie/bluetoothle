@@ -187,13 +187,13 @@ namespace Acr.Ble.Plugins
                     if (flags.HasFlag(BleLogFlags.DescriptorRead))
                         registrations.Add(desc
                             .WhenRead()
-                            .Subscribe(bytes => Write(ob, device, BleLogFlags.DescriptorRead, desc.Uuid, bytes))
+                            .Subscribe(result => Write(ob, device, result))
                         );
 
                     if (flags.HasFlag(BleLogFlags.DescriptorWrite))
                         registrations.Add(desc
                             .WhenWritten()
-                            .Subscribe(bytes => Write(ob, device, BleLogFlags.DescriptorWrite, desc.Uuid, bytes))
+                            .Subscribe(result => Write(ob, device, result))
                         );
                 })
             );
@@ -216,6 +216,16 @@ namespace Acr.Ble.Plugins
                     Write(ob, device, BleLogFlags.CharacteristicWrite, result.Characteristic.Uuid, result.Data);
                     break;
             }
+        }
+
+
+        static void Write(IObserver<BleLogEvent> ob, IDevice device, DescriptorResult result)
+        {
+            var flag = result.Event == DescriptorEvent.Read 
+                ? BleLogFlags.DescriptorRead
+                : BleLogFlags.DescriptorWrite;
+
+            Write(ob, device, flag, result.Descriptor.Uuid, result.Data);
         }
 
 

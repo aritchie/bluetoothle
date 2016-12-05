@@ -3,7 +3,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 
 [![NuGet](https://img.shields.io/nuget/v/Acr.Ble.svg?maxAge=2592000)](https://www.nuget.org/packages/Acr.Ble/)
 
-[Change Log - 2016-11-24](docs/changelog.md)
+[Change Log - 2016-12-5](docs/changelog.md)
 
 
 ## PLATFORMS
@@ -12,6 +12,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 * iOS 6+
 * tvOS / Mac (support is here, I haven't had the means to fully test these yet)
 * Windows UWP planned for v2 (the API is dev hostile and requires adjustments in the library interface to work with this)
+
 
 ## FEATURES
 
@@ -30,8 +31,6 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 Be sure to install the Acr.Ble nuget package in all of your main platform projects as well as your core/PCL project
 
 [![NuGet](https://img.shields.io/nuget/v/Acr.Ble.svg?maxAge=2592000)](https://www.nuget.org/packages/Acr.Ble/)
-
-[CHANGE LOG - NOV 19/2016](docs/changelog.md)
 
 **Android**
 
@@ -72,15 +71,16 @@ await scanResult.Device.Connect();
 
 Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
     // read, write, or subscribe to notifications here
-    var bytes = await characteristic.Read();
+    var result = await characteristic.Read(); // use result.Data to see response
     await characteristic.Write(bytes);
 
-    characteristic.SubscribeToNotifications(bytes => {
-
+    characteristic.SubscribeToNotifications(result => {
+    	//result.Data to get at response
     });
 });
 
 ```
+
 
 ## DOCUMENTATION
 
@@ -93,6 +93,7 @@ Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
 * Plugins
     * [Logging](docs/logging.md)
     * [Heart Rate](docs/heartrate.md)
+
 
 ## FAQ
 

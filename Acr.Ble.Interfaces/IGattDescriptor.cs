@@ -10,9 +10,10 @@ namespace Acr.Ble
         Guid Uuid { get; }
         string Description { get; }
         byte[] Value { get; }
-        IObservable<object> Write(byte[] data);
-        IObservable<byte[]> WhenWritten();
-        IObservable<byte[]> Read();
-        IObservable<byte[]> WhenRead();
+
+        IObservable<DescriptorResult> Write(byte[] data);
+        IObservable<DescriptorResult> WhenWritten();
+        IObservable<DescriptorResult> Read();
+        IObservable<DescriptorResult> WhenRead();
     }
 }

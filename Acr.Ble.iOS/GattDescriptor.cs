@@ -17,9 +17,9 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<byte[]> Read()
+        public override IObservable<DescriptorResult> Read()
         {
-            return Observable.Create<byte[]>(ob =>
+            return Observable.Create<DescriptorResult>(ob =>
             {
                 var p = this.native.Characteristic.Service.Peripheral;
 
@@ -34,8 +34,10 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = ((NSData) args.Descriptor.Value).ToArray();
-                            ob.Respond(this.Value);
-                            this.ReadSubject.OnNext(this.Value);
+
+                            var result = new DescriptorResult(this, DescriptorEvent.Read, this.Value);
+                            ob.Respond(result);
+                            this.ReadSubject.OnNext(result);
                         }
                     }
                 });
@@ -46,9 +48,9 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<object> Write(byte[] data)
+        public override IObservable<DescriptorResult> Write(byte[] data)
         {
-            return Observable.Create<object>(ob =>
+            return Observable.Create<DescriptorResult>(ob =>
             {
                 var p = this.native.Characteristic.Service.Peripheral;
 
@@ -63,8 +65,10 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = data;
-                            ob.Respond(this.Value);
-                            this.WriteSubject.OnNext(this.Value);
+
+                            var result = new DescriptorResult(this, DescriptorEvent.Write, this.Value);
+                            ob.Respond(result);
+                            this.WriteSubject.OnNext(result);
                         }
                     }
                 });

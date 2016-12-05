@@ -28,7 +28,7 @@ Characteristic.WriteWithoutResponse(bytes);
 ```csharp
 // once you have your characteristic instance from the service discovery
 // this will enable the subscriptions to notifications as well as actually hook to the event
-var sub = characteristic.SubscribeToNotifications().Subscribe(bytes => {});
+var sub = characteristic.SubscribeToNotifications().Subscribe(result => { result.Data... });
 
 sub.Dispose(); // to unsubscribe
 ```
@@ -37,15 +37,15 @@ sub.Dispose(); // to unsubscribe
 ```csharp
 // once you have your characteristic instance from the service discovery
 // this will only monitor notifications if they have been hooked by SubscribeToNotifications();
-var sub = characteristic.WhenNotificationReceived().Subscribe(bytes => {});
+var sub = characteristic.WhenNotificationReceived().Subscribe(result => { result.Data... });
 
 sub.Dispose(); // to unsubscribe
 ```
 
 **Monitor Reads/Writes**
 ```csharp
-characteristic.WhenRead().Subscribe(bytes => {});
-characteristic.WhenWritten().Subscribe(bytes => {});
+characteristic.WhenRead().Subscribe(result => { result.Data... });
+characteristic.WhenWritten().Subscribe(result => { result.Data... });
 ```
 
 **Discover descriptors on a characteristic**
@@ -77,7 +77,7 @@ characteristic.BlobWrite(bytes).Subscribe(x => {});
 ```csharp
 
 // read a characteristic on a given interval.  This is a substitute for SubscribeToNotifications()
-characteristic.ReadInterval(TimeSpan).Subscribe(bytes => {});
+characteristic.ReadInterval(TimeSpan).Subscribe(result => { result.Data... });
 
 // discover all characteristics without finding services first
 device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {});
@@ -86,5 +86,5 @@ device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {});
 device.WhenAnyCharacteristicNotificationReceived().Subscribe(characterArgs => {});
 
 // will continue to read in a loop until ending bytes (argument) is detected
-device.ReadUntil(new byte[] { 0x0 }).Subscribe(bytes => {});
+device.ReadUntil(new byte[] { 0x0 }).Subscribe(result => { result.Data... });
 ```

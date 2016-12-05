@@ -64,6 +64,8 @@
     <Compile Include="BleWriteSegment.cs" />
     <Compile Include="CharacteristicResult.cs" />
     <Compile Include="CharacteristicEvent.cs" />
+    <Compile Include="DescriptorResult.cs" />
+    <Compile Include="DescriptorEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">

@@ -44,11 +44,11 @@ namespace Samples.ViewModels.Le
         {
             try
             {
-                var value = await this.Descriptor.Read();
+                var result = await this.Descriptor.Read();
 
                 this.LastValue = DateTime.Now;
                 this.IsValueAvailable = true;
-                this.Value = value == null ? "EMPTY" : Encoding.UTF8.GetString(value, 0, value.Length);
+                this.Value = result.Data == null ? "EMPTY" : Encoding.UTF8.GetString(result.Data, 0, result.Data.Length);
             }
             catch (Exception ex)
             {

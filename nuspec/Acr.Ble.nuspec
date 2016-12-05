@@ -26,7 +26,7 @@ Mac (Coming Soon)
         </dependencies>
         <releaseNotes>
 1.1
-[BREAKING] Characteristic Read, Write, and Notification events now return CharacteristicResult that includes the sender characteristic as well as the data
+[BREAKING] Characteristic/Descriptor Read, Write, and Notification events now return CharacteristicResult that includes the sender characteristic as well as the data
 [fix][droid] Write was not broadcasting completion at the right time
 
 1.0.8

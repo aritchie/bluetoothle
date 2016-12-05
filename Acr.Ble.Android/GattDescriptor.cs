@@ -19,9 +19,9 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<object> Write(byte[] data)
+        public override IObservable<DescriptorResult> Write(byte[] data)
         {
-            return Observable.Create<object>(ob =>
+            return Observable.Create<DescriptorResult>(ob =>
             {
                 var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
                 {
@@ -34,8 +34,10 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = data;
-                            ob.Respond(this.Value);
-                            this.WriteSubject.OnNext(data);
+
+                            var result = new DescriptorResult(this, DescriptorEvent.Write, data);
+                            ob.Respond(result);
+                            this.WriteSubject.OnNext(result);
                         }
                     }
                 });
@@ -48,10 +50,10 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<byte[]> Read()
+        public override IObservable<DescriptorResult> Read()
         {
             //this.native.Permissions == GattDescriptorPermission.Read
-            return Observable.Create<byte[]>(ob =>
+            return Observable.Create<DescriptorResult>(ob =>
             {
                 var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
                 {
@@ -64,8 +66,10 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = this.native.GetValue();
-                            ob.Respond(this.Value);
-                            this.ReadSubject.OnNext(this.Value);
+
+                            var result = new DescriptorResult(this, DescriptorEvent.Write, this.Value);
+                            ob.Respond(result);
+                            this.ReadSubject.OnNext(result);
                         }
                     }
                 });

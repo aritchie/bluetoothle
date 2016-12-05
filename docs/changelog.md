@@ -1,61 +1,54 @@
 # CHANGE LOG
 
-## 1.0.8
+## 1.1
+* [BREAKING] Characteristic/Descriptor Read, Write, and Notification events now return CharacteristicResult that includes the sender characteristic as well as the data
+* [fix][droid] Write was not broadcasting completion at the right time
 
+## 1.0.8
 [fix] proper completion of ReadUntil
 
 ## 1.0.7
-
-[feature] IGattCharacteristic.ReadUntil(endBytes) extension method will read in a loop until end bytes detected
-[feature][droid] AndroidConfig.MaxTransmissionUnitSize (MTU) can now be set to negotiate MTU upon connections
+* [feature] IGattCharacteristic.ReadUntil(endBytes) extension method will read in a loop until end bytes detected
+* [feature][droid] AndroidConfig.MaxTransmissionUnitSize (MTU) can now be set to negotiate MTU upon connections
 
 ## 1.0.6
-
 * [fix][droid] write on main thread (can use AndroidConfig.WriteOnMainThread = false, to disable)
 * [feature] Blob write
 * [feature] Logging now has deviceconnected/devicedisconnected if you wish to monitor just one of the status'
 
 ## 1.0.5
-
 * [fix] ability to check for true WriteNoResponse flags
 * [fix][droid] ship proper unsubscribe bytes
 
 ## 1.0.4
-
 * [fix] logging cleanup
 * [feature][core] add DiscoveredServices, DiscoveredCharacteristics, and DiscoveredDescriptors for easy access
 * [feature][core] add logging abilities from device reference
 * [feature][droid] add improved way to deal with Android connection issues (please read docs under Android Troubleshooting)
 
 ## 1.0.3
-
 * [fix][core] logging would not hook properly to existing connected devices
 * [fix][droid] deal with gatt error 133 by delaying service discovery post connection
 * [workaround] tvOS was having issues. temporarily pulled from nuget
 
 ## 1.0.2
-
 * [feature] write without response void method added
 * [feature] proper equals check for all ble objects
 
 ## 1.0.1
-
 * [fix][all] new adapter scans only clear disconnected devices from cache
 * [feature] Adapter.GetConnectedDevices
 
 ## 1.0.0
-
 * [fix][droid] WhenStatusChanged firing on subscription and replays properly
 * [fix][droid] properly parsing 16 and 32bit UUIDs in advertisement packet
 
 ## 0.9.9
-
 *[breaking] WhenActionOccurs renamed to CreateLogger
 *[fix] ensure WhenScanStatusChanged() broadcasts its current state on registration
 *Logging now returns actual packet received where applicable
 
 ## 0.9.8
-
 * adding tvOS libraries to package (NOT TESTED)
 * [fix] createconnection properly persists connection now
 * [fix] more logging and discovery issues
@@ -64,7 +57,6 @@
 * [droid] advertisement packet now gets all service UUIDs parsed
 
 ## 0.9.7
-
 * [fix] Error notifications on read/writes
 * [fix] Make sure to replay last status for connectable observables
 * [fix] Service discovery on iOS and Android was not registering subsequent subscriptions properly
@@ -72,34 +64,27 @@
 * [breaking] PersistentConnection is now CreateConnection with improvements to status reporting
 
 ## 0.9.6
-
 * Vastly improved logging
 * Improvements to observable allocations
 * Improvements in service discovery
 
 ## 0.9.5
-
 * [breaking] Change extension method names
 
 ## 0.9.4
-
 * [breaking] Characteristic method WhenNotificationOccurs() is now called WhenNotificationReceived().  It also no longer subscribes to notifications.  Use new method SubscribeToNotifications().  WhenNotificationReceived() is for logging purposes
 
 ## 0.9.3
-
 * Add heartrate plugin (extension method)
 * Add super logging plugin (extension method)
 * Characteristics and Descriptors now have WhenRead/WhenWritten events to monitor calls externally
 
 ## 0.9.2
-
 * ScanListen for working with scan results from a background or decoupled component
 
 ## 0.9.1
-
 * BackgroundScan added and ScanFilter removed
 * Multiple entry points can now hook up to scan, but only one will run (connectable refcount observable)
 
 ## 0.9.0
-
 * Initial Public Release

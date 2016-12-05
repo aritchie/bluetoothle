@@ -10,23 +10,23 @@ namespace Acr.Ble
         {
             this.Characteristic = characteristic;
             this.Uuid = uuid;
-            this.WriteSubject = new Subject<byte[]>();
-            this.ReadSubject = new Subject<byte[]>();
+            this.WriteSubject = new Subject<DescriptorResult>();
+            this.ReadSubject = new Subject<DescriptorResult>();
         }
 
 
-        protected Subject<byte[]> WriteSubject;
-        protected Subject<byte[]> ReadSubject;
+        protected Subject<DescriptorResult> WriteSubject;
+        protected Subject<DescriptorResult> ReadSubject;
 
         public IGattCharacteristic Characteristic { get; }
         public virtual string Description => Dictionaries.GetDescriptorDescription(this.Uuid);
 
         public Guid Uuid { get; }
         public byte[] Value { get; protected set; }
-        public abstract IObservable<object> Write(byte[] data);
-        public abstract IObservable<byte[]> Read();
+        public abstract IObservable<DescriptorResult> Write(byte[] data);
+        public abstract IObservable<DescriptorResult> Read();
 
-        public virtual IObservable<byte[]> WhenRead() => this.ReadSubject;
-        public virtual IObservable<byte[]> WhenWritten() => this.WriteSubject;
+        public virtual IObservable<DescriptorResult> WhenRead() => this.ReadSubject;
+        public virtual IObservable<DescriptorResult> WhenWritten() => this.WriteSubject;
     }
 }
