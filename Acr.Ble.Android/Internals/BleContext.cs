@@ -10,7 +10,6 @@ namespace Acr.Ble.Internals
     public class BleContext
     {
         public GattCallbacks Callbacks { get; } = new GattCallbacks();
-        public object ReadWriteLock { get; } = new object();
         readonly BluetoothManager manager;
         LollipopScanCallback newCallback;
         PreLollipopScanCallback oldCallback;

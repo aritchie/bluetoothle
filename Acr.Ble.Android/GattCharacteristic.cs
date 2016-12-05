@@ -77,6 +77,8 @@ namespace Acr.Ble
 
             return Observable.Create<CharacteristicResult>(ob =>
             {
+                
+
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
                     if (args.Characteristic.Uuid.Equals(this.native.Uuid))
@@ -95,11 +97,17 @@ namespace Acr.Ble
                         }
                     }
                 });
-
-                // TODO: sync lock
+                //var cancelSrc = new CancellationTokenSource();
+                //await this.context.ReadWriteLock.WaitAsync(cancelSrc.Token);
                 this.context.Callbacks.CharacteristicRead += handler;
                 this.context.Gatt.ReadCharacteristic(this.native);
-                return () => this.context.Callbacks.CharacteristicRead -= handler;
+                //this.context.ReadWriteLock.Release();
+
+                return () => 
+                {
+                    this.context.Callbacks.CharacteristicRead -= handler;
+                    //cancelSrc.Cancel();
+                };
             });
         }
 
