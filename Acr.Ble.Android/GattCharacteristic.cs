@@ -77,8 +77,6 @@ namespace Acr.Ble
 
             return Observable.Create<CharacteristicResult>(ob =>
             {
-                
-
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
                     if (args.Characteristic.Uuid.Equals(this.native.Uuid))
