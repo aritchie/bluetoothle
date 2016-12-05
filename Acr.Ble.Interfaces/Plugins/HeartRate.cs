@@ -48,16 +48,16 @@ namespace Acr.Ble.Plugins
                 else
                 {
                     token = ch
-                    .WhenReadOrNotify(TimeSpan.FromSeconds(3))
-                    .Subscribe(data =>
-                    {
-                        if ((data[0] & 0x01) == 0)
-                            ob.OnNext(data[1]);
+                        .WhenReadOrNotify(TimeSpan.FromSeconds(3))
+                        .Subscribe(result =>
+                        {
+                            if ((result.Data[0] & 0x01) == 0)
+                                ob.OnNext(result.Data[1]);
 
-                        var bpm = (ushort)data [1];
-                        bpm = (ushort)(((bpm >> 8) & 0xFF) | ((bpm << 8) & 0xFF00));
-                        ob.OnNext(bpm);
-                    });
+                            var bpm = (ushort)result.Data [1];
+                            bpm = (ushort)(((bpm >> 8) & 0xFF) | ((bpm << 8) & 0xFF00));
+                            ob.OnNext(bpm);
+                        });
                 }
                 return () => token?.Dispose();
             });

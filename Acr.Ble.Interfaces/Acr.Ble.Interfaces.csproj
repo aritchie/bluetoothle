@@ -42,7 +42,6 @@
     <Compile Include="AbstractGattService.cs" />
     <Compile Include="AdapterStatus.cs" />
     <Compile Include="AdvertisementRecordType.cs" />
-    <Compile Include="CharacteristicNotification.cs" />
     <Compile Include="CharacteristicProperties.cs" />
     <Compile Include="ConnectionStatus.cs" />
     <Compile Include="Dictionaries.cs" />
@@ -63,6 +62,8 @@
     <Compile Include="Plugins\BleLogEvent.cs" />
     <Compile Include="ClearableReplaySubject.cs" />
     <Compile Include="BleWriteSegment.cs" />
+    <Compile Include="CharacteristicResult.cs" />
+    <Compile Include="CharacteristicEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">

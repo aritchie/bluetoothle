@@ -9,6 +9,7 @@ using Java.Util;
 using Observable = System.Reactive.Linq.Observable;
 using Android.App;
 
+
 namespace Acr.Ble
 {
     public class GattCharacteristic : AbstractGattCharacteristic
@@ -28,15 +29,15 @@ namespace Acr.Ble
         public override void WriteWithoutResponse(byte[] value)
         {
             this.AssertWrite(false);
-            this.RawWriteNoResponse(value);
+            this.RawWriteNoResponse(null, value);
         }
 
 
-        public override IObservable<object> Write(byte[] value)
+        public override IObservable<CharacteristicResult> Write(byte[] value)
         {
             this.AssertWrite(false);
 
-            return Observable.Create<object>(ob =>
+            return Observable.Create<CharacteristicResult>(ob =>
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
@@ -49,33 +50,32 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = value;
-                            ob.Respond(this.Value);
-                            this.WriteSubject.OnNext(this.Value);
+                            var result = new CharacteristicResult(this, CharacteristicEvent.Write, this.Value);
+                            ob.Respond(result);
+                            this.WriteSubject.OnNext(result);
                         }
                     }
                 });
                 this.context.Callbacks.CharacteristicWrite += handler;
 
-
                 if (this.Properties.HasFlag(CharacteristicProperties.Write))
                 {
-                    this.RawWriteNoResponse(value);
+                    this.RawWriteWithResponse(value);
                 }
                 else
                 {
-                    this.RawWriteWithResponse(this.Value);
-                    ob.Respond(this.Value);
+                    this.RawWriteNoResponse(ob, value);
                 }
                 return () => this.context.Callbacks.CharacteristicWrite -= handler;
             });
         }
 
 
-        public override IObservable<byte[]> Read()
+        public override IObservable<CharacteristicResult> Read()
         {
             this.AssertRead();
 
-            return Observable.Create<byte[]>(ob =>
+            return Observable.Create<CharacteristicResult>(ob =>
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
@@ -88,8 +88,10 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = args.Characteristic.GetValue();
-                            ob.Respond(this.Value);
-                            this.ReadSubject.OnNext(this.Value);
+
+                            var result = new CharacteristicResult(this, CharacteristicEvent.Read, this.Value);
+                            ob.Respond(result);
+                            this.ReadSubject.OnNext(result);
                         }
                     }
                 });
@@ -100,12 +102,12 @@ namespace Acr.Ble
         }
 
 
-        IObservable<byte[]> notifyOb;
-        public override IObservable<byte[]> SubscribeToNotifications()
+        IObservable<CharacteristicResult> notifyOb;
+        public override IObservable<CharacteristicResult> SubscribeToNotifications()
         {
             this.AssertNotify();
 
-            this.notifyOb = this.notifyOb ?? Observable.Create<byte[]>(ob =>
+            this.notifyOb = this.notifyOb ?? Observable.Create<CharacteristicResult>(ob =>
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
@@ -118,8 +120,10 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = args.Characteristic.GetValue();
-                            ob.OnNext(this.Value);
-                            this.NotifySubject.OnNext(this.Value);
+
+                            var result = new CharacteristicResult(this, CharacteristicEvent.Notification, this.Value);
+                            ob.OnNext(result);
+                            this.NotifySubject.OnNext(result);
                         }
                     }
                 });
@@ -227,15 +231,21 @@ namespace Acr.Ble
         }
 
 
-        void RawWriteNoResponse(byte[] bytes)
+        void RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
         {
+            var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
+
             this.WrapWrite(() =>
             {
                 this.native.SetValue(bytes);            
                 this.native.WriteType = GattWriteType.NoResponse;
                 this.context.Gatt.WriteCharacteristic(this.native);
                 this.Value = bytes;
-                this.WriteSubject.OnNext(this.Value);
+
+                // TODO: switch off this thread again?
+                this.WriteSubject.OnNext(result);
+                if (ob != null)
+                    ob.Respond(result);
             });
         }
 

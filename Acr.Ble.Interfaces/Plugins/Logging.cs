@@ -161,19 +161,19 @@ namespace Acr.Ble.Plugins
                     if (flags.HasFlag(BleLogFlags.CharacteristicRead))
                         registrations.Add(ch
                             .WhenRead()
-                            .Subscribe(bytes => Write(ob, device, BleLogFlags.CharacteristicRead, ch.Uuid, bytes))
+                            .Subscribe(result => Write(ob, device, result))
                         );
 
                     if (flags.HasFlag(BleLogFlags.CharacteristicWrite))
                         registrations.Add(ch
                             .WhenWritten()
-                            .Subscribe(bytes => Write(ob, device, BleLogFlags.CharacteristicWrite, ch.Uuid, bytes))
+                            .Subscribe(result => Write(ob, device, result))
                         );
 
                     if (flags.HasFlag(BleLogFlags.CharacteristicNotify) && ch.CanNotify())
                         registrations.Add(ch
                             .WhenNotificationReceived()
-                            .Subscribe(bytes => Write(ob, device, BleLogFlags.CharacteristicNotify, ch.Uuid, bytes))
+                            .Subscribe(result => Write(ob, device, result))
                         );
                 })
             );
@@ -197,6 +197,25 @@ namespace Acr.Ble.Plugins
                         );
                 })
             );
+        }
+
+
+        static void Write(IObserver<BleLogEvent> ob, IDevice device, CharacteristicResult result)
+        {
+            switch (result.Event)
+            {
+                case CharacteristicEvent.Notification:
+                    Write(ob, device, BleLogFlags.CharacteristicNotify, result.Characteristic.Uuid, result.Data);                        
+                    break;
+
+                case CharacteristicEvent.Read:
+                    Write(ob, device, BleLogFlags.CharacteristicRead, result.Characteristic.Uuid, result.Data);
+                    break;
+
+                case CharacteristicEvent.Write:
+                    Write(ob, device, BleLogFlags.CharacteristicWrite, result.Characteristic.Uuid, result.Data);
+                    break;
+            }
         }
 
 

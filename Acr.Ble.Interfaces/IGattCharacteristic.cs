@@ -26,13 +26,13 @@ namespace Acr.Ble
         /// <summary>
         /// This will (un)subscribe to notifications
         /// </summary>
-        IObservable<byte[]> SubscribeToNotifications();
+        IObservable<CharacteristicResult> SubscribeToNotifications();
 
         /// <summary>
         /// This will only monitor any notifications to the characteristic.  It will not (un)subscribe them.  Use SubscribeToNotifications
         /// </summary>
         /// <returns></returns>
-        IObservable<byte[]> WhenNotificationReceived();
+        IObservable<CharacteristicResult> WhenNotificationReceived();
 
         /// <summary>
         /// Discovers descriptors for this characteristic
@@ -44,7 +44,7 @@ namespace Acr.Ble
         /// Writes the value to the remote characteristic
         /// </summary>
         /// <param name="value">The bytes to send - default max is 20 bytes</param>
-        IObservable<object> Write(byte[] value);
+        IObservable<CharacteristicResult> Write(byte[] value);
 
         /// <summary>
         /// Used for writing blobs
@@ -60,18 +60,18 @@ namespace Acr.Ble
         /// Monitor write tasks
         /// </summary>
         /// <returns>Bytes that were successfully written</returns>
-        IObservable<byte[]> WhenWritten();
+        IObservable<CharacteristicResult> WhenWritten();
 
         /// <summary>
         /// Read characteristic remote value
         /// </summary>
         /// <returns></returns>
-        IObservable<byte[]> Read();
+        IObservable<CharacteristicResult> Read();
 
         /// <summary>
         /// Monitors read responses.  Does not send read requests.  Use Read() for that
         /// </summary>
         /// <returns></returns>
-        IObservable<byte[]> WhenRead();
+        IObservable<CharacteristicResult> WhenRead();
     }
 }

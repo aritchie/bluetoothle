@@ -11,18 +11,18 @@ namespace Acr.Ble
 {
     public static class Extensions
     {
-        public static IObservable<byte[]> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
+        public static IObservable<CharacteristicResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
         {
-            return Observable.Create<byte[]>(async ob =>
+            return Observable.Create<CharacteristicResult>(async ob =>
             {
                 var cancelSrc = new CancellationTokenSource();
                 try
                 {
-                    var data = await characteristic.Read().RunAsync(cancelSrc.Token);
-                    while (!data.SequenceEqual(endBytes))
+                    var result = await characteristic.Read().RunAsync(cancelSrc.Token);
+                    while (!result.Data.SequenceEqual(endBytes))
                     {
-                        ob.OnNext(data);
-                        data = await characteristic.Read().RunAsync(cancelSrc.Token);
+                        ob.OnNext(result);
+                        result = await characteristic.Read().RunAsync(cancelSrc.Token);
                     }
                     ob.OnCompleted();
                 }
@@ -57,9 +57,9 @@ namespace Acr.Ble
         }
 
 
-        public static IObservable<CharacteristicNotification> WhenAnyCharacteristicNotificationReceived(this IDevice device, bool doSubscriptions)
+        public static IObservable<CharacteristicResult> WhenAnyCharacteristicNotificationReceived(this IDevice device, bool doSubscriptions)
         {
-            return Observable.Create<CharacteristicNotification>(ob =>
+            return Observable.Create<CharacteristicResult>(ob =>
             {
                 var list = new List<IDisposable>();
 
@@ -71,14 +71,14 @@ namespace Acr.Ble
                         {
                             list.Add(ch
                                 .SubscribeToNotifications()
-                                .Subscribe(data => Trigger(ob, ch, data))
+                                .Subscribe(ob.OnNext)
                             );
                         }
                         else
                         {
                             list.Add(ch
                                 .WhenNotificationReceived()
-                                .Subscribe(data => Trigger(ob, ch, data))
+                                .Subscribe(ob.OnNext)
                             );
                         }
                     });
@@ -116,9 +116,9 @@ namespace Acr.Ble
         }
 
 
-        public static IObservable<byte[]> ReadInterval(this IGattCharacteristic character, TimeSpan timeSpan)
+        public static IObservable<CharacteristicResult> ReadInterval(this IGattCharacteristic character, TimeSpan timeSpan)
         {
-            return Observable.Create<byte[]>(ob =>
+            return Observable.Create<CharacteristicResult>(ob =>
                 Observable
                     .Interval(timeSpan)
                     .Subscribe(async _ =>
@@ -130,7 +130,7 @@ namespace Acr.Ble
         }
 
 
-        public static IObservable<byte[]> WhenReadOrNotify(this IGattCharacteristic character, TimeSpan readInterval)
+        public static IObservable<CharacteristicResult> WhenReadOrNotify(this IGattCharacteristic character, TimeSpan readInterval)
         {
             if (character.CanNotify())
                 return character.SubscribeToNotifications();
@@ -237,13 +237,6 @@ namespace Acr.Ble
         {
             if (!characteristic.CanNotify())
                 throw new ArgumentException($"This characteristic '{characteristic.Uuid}' does not support notifications");
-        }
-
-
-        static void Trigger(IObserver<CharacteristicNotification> ob, IGattCharacteristic characteristic, byte[] data)
-        {
-            var notification = new CharacteristicNotification(characteristic, data);
-            ob.OnNext(notification);
         }
     }
 }

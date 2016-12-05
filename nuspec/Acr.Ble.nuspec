@@ -25,6 +25,10 @@ Mac (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+1.1
+[BREAKING] Characteristic Read, Write, and Notification events now return CharacteristicResult that includes the sender characteristic as well as the data
+[fix][droid] Write was not broadcasting completion at the right time
+
 1.0.8
 [fix] completion of ReadUntil
 

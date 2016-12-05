@@ -199,17 +199,17 @@ namespace Samples.ViewModels.Le
         }
 
 
-        void SetReadValue(byte[] value, bool fromUtf8)
+        void SetReadValue(CharacteristicResult result, bool fromUtf8)
         {
             Device.BeginInvokeOnMainThread(() =>
             {
                 this.IsValueAvailable = true;
                 this.LastValue = DateTime.Now;
 
-                if (value == null)
+                if (result.Data == null)
                     this.Value = "EMPTY";
                 else
-                    this.Value = fromUtf8 ? Encoding.UTF8.GetString(value, 0, value.Length) : BitConverter.ToString(value);
+                    this.Value = fromUtf8 ? Encoding.UTF8.GetString(result.Data, 0, result.Data.Length) : BitConverter.ToString(result.Data);
             });
         }
     }

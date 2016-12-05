@@ -22,18 +22,15 @@ namespace Acr.Ble
         public override void WriteWithoutResponse(byte[] value)
         {
             this.AssertWrite(false);
-            var data = NSData.FromArray(value);
-            this.native.Service.Peripheral.WriteValue(data, this.native, CBCharacteristicWriteType.WithoutResponse);
-            this.Value = value;
-            this.WriteSubject.OnNext(this.Value);
+            this.InternalWriteNoResponse(null, value);
         }
 
 
-        public override IObservable<object> Write(byte[] value)
+        public override IObservable<CharacteristicResult> Write(byte[] value)
         {
             this.AssertWrite(false);
 
-            return Observable.Create<object>(ob =>
+            return Observable.Create<CharacteristicResult>(ob =>
             {
                 var data = NSData.FromArray(value);
                 var p = this.native.Service.Peripheral;
@@ -48,8 +45,10 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = value;
-                            ob.Respond(this.Value);
-                            this.WriteSubject.OnNext(this.Value);
+
+                            var result = new CharacteristicResult(this, CharacteristicEvent.Write, value);
+                            ob.Respond(result);
+                            this.WriteSubject.OnNext(result);
                         }
                     }
                 });
@@ -61,53 +60,18 @@ namespace Acr.Ble
                 }
                 else
                 {
-                    p.WriteValue(data, this.native, CBCharacteristicWriteType.WithoutResponse);
-                    this.Value = value;
-                    ob.Respond(this.Value);
-                    this.WriteSubject.OnNext(this.Value);
+                    this.InternalWriteNoResponse(ob, value);
                 }
                 return () => p.WroteCharacteristicValue -= handler;
             });
         }
 
 
-        public override IObservable<byte[]> Read()
+        public override IObservable<CharacteristicResult> Read()
         {
             this.AssertRead();
 
-            return Observable.Create<byte[]>(ob =>
-            {
-                var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
-                {
-                    if (args.Characteristic.UUID.Equals(this.native.UUID))
-                    {
-                        if (args.Error != null)
-                        {
-                            ob.OnError(new ArgumentException(args.Error.ToString()));
-                        }
-                        else
-                        {
-                            var value = this.native.Value.ToArray();
-                            this.Value = value;
-                            ob.Respond(this.Value);
-                            this.ReadSubject.OnNext(this.Value);
-                        }
-                    }
-                });
-                this.native.Service.Peripheral.UpdatedCharacterteristicValue += handler;
-                this.native.Service.Peripheral.ReadValue(this.native);
-
-                return () => this.native.Service.Peripheral.UpdatedCharacterteristicValue -= handler;
-            });
-        }
-
-
-        IObservable<byte[]> notifyOb;
-        public override IObservable<byte[]> SubscribeToNotifications()
-        {
-            this.AssertNotify();
-
-            this.notifyOb = this.notifyOb ?? Observable.Create<byte[]>(ob =>
+            return Observable.Create<CharacteristicResult>(ob =>
             {
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
@@ -120,8 +84,42 @@ namespace Acr.Ble
                         else
                         {
                             this.Value = this.native.Value.ToArray();
-                            ob.OnNext(this.Value);
-                            this.NotifySubject.OnNext(this.Value);
+                            var result = new CharacteristicResult(this, CharacteristicEvent.Read, this.Value);
+                            ob.Respond(result);
+                            this.ReadSubject.OnNext(result);
+                        }
+                    }
+                });
+                this.native.Service.Peripheral.UpdatedCharacterteristicValue += handler;
+                this.native.Service.Peripheral.ReadValue(this.native);
+
+                return () => this.native.Service.Peripheral.UpdatedCharacterteristicValue -= handler;
+            });
+        }
+
+
+        IObservable<CharacteristicResult> notifyOb;
+        public override IObservable<CharacteristicResult> SubscribeToNotifications()
+        {
+            this.AssertNotify();
+
+            this.notifyOb = this.notifyOb ?? Observable.Create<CharacteristicResult>(ob =>
+            {
+                var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
+                {
+                    if (args.Characteristic.UUID.Equals(this.native.UUID))
+                    {
+                        if (args.Error != null)
+                        {
+                            ob.OnError(new ArgumentException(args.Error.ToString()));
+                        }
+                        else
+                        {
+                            this.Value = this.native.Value.ToArray();
+
+                            var result = new CharacteristicResult(this, CharacteristicEvent.Notification, this.Value);
+                            ob.OnNext(result);
+                            this.NotifySubject.OnNext(result);
                         }
                     }
                 });
@@ -135,7 +133,7 @@ namespace Acr.Ble
                 };
             })
             .Publish()
-                .RefCount();
+            .RefCount();
 
             return this.notifyOb;
         }
@@ -173,6 +171,19 @@ namespace Acr.Ble
             .RefCount();
 
             return this.descriptorOb;
+        }
+
+
+        void InternalWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] value)
+        {
+            var data = NSData.FromArray(value);
+            var p = this.native.Service.Peripheral;
+            p.WriteValue(data, this.native, CBCharacteristicWriteType.WithoutResponse);
+            this.Value = value;
+            var result = new CharacteristicResult(this, CharacteristicEvent.Write, value);
+            this.WriteSubject.OnNext(result);
+            if (ob != null)
+                ob.Respond(result);
         }
 
 

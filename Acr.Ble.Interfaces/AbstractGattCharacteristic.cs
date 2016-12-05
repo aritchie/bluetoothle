@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 
+
 namespace Acr.Ble
 {
     public abstract class AbstractGattCharacteristic : IGattCharacteristic
@@ -16,9 +17,9 @@ namespace Acr.Ble
         }
 
 
-        protected Subject<byte[]> NotifySubject { get; } = new Subject<byte[]>();
-        protected Subject<byte[]> ReadSubject { get; } = new Subject<byte[]>();
-        protected Subject<byte[]> WriteSubject { get; } = new Subject<byte[]>();
+        protected Subject<CharacteristicResult> NotifySubject { get; } = new Subject<CharacteristicResult>();
+        protected Subject<CharacteristicResult> ReadSubject { get; } = new Subject<CharacteristicResult>();
+        protected Subject<CharacteristicResult> WriteSubject { get; } = new Subject<CharacteristicResult>();
 
         public IGattService Service { get; }
         public virtual string Description => Dictionaries.GetCharacteristicDescription(this.Uuid);
@@ -29,14 +30,14 @@ namespace Acr.Ble
 
         public abstract void WriteWithoutResponse(byte[] value);
         public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();
-        public abstract IObservable<byte[]> SubscribeToNotifications();
-        public virtual IObservable<byte[]> WhenNotificationReceived() => this.NotifySubject;
+        public abstract IObservable<CharacteristicResult> SubscribeToNotifications();
+        public virtual IObservable<CharacteristicResult> WhenNotificationReceived() => this.NotifySubject;
 
-        public abstract IObservable<byte[]> Read();
-        public virtual IObservable<byte[]> WhenRead() => this.ReadSubject;
+        public abstract IObservable<CharacteristicResult> Read();
+        public virtual IObservable<CharacteristicResult> WhenRead() => this.ReadSubject;
 
-        public abstract IObservable<object> Write(byte[] value);
-        public virtual IObservable<byte[]> WhenWritten() => this.WriteSubject;
+        public abstract IObservable<CharacteristicResult> Write(byte[] value);
+        public virtual IObservable<CharacteristicResult> WhenWritten() => this.WriteSubject;
 
 
         public virtual IObservable<BleWriteSegment> BlobWrite(byte[] value)
