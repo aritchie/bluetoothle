@@ -95,6 +95,8 @@ namespace Acr.Ble
                         }
                     }
                 });
+
+                // TODO: sync lock
                 this.context.Callbacks.CharacteristicRead += handler;
                 this.context.Gatt.ReadCharacteristic(this.native);
                 return () => this.context.Callbacks.CharacteristicRead -= handler;
@@ -222,6 +224,7 @@ namespace Acr.Ble
 
         void RawWriteWithResponse(byte[] bytes)
         {
+            // TODO: sync lock
             this.WrapWrite(() =>
             {
                 this.native.SetValue(bytes);
@@ -233,6 +236,7 @@ namespace Acr.Ble
 
         void RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
         {
+            // TODO: sync lock
             var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
 
             this.WrapWrite(() =>
