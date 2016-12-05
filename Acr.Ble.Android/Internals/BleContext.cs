@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Android.Bluetooth;
 using Android.Bluetooth.LE;
 using Android.OS;
@@ -10,7 +9,8 @@ namespace Acr.Ble.Internals
 {
     public class BleContext
     {
-        public GattCallbacks Callbacks { get; }
+        public GattCallbacks Callbacks { get; } = new GattCallbacks();
+        public object ReadWriteLock { get; } = new object();
         readonly BluetoothManager manager;
         LollipopScanCallback newCallback;
         PreLollipopScanCallback oldCallback;
@@ -19,7 +19,6 @@ namespace Acr.Ble.Internals
         public BleContext(BluetoothManager manager)
         {
             this.manager = manager;
-            this.Callbacks = new GattCallbacks();
             this.Devices = new DeviceManager(manager, this.Callbacks);
         }
 
