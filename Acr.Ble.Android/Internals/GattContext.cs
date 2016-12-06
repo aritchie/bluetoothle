@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Threading;
 using Android.Bluetooth;
+
 
 namespace Acr.Ble.Internals
 {
@@ -13,7 +13,6 @@ namespace Acr.Ble.Internals
         }
 
 
-        public SemaphoreSlim ReadWriteLock { get; } = new SemaphoreSlim(1, 1);
         public BluetoothGatt Gatt { get; }
         public GattCallbacks Callbacks { get; }
 

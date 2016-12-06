@@ -3,11 +3,13 @@ using System.Linq;
 using System.Threading;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
-using Android.Bluetooth;
-using Acr.Ble.Internals;
-using Java.Util;
-using Observable = System.Reactive.Linq.Observable;
 using Android.App;
+using Android.Bluetooth;
+using Java.Util;
+using Acr.Ble.Internals;
+using static System.Diagnostics.Debug;
+using Observable = System.Reactive.Linq.Observable;
+
 
 
 namespace Acr.Ble
@@ -41,7 +43,9 @@ namespace Acr.Ble
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (args.Characteristic.Uuid.Equals(this.native.Uuid))
+                    WriteLine($"Incoming Characteristic Write Event - " + args.Characteristic.Uuid);
+
+                    if (args.Characteristic.Equals(this.native))
                     {
                         if (!args.IsSuccessful)
                         {
@@ -56,14 +60,16 @@ namespace Acr.Ble
                         }
                     }
                 });
-                this.context.Callbacks.CharacteristicWrite += handler;
 
                 if (this.Properties.HasFlag(CharacteristicProperties.Write))
                 {
+                    WriteLine("Hooking for write response - " + this.Uuid);
+                    this.context.Callbacks.CharacteristicWrite += handler;
                     this.RawWriteWithResponse(value);
                 }
                 else
                 {
+                    WriteLine("Write with No Response - " + this.Uuid);
                     this.RawWriteNoResponse(ob, value);
                 }
                 return () => this.context.Callbacks.CharacteristicWrite -= handler;
@@ -79,7 +85,7 @@ namespace Acr.Ble
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (args.Characteristic.Uuid.Equals(this.native.Uuid))
+                    if (args.Characteristic.Equals(this.native))
                     {
                         if (!args.IsSuccessful)
                         {
@@ -95,17 +101,10 @@ namespace Acr.Ble
                         }
                     }
                 });
-                //var cancelSrc = new CancellationTokenSource();
-                //await this.context.ReadWriteLock.WaitAsync(cancelSrc.Token);
                 this.context.Callbacks.CharacteristicRead += handler;
                 this.context.Gatt.ReadCharacteristic(this.native);
-                //this.context.ReadWriteLock.Release();
 
-                return () => 
-                {
-                    this.context.Callbacks.CharacteristicRead -= handler;
-                    //cancelSrc.Cancel();
-                };
+                return () => this.context.Callbacks.CharacteristicRead -= handler;
             });
         }
 
@@ -119,7 +118,7 @@ namespace Acr.Ble
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (args.Characteristic.Uuid.Equals(this.native.Uuid))
+                    if (args.Characteristic.Equals(this.native))
                     {
                         if (!args.IsSuccessful)
                         {
@@ -230,7 +229,6 @@ namespace Acr.Ble
 
         void RawWriteWithResponse(byte[] bytes)
         {
-            // TODO: sync lock
             this.WrapWrite(() =>
             {
                 this.native.SetValue(bytes);
@@ -242,7 +240,6 @@ namespace Acr.Ble
 
         void RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
         {
-            // TODO: sync lock
             var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
 
             this.WrapWrite(() =>
@@ -252,11 +249,10 @@ namespace Acr.Ble
                 this.context.Gatt.WriteCharacteristic(this.native);
                 this.Value = bytes;
 
-                // TODO: switch off this thread again?
-                this.WriteSubject.OnNext(result);
-                if (ob != null)
-                    ob.Respond(result);
             });
+            this.WriteSubject.OnNext(result);
+            if (ob != null)
+                ob.Respond(result);
         }
 
 
