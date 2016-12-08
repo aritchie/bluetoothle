@@ -27,9 +27,9 @@
 	<key>MinimumOSVersion</key>
 	<string>9.2</string>
 	<key>CFBundleDisplayName</key>
-	<string>Bluetooth Samples</string>
+	<string>Bluetooth</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.acrapps.bluetoothsamples</string>
+	<string>com.acrapps.ble</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>CFBundleIconFiles</key>
@@ -56,7 +56,7 @@
 		<string>bluetooth-central</string>
 	</array>
 	<key>CFBundleName</key>
-	<string>Bluetooth Samples</string>
+	<string>Bluetooth</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>This app likes to use your bluetooth... because you know... it is called bluetooth sample</string>
 </dict>

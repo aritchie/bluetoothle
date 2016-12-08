@@ -44,6 +44,12 @@ namespace Samples.ViewModels.Le
                 services.VmManager.Push<DeviceViewModel>(x.Device);
             });
 
+            this.OpenSettings = new Command(() => 
+            {
+                if (!this.BleAdapter.OpenSettings())
+                    this.Dialogs.Alert("Could not open bluetooth settings");
+            });
+
             this.ScanToggle = ReactiveCommand.CreateAsyncTask(
                 this.WhenAny(
                     x => x.IsSupported,
@@ -84,6 +90,7 @@ namespace Samples.ViewModels.Le
 
 
         public ICommand ScanToggle { get; }
+        public ICommand OpenSettings { get; }
         public Acr.Command<ScanResultViewModel> SelectDevice { get; }
         public ObservableCollection<ScanResultViewModel> Devices { get; }
         [Reactive] public bool IsScanning { get; private set; }

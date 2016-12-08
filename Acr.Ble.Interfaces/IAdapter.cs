@@ -48,7 +48,7 @@ namespace Acr.Ble
         /// <returns></returns>
         IObservable<IScanResult> ScanListen();
 
-            /// <summary>
+        /// <summary>
         /// Monitor for status changes with adapter (on/off/permissions)
         /// </summary>
         /// <returns></returns>
@@ -59,5 +59,11 @@ namespace Acr.Ble
         /// </summary>
         /// <returns></returns>
         IObservable<IDevice> WhenDeviceStatusChanged();
+
+        /// <summary>
+        /// Opens the platform settings screen
+        /// </summary>
+        /// <returns><c>true</c>, if settings was opened, <c>false</c> otherwise.</returns>
+        bool OpenSettings();
     }
 }

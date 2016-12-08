@@ -4,7 +4,9 @@ using System.Reactive.Linq;
 using CoreBluetooth;
 using CoreFoundation;
 using System.Reactive.Subjects;
-
+using UIKit;
+using Foundation;
+using ObjCRuntime;
 
 namespace Acr.Ble
 {
@@ -159,6 +161,49 @@ namespace Acr.Ble
                 };
             });
             return this.deviceStatusOb;
+        }
+
+
+        public bool OpenSettings()
+        {
+            var flag = false;
+
+            if (UIDevice.CurrentDevice.CheckSystemVersion(10, 0))
+            {
+                var workSpaceClassId = Class.GetHandle("LSApplicationWorkspace");
+                if (workSpaceClassId != IntPtr.Zero) 
+                {
+                    var workSpaceClass = new NSObject(workSpaceClassId);
+                    var workSpaceInstance = workSpaceClass.PerformSelector(new Selector("defaultWorkspace"));
+
+                    var selector = new Selector("openSensitiveURL:withOptions:");
+                    if (workSpaceInstance.RespondsToSelector(selector))
+                    {
+                        workSpaceInstance.PerformSelector(selector, new NSUrl("Prefs:root=Bluetooth"), null);
+                        flag = true;
+                    }
+                }
+            }
+            else if (UIDevice.CurrentDevice.CheckSystemVersion(9, 0))
+            {
+                flag = OpenUrl("prefs:root=Bluetooth");
+            }
+            else if (UIDevice.CurrentDevice.CheckSystemVersion(8, 0))
+            {
+                flag = OpenUrl("prefs:root=General&path=Bluetooth");
+            }
+            return flag;
+        }
+
+
+        static bool OpenUrl(string url)
+        {
+            var nsurl = new NSUrl(url);
+            if (!UIApplication.SharedApplication.CanOpenUrl(nsurl))
+                return false;
+
+            UIApplication.SharedApplication.OpenUrl(nsurl);
+            return true;            
         }
 
 

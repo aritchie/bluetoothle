@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Acr.Ble.Internals;
 using Android.App;
 using Android.Bluetooth;
+using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 
@@ -161,6 +162,14 @@ namespace Acr.Ble
         }
 
 
+        public bool OpenSettings()
+        {
+            var intent = new Intent(Android.Provider.Settings.ActionBluetoothSettings);
+            Application.Context.StartActivity(intent);
+            return true;
+        }
+
+
         IObservable<IScanResult> CreateScanner(Guid? serviceUuid)
         {
             return Observable.Create<IScanResult>(ob =>
@@ -188,7 +197,7 @@ namespace Acr.Ble
                 )
             )
             .Publish()
-            .RefCount();
+            .RefCount();     
         }
     }
 }
