@@ -164,25 +164,31 @@ namespace Acr.Ble
         }
 
 
+        public bool ToggleAdapterState()
+        {
+            return false;
+        }
+
+
         public bool OpenSettings()
         {
             var flag = false;
 
             if (UIDevice.CurrentDevice.CheckSystemVersion(10, 0))
             {
-                var workSpaceClassId = Class.GetHandle("LSApplicationWorkspace");
-                if (workSpaceClassId != IntPtr.Zero) 
-                {
-                    var workSpaceClass = new NSObject(workSpaceClassId);
-                    var workSpaceInstance = workSpaceClass.PerformSelector(new Selector("defaultWorkspace"));
+                //var workSpaceClassId = Class.GetHandle("LSApplicationWorkspace");
+                //if (workSpaceClassId != IntPtr.Zero)
+                //{
+                //    var workSpaceClass = new NSObject(workSpaceClassId);
+                //    var workSpaceInstance = workSpaceClass.PerformSelector(new Selector("defaultWorkspace"));
 
-                    var selector = new Selector("openSensitiveURL:withOptions:");
-                    if (workSpaceInstance.RespondsToSelector(selector))
-                    {
-                        workSpaceInstance.PerformSelector(selector, new NSUrl("Prefs:root=Bluetooth"), null);
-                        flag = true;
-                    }
-                }
+                //    var selector = new Selector("openSensitiveURL:withOptions:");
+                //    if (workSpaceInstance.RespondsToSelector(selector))
+                //    {
+                //        workSpaceInstance.PerformSelector(selector, new NSUrl("Prefs:root=Bluetooth"), null);
+                //        flag = true;
+                //    }
+                //}
             }
             else if (UIDevice.CurrentDevice.CheckSystemVersion(9, 0))
             {
@@ -203,7 +209,7 @@ namespace Acr.Ble
                 return false;
 
             UIApplication.SharedApplication.OpenUrl(nsurl);
-            return true;            
+            return true;
         }
 
 

@@ -48,3 +48,21 @@ foreach (var device in devices)
 adapter.ScanInterval(TimeSpan).Subscribe(scanResult => {});
 
 ```
+
+
+## Toggle State of Adapter
+
+```csharp
+
+// returns true if successful
+adapter.ToggleAdapterState();
+
+```
+
+
+## Open Settings
+
+```csharp
+
+adapter.OpenSettings();
+```

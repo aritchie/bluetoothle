@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -25,6 +25,10 @@ Mac (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+1.1.1
+[feature] ability to open bluetooth settings configuration
+[feature][droid] ability to toggle bluetooth adapter status
+
 1.1
 [BREAKING] Characteristic/Descriptor Read, Write, and Notification events now return CharacteristicResult that includes the sender characteristic as well as the data
 [fix][droid] Write was not broadcasting completion at the right time

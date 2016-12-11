@@ -165,8 +165,21 @@ namespace Acr.Ble
         public bool OpenSettings()
         {
             var intent = new Intent(Android.Provider.Settings.ActionBluetoothSettings);
+            intent.SetFlags(ActivityFlags.NewTask);
             Application.Context.StartActivity(intent);
             return true;
+        }
+
+
+        public bool EnableAdapterState(bool enable)
+        {
+            if (enable && !BluetoothAdapter.DefaultAdapter.IsEnabled)
+                return BluetoothAdapter.DefaultAdapter.Enable();
+
+            if (!enable && BluetoothAdapter.DefaultAdapter.IsEnabled)
+                return BluetoothAdapter.DefaultAdapter.Disable();
+
+            return false;
         }
 
 
@@ -197,7 +210,7 @@ namespace Acr.Ble
                 )
             )
             .Publish()
-            .RefCount();     
+            .RefCount();
         }
     }
 }

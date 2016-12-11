@@ -65,5 +65,12 @@ namespace Acr.Ble
         /// </summary>
         /// <returns><c>true</c>, if settings was opened, <c>false</c> otherwise.</returns>
         bool OpenSettings();
+
+        /// <summary>
+        /// Toggles the bluetooth adapter on/off - returns true if successful
+        /// Works only on Android
+        /// </summary>
+        /// <returns></returns>
+        bool EnableAdapterState(bool enable);
     }
 }
