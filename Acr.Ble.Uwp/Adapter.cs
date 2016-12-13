@@ -163,5 +163,17 @@ namespace Acr.Ble
         {
             return Observable.Empty<IDevice>(); // TODO
         }
+
+
+        public bool OpenSettings()
+        {
+            return false;
+        }
+
+
+        public bool EnableAdapterState(bool enable)
+        {
+            return false;
+        }
     }
 }

@@ -39,11 +39,11 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<byte[]> Read()
+        public override IObservable<CharacteristicResult> Read()
         {
             this.AssertRead();
 
-            return Observable.Create<byte[]>(async ob =>
+            return Observable.Create<CharacteristicResult>(async ob =>
             {
                 var result = await this.native.ReadValueAsync(BluetoothCacheMode.Uncached);
                 if (result.Status != GattCommunicationStatus.Success)
@@ -54,8 +54,8 @@ namespace Acr.Ble
                 {
                     var bytes = result.Value.ToArray();
                     this.Value = bytes;
-                    this.ReadSubject.OnNext(bytes);
-                    ob.Respond(bytes);
+                    //this.ReadSubject.OnNext(bytes);
+                    //ob.Respond(bytes);
                 }
                 return Disposable.Empty;
             });
@@ -67,15 +67,15 @@ namespace Acr.Ble
             this.AssertWrite(false);
             this.native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse);
             this.Value = value;
-            this.WriteSubject.OnNext(this.Value);
+            //this.WriteSubject.OnNext(this.Value);
         }
 
 
-        public override IObservable<object> Write(byte[] value)
+        public override IObservable<CharacteristicResult> Write(byte[] value)
         {
             this.AssertWrite(false);
 
-            return Observable.Create<byte[]>(async ob =>
+            return Observable.Create<CharacteristicResult>(async ob =>
             {
                 var result = await this.native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse);
 
@@ -86,7 +86,8 @@ namespace Acr.Ble
                 else
                 {
                     this.Value = value;
-                    this.WriteSubject.OnNext(this.Value);
+                    //this.WriteSubject.OnNext(this.Value);
+
                     ob.Respond(null);
                 }
                 return Disposable.Empty;
@@ -94,20 +95,20 @@ namespace Acr.Ble
         }
 
 
-        IObservable<byte[]> notificationOb;
-        public override IObservable<byte[]> SubscribeToNotifications()
+        IObservable<CharacteristicResult> notificationOb;
+        public override IObservable<CharacteristicResult> SubscribeToNotifications()
         {
             this.AssertNotify();
 
-            this.notificationOb = this.notificationOb ?? Observable.Create<byte[]>(async ob =>
+            this.notificationOb = this.notificationOb ?? Observable.Create<CharacteristicResult>(async ob =>
             {
                 var handler = new TypedEventHandler<Native, GattValueChangedEventArgs>((sender, args) =>
                 {
                     if (sender.Equals(this.native))
                     {
                         var bytes = args.CharacteristicValue.ToArray();
-                        ob.OnNext(bytes);
-                        this.NotifySubject.OnNext(bytes);
+                        //ob.OnNext(bytes);
+                        //this.NotifySubject.OnNext(bytes);
                     }
                 });
                 this.native.ValueChanged += handler;

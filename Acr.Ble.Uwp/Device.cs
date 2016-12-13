@@ -210,6 +210,15 @@ namespace Acr.Ble
         }
 
 
+        // TODO: UWP pairing
+        public PairingStatus PairingStatus => PairingStatus.Unavailiable;
+        public bool IsPairingRequestSupported => false;
+        public IObservable<bool> PairingRequest(string pin = null)
+        {
+            throw new NotImplementedException();
+        }
+
+
         string ToMacAddress(ulong address)
         {
             var tempMac = address.ToString("X");

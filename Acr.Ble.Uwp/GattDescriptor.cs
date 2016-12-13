@@ -20,9 +20,9 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<object> Write(byte[] data)
+        public override IObservable<DescriptorResult> Write(byte[] data)
         {
-            return Observable.Create<object>(async ob =>
+            return Observable.Create<DescriptorResult>(async ob =>
             {
                 var result = await this.native.WriteValueAsync(data.AsBuffer());
                 if (result != GattCommunicationStatus.Success)
@@ -32,7 +32,7 @@ namespace Acr.Ble
                 else
                 {
                     this.Value = data;
-                    this.WriteSubject.OnNext(this.Value);
+                    //this.WriteSubject.OnNext(this.Value);
                     ob.Respond(null);
                 }
                 return Disposable.Empty;
@@ -40,9 +40,9 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<byte[]> Read()
+        public override IObservable<DescriptorResult> Read()
         {
-            return Observable.Create<byte[]>(async ob =>
+            return Observable.Create<DescriptorResult>(async ob =>
             {
                 var result = await this.native.ReadValueAsync(BluetoothCacheMode.Uncached);
                 if (result.Status != GattCommunicationStatus.Success)
@@ -53,8 +53,8 @@ namespace Acr.Ble
                 {
                     var bytes = result.Value.ToArray();
                     this.Value = bytes;
-                    this.ReadSubject.OnNext(this.Value);
-                    ob.Respond(bytes);
+                    //this.ReadSubject.OnNext(this.Value);
+                    //ob.Respond(bytes);
                 }
                 return Disposable.Empty;
             });

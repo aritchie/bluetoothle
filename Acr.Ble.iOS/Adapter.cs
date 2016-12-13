@@ -8,6 +8,7 @@ using UIKit;
 using Foundation;
 using ObjCRuntime;
 
+
 namespace Acr.Ble
 {
     public class Adapter : IAdapter
@@ -164,7 +165,7 @@ namespace Acr.Ble
         }
 
 
-        public bool ToggleAdapterState()
+        public bool EnableAdapterState(bool enabled)
         {
             return false;
         }
