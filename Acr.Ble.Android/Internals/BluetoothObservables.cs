@@ -28,9 +28,15 @@ namespace Acr.Bluetooth.Internals
         }
 
 
-        public static IObservable<object> WhenPairingRequested()
+        public static IObservable<BluetoothDevice> WhenBondRequestReceived()
         {
-            return null;
+            return WhenDeviceEventReceived(BluetoothDevice.ActionPairingRequest);
+        }
+
+
+        public static IObservable<BluetoothDevice> WhenBondStatusChanged()
+        {
+            return WhenDeviceEventReceived(BluetoothDevice.ActionBondStateChanged);
         }
 
 

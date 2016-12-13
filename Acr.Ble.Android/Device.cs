@@ -269,9 +269,65 @@ namespace Acr.Ble
 
         public override IObservable<bool> PairingRequest(string pin)
         {
-            return base.PairingRequest(pin);
-        }
+            return Observable.Create<bool>(ob =>
+            {
+                IDisposable requestOb = null;
+                IDisposable statusOb = null;
 
+                if (this.PairingStatus == PairingStatus.Paired)
+                {
+                    ob.Respond(true);
+                }
+                else
+                {
+                    if (pin != null && Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
+                    {
+                        requestOb = BluetoothObservables
+                            .WhenBondRequestReceived()
+                            .Where(x => x.Equals(this.native))
+                            .Subscribe(x =>
+                            {
+                                x.SetPin(new byte[] { 0x0, 0x0, 0x0, 0x0 });
+                                x.SetPairingConfirmation(true);
+                            });
+                    }
+                    statusOb = BluetoothObservables
+                        .WhenBondStatusChanged()
+                        .Where(x => x.Equals(this.native) && x.BondState != Bond.Bonding)
+                        .Subscribe(x => ob.Respond(x.BondState == Bond.Bonded));
+                }
+                return () =>
+                {
+                    requestOb?.Dispose();
+                    statusOb?.Dispose();
+                };
+            });
+        }
+        /*
+byte[] pinBytes = convertPinToBytes("0000");
+try {
+Log.d(TAG, "Try to set the PIN");
+Method m = device.getClass().getMethod("setPin", byte[].class);
+m.invoke(device, pinBytes);
+Log.d(TAG, "Success to add the PIN.");
+try {
+device.getClass().getMethod("setPairingConfirmation", boolean.class).invoke(device, true);
+Log.d(TAG, "Success to setPairingConfirmation.");
+} catch (Exception e) {
+// TODO Auto-generated catch block
+Log.e(TAG, e.getMessage());
+e.printStackTrace();
+}
+} catch (Exception e) {
+Log.e(TAG, e.getMessage());
+e.printStackTrace();
+}
+         *
+byte[] pin = (byte[]) BluetoothDevice.class.getMethod("convertPinToBytes", String.class).invoke(BluetoothDevice.class, "1234");
+Method m = mBluetoothDevice.getClass().getMethod("setPin", byte[].class);
+m.invoke(mBluetoothDevice, pin);
+mBluetoothDevice.getClass().getMethod("setPairingConfirmation", boolean.class).invoke(mBluetoothDevice, true);
+                                         */
 
         public override PairingStatus PairingStatus
         {
