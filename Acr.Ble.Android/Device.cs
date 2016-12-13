@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -287,14 +288,18 @@ namespace Acr.Ble
                             .Where(x => x.Equals(this.native))
                             .Subscribe(x =>
                             {
-                                x.SetPin(new byte[] { 0x0, 0x0, 0x0, 0x0 });
+                                var bytes = ConvertPinToBytes(pin);
+                                x.SetPin(bytes);
                                 x.SetPairingConfirmation(true);
                             });
                     }
                     statusOb = BluetoothObservables
                         .WhenBondStatusChanged()
                         .Where(x => x.Equals(this.native) && x.BondState != Bond.Bonding)
-                        .Subscribe(x => ob.Respond(x.BondState == Bond.Bonded));
+                        .Subscribe(x => ob.Respond(x.BondState == Bond.Bonded)); // will complete here
+
+                    // execute
+                    this.native.CreateBond();
                 }
                 return () =>
                 {
@@ -302,6 +307,24 @@ namespace Acr.Ble
                     statusOb?.Dispose();
                 };
             });
+        }
+
+
+        public static byte[] ConvertPinToBytes(string pin)
+        {
+            var bytes = new List<byte>();
+            foreach (var p in pin)
+            {
+                if (!char.IsDigit(p))
+                    throw new ArgumentException("PIN contain invalid value - " + p);
+
+                var value = byte.Parse(p.ToString());
+                if (value > 10)
+                    throw new ArgumentException("Invalid range for PIN value - " + value);
+
+                bytes.Add(value);
+            }
+            return bytes.ToArray();
         }
         /*
 byte[] pinBytes = convertPinToBytes("0000");
