@@ -61,16 +61,28 @@ namespace Acr.Ble
         IObservable<IDevice> WhenDeviceStatusChanged();
 
         /// <summary>
+        /// True if settings screen can be opened from this library/platform
+        /// </summary>
+        bool CanOpenSettings { get; }
+
+
+        /// <summary>
         /// Opens the platform settings screen
         /// </summary>
-        /// <returns><c>true</c>, if settings was opened, <c>false</c> otherwise.</returns>
-        bool OpenSettings();
+        void OpenSettings();
+
+
+        /// <summary>
+        /// True if adapter state can be managed by this library/platform
+        /// </summary>
+        bool CanChangeAdapterState { get; }
+
 
         /// <summary>
         /// Toggles the bluetooth adapter on/off - returns true if successful
         /// Works only on Android
         /// </summary>
         /// <returns></returns>
-        bool EnableAdapterState(bool enable);
+        void SetAdapterState(bool enable);
     }
 }

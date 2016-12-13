@@ -165,15 +165,17 @@ namespace Acr.Ble
         }
 
 
-        public bool OpenSettings()
+        public bool CanOpenSettings => false;
+
+        public void OpenSettings()
         {
-            return false;
         }
 
 
-        public bool EnableAdapterState(bool enable)
+        public bool CanChangeAdapterState => false;
+
+        public void SetAdapterState(bool enable)
         {
-            return false;
         }
     }
 }

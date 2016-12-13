@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -44,10 +43,23 @@ namespace Samples.ViewModels.Le
                 services.VmManager.Push<DeviceViewModel>(x.Device);
             });
 
-            this.OpenSettings = new Command(() => 
+            this.OpenSettings = new Command(() =>
             {
-                if (!this.BleAdapter.OpenSettings())
-                    this.Dialogs.Alert("Could not open bluetooth settings");
+                if (this.BleAdapter.CanOpenSettings)
+                    this.BleAdapter.OpenSettings();
+                else
+                    this.Dialogs.Alert("Cannot open bluetooth settings");
+            });
+            this.ToggleAdapterState = new Command(() =>
+            {
+                if (this.BleAdapter.CanChangeAdapterState)
+                {
+                    this.BleAdapter.SetAdapterState(true);
+                }
+                else
+                {
+                    this.Dialogs.Alert("Cannot change bluetooth adapter state");
+                }
             });
 
             this.ScanToggle = ReactiveCommand.CreateAsyncTask(
@@ -91,6 +103,7 @@ namespace Samples.ViewModels.Le
 
         public ICommand ScanToggle { get; }
         public ICommand OpenSettings { get; }
+        public ICommand ToggleAdapterState { get; }
         public Acr.Command<ScanResultViewModel> SelectDevice { get; }
         public ObservableCollection<ScanResultViewModel> Devices { get; }
         [Reactive] public bool IsScanning { get; private set; }

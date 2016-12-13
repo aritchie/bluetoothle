@@ -9,7 +9,6 @@ using Acr.Ble.Internals;
 using Android.App;
 using Android.Bluetooth;
 using Android.Content;
-using Android.Content.PM;
 using Android.OS;
 
 
@@ -162,24 +161,26 @@ namespace Acr.Ble
         }
 
 
-        public bool OpenSettings()
+        public bool CanOpenSettings => true;
+
+
+        public void OpenSettings()
         {
             var intent = new Intent(Android.Provider.Settings.ActionBluetoothSettings);
             intent.SetFlags(ActivityFlags.NewTask);
             Application.Context.StartActivity(intent);
-            return true;
         }
 
 
-        public bool EnableAdapterState(bool enable)
+        public bool CanChangeAdapterState => true;
+
+        public void SetAdapterState(bool enable)
         {
             if (enable && !BluetoothAdapter.DefaultAdapter.IsEnabled)
-                return BluetoothAdapter.DefaultAdapter.Enable();
+                BluetoothAdapter.DefaultAdapter.Enable();
 
-            if (!enable && BluetoothAdapter.DefaultAdapter.IsEnabled)
-                return BluetoothAdapter.DefaultAdapter.Disable();
-
-            return false;
+            else if (!enable && BluetoothAdapter.DefaultAdapter.IsEnabled)
+                BluetoothAdapter.DefaultAdapter.Disable();
         }
 
 

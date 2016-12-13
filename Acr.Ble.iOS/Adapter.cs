@@ -171,10 +171,13 @@ namespace Acr.Ble
         }
 
 
-        public bool OpenSettings()
-        {
-            var flag = false;
+#if __IOS__
 
+        public bool CanOpenSettings => !UIDevice.CurrentDevice.CheckSystemVersion(10, 0);
+
+
+        public void OpenSettings()
+        {
             if (UIDevice.CurrentDevice.CheckSystemVersion(10, 0))
             {
                 //var workSpaceClassId = Class.GetHandle("LSApplicationWorkspace");
@@ -193,13 +196,12 @@ namespace Acr.Ble
             }
             else if (UIDevice.CurrentDevice.CheckSystemVersion(9, 0))
             {
-                flag = OpenUrl("prefs:root=Bluetooth");
+                OpenUrl("prefs:root=Bluetooth");
             }
             else if (UIDevice.CurrentDevice.CheckSystemVersion(8, 0))
             {
-                flag = OpenUrl("prefs:root=General&path=Bluetooth");
+                OpenUrl("prefs:root=General&path=Bluetooth");
             }
-            return flag;
         }
 
 
@@ -211,6 +213,21 @@ namespace Acr.Ble
 
             UIApplication.SharedApplication.OpenUrl(nsurl);
             return true;
+        }
+
+#else
+        public bool CanOpenSettings = false;
+
+
+        public void OpenSettings()
+        {
+        }
+#endif
+
+
+        public bool CanChangeAdapterState => false;
+        public void SetAdapterState(bool enabled)
+        {
         }
 
 
