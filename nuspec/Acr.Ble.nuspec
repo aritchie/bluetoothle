@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>1.1.1</version>
+        <version>1.2</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -25,8 +25,9 @@ Mac (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
-1.1.1
+1.2
 [feature] ability to open bluetooth settings configuration
+[feature][droid] ability to pair with a device
 [feature][droid] ability to toggle bluetooth adapter status
 
 1.1

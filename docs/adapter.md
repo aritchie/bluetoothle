@@ -24,6 +24,21 @@ var scanner = BleAdapter.Current.Scan().Subscribe(scanResult =>
 scanner.Dispose(); // to stop scanning
 ```
 
+**Open Device Settings**
+
+_Currently support by iOS8, iOS9, and Android only_
+```csharp
+if (BleAdapter.Current.CanOpenSettings)
+    BleAdapter.Current.OpenSettings();
+```
+
+**Change Adapter State (Power on/off)**
+_Supported by Android only_
+```csharp
+if (BleAdapter.Current.CanChangeAdapterState)
+    BleAdapter.Current.SetAdapterState(true); // or false to disable
+```
+
 **Listen to scans for decoupled components**
 With the use of observables everywhere, the option to hook up to the scan result events were taken away.  There are good cases to have listening options without actually starting a scan.  This is that option!
 ```csharp

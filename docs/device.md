@@ -13,6 +13,15 @@ await device.Connect(); // this is an observable so you can do other funky timeo
 device.Disconnect();
 ```
 
+**Pairing with a device**
+```csharp
+if (device.IsPairingRequestSupported && device.PairingStatus != PairingStatus.Paired) 
+{
+    // there is an optional argument to pass a PIN in PairRequest as well
+    device.PairRequest().Subscribe(isSuccessful => {});
+}
+```
+
 
 **Monitor device states**
 

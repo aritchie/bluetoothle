@@ -1,5 +1,10 @@
 # CHANGE LOG
 
+## 1.2
+* [feature] ability to open bluetooth settings configuration
+* [feature][droid] ability to pair with a device
+* [feature][droid] ability to toggle bluetooth adapter status
+
 ## 1.1
 * [BREAKING] Characteristic/Descriptor Read, Write, and Notification events now return CharacteristicResult that includes the sender characteristic as well as the data
 * [fix][droid] Write was not broadcasting completion at the right time
