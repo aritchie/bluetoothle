@@ -2,11 +2,7 @@ using System;
 using System.Reactive.Linq;
 using Android.Bluetooth;
 
-#if BLE
 namespace Acr.Ble.Internals
-#else
-namespace Acr.Bluetooth.Internals
-#endif
 {
     public static class BluetoothObservables
     {
