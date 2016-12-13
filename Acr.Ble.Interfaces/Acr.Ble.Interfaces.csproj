@@ -46,6 +46,7 @@
     <Compile Include="ConnectionStatus.cs" />
     <Compile Include="Dictionaries.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="PairingStatus.cs" />
     <Compile Include="Plugins\HeartRate.cs" />
     <Compile Include="Plugins\Logging.cs" />
     <Compile Include="IAdapter.cs" />

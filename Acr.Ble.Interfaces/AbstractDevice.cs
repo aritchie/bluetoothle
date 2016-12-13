@@ -31,6 +31,15 @@ namespace Acr.Ble
         public abstract IObservable<string> WhenNameUpdated();
 
 
+        public virtual PairingStatus PairingStatus => PairingStatus.Unavailiable;
+        public virtual bool IsPairingRequestSupported => false;
+
+        public virtual IObservable<bool> PairingRequest(string pin)
+        {
+            throw new ArgumentException("Pairing request is not supported on this platform");
+        }
+
+
         IObservable<ConnectionStatus> connOb;
         public virtual IObservable<ConnectionStatus> CreateConnection()
         {

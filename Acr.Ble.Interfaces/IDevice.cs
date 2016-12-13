@@ -9,7 +9,7 @@ namespace Acr.Ble
         string Name { get; }
         Guid Uuid { get; }
         ConnectionStatus Status { get; }
-        
+
         void Disconnect();
 
         /// <summary>
@@ -51,6 +51,24 @@ namespace Acr.Ble
         /// </summary>
         /// <returns></returns>
         IObservable<string> WhenNameUpdated();
+
+
+        /// <summary>
+        /// The current pairing status
+        /// </summary>
+        PairingStatus PairingStatus { get; }
+
+
+        /// <summary>
+        /// States whether the API supports pairing or not
+        /// </summary>
+        bool IsPairingRequestSupported { get; }
+
+        /// <summary>
+        /// Make a pairing request
+        /// </summary>
+        /// <returns></returns>
+        IObservable<bool> PairingRequest(string pin = null);
     }
 }
 //IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();

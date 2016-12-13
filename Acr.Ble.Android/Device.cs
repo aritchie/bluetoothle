@@ -264,6 +264,32 @@ namespace Acr.Ble
         }
 
 
+        public override bool IsPairingRequestSupported => true;
+
+
+        public override IObservable<bool> PairingRequest(string pin)
+        {
+            return base.PairingRequest(pin);
+        }
+
+
+        public override PairingStatus PairingStatus
+        {
+            get
+            {
+                switch (this.native.BondState)
+                {
+                    case Bond.Bonded:
+                        return PairingStatus.Paired;
+
+                    default:
+                    case Bond.None:
+                        return PairingStatus.NotPaired;
+                }
+            }
+        }
+
+
         // thanks monkey robotics
         protected static Guid ToDeviceId(string address)
         {
