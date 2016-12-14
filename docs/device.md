@@ -22,6 +22,13 @@ if (device.IsPairingRequestSupported && device.PairingStatus != PairingStatus.Pa
 }
 ```
 
+**Request MTU size increase**
+If MTU requests are available (Android Only)
+This is specific to Android only where this negotiation is not automatic.
+The size can be up to 512, but you should be careful with anything above 255 in practice
+```csharp
+device.RequestMtu(255);
+```
 
 **Monitor device states**
 

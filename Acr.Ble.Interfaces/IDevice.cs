@@ -64,11 +64,27 @@ namespace Acr.Ble
         /// </summary>
         bool IsPairingRequestSupported { get; }
 
+
         /// <summary>
         /// Make a pairing request
         /// </summary>
         /// <returns></returns>
         IObservable<bool> PairingRequest(string pin = null);
+
+
+        /// <summary>
+        /// If MTU requests are available (Android Only)
+        /// This is specific to Android only where this negotiation is not automatic.
+        /// The size can be up to 512, but you should be careful with anything above 255 in practice
+        /// </summary>
+        bool IsMtuRequestAvailable { get; }
+
+
+        /// <summary>
+        /// Send request to set MTU size
+        /// </summary>
+        /// <param name="size"></param>
+        void RequestMtu(int size);
     }
 }
 //IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();

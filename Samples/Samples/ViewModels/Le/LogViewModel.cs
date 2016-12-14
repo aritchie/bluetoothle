@@ -28,14 +28,14 @@ namespace Samples.ViewModels.Le
         {
             this.adapter = adapter;
             this.data = data;
-            this.Clear = ReactiveCommand.CreateAsyncTask(async _ =>
+            this.Clear = ReactiveCommand.CreateFromTask(async _ =>
             {
                 var result = await dialogs.ConfirmAsync(new ConfirmConfig()
                     .SetMessage("Are you sure you wish to delete the log?")
                     .UseYesNo()
                 );
-                if (result) 
-                {                    
+                if (result)
+                {
                     this.data.DeleteAll<BleRecord>();
                     this.LoadData();
                 }
@@ -44,7 +44,7 @@ namespace Samples.ViewModels.Le
             this.Show = new Command<BleRecord>(rec => dialogs.Alert(rec.Description, "Info"));
 
             this.IsLoggingEnabled = settings.IsLoggingEnabled;
-      
+
             this.WhenAnyValue(x => x.IsLoggingEnabled)
                 .Skip(1)
                 .Subscribe(enabled =>

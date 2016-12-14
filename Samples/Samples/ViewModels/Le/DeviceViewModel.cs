@@ -5,10 +5,12 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Acr.Ble;
+using Acr.UserDialogs;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Samples.Services;
 using Xamarin.Forms;
+
 
 namespace Samples.ViewModels.Le
 {
@@ -25,24 +27,70 @@ namespace Samples.ViewModels.Le
             this.SelectCharacteristic = new Acr.Command<GattCharacteristicViewModel>(x => x.Select());
             this.SelectDescriptor = new Acr.Command<GattDescriptorViewModel>(x => x.Select());
 
-            this.ConnectionToggle = ReactiveCommand.CreateAsyncTask(
-                this.WhenAny(
-                    x => x.Status,
-                    x => x.Value != ConnectionStatus.Disconnecting
-                ),
+            this.ConnectionToggle = ReactiveCommand.CreateFromTask(
                 x =>
                 {
                     if (this.conn == null)
                     {
                         this.conn = this.device.CreateConnection().Subscribe();
                     }
-                    else 
+                    else
                     {
                         this.conn?.Dispose();
                         this.conn = null;
                     }
                     return Task.FromResult(Unit.Default);
+                },
+                this.WhenAny(
+                    x => x.Status,
+                    x => x.Value != ConnectionStatus.Disconnecting
+                )
+            );
+            this.PairToDevice = ReactiveCommand.CreateFromTask(async x =>
+            {
+                if (!this.device.IsPairingRequestSupported)
+                {
+                    this.Dialogs.Alert("Pairing is not supported on this platform");
                 }
+                else if (this.device.PairingStatus == PairingStatus.Paired)
+                {
+                    this.Dialogs.Alert("Device is already paired");
+                }
+                else
+                {
+                    await this.device.PairingRequest();
+                }
+            });
+            this.RequestMtu = ReactiveCommand.CreateFromTask(
+                async x =>
+                {
+                    if (!this.device.IsMtuRequestAvailable)
+                    {
+                        this.Dialogs.Alert("MTU Request not supported on this platform");
+                    }
+                    else
+                    {
+                        var result = await this.Dialogs.PromptAsync(new PromptConfig()
+                            .SetTitle("MTU Request")
+                            .SetMessage("Range 20-512")
+                            .SetInputMode(InputType.Number)
+                            .SetOnTextChanged(args =>
+                            {
+                                var value = Int32.Parse(args.Value);
+                                args.IsValid = value >= 20 && value <= 512;
+                            })
+                        );
+                        if (result.Ok)
+                        {
+                            this.device.RequestMtu(Int32.Parse(result.Text));
+                            this.Dialogs.Alert("MTU Change Requested");
+                        }
+                    }
+                },
+                this.WhenAny(
+                    x => x.Status,
+                    x => x.Value == ConnectionStatus.Connected
+                )
             );
         }
 
@@ -134,6 +182,8 @@ namespace Samples.ViewModels.Le
 
 
         public ICommand ConnectionToggle { get; }
+        public ICommand PairToDevice { get; }
+        public ICommand RequestMtu { get; }
         public Acr.Command<GattCharacteristicViewModel> SelectCharacteristic { get; }
         public Acr.Command<GattDescriptorViewModel> SelectDescriptor { get; }
         [Reactive] public string Name { get; private set; }

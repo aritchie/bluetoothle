@@ -6,8 +6,9 @@
              Title="{Binding Title}">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="{Binding ScanText}" Command="{Binding ScanToggle}" />
-		<ToolbarItem Text="Settings" Command="{Binding OpenSettings}" />
+        <ToolbarItem Text="{Binding ScanText}" Command="{Binding ScanToggle}" Order="Primary" />
+		<ToolbarItem Text="Settings" Command="{Binding OpenSettings}" Order="Secondary" />
+        <ToolbarItem Text="Turn On Bluetooth" Command="{Binding ToggleAdapterState}" Order="Secondary" />
     </ContentPage.ToolbarItems>
 
     <ContentPage.Content>

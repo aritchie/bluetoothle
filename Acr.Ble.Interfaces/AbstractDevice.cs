@@ -33,10 +33,16 @@ namespace Acr.Ble
 
         public virtual PairingStatus PairingStatus => PairingStatus.Unavailiable;
         public virtual bool IsPairingRequestSupported => false;
-
         public virtual IObservable<bool> PairingRequest(string pin)
         {
             throw new ArgumentException("Pairing request is not supported on this platform");
+        }
+
+
+        public virtual bool IsMtuRequestAvailable => false;
+        public virtual void RequestMtu(int size)
+        {
+            throw new ArgumentException("RequestMtu is not supported on this platform");
         }
 
 

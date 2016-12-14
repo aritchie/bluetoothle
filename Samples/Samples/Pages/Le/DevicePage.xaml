@@ -8,7 +8,7 @@
     Title="{Binding Name}"
  	NavigationPage.BackButtonTitle="Back">
 
-	<TabbedPage.Children>		
+	<TabbedPage.Children>
     	<ContentPage Title="Device">
             <TableView Intent="Form">
                 <TableRoot>
@@ -20,10 +20,14 @@
                     <TableSection>
                         <TextCell Text="{Binding ConnectText}" Command="{Binding ConnectionToggle}" />
                     </TableSection>
+                    <TableSection>
+                        <TextCell Text="Request MTU" Command="{Binding RequestMtu}" />
+                        <TextCell Text="Pair To Device" Command="{Binding PairToDevice}" />
+                    </TableSection>
                 </TableRoot>
             </TableView>
 		</ContentPage>
-			
+
 		<ContentPage Title="Characteristics">
            <acr:ListView
                      ItemsSource="{Binding GattCharacteristics}"
@@ -58,7 +62,7 @@
                 </ListView.ItemTemplate>
             </acr:ListView>
 		</ContentPage>
-		
+
 		<ContentPage Title="Descriptors">
 		    <acr:ListView ItemsSource="{Binding GattDescriptors}" RowHeight="150" ItemClickCommand="{Binding SelectDescriptor}">
 		        <ListView.ItemTemplate>

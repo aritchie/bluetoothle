@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Acr.Ble;
@@ -46,27 +48,33 @@ namespace Samples.ViewModels.Le
             this.OpenSettings = new Command(() =>
             {
                 if (this.BleAdapter.CanOpenSettings)
+                {
                     this.BleAdapter.OpenSettings();
+                }
                 else
+                {
                     this.Dialogs.Alert("Cannot open bluetooth settings");
-            });
-            this.ToggleAdapterState = new Command(() =>
-            {
-                if (this.BleAdapter.CanChangeAdapterState)
-                {
-                    this.BleAdapter.SetAdapterState(true);
-                }
-                else
-                {
-                    this.Dialogs.Alert("Cannot change bluetooth adapter state");
                 }
             });
+            this.ToggleAdapterState = ReactiveCommand.CreateFromTask(
+                x =>
+                {
+                    if (this.BleAdapter.CanChangeAdapterState)
+                    {
+                        this.BleAdapter.SetAdapterState(true);
+                    }
+                    else
+                    {
+                        this.Dialogs.Alert("Cannot change bluetooth adapter state");
+                    }
+                    return Task.FromResult(Unit.Default);
+                },
+                this.BleAdapter
+                    .WhenStatusChanged()
+                    .Select(x => x == AdapterStatus.PoweredOff)
+            );
 
-            this.ScanToggle = ReactiveCommand.CreateAsyncTask(
-                this.WhenAny(
-                    x => x.IsSupported,
-                    x => x.Value
-                ),
+            this.ScanToggle = ReactiveCommand.CreateFromTask(
                 x =>
                 {
                     if (this.IsScanning)
@@ -83,7 +91,11 @@ namespace Samples.ViewModels.Le
                             .Subscribe(this.OnScanResult);
                     }
                     return Task.FromResult<object>(null);
-                }
+                },
+                this.WhenAny(
+                    x => x.IsSupported,
+                    x => x.Value
+                )
             );
         }
 

@@ -218,6 +218,12 @@ namespace Acr.Ble
             throw new NotImplementedException();
         }
 
+        public bool IsMtuRequestAvailable => false;
+        public void RequestMtu(int size)
+        {
+            throw new NotImplementedException();
+        }
+
 
         string ToMacAddress(ulong address)
         {

@@ -39,11 +39,6 @@ AndroidConfig.ConnectionThread = ConnectionThread.SuggestedConnectionThread;
 // defaults to true.  Background writes on most android devices seem to throw an exception if not connected on the main thread
 AndroidConfig.WriteOnMainThread = true; 
 
-// The MTU size to negotiate on connection.  This is specific to Android only where this negotiation is not automatic.
-// If you set this, there will be a slight delay post connection as the MTU is negotiated
-// The size can be up to 512, but you should be careful with anything above 255 in practice
-AndroidConfig.MaxTransmissionUnitSize;
-
 // Force Pre-lollipop BLE Scanner - this is more for testing
 AndroidConfig.ForcePreLollipopScanner = true;
 ```

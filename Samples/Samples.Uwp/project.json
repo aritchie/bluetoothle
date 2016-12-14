@@ -3,17 +3,17 @@
     "Acr.Mvvm": "1.2.0",
     "Acr.Notifications": "2.0.1",
     "Acr.Settings": "5.1.1",
-    "Acr.UserDialogs": "6.2.3",
+    "Acr.UserDialogs": "6.3.2",
     "Acr.XamForms": "2.4.1",
     "Autofac": "3.5.2",
-    "Microsoft.ApplicationInsights": "2.1.0",
+    "Microsoft.ApplicationInsights": "2.2.0",
     "Microsoft.ApplicationInsights.PersistenceChannel": "1.2.3",
     "Microsoft.ApplicationInsights.WindowsApps": "1.1.1",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2",
-    "reactiveui": "6.5.2",
+    "reactiveui": "7.0.0",
     "Rx-Main": "2.2.5",
     "SQLite.Net-PCL": "3.1.1",
-    "Xamarin.Forms": "2.3.2.127"
+    "Xamarin.Forms": "2.3.3.175"
   },
   "frameworks": {
     "uap10.0": {}

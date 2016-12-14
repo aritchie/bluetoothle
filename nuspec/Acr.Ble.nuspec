@@ -27,6 +27,7 @@ Mac (Coming Soon)
         <releaseNotes>
 1.2
 [feature] ability to open bluetooth settings configuration
+[feature] ability to request MTU is now part of device (still only available on droid - but allows for greater flexibility)
 [feature][droid] ability to pair with a device
 [feature][droid] ability to toggle bluetooth adapter status
 
