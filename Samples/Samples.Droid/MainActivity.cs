@@ -11,7 +11,7 @@ using Xamarin.Forms.Platform.Android;
 namespace Samples.Droid
 {
     [Activity(
-        Label = "Bluetooth Sample",
+        Label = "ACR BluetoothLE",
         Icon = "@drawable/icon",
         MainLauncher = true,
         ScreenOrientation = ScreenOrientation.Portrait,
