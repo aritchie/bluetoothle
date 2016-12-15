@@ -216,7 +216,7 @@ namespace Acr.Ble
         }
 
 #else
-        public bool CanOpenSettings = false;
+        public bool CanOpenSettings => false;
 
 
         public void OpenSettings()

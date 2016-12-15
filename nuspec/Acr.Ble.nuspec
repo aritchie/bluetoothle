@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>1.2</version>
+        <version>1.2.0</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -134,7 +134,7 @@ Initial Public Release
         <!--<file src="..\Acr.Ble.Mac\bin\Release\Acr.Ble.*" target="lib\Xamarin.Mac20" />-->
 
         <!-- tvOS -->
-        <!--<file src="..\Acr.Ble.tvOS\bin\Release\Acr.Ble.*" target="lib\Xamarin.tvOS10" />-->
+        <file src="..\Acr.Ble.tvOS\bin\Release\Acr.Ble.*" target="lib\Xamarin.tvOS10" />
 
         <!-- uwp -->
         <!--<file src="..\Acr.Ble.Uwp\bin\Release\Acr.Ble.*" target="lib\uap10.0" />-->
