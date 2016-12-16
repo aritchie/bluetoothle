@@ -25,6 +25,13 @@ Mac (Coming Soon)
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+1.3
+[fix][droid] descriptors and characteristic read/writes now adhere to AndroidConfig.WriteOnMainThread
+[breaking][feature] Background scan has been replaced.  The normal scan now takes a configuration.
+[feature][ios] Background state restoration
+[feature][ios] ios 10 now supports opensettings
+
+
 1.2
 [feature] ability to open bluetooth settings configuration
 [feature] ability to request MTU is now part of device (still only available on droid - but allows for greater flexibility)
