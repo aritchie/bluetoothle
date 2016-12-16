@@ -57,6 +57,7 @@ namespace Acr.Ble.Internals
         {
             this.newCallback = new LollipopScanCallback(args => this.Scanned?.Invoke(this, args));
             var scanMode = bgScan ? ScanMode.LowPower : ScanMode.Balanced;
+            //new ScanFilter.Builder().SetDeviceAddress().Set
             this.manager.Adapter.BluetoothLeScanner.StartScan(
                 null,
                 new ScanSettings
