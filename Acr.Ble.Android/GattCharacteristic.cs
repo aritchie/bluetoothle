@@ -180,10 +180,13 @@ namespace Acr.Ble
 
             if (success)
             {
-                descriptor.SetValue(BluetoothGattDescriptor.EnableNotificationValue.ToArray());
-                success = this.context.Gatt.WriteDescriptor(descriptor);
-                if (success)
-                    this.IsNotifying = true;
+                AndroidConfig.SyncPost(() =>
+                {
+                    descriptor.SetValue(BluetoothGattDescriptor.EnableNotificationValue.ToArray());
+                    success = this.context.Gatt.WriteDescriptor(descriptor);
+                    if (success)
+                        this.IsNotifying = true;
+                });
             }
             return success;
         }
@@ -195,10 +198,13 @@ namespace Acr.Ble
             if (descriptor == null)
                 throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
 
-            descriptor.SetValue(BluetoothGattDescriptor.DisableNotificationValue.ToArray());
-            this.context.Gatt.WriteDescriptor(descriptor);
-            this.context.Gatt.SetCharacteristicNotification(this.native, false);
-            this.IsNotifying = false;
+            AndroidConfig.SyncPost(() =>
+            {
+                descriptor.SetValue(BluetoothGattDescriptor.DisableNotificationValue.ToArray());
+                this.context.Gatt.WriteDescriptor(descriptor);
+                this.context.Gatt.SetCharacteristicNotification(this.native, false);
+                this.IsNotifying = false;
+            });
         }
 
 
@@ -229,7 +235,7 @@ namespace Acr.Ble
 
         void RawWriteWithResponse(byte[] bytes)
         {
-            this.WrapWrite(() =>
+            AndroidConfig.SyncPost(() =>
             {
                 this.native.SetValue(bytes);
                 this.native.WriteType = GattWriteType.Default;
@@ -242,30 +248,15 @@ namespace Acr.Ble
         {
             var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
 
-            this.WrapWrite(() =>
+            AndroidConfig.SyncPost(() =>
             {
-                this.native.SetValue(bytes);            
+                this.native.SetValue(bytes);
                 this.native.WriteType = GattWriteType.NoResponse;
                 this.context.Gatt.WriteCharacteristic(this.native);
                 this.Value = bytes;
-
             });
             this.WriteSubject.OnNext(result);
-            if (ob != null)
-                ob.Respond(result);
-        }
-
-
-        void WrapWrite(Action action)
-        {
-            if (AndroidConfig.WriteOnMainThread)
-            {
-                Application.SynchronizationContext.Post((state) => action(), null);
-            }
-            else
-            {
-                action();
-            }            
+            ob?.Respond(result);
         }
     }
 }

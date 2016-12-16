@@ -1,4 +1,5 @@
 ﻿using System;
+using Android.App;
 using Android.OS;
 using B = Android.OS.Build;
 
@@ -41,5 +42,18 @@ namespace Acr.Ble
         /// This is suggested for most Android devices to be true (defaults to true)
         /// </summary>
         public static bool WriteOnMainThread { get; set; } = true;
+
+
+        public static void SyncPost(this Action action)
+        {
+            if (AndroidConfig.WriteOnMainThread)
+            {
+                Application.SynchronizationContext.Post(_ => action(), null);
+            }
+            else
+            {
+                action();
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@
 using Android.OS;
 using Java.Util;
 
+
 namespace Acr.Ble
 {
     internal static class Extensions
@@ -10,7 +11,7 @@ namespace Acr.Ble
         {
             if (uuidBytes.Length == 16)
                 return new Guid(uuidBytes);
-            
+
             var id = BitConverter.ToString(uuidBytes).Replace("-", String.Empty);
             switch (id.Length)
             {

@@ -42,9 +42,11 @@ namespace Acr.Ble
                     }
                 });
                 this.context.Callbacks.DescriptorWrite += handler;
-                this.native.SetValue(data);
-                this.context.Gatt.WriteDescriptor(this.native);
-
+                AndroidConfig.SyncPost(() =>
+                {
+                    this.native.SetValue(data);
+                    this.context.Gatt.WriteDescriptor(this.native);
+                });
                 return () => this.context.Callbacks.DescriptorWrite -= handler;
             });
         }
