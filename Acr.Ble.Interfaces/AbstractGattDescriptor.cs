@@ -15,8 +15,8 @@ namespace Acr.Ble
         }
 
 
-        protected Subject<DescriptorResult> WriteSubject;
-        protected Subject<DescriptorResult> ReadSubject;
+        protected Subject<DescriptorResult> WriteSubject { get; }
+        protected Subject<DescriptorResult> ReadSubject { get; }
 
         public IGattCharacteristic Characteristic { get; }
         public virtual string Description => Dictionaries.GetDescriptorDescription(this.Uuid);
