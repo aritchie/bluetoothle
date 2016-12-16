@@ -49,7 +49,6 @@ namespace Acr.Ble
 
         public virtual IObservable<BleWriteSegment> BlobWrite(Stream stream)
         {
-            
             return Observable.Create<BleWriteSegment>(async ob =>
             {
                 // TODO: could request MTU increase on droid
@@ -70,7 +69,7 @@ namespace Acr.Ble
                 ob.OnCompleted();
 
                 return () => cts.Cancel();
-            });            
+            });
         }
     }
 }
