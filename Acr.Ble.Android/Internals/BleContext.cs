@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Android.Bluetooth;
 using Android.Bluetooth.LE;
 using Android.OS;
@@ -26,12 +27,12 @@ namespace Acr.Ble.Internals
         public event EventHandler<ScanEventArgs> Scanned;
 
 
-        public void StartScan(bool forcePreLollipop, bool bgScan)
+        public void StartScan(bool forcePreLollipop, ScanConfig config)
         {
             this.Devices.Clear();
             if (!forcePreLollipop && Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
             {
-                this.StartNewScanner(bgScan);
+                this.StartNewScanner(config);
             }
             else
             {
@@ -53,13 +54,17 @@ namespace Acr.Ble.Internals
         }
 
 
-        protected virtual void StartNewScanner(bool bgScan)
+        protected virtual void StartNewScanner(ScanConfig config)
         {
             this.newCallback = new LollipopScanCallback(args => this.Scanned?.Invoke(this, args));
-            var scanMode = bgScan ? ScanMode.LowPower : ScanMode.Balanced;
+            var scanMode = config.IsLowPoweredScan ? ScanMode.LowPower : ScanMode.Balanced;
+            var filterBuilder = new ScanFilter.Builder();
+            if (config.ServiceUuid != null)
+                filterBuilder.SetServiceUuid(config.ServiceUuid.Value.ToParcelUuid());
+
             //new ScanFilter.Builder().SetDeviceAddress().Set
             this.manager.Adapter.BluetoothLeScanner.StartScan(
-                null,
+                new [] { filterBuilder.Build() },
                 new ScanSettings
                     .Builder()
                     .SetScanMode(scanMode)

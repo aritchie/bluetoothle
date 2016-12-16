@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -104,19 +103,38 @@ namespace Acr.Ble
         }
 
 
-        IObservable<IScanResult> scanner;
-        public IObservable<IScanResult> Scan()
+        public IObservable<IScanResult> Scan(ScanConfig config)
         {
-            this.scanner = this.scanner ?? this.CreateScanner(null);
-            return this.scanner;
-        }
+            if (this.IsScanning)
+                throw new ArgumentException("There is already an active scan");
 
+            config = config ?? new ScanConfig();
+            return Observable.Create<IScanResult>(ob =>
+            {
+                this.context.Devices.Clear();
 
-        IObservable<IScanResult> bgScanner;
-        public IObservable<IScanResult> BackgroundScan(Guid serviceUuid)
-        {
-            this.bgScanner = this.bgScanner ?? this.CreateScanner(serviceUuid);
-            return this.bgScanner;
+                var scan = this.ScanListen().Subscribe(ob.OnNext);
+                this.context.StartScan(AndroidConfig.ForcePreLollipopScanner, config);
+                this.scanStatusChanged.OnNext(true);
+
+                return () =>
+                {
+                    this.context.StopScan();
+                    scan.Dispose();
+                    this.scanStatusChanged.OnNext(false);
+                };
+            });
+            //.Where(scanResult =>
+            //    serviceUuid == null ||
+            //    (
+            //        scanResult
+            //            .AdvertisementData
+            //            .ServiceUuids?
+            //            .Any(y => y.Equals(serviceUuid.Value)) ?? false
+            //    )
+            //)
+            //.Publish()
+            //.RefCount();
         }
 
 
@@ -180,37 +198,6 @@ namespace Acr.Ble
 
             else if (!enable && BluetoothAdapter.DefaultAdapter.IsEnabled)
                 BluetoothAdapter.DefaultAdapter.Disable();
-        }
-
-
-        IObservable<IScanResult> CreateScanner(Guid? serviceUuid)
-        {
-            return Observable.Create<IScanResult>(ob =>
-            {
-                this.context.Devices.Clear();
-
-                var scan = this.ScanListen().Subscribe(ob.OnNext);
-                this.context.StartScan(AndroidConfig.ForcePreLollipopScanner, serviceUuid != null);
-                this.scanStatusChanged.OnNext(true);
-
-                return () =>
-                {
-                    this.context.StopScan();
-                    scan.Dispose();
-                    this.scanStatusChanged.OnNext(false);
-                };
-            })
-            .Where(scanResult =>
-                serviceUuid == null ||
-                (
-                    scanResult
-                        .AdvertisementData
-                        .ServiceUuids?
-                        .Any(y => y.Equals(serviceUuid.Value)) ?? false
-                )
-            )
-            .Publish()
-            .RefCount();
         }
     }
 }

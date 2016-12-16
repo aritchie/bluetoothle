@@ -26,6 +26,7 @@ namespace Acr.Ble
                 RestoreIdentifier = this.GetType().Namespace
             });
             this.manager.WillRestoreState += this.OnWillRestoreState;
+            //this.manager.UpdatedState += null;
 
             this.deviceManager = new DeviceManager(this.manager);
             this.scanStatusChanged = new Subject<bool>();
@@ -104,19 +105,35 @@ namespace Acr.Ble
         }
 
 
-        IObservable<IScanResult> scanner;
-        public IObservable<IScanResult> Scan()
+        public IObservable<IScanResult> Scan(ScanConfig config)
         {
-            this.scanner = this.scanner ?? this.CreateScanner();
-            return this.scanner;
-        }
+            if (this.IsScanning)
+                throw new ArgumentException("There is already an existing scan");
 
+            config = config ?? new ScanConfig();
+            return Observable.Create<IScanResult>(ob =>
+            {
+                this.deviceManager.Clear();
+                var scan = this.ScanListen().Subscribe(ob.OnNext);
 
-        IObservable<IScanResult> bgScanner;
-        public IObservable<IScanResult> BackgroundScan(Guid serviceUuid)
-        {
-            this.bgScanner = this.bgScanner ?? this.CreateScanner(serviceUuid);
-            return this.bgScanner;
+                if (config.ServiceUuid == null)
+                {
+                    this.manager.ScanForPeripherals(null, new PeripheralScanningOptions { AllowDuplicatesKey = true });
+                }
+                else
+                {
+                    var uuid = config.ServiceUuid.Value.ToCBUuid();
+                    this.manager.ScanForPeripherals(uuid);
+                }
+                this.ToggleScanStatus(true);
+
+                return () =>
+                {
+                    this.manager.StopScan();
+                    scan.Dispose();
+                    this.ToggleScanStatus(false);
+                };
+            });
         }
 
 
@@ -268,36 +285,6 @@ State preservation and restoration in Core Bluetooth is an opt-in feature and re
 (Optional) Update your central and peripheral managers’ initialization process. This step is described in Update Your Initialization Process.
 
          */
-
-
-        protected virtual IObservable<IScanResult> CreateScanner(Guid? serviceUuid = null)
-        {
-            return Observable.Create<IScanResult>(ob =>
-            {
-                this.deviceManager.Clear();
-                var scan = this.ScanListen().Subscribe(ob.OnNext);
-
-                if (serviceUuid == null)
-                {
-                    this.manager.ScanForPeripherals(null, new PeripheralScanningOptions { AllowDuplicatesKey = true });
-                }
-                else
-                {
-                    var uuid = serviceUuid.Value.ToCBUuid();
-                    this.manager.ScanForPeripherals(uuid);
-                }
-                this.ToggleScanStatus(true);
-
-                return () =>
-                {
-                    this.manager.StopScan();
-                    scan.Dispose();
-                    this.ToggleScanStatus(false);
-                };
-            })
-            .Publish()
-            .RefCount();
-        }
 
 
         void ToggleScanStatus(bool isScanning)

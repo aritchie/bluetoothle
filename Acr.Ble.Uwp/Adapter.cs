@@ -68,7 +68,6 @@ namespace Acr.Ble
 
         public IObservable<bool> WhenScanningStatusChanged()
         {
-
             return Observable.Create<bool>(ob =>
             {
                 ob.OnNext(this.IsScanning);
@@ -77,10 +76,12 @@ namespace Acr.Ble
         }
 
 
-        IObservable<IScanResult> scanner;
-        public IObservable<IScanResult> Scan()
+        public IObservable<IScanResult> Scan(ScanConfig config)
         {
-            this.scanner = this.scanner ?? Observable.Create<IScanResult>(ob =>
+            if (this.IsScanning)
+                throw new ArgumentException("There is already an active scan");
+
+            return Observable.Create<IScanResult>(ob =>
             {
                 var sub = this.ScanListen().Subscribe(ob.OnNext);
                 this.watcher.Start();
@@ -92,23 +93,12 @@ namespace Acr.Ble
                     this.scanStatusSubject.OnNext(false);
                     sub.Dispose();
                 };
-            })
-            .Publish()
-            .RefCount();
-
-            return this.scanner;
-        }
-
-
-        public IObservable<IScanResult> BackgroundScan(Guid serviceUuid)
-        {
-            return this
-                .Scan()
-                .Where(x => x
-                    .AdvertisementData
-                    .ServiceUuids?
-                    .Any(uuid => uuid.Equals(serviceUuid)) ?? false
-                );
+            });
+            //        .Where(x => x
+            //            .AdvertisementData
+            //            .ServiceUuids?
+            //            .Any(uuid => uuid.Equals(serviceUuid)) ?? false
+            //        );
         }
 
 

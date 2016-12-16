@@ -30,16 +30,11 @@ namespace Acr.Ble
 
         /// <summary>
         /// Start scanning for BluetoothLE devices
+        /// WARNING: only one scan can be active at a time.  Use ScanListen to listen in on existing scans.  Use IsScanning to check for active scanning
         /// </summary>
         /// <returns></returns>
-        IObservable<IScanResult> Scan();
+        IObservable<IScanResult> Scan(ScanConfig config = null);
 
-        /// <summary>
-        /// Scan for BluetoothLE background services
-        /// </summary>
-        /// <param name="serviceUuid"></param>
-        /// <returns></returns>
-        IObservable<IScanResult> BackgroundScan(Guid serviceUuid);
 
         /// <summary>
         /// Allows you to listen in on current scans in progress (usualful for background tasks like logging and decoupled components)

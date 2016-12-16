@@ -37,7 +37,11 @@ namespace Samples.Tasks
 
             Debug.WriteLine("Starting Background Scan");
             this.bgScan = this.adapter
-                .BackgroundScan(this.settings.BackgroundScanServiceUuid)
+                .Scan(new ScanConfig
+                {
+                    IsLowPoweredScan = true,
+                    ServiceUuid = this.settings.BackgroundScanServiceUuid
+                })
                 .Subscribe(x =>
                 {
                     Debug.WriteLine($"[background] {x.Device.Name} - {x.Device.Uuid}");
