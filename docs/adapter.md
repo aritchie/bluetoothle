@@ -3,10 +3,14 @@
 The adapter is where everything begins and ends.  Unlike the platform implementations of the adapter scan, the BLE plugin Scan()
 method will scan continuously (or restart the scan when the cycle completes) until you dispose of the Scan() token.
 
+## General
+
 **Monitor and read status of adapter**
 ```csharp
+// current status
 BleAdapter.Current.Status
 
+// monitor status changes
 BleAdapter.Current.WhenStatusChanged().Subscribe(status => {});
 
 ```
@@ -22,6 +26,19 @@ var scanner = BleAdapter.Current.Scan().Subscribe(scanResult =>
 });
 
 scanner.Dispose(); // to stop scanning
+```
+
+**Scan for Devices - Advanced**
+```csharp
+BleAdapter.Current.Scan(
+    new ScanSettings 
+    {
+        ServiceUUID = new Guid("<your guid here>")
+    }
+)
+.Subscribe(scanResult => 
+{
+})
 ```
 
 **Open Device Settings**

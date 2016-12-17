@@ -32,7 +32,6 @@ Mac (Coming Soon)
 [feature][ios] Background state restoration
 [feature][ios] ios 10 now supports opensettings
 
-
 1.2
 [feature] ability to open bluetooth settings configuration
 [feature] ability to request MTU is now part of device (still only available on droid - but allows for greater flexibility)

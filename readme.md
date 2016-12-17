@@ -3,7 +3,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 
 [![NuGet](https://img.shields.io/nuget/v/Acr.Ble.svg?maxAge=2592000)](https://www.nuget.org/packages/Acr.Ble/)
 
-[Change Log - Dec 15, 2016](docs/changelog.md)
+[Change Log - Dec 18, 2016](docs/changelog.md)
 
 
 ## PLATFORMS
@@ -89,7 +89,9 @@ Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
 * [Services](docs/services.md)
 * [Characteristics](docs/characteristics.md)
 * [Descriptors](docs/descriptors.md)
-* [Android Troubleshooting](docs/android.md)
+* Platform Specifics
+    * [Android](docs/android.md)
+    * [iOS](docs/ios.md)
 * Plugins
     * [Logging](docs/logging.md)
     * [Heart Rate](docs/heartrate.md)
@@ -104,10 +106,6 @@ Q. Why is everything reactive instead of events/async
 Q. Why are Device.Connect, Characteristic.Read, and Descriptor.Read observable when async would do just fine?
 
 > True, but observables with RX are actually awaitable as well and far easier to chain into other things.
-
-Q. Why have a Adapter.BackgroundScan with a service UUID?  This is not a problem on Android
-
-> Also, true, but consistency is what I was aiming for.  iOS only allows you to scan in the background with a serviceUUID and on Android, I set the scanmode to low power.
 
 Q. Why are devices cleared on a new scan?
 
