@@ -48,31 +48,39 @@ namespace Acr.Ble
         {
             return Observable.Create<object>(ob =>
             {
-                var error = new EventHandler<CBPeripheralErrorEventArgs>((sender, args) =>
-                {
-                    if (args.Peripheral.Equals(this.peripheral))
-                        ob.OnError(new Exception(args.Error.LocalizedDescription));
-                });
-                var connect = new EventHandler<CBPeripheralEventArgs>((sender, args) =>
-                {
-                    if (args.Peripheral.Equals(this.peripheral))
-                        ob.Respond(null);
-                });
+                IDisposable sub1 = null;
+                IDisposable sub2 = null;
 
-//                this.Manager.ConnectedPeripheral += connect;
-//                this.Manager.FailedToConnectPeripheral += error;
+                if (this.Status == ConnectionStatus.Connected)
+                {
+                    ob.Respond(null);
+                }
+                else
+                {
+                    sub1 = this.context
+                        .PeripheralConnected
+                        .Where(x => x.Equals(this.peripheral))
+                        .Subscribe(x => ob.Respond(null));
 
-//                this.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
-//                {
-//                    NotifyOnDisconnection = true,
-//#if __IOS__ || __TVOS__
-//                    NotifyOnConnection = true,
-//                    NotifyOnNotification = true
-//#endif
-//                });
+                    sub2 = this.context
+                        .FailedConnection
+                        .Where(x => x.Peripheral.Equals(this.peripheral))
+                        .Subscribe(x => ob.OnError(new Exception(x.Error.ToString())));
+
+                    this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
+                    {
+                        NotifyOnDisconnection = true,
+#if __IOS__ || __TVOS__
+                        NotifyOnConnection = true,
+                        NotifyOnNotification = true
+#endif
+                    });
+                }
 
                 return () =>
                 {
+                    sub1?.Dispose();
+                    sub2?.Dispose();
                 };
             });
         }
@@ -109,32 +117,21 @@ namespace Acr.Ble
             {
                 ob.OnNext(this.Status);
 
-                //var chandler = new EventHandler<CBPeripheralEventArgs>((sender, args) =>
-                //{
-                //    if (args.Peripheral.Equals(this.peripheral))
-                //        ob.OnNext(this.Status);
-                //});
-                //var dhandler = new EventHandler<CBPeripheralErrorEventArgs>((sender, args) =>
-                //{
-                //    if (args.Peripheral.Equals(this.peripheral))
-                //        ob.OnNext(this.Status);
-                //});
-                //var error = new EventHandler<CBPeripheralErrorEventArgs>((sender, args) =>
-                //{
-                //    if (args.Peripheral.Equals(this.peripheral))
-                //        ob.OnError(new Exception(args.Error.ToString()));
-                //});
-                //this.Manager.ConnectedPeripheral += chandler;
-                //this.Manager.DisconnectedPeripheral += dhandler;
-                //this.Manager.FailedToConnectPeripheral += error;
+                var sub1 = this.context
+                    .PeripheralConnected
+                    .Where(x => x.Equals(this.peripheral))
+                    .Subscribe(x => ob.OnNext(this.Status));
 
-                //return () =>
-                //{
-                //    this.Manager.ConnectedPeripheral -= chandler;
-                //    this.Manager.DisconnectedPeripheral -= dhandler;
-                //    this.Manager.FailedToConnectPeripheral -= error;
-                //};
-                return () => { };
+                var sub2 = this.context
+                    .PeripheralDisconnected
+                    .Where(x => x.Equals(this.peripheral))
+                    .Subscribe(x => ob.OnNext(this.Status));
+
+                return () =>
+                {
+                    sub1.Dispose();
+                    sub2.Dispose();
+                };
             })
             .Replay(1)
             .RefCount();

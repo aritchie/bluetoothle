@@ -58,7 +58,7 @@ namespace Acr.Ble
         {
             this.statusOb = this.statusOb ?? this.context
                 .StateUpdated
-                //.StartsWith(this.Status)
+                .StartWith(this.Status)
                 .Select(_ => this.Status)
                 .Replay(1)
                 .RefCount();
@@ -129,7 +129,18 @@ namespace Acr.Ble
         IObservable<IDevice> deviceStatusOb;
         public IObservable<IDevice> WhenDeviceStatusChanged()
         {
-            this.deviceStatusOb = this.deviceStatusOb ?? Observable.Merge(this.context.DeviceConnected, this.context.DeviceDisconnected);
+            this.deviceStatusOb = this.deviceStatusOb ?? Observable.Merge(
+                this.context
+                    .PeripheralConnected
+                    .Select(x => this.context.GetDevice(x)),
+
+                this.context
+                    .PeripheralDisconnected
+                    .Select(x => this.context.GetDevice(x))
+            )
+            .Publish()
+            .RefCount();
+
             return this.deviceStatusOb;
         }
 

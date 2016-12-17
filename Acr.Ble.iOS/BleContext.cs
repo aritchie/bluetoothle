@@ -27,7 +27,7 @@ namespace Acr.Ble
         public CBCentralManager Manager { get; }
 
 
-        IDevice GetDevice(CBPeripheral peripheral)
+        public IDevice GetDevice(CBPeripheral peripheral)
         {
             return this.peripherals.GetOrAdd(
                 peripheral.Identifier.ToString(),
@@ -60,21 +60,17 @@ namespace Acr.Ble
         }
 
 
-        // TODO: need to filter to native periperhal
-        public Subject<IDevice> DeviceConnected { get; } = new Subject<IDevice>();
+        public Subject<CBPeripheral> PeripheralConnected { get; } = new Subject<CBPeripheral>();
         public override void ConnectedPeripheral(CBCentralManager central, CBPeripheral peripheral)
         {
-            var dev = this.GetDevice(peripheral);
-            this.DeviceConnected.OnNext(dev);
+            this.PeripheralConnected.OnNext(peripheral);
         }
 
 
-        // TODO: need to filter to native periperhal
-        public Subject<IDevice> DeviceDisconnected { get; } = new Subject<IDevice>();
+        public Subject<CBPeripheral> PeripheralDisconnected { get; } = new Subject<CBPeripheral>();
         public override void DisconnectedPeripheral(CBCentralManager central, CBPeripheral peripheral, NSError error)
         {
-            var dev = this.GetDevice(peripheral);
-            this.DeviceDisconnected.OnNext(dev);
+            this.PeripheralDisconnected.OnNext(peripheral);
         }
 
 
@@ -90,12 +86,10 @@ namespace Acr.Ble
         }
 
 
-        // TODO: need to filter to native periperhal
-        public Subject<IDevice> FailedConnection { get; } = new Subject<IDevice>();
+        public Subject<PeripheralConnectionFailed> FailedConnection { get; } = new Subject<PeripheralConnectionFailed>();
         public override void FailedToConnectPeripheral(CBCentralManager central, CBPeripheral peripheral, NSError error)
         {
-            var dev = this.GetDevice(peripheral);
-            this.FailedConnection.OnNext(dev);
+            this.FailedConnection.OnNext(new PeripheralConnectionFailed(peripheral, error));
         }
 
 

@@ -61,6 +61,7 @@
     <Compile Include="GattService.cs" />
     <Compile Include="Device.cs" />
     <Compile Include="BleContext.cs" />
+    <Compile Include="PeripheralConnectionFailed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions.cs" />
   </ItemGroup>
