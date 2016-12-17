@@ -1,43 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
-using CoreBluetooth;
 using System.Reactive.Subjects;
+using CoreBluetooth;
+#if __IOS__
 using UIKit;
 using Foundation;
 using ObjCRuntime;
+#endif
 
 
 namespace Acr.Ble
 {
     public class Adapter : IAdapter
     {
-        readonly DeviceManager deviceManager;
-        readonly CBCentralManager manager;
-        readonly Subject<bool> scanStatusChanged;
-
-
-        public Adapter()
-        {
-            //this.manager = new CBCentralManager(DispatchQueue.GetGlobalQueue(DispatchQueuePriority.Background));
-            this.manager = new CBCentralManager(null, null, new CBCentralInitOptions
-            {
-                ShowPowerAlert = false,
-                RestoreIdentifier = this.GetType().Namespace
-            });
-            this.manager.WillRestoreState += this.OnWillRestoreState;
-            //this.manager.UpdatedState += null;
-
-            this.deviceManager = new DeviceManager(this.manager);
-            this.scanStatusChanged = new Subject<bool>();
-        }
+        readonly BleContext context = new BleContext();
+        readonly Subject<bool> scanStatusChanged = new Subject<bool>();
 
 
         public AdapterStatus Status
         {
             get
             {
-                switch (this.manager.State)
+                switch (this.context.Manager.State)
                 {
                     case CBCentralManagerState.PoweredOff:
                         return AdapterStatus.PoweredOff;
@@ -64,30 +49,26 @@ namespace Acr.Ble
 
         public IEnumerable<IDevice> GetConnectedDevices()
         {
-            return this.deviceManager.GetConnectedDevices();
+            return this.context.GetConnectedDevices();
         }
 
 
         IObservable<AdapterStatus> statusOb;
         public IObservable<AdapterStatus> WhenStatusChanged()
         {
-            this.statusOb = this.statusOb ?? Observable.Create<AdapterStatus>(ob =>
-            {
-                ob.OnNext(this.Status);
-                var handler = new EventHandler((sender, args) => ob.OnNext(this.Status));
-                this.manager.UpdatedState += handler;
-
-                return () => this.manager.UpdatedState -= handler;
-            })
-            .Replay(1)
-            .RefCount();
+            this.statusOb = this.statusOb ?? this.context
+                .StateUpdated
+                //.StartsWith(this.Status)
+                .Select(_ => this.Status)
+                .Replay(1)
+                .RefCount();
 
             return this.statusOb;
         }
 
 
 #if __IOS__ || __TVOS__
-        public bool IsScanning => this.manager.IsScanning;
+        public bool IsScanning => this.context.Manager.IsScanning;
 #else
         public bool IsScanning { get; private set; }
 #endif
@@ -113,23 +94,23 @@ namespace Acr.Ble
             config = config ?? new ScanConfig();
             return Observable.Create<IScanResult>(ob =>
             {
-                this.deviceManager.Clear();
+                this.context.Clear();
                 var scan = this.ScanListen().Subscribe(ob.OnNext);
 
                 if (config.ServiceUuid == null)
                 {
-                    this.manager.ScanForPeripherals(null, new PeripheralScanningOptions { AllowDuplicatesKey = true });
+                    this.context.Manager.ScanForPeripherals(null, new PeripheralScanningOptions { AllowDuplicatesKey = true });
                 }
                 else
                 {
                     var uuid = config.ServiceUuid.Value.ToCBUuid();
-                    this.manager.ScanForPeripherals(uuid);
+                    this.context.Manager.ScanForPeripherals(uuid);
                 }
                 this.ToggleScanStatus(true);
 
                 return () =>
                 {
-                    this.manager.StopScan();
+                    this.context.Manager.StopScan();
                     scan.Dispose();
                     this.ToggleScanStatus(false);
                 };
@@ -140,20 +121,7 @@ namespace Acr.Ble
         IObservable<IScanResult> scanListenOb;
         public IObservable<IScanResult> ScanListen()
         {
-            this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
-            {
-                var handler = new EventHandler<CBDiscoveredPeripheralEventArgs>((sender, args) =>
-                {
-                    var device = this.deviceManager.GetDevice(args.Peripheral);
-                    ob.OnNext(new ScanResult(
-                        device,
-                        args.RSSI?.Int32Value ?? 0,
-                        new AdvertisementData(args.AdvertisementData))
-                    );
-                });
-                this.manager.DiscoveredPeripheral += handler;
-                return () => this.manager.DiscoveredPeripheral -= handler;
-            });
+            this.scanListenOb = this.scanListenOb ?? this.context.ScanResultReceived.AsObservable();
             return this.scanListenOb;
         }
 
@@ -161,28 +129,7 @@ namespace Acr.Ble
         IObservable<IDevice> deviceStatusOb;
         public IObservable<IDevice> WhenDeviceStatusChanged()
         {
-            this.deviceStatusOb = this.deviceStatusOb ?? Observable.Create<IDevice>(observer =>
-            {
-                var chandler = new EventHandler<CBPeripheralEventArgs>((sender, args) =>
-                {
-                    var device = this.deviceManager.GetDevice(args.Peripheral);
-                    observer.OnNext(device);
-                });
-                var dhandler = new EventHandler<CBPeripheralErrorEventArgs>((sender, args) =>
-                {
-                    var device = this.deviceManager.GetDevice(args.Peripheral);
-                    observer.OnNext(device);
-                });
-
-                this.manager.ConnectedPeripheral += chandler;
-                this.manager.DisconnectedPeripheral += dhandler;
-
-                return () =>
-                {
-                    this.manager.ConnectedPeripheral -= chandler;
-                    this.manager.DisconnectedPeripheral -= dhandler;
-                };
-            });
+            this.deviceStatusOb = this.deviceStatusOb ?? Observable.Merge(this.context.DeviceConnected, this.context.DeviceDisconnected);
             return this.deviceStatusOb;
         }
 

@@ -10,13 +10,13 @@ namespace Acr.Ble
 {
     public class Device : AbstractDevice
     {
-        readonly CBCentralManager manager;
+        readonly BleContext context;
         readonly CBPeripheral peripheral;
 
 
-        public Device(CBCentralManager manager, CBPeripheral peripheral) : base(peripheral.Name, peripheral.Identifier.ToGuid())
+        public Device(BleContext context, CBPeripheral peripheral) : base(peripheral.Name, peripheral.Identifier.ToGuid())
         {
-            this.manager = manager;
+            this.context = context;
             this.peripheral = peripheral;
         }
 
@@ -59,22 +59,20 @@ namespace Acr.Ble
                         ob.Respond(null);
                 });
 
-                this.manager.ConnectedPeripheral += connect;
-                this.manager.FailedToConnectPeripheral += error;
+//                this.Manager.ConnectedPeripheral += connect;
+//                this.Manager.FailedToConnectPeripheral += error;
 
-                this.manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
-                {
-                    NotifyOnDisconnection = true,
-#if __IOS__ || __TVOS__
-                    NotifyOnConnection = true,
-                    NotifyOnNotification = true
-#endif
-                });
+//                this.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
+//                {
+//                    NotifyOnDisconnection = true,
+//#if __IOS__ || __TVOS__
+//                    NotifyOnConnection = true,
+//                    NotifyOnNotification = true
+//#endif
+//                });
 
                 return () =>
                 {
-                    this.manager.ConnectedPeripheral -= connect;
-                    this.manager.FailedToConnectPeripheral -= error;
                 };
             });
         }
@@ -82,7 +80,7 @@ namespace Acr.Ble
 
         public override void Disconnect()
         {
-            this.manager.CancelPeripheralConnection(this.peripheral);
+            this.context.Manager.CancelPeripheralConnection(this.peripheral);
         }
 
 
@@ -111,31 +109,32 @@ namespace Acr.Ble
             {
                 ob.OnNext(this.Status);
 
-                var chandler = new EventHandler<CBPeripheralEventArgs>((sender, args) =>
-                {
-                    if (args.Peripheral.Equals(this.peripheral))
-                        ob.OnNext(this.Status);
-                });
-                var dhandler = new EventHandler<CBPeripheralErrorEventArgs>((sender, args) =>
-                {
-                    if (args.Peripheral.Equals(this.peripheral))
-                        ob.OnNext(this.Status);
-                });
-                var error = new EventHandler<CBPeripheralErrorEventArgs>((sender, args) =>
-                {
-                    if (args.Peripheral.Equals(this.peripheral))
-                        ob.OnError(new Exception(args.Error.ToString()));
-                });
-                this.manager.ConnectedPeripheral += chandler;
-                this.manager.DisconnectedPeripheral += dhandler;
-                this.manager.FailedToConnectPeripheral += error;
+                //var chandler = new EventHandler<CBPeripheralEventArgs>((sender, args) =>
+                //{
+                //    if (args.Peripheral.Equals(this.peripheral))
+                //        ob.OnNext(this.Status);
+                //});
+                //var dhandler = new EventHandler<CBPeripheralErrorEventArgs>((sender, args) =>
+                //{
+                //    if (args.Peripheral.Equals(this.peripheral))
+                //        ob.OnNext(this.Status);
+                //});
+                //var error = new EventHandler<CBPeripheralErrorEventArgs>((sender, args) =>
+                //{
+                //    if (args.Peripheral.Equals(this.peripheral))
+                //        ob.OnError(new Exception(args.Error.ToString()));
+                //});
+                //this.Manager.ConnectedPeripheral += chandler;
+                //this.Manager.DisconnectedPeripheral += dhandler;
+                //this.Manager.FailedToConnectPeripheral += error;
 
-                return () =>
-                {
-                    this.manager.ConnectedPeripheral -= chandler;
-                    this.manager.DisconnectedPeripheral -= dhandler;
-                    this.manager.FailedToConnectPeripheral -= error;
-                };
+                //return () =>
+                //{
+                //    this.Manager.ConnectedPeripheral -= chandler;
+                //    this.Manager.DisconnectedPeripheral -= dhandler;
+                //    this.Manager.FailedToConnectPeripheral -= error;
+                //};
+                return () => { };
             })
             .Replay(1)
             .RefCount();

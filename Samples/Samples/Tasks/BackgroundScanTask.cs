@@ -45,10 +45,10 @@ namespace Samples.Tasks
                 .Subscribe(x =>
                 {
                     Debug.WriteLine($"[background] {x.Device.Name} - {x.Device.Uuid}");
-                    //this.notifications.Badge = this.notifications.Badge + 1;
-                    //this.notifications.Send("BLE Device Found", $"A device with service UUID {this.settings.BleServerServiceUuid} was found");
+                    this.notifications.Badge = this.notifications.Badge + 1;
+                    this.notifications.Send("BLE Device Found", $"A device was found");
                 },
-                ex => Debug.WriteLine($"Background Scan Error - " + ex),
+                ex => Debug.WriteLine("Background Scan Error - " + ex),
                 ()=> Debug.WriteLine("Killing Background Scan")
             );
         }

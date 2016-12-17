@@ -75,17 +75,12 @@ namespace Acr.Ble
         IObservable<AdapterStatus> statusOb;
         public IObservable<AdapterStatus> WhenStatusChanged()
         {
-            this.statusOb = this.statusOb ?? Observable.Create<AdapterStatus>(ob =>
-            {
-                ob.OnNext(this.Status);
-                var aob = BluetoothObservables
-                    .WhenAdapterStatusChanged()
-                    .Subscribe(_ => ob.OnNext(this.Status));
-
-                return aob.Dispose;
-            })
-            .Replay(1)
-            .RefCount();
+            this.statusOb = this.statusOb ?? BluetoothObservables
+                .WhenAdapterStatusChanged()
+                .StartWith(this.Status)
+                .Select(x => this.Status)
+                .Replay(1)
+                .RefCount();
 
             return this.statusOb;
         }
@@ -124,17 +119,6 @@ namespace Acr.Ble
                     this.scanStatusChanged.OnNext(false);
                 };
             });
-            //.Where(scanResult =>
-            //    serviceUuid == null ||
-            //    (
-            //        scanResult
-            //            .AdvertisementData
-            //            .ServiceUuids?
-            //            .Any(y => y.Equals(serviceUuid.Value)) ?? false
-            //    )
-            //)
-            //.Publish()
-            //.RefCount();
         }
 
 

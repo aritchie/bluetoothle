@@ -28,7 +28,7 @@ namespace Acr.Ble
                     if (!args.Service.Equals(this.native))
                         return;
 
-                    foreach (var nch in native.Characteristics)
+                    foreach (var nch in this.native.Characteristics)
                     {
                         var ch = new GattCharacteristic(this, nch);
                         if (!characteristics.ContainsKey(ch.Uuid))
@@ -39,7 +39,7 @@ namespace Acr.Ble
                     }
                 });
                 this.native.Peripheral.DiscoveredCharacteristic += handler;
-                this.native.Peripheral.DiscoverCharacteristics(native);
+                this.native.Peripheral.DiscoverCharacteristics(this.native);
 
                 return () => this.native.Peripheral.DiscoveredCharacteristic -= handler;
             })

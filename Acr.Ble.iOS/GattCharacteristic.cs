@@ -182,8 +182,7 @@ namespace Acr.Ble
             this.Value = value;
             var result = new CharacteristicResult(this, CharacteristicEvent.Write, value);
             this.WriteSubject.OnNext(result);
-            if (ob != null)
-                ob.Respond(result);
+            ob?.Respond(result);
         }
 
 
