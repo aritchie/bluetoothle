@@ -210,18 +210,38 @@ namespace Acr.Ble
         }
 
 
-        // TODO: UWP pairing
-        public PairingStatus PairingStatus => PairingStatus.Unavailiable;
-        public bool IsPairingRequestSupported => false;
+        public PairingStatus PairingStatus => this.native.DeviceInformation.Pairing.IsPaired
+            ? PairingStatus.Paired
+            : PairingStatus.NotPaired;
+
+
+        public bool IsPairingRequestSupported => true;
         public IObservable<bool> PairingRequest(string pin = null)
         {
-            throw new NotImplementedException();
+            return Observable.Create<bool>(async ob =>
+            {
+                var result = await this.native.DeviceInformation.Pairing.PairAsync(DevicePairingProtectionLevel.None);
+                var status = result.Status == DevicePairingResultStatus.Paired;
+                ob.Respond(status);
+                return Disposable.Empty;
+            });
         }
 
         public bool IsMtuRequestAvailable => false;
         public void RequestMtu(int size)
         {
             throw new NotImplementedException();
+        }
+
+
+        public int GetCurrentMtuSize()
+        {
+            return 20;
+        }
+
+        public IObservable<int> WhenMtuChanged()
+        {
+            return Observable.Return(this.GetCurrentMtuSize());
         }
 
 
