@@ -341,12 +341,12 @@ namespace Acr.Ble
         public override bool IsMtuRequestAvailable => Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
 
 
-        int currentMtu;
+        int currentMtu = 20;
         public override void RequestMtu(int size)
         {
             if (!this.IsMtuRequestAvailable)
                 base.RequestMtu(size);
-            
+
             this.context.Gatt.RequestMtu(size);
         }
 
@@ -366,9 +366,13 @@ namespace Acr.Ble
                 });
                 var sub = this.WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ => this.context.Callbacks.MtuChanged += handler);
-                
-                return () => 
+                    .Subscribe(_ =>
+                    {
+                        ob.OnNext(this.currentMtu);
+                        this.context.Callbacks.MtuChanged += handler;
+                    });
+
+                return () =>
                 {
                     sub.Dispose();
                     if (this.context.Callbacks != null)

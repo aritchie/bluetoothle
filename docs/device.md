@@ -23,11 +23,22 @@ if (device.IsPairingRequestSupported && device.PairingStatus != PairingStatus.Pa
 ```
 
 **Request MTU size increase**
+
+
+**MTU (Max Transmission Unit)**
 If MTU requests are available (Android Only - API 21+)
+
 This is specific to Android only where this negotiation is not automatic.
 The size can be up to 512, but you should be careful with anything above 255 in practice
 ```csharp
+// Request a greater MTU size (Androd API 21+ only)
 device.RequestMtu(255);
+
+// iOS will return current, Android will return 20 unless changes are observed
+device.GetCurrentMtu();
+
+// iOS will return current value and return, Android will continue to monitor changes
+device.WhenMtuChanged().Subscribe(...)
 ```
 
 **Monitor device states**

@@ -212,6 +212,12 @@ namespace Acr.Ble
         }
 
 
+        public override IObservable<int> WhenMtuChanged()
+        {
+            return Observable.Return(this.GetCurrentMtuSize());
+        }
+
+
         public override int GetCurrentMtuSize()
         {
             return (int)this.peripheral.GetMaximumWriteValueLength(CBCharacteristicWriteType.WithResponse);
