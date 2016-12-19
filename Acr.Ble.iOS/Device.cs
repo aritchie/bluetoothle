@@ -212,6 +212,12 @@ namespace Acr.Ble
         }
 
 
+        public override int GetCurrentMtuSize()
+        {
+            return (int)this.peripheral.GetMaximumWriteValueLength(CBCharacteristicWriteType.WithResponse);
+        }
+
+
         public override int GetHashCode()
         {
             return this.peripheral.GetHashCode();

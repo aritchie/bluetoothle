@@ -152,13 +152,16 @@ namespace Samples.ViewModels.Le
                 }));
 
             this.device
+                .WhenMtuChanged()
+                .Subscribe(x => this.Dialogs.Alert($"MTU Changed size to {x}"));
+            
+            this.device
                 .WhenServiceDiscovered()
                 .Subscribe(service =>
                 {
                     var group = new Group<GattCharacteristicViewModel>(service.Uuid.ToString());
                     var characters = service
                         .WhenCharacteristicDiscovered()
-
                         .Subscribe(character =>
                         {
                             Device.BeginInvokeOnMainThread(() =>

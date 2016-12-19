@@ -51,10 +51,9 @@ namespace Acr.Ble
         {
             return Observable.Create<BleWriteSegment>(async ob =>
             {
-                // TODO: could request MTU increase on droid
-                // TODO: should check MTU size for buffer size in any case
+                var mtu = this.Service.Device.GetCurrentMtuSize();
                 var cts = new CancellationTokenSource();
-                var buffer = new byte[20];
+                var buffer = new byte[mtu];
                 var read = stream.Read(buffer, 0, buffer.Length);
                 var pos = read;
                 var len = Convert.ToInt32(stream.Length);

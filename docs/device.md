@@ -23,7 +23,7 @@ if (device.IsPairingRequestSupported && device.PairingStatus != PairingStatus.Pa
 ```
 
 **Request MTU size increase**
-If MTU requests are available (Android Only)
+If MTU requests are available (Android Only - API 21+)
 This is specific to Android only where this negotiation is not automatic.
 The size can be up to 512, but you should be careful with anything above 255 in practice
 ```csharp
@@ -41,6 +41,10 @@ device.WhenRssiChanged().Subscribe(rssi => {});
 
 // this will watch the connection states to the device
 device.WhenStatusChanged().Subscribe(connectionState => {});
+
+// monitor MTU size changes (droid only)
+device.WhenMtuChanged().Subscribe(size => {});
+
 ```
 
 

@@ -266,7 +266,7 @@ namespace Acr.Ble
             return Observable.Create<bool>(ob =>
             {
                 IDisposable requestOb = null;
-                IDisposable statusOb = null;
+                IDisposable istatusOb = null;
 
                 if (this.PairingStatus == PairingStatus.Paired)
                 {
@@ -286,7 +286,7 @@ namespace Acr.Ble
                                 x.SetPairingConfirmation(true);
                             });
                     }
-                    statusOb = BluetoothObservables
+                    istatusOb = BluetoothObservables
                         .WhenBondStatusChanged()
                         .Where(x => x.Equals(this.native) && x.BondState != Bond.Bonding)
                         .Subscribe(x => ob.Respond(x.BondState == Bond.Bonded)); // will complete here
@@ -297,7 +297,7 @@ namespace Acr.Ble
                 return () =>
                 {
                     requestOb?.Dispose();
-                    statusOb?.Dispose();
+                    istatusOb?.Dispose();
                 };
             });
         }
@@ -338,12 +338,53 @@ namespace Acr.Ble
         }
 
 
-        public override bool IsMtuRequestAvailable => true;
+        public override bool IsMtuRequestAvailable => Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
 
 
+        int currentMtu;
         public override void RequestMtu(int size)
         {
+            if (!this.IsMtuRequestAvailable)
+                base.RequestMtu(size);
+            
             this.context.Gatt.RequestMtu(size);
+        }
+
+
+        IObservable<int> mtuOb;
+        public override IObservable<int> WhenMtuChanged()
+        {
+            this.mtuOb = this.mtuOb ?? Observable.Create<int>(ob =>
+            {
+                var handler = new EventHandler<MtuChangedEventArgs>((sender, args) =>
+                {
+                    if (args.Gatt.Equals(this.context.Gatt))
+                    {
+                        this.currentMtu = args.Mtu;
+                        ob.OnNext(args.Mtu);
+                    }
+                });
+                var sub = this.WhenStatusChanged()
+                    .Where(x => x == ConnectionStatus.Connected)
+                    .Subscribe(_ => this.context.Callbacks.MtuChanged += handler);
+                
+                return () => 
+                {
+                    sub.Dispose();
+                    if (this.context.Callbacks != null)
+                        this.context.Callbacks.MtuChanged -= handler;
+                };
+            })
+            .Replay(1)
+            .RefCount();
+
+            return this.mtuOb;
+        }
+
+
+        public override int GetCurrentMtuSize()
+        {
+            return this.currentMtu;
         }
 
 

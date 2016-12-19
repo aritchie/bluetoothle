@@ -85,6 +85,18 @@ namespace Acr.Ble
         /// </summary>
         /// <param name="size"></param>
         void RequestMtu(int size);
+
+        /// <summary>
+        /// Gets the size of the current mtu.
+        /// </summary>
+        /// <returns>The current mtu size.</returns>
+        int GetCurrentMtuSize();
+
+        /// <summary>
+        /// Fires when MTU size changes
+        /// </summary>
+        /// <returns>The mtu change requested.</returns>
+        IObservable<int> WhenMtuChanged();
     }
 }
 //IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();

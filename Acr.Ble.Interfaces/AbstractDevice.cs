@@ -40,9 +40,21 @@ namespace Acr.Ble
 
 
         public virtual bool IsMtuRequestAvailable => false;
+        public virtual int GetCurrentMtuSize()
+        {
+            return 20;
+        }
+
+
         public virtual void RequestMtu(int size)
         {
             throw new ArgumentException("RequestMtu is not supported on this platform");
+        }
+
+
+        public virtual IObservable<int> WhenMtuChanged() 
+        {
+            return Observable.Empty<int>();
         }
 
 
