@@ -76,8 +76,19 @@ namespace Samples.ViewModels.Le
                             .SetInputMode(InputType.Number)
                             .SetOnTextChanged(args =>
                             {
-                                var value = Int32.Parse(args.Value);
-                                args.IsValid = value >= 20 && value <= 512;
+                                var len = args.Value?.Length ?? 0;
+                                if (len > 0)
+                                {
+                                    if (len > 3)
+                                    {
+                                        args.Value = args.Value.Substring(0, 3);
+                                    }
+                                    else 
+                                    {
+                                        var value = Int32.Parse(args.Value);
+                                        args.IsValid = value >= 20 && value <= 512;
+                                    }
+                                }
                             })
                         );
                         if (result.Ok)
