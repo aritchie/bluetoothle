@@ -154,25 +154,25 @@ namespace Acr.Ble
 #if __IOS__
 
         //public bool CanOpenSettings => !UIDevice.CurrentDevice.CheckSystemVersion(10, 0); // if it is 8 or 9 but not 10
-        public bool CanOpenSettings => UIDevice.CurrentDevice.CheckSystemVersion(8, 0);
+        public bool CanOpenSettings => UIDevice.CurrentDevice.CheckSystemVersion(8, 0) && !UIDevice.CurrentDevice.CheckSystemVersion(10, 0);
 
 
         public void OpenSettings()
         {
             if (UIDevice.CurrentDevice.CheckSystemVersion(10, 0))
             {
-                var workSpaceClassId = Class.GetHandle("LSApplicationWorkspace");
-                if (workSpaceClassId != IntPtr.Zero)
-                {
-                    var workSpaceClass = new NSObject(workSpaceClassId);
-                    var workSpaceInstance = workSpaceClass.PerformSelector(new Selector("defaultWorkspace"));
+                //var workSpaceClassId = Class.GetHandle("LSApplicationWorkspace");
+                //if (workSpaceClassId != IntPtr.Zero)
+                //{
+                //    var workSpaceClass = new NSObject(workSpaceClassId);
+                //    var workSpaceInstance = workSpaceClass.PerformSelector(new Selector("defaultWorkspace"));
 
-                    var selector = new Selector("openSensitiveURL:withOptions:");
-                    if (workSpaceInstance.RespondsToSelector(selector))
-                    {
-                        workSpaceInstance.PerformSelector(selector, new NSUrl("Prefs:root=Bluetooth"));
-                    }
-                }
+                //    var selector = new Selector("openSensitiveURL:withOptions:");
+                //    if (workSpaceInstance.RespondsToSelector(selector))
+                //    {
+                //        workSpaceInstance.PerformSelector(selector, new NSUrl("Prefs:root=Bluetooth"));
+                //    }
+                //}
             }
             else if (UIDevice.CurrentDevice.CheckSystemVersion(9, 0))
             {
