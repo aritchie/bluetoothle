@@ -31,8 +31,6 @@ Mac (Coming Soon)
 [fix][core] BlobWrite will now use proper MTU
 [breaking][feature][core] Background scan has been replaced.  The normal scan now takes a configuration.
 [feature][core] Get current MTU size
-[feature][ios] Background state restoration
-[feature][ios] ios 10 now supports opensettings
 [feature][droid] monitor MTU changes
 
 1.2

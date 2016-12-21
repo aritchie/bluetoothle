@@ -3,9 +3,10 @@
 ## 1.3
 * [fix][droid] descriptors and characteristic read/writes now adhere to AndroidConfig.WriteOnMainThread
 * [fix][ios] WhenStatusChanged was causing OnError when a connection failure occurred
-* [breaking][feature] Background scan has been replaced.  The normal scan now takes a configuration.
-* [feature][ios] Background state restoration
-* [feature][ios] ios 10 now supports opensettings
+* [fix][core] BlobWrite will now use proper MTU
+* [breaking][feature][core] Background scan has been replaced.  The normal scan now takes a configuration.
+* [feature][core] Get current MTU size
+* [feature][droid] monitor MTU changes
 
 ## 1.2
 * [feature] ability to open bluetooth settings configuration

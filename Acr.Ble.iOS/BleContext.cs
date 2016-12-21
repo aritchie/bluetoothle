@@ -18,8 +18,8 @@ namespace Acr.Ble
             //this.Manager = new CBCentralManager(DispatchQueue.GetGlobalQueue(DispatchQueuePriority.Background));
             this.Manager = new CBCentralManager(this, null, new CBCentralInitOptions
             {
-                ShowPowerAlert = false,
-                RestoreIdentifier = "acr.ble"
+                ShowPowerAlert = false
+                //RestoreIdentifier = "acr.ble"
             });
         }
 
@@ -57,6 +57,12 @@ namespace Acr.Ble
 
         public override void WillRestoreState(CBCentralManager central, NSDictionary dict)
         {
+            ////if (!dict.ContainsKey(CBCentralManager.RestoredStatePeripheralsKey))
+            ////    return;
+
+            ////var items = dict[CBCentralManager.RestoredStatePeripheralsKey];
+            ////Debug.WriteLine("[WillRestoreState]: " + items.GetType().FullName);
+            // TODO: restore scanning?  CBCentralManager.RestoredStateScanOptionsKey
         }
 
 
