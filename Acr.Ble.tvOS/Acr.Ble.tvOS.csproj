@@ -59,6 +59,12 @@
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Acr.Ble.iOS\BleContext.cs">
+      <Link>BleContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Acr.Ble.iOS\PeripheralConnectionFailed.cs">
+      <Link>PeripheralConnectionFailed.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\Acr.Ble.iOS\Adapter.cs">
       <Link>Adapter.cs</Link>

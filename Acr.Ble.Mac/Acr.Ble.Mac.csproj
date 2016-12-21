@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -74,10 +74,10 @@
     <Reference Include="Xamarin.Mac" />
   </ItemGroup>
   <ItemGroup>
-      <ProjectReference Include="..\Acr.Ble.Interfaces\Acr.Ble.Interfaces.csproj">
-          <Project>{01d11ef2-074c-4bc0-9c05-5a6a9f974e05}</Project>
-          <Name>Acr.Ble.Interfaces</Name>
-      </ProjectReference>
+    <ProjectReference Include="..\Acr.Ble.Interfaces\Acr.Ble.Interfaces.csproj">
+      <Project>{01d11ef2-074c-4bc0-9c05-5a6a9f974e05}</Project>
+      <Name>Acr.Ble.Interfaces</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Acr.Ble.iOS\Adapter.cs">
@@ -85,6 +85,9 @@
     </Compile>
     <Compile Include="..\Acr.Ble.iOS\AdvertisementData.cs">
       <Link>AdvertisementData.cs</Link>
+    </Compile>
+    <Compile Include="..\Acr.Ble.iOS\BleContext.cs">
+      <Link>BleContext.cs</Link>
     </Compile>
     <Compile Include="..\Acr.Ble.iOS\Device.cs">
       <Link>Device.cs</Link>
@@ -103,6 +106,9 @@
     </Compile>
     <Compile Include="..\Acr.Ble.iOS\GattService.cs">
       <Link>GattService.cs</Link>
+    </Compile>
+    <Compile Include="..\Acr.Ble.iOS\PeripheralConnectionFailed.cs">
+      <Link>PeripheralConnectionFailed.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
