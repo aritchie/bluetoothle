@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using CoreBluetooth;
+using CoreFoundation;
 using Foundation;
 
 
@@ -15,12 +16,12 @@ namespace Acr.Ble
 
         public BleContext()
         {
-            //this.Manager = new CBCentralManager(DispatchQueue.GetGlobalQueue(DispatchQueuePriority.Background));
-            this.Manager = new CBCentralManager(this, null, new CBCentralInitOptions
-            {
-                ShowPowerAlert = false
-                //RestoreIdentifier = "acr.ble"
-            });
+            this.Manager = new CBCentralManager(this, DispatchQueue.CurrentQueue);
+            //this.Manager = new CBCentralManager(this, null, new CBCentralInitOptions
+            //{
+            //    ShowPowerAlert = false,
+            //    RestoreIdentifier = "acr.ble"
+            //});
         }
 
 
