@@ -17,13 +17,16 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for Xamarin (Windows UW
 ## FEATURES
 
 * Scan for advertisement packets and devices
-* Monitor adapter status
+* Monitor adapter status (and control it on android)
+* Open setting screens
 * Connect to device and monitor status
 * Discover services, characteristics, & descriptors
 * Read, write, & receive notifications for characteristics
 * Read & write descriptors
+* Request & monitor MTU changes
 * Monitor all aspects of the BLE plugin via CreateLogging extension
 * Connect to heart rate monitors
+* Deals with most of the Android fubars
 
 
 ## SETUP
