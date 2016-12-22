@@ -17,7 +17,7 @@ Mac (Coming Soon)
         <authors>Allan Ritchie</authors>
         <owners>Allan Ritchie</owners>
         <iconUrl>https://github.com/aritchie/bluetoothle/raw/master/icon.png</iconUrl>
-        <licenseUrl>https://github.com/aritchie/bluetoothle/LICENSE.md</licenseUrl>
+        <licenseUrl>hhttps://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</licenseUrl>
         <projectUrl>https://github.com/aritchie/bluetoothle</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <tags>ios android mac xamarin rx reactive ble bluetooth</tags>
