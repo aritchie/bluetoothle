@@ -92,9 +92,6 @@
     <Compile Include="..\Acr.Ble.iOS\Device.cs">
       <Link>Device.cs</Link>
     </Compile>
-    <Compile Include="..\Acr.Ble.iOS\DeviceManager.cs">
-      <Link>DeviceManager.cs</Link>
-    </Compile>
     <Compile Include="..\Acr.Ble.iOS\Extensions.cs">
       <Link>Extensions.cs</Link>
     </Compile>
