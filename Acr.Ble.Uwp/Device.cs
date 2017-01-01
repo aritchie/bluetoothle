@@ -90,7 +90,7 @@ namespace Acr.Ble
         public IObservable<int> WhenRssiUpdated(TimeSpan? frequency = null)
         {
             return this.adapter
-                .Scan()
+                .Scan() // TODO: this will run a duplicate
                 .Where(x => x.Device.Uuid.Equals(this.Uuid))
                 .Select(x => x.Rssi);
         }

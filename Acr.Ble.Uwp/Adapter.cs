@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using Windows.Foundation;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Radios;
+using Windows.System;
 
 
 namespace Acr.Ble
@@ -155,17 +156,20 @@ namespace Acr.Ble
         }
 
 
-        public bool CanOpenSettings => false;
+        public bool CanOpenSettings => true;
 
         public void OpenSettings()
         {
+            Launcher.LaunchUriAsync(new Uri("ms-settings:bluetooth"));
         }
 
 
-        public bool CanChangeAdapterState => false;
+        public bool CanChangeAdapterState => true;
 
         public void SetAdapterState(bool enable)
         {
+            var state = enable ? RadioState.On : RadioState.Off;
+            this.radio.Value.SetStateAsync(state);
         }
     }
 }
