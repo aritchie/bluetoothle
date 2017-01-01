@@ -47,7 +47,7 @@ namespace Acr.Ble
         {
             get
             {
-                if (this.radio == null)
+                if (this.radio.Value == null)
                     return AdapterStatus.Unsupported;
 
                 switch (this.radio.Value.State)
