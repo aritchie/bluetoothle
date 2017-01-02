@@ -42,6 +42,7 @@
     <Compile Include="AbstractGattService.cs" />
     <Compile Include="AdapterStatus.cs" />
     <Compile Include="AdvertisementRecordType.cs" />
+    <Compile Include="BleScanType.cs" />
     <Compile Include="CharacteristicProperties.cs" />
     <Compile Include="ConnectionStatus.cs" />
     <Compile Include="Dictionaries.cs" />

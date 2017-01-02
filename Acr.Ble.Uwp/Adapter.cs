@@ -85,6 +85,7 @@ namespace Acr.Ble
             return Observable.Create<IScanResult>(ob =>
             {
                 var sub = this.ScanListen().Subscribe(ob.OnNext);
+                //this.watcher.ScanningMode = BluetoothLEScanningMode.Active;
                 this.watcher.Start();
                 this.scanStatusSubject.OnNext(true);
 

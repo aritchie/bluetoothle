@@ -2,6 +2,7 @@
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Foundation;
@@ -102,6 +103,8 @@ namespace Acr.Ble
 
             this.notificationOb = this.notificationOb ?? Observable.Create<CharacteristicResult>(async ob =>
             {
+                //var trigger = new GattCharacteristicNotificationTrigger(this.native);
+
                 var handler = new TypedEventHandler<Native, GattValueChangedEventArgs>((sender, args) =>
                 {
                     if (sender.Equals(this.native))

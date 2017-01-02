@@ -57,7 +57,7 @@ namespace Acr.Ble.Internals
         protected virtual void StartNewScanner(ScanConfig config)
         {
             this.newCallback = new LollipopScanCallback(args => this.Scanned?.Invoke(this, args));
-            var scanMode = config.IsLowPoweredScan ? ScanMode.LowPower : ScanMode.Balanced;
+            var scanMode = this.ToNative(config.ScanType);
             var filterBuilder = new ScanFilter.Builder();
             if (config.ServiceUuid != null)
                 filterBuilder.SetServiceUuid(config.ServiceUuid.Value.ToParcelUuid());
@@ -71,6 +71,26 @@ namespace Acr.Ble.Internals
                     .Build(),
                 this.newCallback
             );
+        }
+
+
+        protected virtual ScanMode ToNative(BleScanType scanType)
+        {
+            switch (scanType)
+            {
+                case BleScanType.Background:
+                case BleScanType.LowPowered:
+                    return ScanMode.LowPower;
+
+                case BleScanType.Balanced:
+                    return ScanMode.Balanced;
+
+                case BleScanType.LowLatency:
+                    return ScanMode.LowLatency;
+
+                default:
+                    throw new ArgumentException("Invalid BleScanType");
+            }
         }
 
 

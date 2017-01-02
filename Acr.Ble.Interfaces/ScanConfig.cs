@@ -6,9 +6,9 @@ namespace Acr.Ble
     public class ScanConfig
     {
         /// <summary>
-        /// Android Only - Initiates a low powered cycle scan
+        /// Scan types - balanced & low latency are supported only on android
         /// </summary>
-        public bool IsLowPoweredScan { get; set; }
+        public BleScanType ScanType { get; set; } = BleScanType.Balanced;
 
 
         /// <summary>

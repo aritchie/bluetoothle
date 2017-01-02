@@ -91,6 +91,9 @@ namespace Acr.Ble
             if (this.IsScanning)
                 throw new ArgumentException("There is already an existing scan");
 
+            if (config.ScanType == BleScanType.Background && config.ServiceUuid == null)
+                throw new ArgumentException("Background scan type set but not ServiceUUID");
+
             config = config ?? new ScanConfig();
             return Observable.Create<IScanResult>(ob =>
             {

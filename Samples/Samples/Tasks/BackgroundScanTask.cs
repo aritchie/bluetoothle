@@ -39,7 +39,7 @@ namespace Samples.Tasks
             this.bgScan = this.adapter
                 .Scan(new ScanConfig
                 {
-                    IsLowPoweredScan = true,
+                    ScanType = BleScanType.Background,
                     ServiceUuid = this.settings.BackgroundScanServiceUuid
                 })
                 .Subscribe(x =>
