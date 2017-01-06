@@ -32,6 +32,11 @@ macOS
 [feature][macos/tvos/ios] Background mode via CBCentralInitOptions - On the platform project use BleAdapter.Init(BleAdapterConfiguration)
 [feature][ios] Background - Adapter.WhenDeviceStateRestored() will allow to hook for background state restoration (must be used in conjunction with BleAdapter.Init)
 [feature][breaking] RequestMtu now returns as an observable with what the accepted MTU was
+[feature][uwp][droid] reliable writes!
+[breaking] CreateConnection renamed to CreatePersistentConnection
+[fix][droid] disconnect on existing connection tries
+[fix][droid] more gatt 133 issues
+
 
 1.3
 [fix][droid] descriptors and characteristic read/writes now adhere to AndroidConfig.WriteOnMainThread
