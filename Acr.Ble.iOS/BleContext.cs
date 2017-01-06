@@ -63,6 +63,7 @@ namespace Acr.Ble
         public Subject<IDevice> WhenWillRestoreState { get; } = new Subject<IDevice>();
         public override void WillRestoreState(CBCentralManager central, NSDictionary dict)
         {
+#if __IOS__
             // TODO: restore scan? CBCentralManager.RestoredStateScanOptionsKey
             if (!dict.ContainsKey(CBCentralManager.RestoredStatePeripheralsKey))
                 return;
@@ -77,6 +78,7 @@ namespace Acr.Ble
                 this.WhenWillRestoreState.OnNext(dev);
                 // TODO: should I trigger any of the device events?
             }
+#endif
         }
 
 
