@@ -24,6 +24,6 @@ namespace Acr.Ble
         /// <summary>
         /// The scan dispatch queue to use - don't touch this if you don't know what it does
         /// </summary>
-        public DispatchQueue DispatchQueue { get; set; } = DispatchQueue.CurrentQueue;
+        public DispatchQueue DispatchQueue { get; set; } = new DispatchQueue("acrble");
     }
 }
