@@ -16,7 +16,7 @@ namespace Acr.Ble
         /// This is a combination of 3 things - connection management, disconnect (dispose to dc), and state monitoring.  If you don't dispose, reconnect is implied
         /// </summary>
         /// <returns></returns>
-        IObservable<ConnectionStatus> CreateConnection();
+        IObservable<ConnectionStatus> CreatePersistentConnection();
 
         /// <summary>
         /// Connect to a device
