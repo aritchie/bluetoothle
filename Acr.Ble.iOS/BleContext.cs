@@ -67,6 +67,7 @@ namespace Acr.Ble
             ////var items = dict[CBCentralManager.RestoredStatePeripheralsKey];
             ////Debug.WriteLine("[WillRestoreState]: " + items.GetType().FullName);
             // TODO: restore scanning?  CBCentralManager.RestoredStateScanOptionsKey
+            //this.GetDevice(null)
         }
 
 

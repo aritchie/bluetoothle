@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -18,7 +19,7 @@ namespace Samples.ViewModels.Le
     public class DeviceViewModel : AbstractRootViewModel
     {
         IDisposable conn;
-        IDisposable readRssiTimer;
+        readonly IList<IDisposable> cleanup = new List<IDisposable>();
         IDevice device;
 
 
@@ -32,10 +33,12 @@ namespace Samples.ViewModels.Le
                 {
                     if (this.conn == null)
                     {
-                        this.conn = this.device.CreateConnection().Subscribe();
+                        this.conn = this.device.CreatePersistentConnection().Subscribe();
+                        this.cleanup.Add(this.conn);
                     }
                     else
                     {
+                        this.cleanup.Remove(this.conn);
                         this.conn?.Dispose();
                         this.conn = null;
                     }
@@ -83,7 +86,7 @@ namespace Samples.ViewModels.Le
                                     {
                                         args.Value = args.Value.Substring(0, 3);
                                     }
-                                    else 
+                                    else
                                     {
                                         var value = Int32.Parse(args.Value);
                                         args.IsValid = value >= 20 && value <= 512;
@@ -93,8 +96,8 @@ namespace Samples.ViewModels.Le
                         );
                         if (result.Ok)
                         {
-                            this.device.RequestMtu(Int32.Parse(result.Text));
-                            this.Dialogs.Alert("MTU Change Requested");
+                            var actual = await this.device.RequestMtu(Int32.Parse(result.Text));
+                            this.Dialogs.Alert("MTU Changed to " + actual);
                         }
                     }
                 },
@@ -118,11 +121,12 @@ namespace Samples.ViewModels.Le
             this.Name = this.device.Name;
             this.Uuid = this.device.Uuid;
 
-            this.device
+            this.cleanup.Add(this.device
                 .WhenNameUpdated()
-                .Subscribe(x => this.Name = this.device.Name);
+                .Subscribe(x => this.Name = this.device.Name)
+            );
 
-            this.device
+            this.cleanup.Add(this.device
                 .WhenStatusChanged()
                 .Subscribe (x => Device.BeginInvokeOnMainThread(() =>
                 {
@@ -137,25 +141,29 @@ namespace Samples.ViewModels.Le
 
                         case ConnectionStatus.Disconnected:
                             this.ConnectText = "Connect";
-                            this.readRssiTimer?.Dispose();
                             this.GattCharacteristics.Clear();
                             this.GattDescriptors.Clear();
+                            this.Rssi = 0;
                             break;
 
                         case ConnectionStatus.Connected:
                             this.ConnectText = "Disconnect";
-                            this.readRssiTimer = this.device
+                            this.cleanup.Add(this.device
                                 .WhenRssiUpdated()
-                                .Subscribe(rssi => this.Rssi = rssi);
+                                .Subscribe(rssi => this.Rssi = rssi)
+                            );
                             break;
                     }
-                }));
+                }))
+            );
 
-            this.device
+            this.cleanup.Add(this.device
                 .WhenMtuChanged()
-                .Subscribe(x => this.Dialogs.Alert($"MTU Changed size to {x}"));
-            
-            this.device
+                .Skip(1)
+                .Subscribe(x => this.Dialogs.Alert($"MTU Changed size to {x}"))
+            );
+
+            this.cleanup.Add(this.device
                 .WhenServiceDiscovered()
                 .Subscribe(service =>
                 {
@@ -179,19 +187,16 @@ namespace Samples.ViewModels.Le
                                     this.GattDescriptors.Add(dvm);
                                 }));
                         });
-                });
+                })
+            );
         }
 
 
         public override void OnDeactivate()
         {
             base.OnDeactivate();
-
-            this.device.Disconnect();
-            this.readRssiTimer?.Dispose();
-            this.readRssiTimer = null;
-            this.conn?.Dispose();
-            this.conn = null;
+            foreach (var item in this.cleanup)
+                item.Dispose();
         }
 
 
