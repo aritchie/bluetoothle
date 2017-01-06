@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 
 namespace Acr.Ble
@@ -59,7 +60,7 @@ namespace Acr.Ble
 
 
         IObservable<ConnectionStatus> connOb;
-        public virtual IObservable<ConnectionStatus> CreateConnection()
+        public virtual IObservable<ConnectionStatus> CreatePersistentConnection()
         {
             this.connOb = this.connOb ?? Observable.Create<ConnectionStatus>(ob =>
             {
@@ -71,7 +72,10 @@ namespace Acr.Ble
                         {
                             ob.OnNext(status);
                             if (status == ConnectionStatus.Disconnected)
+                            {
+                                await Task.Delay(100);
                                 await this.Connect();
+                            }
                         }
                         catch (Exception ex)
                         {
