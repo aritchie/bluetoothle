@@ -72,6 +72,7 @@ namespace Acr.Ble.Internals
         public event EventHandler<ConnectionStateEventArgs> ConnectionStateChanged;
         public override void OnConnectionStateChange(BluetoothGatt gatt, GattStatus status, ProfileState newState)
         {
+            // TODO: fire only on success?
             this.ConnectionStateChanged?.Invoke(this, new ConnectionStateEventArgs(gatt, status, newState));
         }
     }
