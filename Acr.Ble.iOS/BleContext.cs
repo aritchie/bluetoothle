@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Subjects;
 using CoreBluetooth;
@@ -59,15 +60,23 @@ namespace Acr.Ble
         }
 
 
+        public Subject<IDevice> WhenWillRestoreState { get; } = new Subject<IDevice>();
         public override void WillRestoreState(CBCentralManager central, NSDictionary dict)
         {
-            ////if (!dict.ContainsKey(CBCentralManager.RestoredStatePeripheralsKey))
-            ////    return;
+            // TODO: restore scan? CBCentralManager.RestoredStateScanOptionsKey
+            if (!dict.ContainsKey(CBCentralManager.RestoredStatePeripheralsKey))
+                return;
 
-            ////var items = dict[CBCentralManager.RestoredStatePeripheralsKey];
-            ////Debug.WriteLine("[WillRestoreState]: " + items.GetType().FullName);
-            // TODO: restore scanning?  CBCentralManager.RestoredStateScanOptionsKey
-            //this.GetDevice(null)
+            var peripheralArray = (NSArray)dict[CBCentralManager.RestoredStatePeripheralsKey];
+            Debug.WriteLine($"Restoring peripheral state on {peripheralArray.Count} devices");
+
+            for (nuint i = 0; i < peripheralArray.Count; i++)
+            {
+                var item = peripheralArray.GetItem<CBPeripheral>(i);
+                var dev = this.GetDevice(item);
+                this.WhenWillRestoreState.OnNext(dev);
+                // TODO: should I trigger any of the device events?
+            }
         }
 
 

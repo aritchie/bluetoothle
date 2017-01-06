@@ -44,7 +44,7 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<ConnectionStatus> CreatePeristentConnection()
+        public override IObservable<ConnectionStatus> CreatePersistentConnection()
         {
             return Observable.Create<ConnectionStatus>(async ob =>
             {
@@ -54,11 +54,11 @@ namespace Acr.Ble
                     try
                     {
                         await this.Connect();
-                        loop = true;
+                        loop = false;
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("Failed to reconnect");
+                        Debug.WriteLine("Failed to reconnect - " + ex);
                     }
                 }
 
@@ -71,6 +71,7 @@ namespace Acr.Ble
                 };
             });
         }
+
 
         public override IObservable<object> Connect()
         {
