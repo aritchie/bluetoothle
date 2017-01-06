@@ -44,6 +44,34 @@ namespace Acr.Ble
         }
 
 
+        public override IObservable<ConnectionStatus> CreatePeristentConnection()
+        {
+            return Observable.Create<ConnectionStatus>(async ob =>
+            {
+                var loop = true;
+                while (loop)
+                {
+                    try
+                    {
+                        await this.Connect();
+                        loop = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Failed to reconnect");
+                    }
+                }
+
+                var sub = this.WhenStatusChanged().Subscribe(ob.OnNext);
+                return () =>
+                {
+                    loop = false;
+                    sub.Dispose();
+                    this.Disconnect();
+                };
+            });
+        }
+
         public override IObservable<object> Connect()
         {
             return Observable.Create<object>(ob =>
