@@ -184,6 +184,7 @@ namespace Acr.Ble
                 BluetoothAdapter.DefaultAdapter.Disable();
         }
 
+
         public IObservable<IDevice> WhenDeviceStateRestored()
         {
             return Observable.Empty<IDevice>();

@@ -21,6 +21,7 @@ namespace Acr.Ble.Internals
         {
             GC.SuppressFinalize(this);
             this.Gatt.Close();
+            this.Gatt.Disconnect();
         }
     }
 }
