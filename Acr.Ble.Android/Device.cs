@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
@@ -63,61 +62,77 @@ namespace Acr.Ble
 
         public override IObservable<object> Connect()
         {
+            if (this.Status == ConnectionStatus.Connected)
+                return Observable.Empty<object>();
+
             return Observable.Create<object>(ob =>
             {
                 var cancelSrc = new CancellationTokenSource();
                 IDisposable connected = null;
 
-                if (this.Status == ConnectionStatus.Connected)
+                /*{
+                var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
                 {
-                    ob.Respond(null);
-                }
-                else
-                {
-                    connected = this
-                        .WhenStatusChanged()
-                        .Take(1)
-                        .Where(x => x == ConnectionStatus.Connected)
-                        .Subscribe(_ => ob.Respond(null));
+                if (!args.IsSuccess) // trigger dc
+                    if (args.Gatt.Device.Equals(this.native))
+                        ob.OnNext(this.Status);
+                });
+                this.callbacks.ConnectionStateChanged += handler;
 
-                    if (this.Status != ConnectionStatus.Connecting)
+                 * *
+                    if (args.IsSuccessful)
                     {
-                        try
+                        ob.OnNext(this.Status);
+                    }
+                    else
+                    {
+                        ob.OnError(new ArgumentException($"Failed connection attempt - {args.Status}"));
+                        this.Disconnect();
+                    }
+                }*/
+                connected = this
+                    .WhenStatusChanged()
+                    .Take(1)
+                    .Where(x => x == ConnectionStatus.Connected)
+                    .Subscribe(_ => ob.Respond(null));
+
+                if (this.Status != ConnectionStatus.Connecting)
+                {
+                    try
+                    {
+                        ob.OnNext(ConnectionStatus.Connecting);
+                        var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
+                        this.context = new GattContext(conn, this.callbacks);
+
+                        switch (AndroidConfig.ConnectionThread)
                         {
-                            ob.OnNext(ConnectionStatus.Connecting);
-                            var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
-                            this.context = new GattContext(conn, this.callbacks);
-
-                            switch (AndroidConfig.ConnectionThread)
-                            {
-                                case ConnectionThread.MainThread:
-                                    Application.SynchronizationContext.Post(_ =>
-                                    {
-                                        conn.Connect();
-                                    }, null);
-                                    break;
-
-                                case ConnectionThread.ScanThread:
-                                    Task.Factory.StartNew(
-                                        () => conn.Connect(), // TODO: if this crashes, need to junk out the observable
-                                        // this could still fire even if we cancel it thereby tying up the connection
-                                        cancelSrc.Token,
-                                        TaskCreationOptions.None,
-                                        this.scheduler
-                                    );
-                                    break;
-
-                                case ConnectionThread.Default:
-                                default:
+                            case ConnectionThread.MainThread:
+                                Application.SynchronizationContext.Post(_ =>
+                                {
                                     conn.Connect();
-                                    break;
-                            }
+                                }, null);
+                                break;
+
+                            case ConnectionThread.ScanThread:
+                                Task.Factory.StartNew(
+                                    () => conn.Connect(), // TODO: if this crashes, need to junk out the observable
+                                    // this could still fire even if we cancel it thereby tying up the connection
+                                    cancelSrc.Token,
+                                    TaskCreationOptions.None,
+                                    this.scheduler
+                                );
+                                break;
+
+                            case ConnectionThread.Default:
+                            default:
+                                conn.Connect();
+                                break;
                         }
-                        catch (Exception ex)
-                        {
-                            ob.OnNext(ConnectionStatus.Disconnected);
-                            ob.OnError(ex);
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ob.OnNext(ConnectionStatus.Disconnected);
+                        ob.OnError(ex);
                     }
                 }
                 return () =>
@@ -161,7 +176,9 @@ namespace Acr.Ble
                         ob.OnNext(this.Status);
                 });
                 this.callbacks.ConnectionStateChanged += handler;
-                var sub = this.connSubject.AsObservable().Subscribe(ob.OnNext);
+                var sub = this.connSubject
+                    .AsObservable()
+                    .Subscribe(ob.OnNext);
 
                 return () =>
                 {
@@ -169,6 +186,7 @@ namespace Acr.Ble
                     this.callbacks.ConnectionStateChanged -= handler;
                 };
             })
+            .DistinctUntilChanged()
             .Replay(1)
             .RefCount();
 
@@ -227,7 +245,7 @@ namespace Acr.Ble
                 IDisposable timer = null;
                 var handler = new EventHandler<GattRssiEventArgs>((sender, args) =>
                 {
-                    if (args.Gatt.Device.Equals(this.native))
+                    if (args.Gatt.Device.Equals(this.native) && args.IsSuccessful)
                         ob.OnNext(args.Rssi);
                 });
                 this.context.Callbacks.ReadRemoteRssi += handler;
@@ -376,7 +394,7 @@ namespace Acr.Ble
                 return () =>
                 {
                     sub.Dispose();
-                    if (this.context.Callbacks != null)
+                    if (this.context?.Callbacks != null)
                         this.context.Callbacks.MtuChanged -= handler;
                 };
             })
