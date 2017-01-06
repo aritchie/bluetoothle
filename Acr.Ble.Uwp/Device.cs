@@ -13,7 +13,6 @@ namespace Acr.Ble
 {
     public class Device : IDevice
     {
-        readonly AdvertisementData adData;
         readonly Subject<bool> deviceSubject;
         readonly IAdapter adapter;
         readonly DeviceInformation deviceInfo;
@@ -37,7 +36,7 @@ namespace Acr.Ble
         public Guid Uuid { get; }
 
 
-        public IObservable<ConnectionStatus> CreateConnection()
+        public IObservable<ConnectionStatus> CreatePersistentConnection()
         {
             return Observable.Create<ConnectionStatus>(async ob =>
             {
@@ -46,10 +45,10 @@ namespace Acr.Ble
                     .Subscribe(s =>
                     {
                         ob.OnNext(s);
-                        // may not want to do this on UWP
-                        //if (s == ConnectionStatus.Disconnected)
-                        //    this.Connect();
-                    });
+                    // may not want to do this on UWP
+                    //if (s == ConnectionStatus.Disconnected)
+                    //    this.Connect();
+                });
                 // TODO: reconnect
                 await this.Connect();
 
@@ -70,7 +69,7 @@ namespace Acr.Ble
                 else
                 {
                     // TODO: connecting
-                    this.native = await BluetoothLEDevice.FromBluetoothAddressAsync(this.adData.BluetoothAddress);
+                    this.native = await BluetoothLEDevice.FromIdAsync(this.deviceInfo.Id);
 
                     if (this.native == null)
                         throw new ArgumentException("Device Not Found");
@@ -91,6 +90,8 @@ namespace Acr.Ble
 
         public IObservable<int> WhenRssiUpdated(TimeSpan? frequency = null)
         {
+            // TODO: what if scan filters are applied?
+            // TODO: create another advertisewatcher
             return this.adapter
                 .Scan() // TODO: this will run a duplicate
                 .Where(x => x.Device.Uuid.Equals(this.Uuid))
