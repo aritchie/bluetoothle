@@ -183,5 +183,10 @@ namespace Acr.Ble
             else if (!enable && BluetoothAdapter.DefaultAdapter.IsEnabled)
                 BluetoothAdapter.DefaultAdapter.Disable();
         }
+
+        public IObservable<IDevice> WhenDeviceStateRestored()
+        {
+            return Observable.Empty<IDevice>();
+        }
     }
 }

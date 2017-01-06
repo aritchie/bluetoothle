@@ -16,23 +16,24 @@ namespace Acr.Ble
         readonly AdvertisementData adData;
         readonly Subject<bool> deviceSubject;
         readonly IAdapter adapter;
+        readonly DeviceInformation deviceInfo;
         BluetoothLEDevice native;
 
 
-        public Device(IAdapter adapter, AdvertisementData adData)
+        public Device(IAdapter adapter, DeviceInformation deviceInfo)
         {
             this.adapter = adapter;
-            this.adData = adData;
+            this.deviceInfo = deviceInfo;
             this.deviceSubject = new Subject<bool>();
 
-            this.Name = adData.Native.GetDeviceName();
-            var mac = this.ToMacAddress(adData.BluetoothAddress);
-            var uuid = this.ToDeviceId(mac);
-            this.Uuid = uuid;
+            //this.Name = adData.Native.GetDeviceName();
+            //var mac = this.ToMacAddress(adData.BluetoothAddress);
+            //var uuid = this.ToDeviceId(mac);
+            //this.Uuid = uuid;
         }
 
 
-        public string Name { get; }
+        public string Name => this.deviceInfo.Name;
         public Guid Uuid { get; }
 
 
@@ -59,6 +60,7 @@ namespace Acr.Ble
 
         public IObservable<object> Connect()
         {
+            // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
             return Observable.Create<object>(async ob =>
             {
                 if (this.Status == ConnectionStatus.Connected)
@@ -110,6 +112,7 @@ namespace Acr.Ble
         {
             get
             {
+                // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
                 if (this.native == null)
                     return ConnectionStatus.Disconnected;
 
@@ -128,6 +131,8 @@ namespace Acr.Ble
         IObservable<ConnectionStatus> statusOb;
         public IObservable<ConnectionStatus> WhenStatusChanged()
         {
+            // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
+            // TODO: shut devicewatcher off if characteristic hooked?
             this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
             {
                 ob.OnNext(this.Status);
@@ -228,7 +233,7 @@ namespace Acr.Ble
         }
 
         public bool IsMtuRequestAvailable => false;
-        public void RequestMtu(int size)
+        public IObservable<int> RequestMtu(int size)
         {
             throw new NotImplementedException();
         }

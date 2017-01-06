@@ -35,7 +35,6 @@ namespace Acr.Ble
         /// <returns></returns>
         IObservable<IScanResult> Scan(ScanConfig config = null);
 
-
         /// <summary>
         /// Allows you to listen in on current scans in progress (usualful for background tasks like logging and decoupled components)
         /// </summary>
@@ -59,18 +58,15 @@ namespace Acr.Ble
         /// </summary>
         bool CanOpenSettings { get; }
 
-
         /// <summary>
         /// Opens the platform settings screen
         /// </summary>
         void OpenSettings();
 
-
         /// <summary>
         /// True if adapter state can be managed by this library/platform
         /// </summary>
         bool CanChangeAdapterState { get; }
-
 
         /// <summary>
         /// Toggles the bluetooth adapter on/off - returns true if successful
@@ -78,5 +74,12 @@ namespace Acr.Ble
         /// </summary>
         /// <returns></returns>
         void SetAdapterState(bool enable);
+
+        /// <summary>
+        /// iOS ONLY - this is called for WillRestoreState is performed
+        /// You must use BleAdapter.Init in your iOS project to set the configuration options
+        /// </summary>
+        /// <returns></returns>
+        IObservable<IDevice> WhenDeviceStateRestored();
     }
 }

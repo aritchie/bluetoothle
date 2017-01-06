@@ -55,6 +55,7 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="Adapter.cs" />
+    <Compile Include="BleAdapterConfiguration.cs" />
     <Compile Include="AdvertisementData.cs" />
     <Compile Include="GattCharacteristic.cs" />
     <Compile Include="GattDescriptor.cs" />

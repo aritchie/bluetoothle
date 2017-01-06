@@ -2,17 +2,18 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Acr.Ble</id>
-        <version>1.3.1</version>
-        <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
+        <version>2.0.0</version>
+        <title>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
 Cross Platform Reactive Bluetooth LE Plugin for Xamarin
 
 Supported Platforms
 Android 4.3+
-iOS 6+
-tvOS (testing)
-Mac (Coming Soon)
+iOS 7+
+Windows UWP
+tvOS
+macOS
         </description>
         <authors>Allan Ritchie</authors>
         <owners>Allan Ritchie</owners>
@@ -20,11 +21,18 @@ Mac (Coming Soon)
         <licenseUrl>hhttps://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</licenseUrl>
         <projectUrl>https://github.com/aritchie/bluetoothle</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <tags>ios android mac xamarin rx reactive ble bluetooth</tags>
+        <tags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle</tags>
         <dependencies>
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+2.0
+[feature] UWP support!
+[feature] Mac support!
+[feature][macos/tvos/ios] Background mode via CBCentralInitOptions - On the platform project use BleAdapter.Init(BleAdapterConfiguration)
+[feature][ios] Background - Adapter.WhenDeviceStateRestored() will allow to hook for background state restoration (must be used in conjunction with BleAdapter.Init)
+[feature][breaking] RequestMtu now returns as an observable with what the accepted MTU was
+
 1.3
 [fix][droid] descriptors and characteristic read/writes now adhere to AndroidConfig.WriteOnMainThread
 [fix][ios] WhenStatusChanged was causing OnError when a connection failure occurred
@@ -139,13 +147,13 @@ Initial Public Release
         <file src="..\Acr.Ble.iOS\bin\Release\Acr.Ble.*" target="lib\Xamarin.iOS10" />
 
         <!-- mac -->
-        <!--<file src="..\Acr.Ble.Mac\bin\Release\Acr.Ble.*" target="lib\Xamarin.Mac20" />-->
+        <file src="..\Acr.Ble.Mac\bin\Release\Acr.Ble.*" target="lib\Xamarin.Mac20" />
 
         <!-- tvOS -->
         <file src="..\Acr.Ble.tvOS\bin\Release\Acr.Ble.*" target="lib\Xamarin.tvOS10" />
 
         <!-- uwp -->
-        <!--<file src="..\Acr.Ble.Uwp\bin\Release\Acr.Ble.*" target="lib\uap10.0" />-->
+        <file src="..\Acr.Ble.Uwp\bin\Release\Acr.Ble.*" target="lib\uap10.0" />
 
     </files>
 </package>

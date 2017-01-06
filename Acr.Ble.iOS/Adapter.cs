@@ -14,8 +14,15 @@ namespace Acr.Ble
 {
     public class Adapter : IAdapter
     {
-        readonly BleContext context = new BleContext();
-        readonly Subject<bool> scanStatusChanged = new Subject<bool>();
+        readonly BleContext context;
+        readonly Subject<bool> scanStatusChanged;
+
+
+        public Adapter(BleAdapterConfiguration config = null)
+        {
+            this.context = new BleContext(config);
+            this.scanStatusChanged = new Subject<bool>();
+        }
 
 
         public AdapterStatus Status
@@ -211,12 +218,17 @@ namespace Acr.Ble
         }
 
 
-        protected virtual void OnWillRestoreState(object sender, CBWillRestoreEventArgs args)
+        public IObservable<IDevice> WhenDeviceStateRestored()
         {
-            // TODO: rehydrate device manager
-            // TODO: do I have to set services and characteristics again?
-            // TODO: if I was connecting, do I want to trigger a connection again?
+            return Observable.Empty<IDevice>();
         }
+
+        //protected virtual void OnWillRestoreState(object sender, CBWillRestoreEventArgs args)
+        //{
+        //    // TODO: rehydrate device manager
+        //    // TODO: do I have to set services and characteristics again?
+        //    // TODO: if I was connecting, do I want to trigger a connection again?
+        //}
 
         /*
 http://stackoverflow.com/questions/22412376/corebluetooth-state-preservation-issue-willrestorestate-not-called-in-ios-7-1

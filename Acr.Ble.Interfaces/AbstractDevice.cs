@@ -46,13 +46,13 @@ namespace Acr.Ble
         }
 
 
-        public virtual void RequestMtu(int size)
+        public virtual IObservable<int> RequestMtu(int size)
         {
-            throw new ArgumentException("RequestMtu is not supported on this platform");
+            return Observable.Return(this.GetCurrentMtuSize());
         }
 
 
-        public virtual IObservable<int> WhenMtuChanged() 
+        public virtual IObservable<int> WhenMtuChanged()
         {
             return Observable.Empty<int>();
         }

@@ -14,14 +14,17 @@ namespace Acr.Ble
     {
         readonly ConcurrentDictionary<string, IDevice> peripherals = new ConcurrentDictionary<string, IDevice>();
 
-        public BleContext()
+        public BleContext(BleAdapterConfiguration config)
         {
-            this.Manager = new CBCentralManager(this, DispatchQueue.CurrentQueue);
-            //this.Manager = new CBCentralManager(this, null, new CBCentralInitOptions
-            //{
-            //    ShowPowerAlert = false,
-            //    RestoreIdentifier = "acr.ble"
-            //});
+            this.Manager = config == null
+                ? new CBCentralManager(this, DispatchQueue.CurrentQueue)
+                : new CBCentralManager(this, config.DispatchQueue, new CBCentralInitOptions
+                {
+                    ShowPowerAlert = config.ShowPowerAlert,
+#if __IOS__
+                    RestoreIdentifier = config.RestoreIdentifier
+#endif
+                });
         }
 
 

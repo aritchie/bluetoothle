@@ -342,12 +342,13 @@ namespace Acr.Ble
 
 
         int currentMtu = 20;
-        public override void RequestMtu(int size)
+        public override IObservable<int> RequestMtu(int size)
         {
             if (!this.IsMtuRequestAvailable)
-                base.RequestMtu(size);
+                return base.RequestMtu(size);
 
             this.context.Gatt.RequestMtu(size);
+            return this.WhenMtuChanged().Take(1);
         }
 
 

@@ -16,6 +16,18 @@ namespace Acr.Ble
         }, false);
 
 
+#if __UNIFIED__
+        /// <summary>
+        /// You should call this before calling BleAdapter.Current!
+        /// </summary>
+        public static void Init(BleAdapterConfiguration configuration)
+        {
+            Current = new Adapter(configuration);
+        }
+
+#endif
+
+
         static IAdapter customInstance;
         public static IAdapter Current
         {

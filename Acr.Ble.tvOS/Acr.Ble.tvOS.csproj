@@ -59,6 +59,9 @@
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Acr.Ble.iOS\BleAdapterConfiguration.cs">
+      <Link>BleAdapterConfiguration.cs</Link>
+    </Compile>
     <Compile Include="..\Acr.Ble.iOS\BleContext.cs">
       <Link>BleContext.cs</Link>
     </Compile>

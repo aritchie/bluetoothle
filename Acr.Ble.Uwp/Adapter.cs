@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Windows.Foundation;
 using Windows.Devices.Bluetooth.Advertisement;
+using Windows.Devices.Enumeration;
 using Windows.Devices.Radios;
 using Windows.System;
 
@@ -13,17 +14,22 @@ namespace Acr.Ble
 {
     public class Adapter : IAdapter
     {
+        const string AqsFilter = "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
+        static readonly string[] requestProperites = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
+
         readonly DeviceManager deviceManager;
         readonly Lazy<Radio> radio;
         readonly Subject<bool> scanStatusSubject;
-        readonly BluetoothLEAdvertisementWatcher watcher;
+        readonly BluetoothLEAdvertisementWatcher adWatcher;
+        readonly DeviceWatcher deviceWatcher;
 
 
         public Adapter()
         {
             this.scanStatusSubject = new Subject<bool>();
             this.deviceManager = new DeviceManager(this);
-            this.watcher = new BluetoothLEAdvertisementWatcher();
+            this.adWatcher = new BluetoothLEAdvertisementWatcher();
+            this.deviceWatcher = DeviceInformation.CreateWatcher(AqsFilter, requestProperites, DeviceInformationKind.AssociationEndpoint);
 
             this.radio = new Lazy<Radio>(() =>
                 Radio
@@ -35,7 +41,7 @@ namespace Acr.Ble
         }
 
 
-        public bool IsScanning => this.watcher.Status == BluetoothLEAdvertisementWatcherStatus.Started;
+        public bool IsScanning => this.adWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Started;
 
 
         public IEnumerable<IDevice> GetConnectedDevices()
@@ -85,13 +91,13 @@ namespace Acr.Ble
             return Observable.Create<IScanResult>(ob =>
             {
                 var sub = this.ScanListen().Subscribe(ob.OnNext);
-                //this.watcher.ScanningMode = BluetoothLEScanningMode.Active;
-                this.watcher.Start();
+                //this.adWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+                this.adWatcher.Start();
                 this.scanStatusSubject.OnNext(true);
 
                 return () =>
                 {
-                    this.watcher.Stop();
+                    this.adWatcher.Stop();
                     this.scanStatusSubject.OnNext(false);
                     sub.Dispose();
                 };
@@ -109,21 +115,53 @@ namespace Acr.Ble
         {
             this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
             {
+                var syncLock = new object();
+                var nativeDevices = new Dictionary<string, DeviceInformation>();
                 this.deviceManager.Clear();
 
+                // TODO: when a device and ad are available, device discovered
                 var adHandler = new TypedEventHandler<BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>
                 (
                     (sender, args) =>
                     {
-                        var adData = new AdvertisementData(args);
-                        var device = this.deviceManager.GetDevice(adData);
-                        var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
-                        ob.OnNext(scanResult);
+                        //var adData = new AdvertisementData(args);
+                        //var device = this.deviceManager.GetDevice(adData);
+                        //var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
+                        //ob.OnNext(scanResult);
                     }
                 );
-                this.watcher.Received += adHandler;
 
-                return () => this.watcher.Received -= adHandler;
+                var addHandler = new TypedEventHandler<DeviceWatcher, DeviceInformation>((sender, args) =>
+                {
+                    lock (syncLock)
+                    {
+                        nativeDevices.Add(args.Id, args);
+                    }
+                });
+                var remHandler = new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>((sender, args) =>
+                {
+                    lock (syncLock)
+                    {
+                        nativeDevices.Remove(args.Id);
+                    }
+                });
+
+                this.deviceWatcher.Added += addHandler;
+                this.deviceWatcher.Removed += remHandler;
+                this.adWatcher.Received += adHandler;
+
+                this.adWatcher.Start();
+                this.deviceWatcher.Start();
+
+                return () =>
+                {
+                    this.adWatcher.Stop();
+                    this.deviceWatcher.Stop();
+
+                    this.deviceWatcher.Added -= addHandler;
+                    this.deviceWatcher.Removed -= remHandler;
+                    this.adWatcher.Received -= adHandler;
+                };
             })
             .Publish()
             .RefCount();
@@ -159,18 +197,24 @@ namespace Acr.Ble
 
         public bool CanOpenSettings => true;
 
-        public void OpenSettings()
+        public async void OpenSettings()
         {
-            Launcher.LaunchUriAsync(new Uri("ms-settings:bluetooth"));
+            await Launcher.LaunchUriAsync(new Uri("ms-settings:bluetooth"));
         }
 
 
         public bool CanChangeAdapterState => true;
 
-        public void SetAdapterState(bool enable)
+        public async void SetAdapterState(bool enable)
         {
             var state = enable ? RadioState.On : RadioState.Off;
-            this.radio.Value.SetStateAsync(state);
+            await this.radio.Value.SetStateAsync(state);
+        }
+
+
+        public IObservable<IDevice> WhenDeviceStateRestored()
+        {
+            return Observable.Empty<IDevice>();
         }
     }
 }

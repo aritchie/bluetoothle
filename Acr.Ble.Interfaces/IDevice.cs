@@ -84,7 +84,7 @@ namespace Acr.Ble
         /// Send request to set MTU size
         /// </summary>
         /// <param name="size"></param>
-        void RequestMtu(int size);
+        IObservable<int> RequestMtu(int size);
 
         /// <summary>
         /// Gets the size of the current mtu.
