@@ -25,10 +25,13 @@ namespace Samples.ViewModels.Le
         public override void OnActivate()
         {
             base.OnActivate();
-            this.DeviceList.AddRange(this.BleAdapter.GetConnectedDevices());
+            this.BleAdapter
+                .GetConnectedDevices()
+                .Subscribe(this.DeviceList.AddRange);
+            
             this.deviceStateSub = this.BleAdapter
                 .WhenDeviceStatusChanged()
-                .Where(x => x.Status == ConnectionStatus.Connected)
+                .Where(x => x.Status == ConnectionStatus.Connected || x.Status == ConnectionStatus.Connecting)
                 .Subscribe(this.DeviceList.Add);
         }
 

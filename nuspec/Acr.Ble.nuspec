@@ -34,6 +34,7 @@ macOS
 [feature][breaking] RequestMtu now returns as an observable with what the accepted MTU was
 [feature][uwp][droid] reliable writes!
 [breaking] CreateConnection renamed to CreatePersistentConnection
+[breaking] GetConnectedDevices is now an async observable to account for iOS GetConnectedDevices()
 [fix][droid] disconnect on existing connection tries
 [fix][droid] more gatt 133 issues
 
