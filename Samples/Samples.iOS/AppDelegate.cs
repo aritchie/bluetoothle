@@ -1,4 +1,5 @@
 ﻿using System;
+using Acr.Ble;
 using Autofac;
 using Foundation;
 using UIKit;
@@ -14,6 +15,7 @@ namespace Samples.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             Forms.Init();
+            BleAdapter.Init(BleAdapterConfiguration.DefaultBackgroudingConfig);
 
             var builder = new ContainerBuilder();
             builder.RegisterModule(new PlatformModule());
