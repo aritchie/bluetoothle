@@ -15,6 +15,7 @@ namespace Acr.Ble
     {
         readonly ConcurrentDictionary<string, IDevice> peripherals = new ConcurrentDictionary<string, IDevice>();
 
+
         public BleContext(BleAdapterConfiguration config)
         {
             this.Manager = config == null
@@ -44,7 +45,7 @@ namespace Acr.Ble
         public IEnumerable<IDevice> GetConnectedDevices()
         {
             return this.peripherals
-                .Where(x => x.Value.Status == ConnectionStatus.Connected)
+                .Where(x => x.Value.Status == ConnectionStatus.Connected || x.Value.Status == ConnectionStatus.Connecting)
                 .Select(x => x.Value)
                 .ToList();
         }
