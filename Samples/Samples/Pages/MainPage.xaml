@@ -6,6 +6,7 @@
 	Title="ACR BluetoothLE">
 	<TabbedPage.Children>
         <le:ScanPage Title="Scan" />
+		<le:ConnectedDevicesPage Title="Connected" />
         <le:BackgroundPage Title="Background" />
         <le:LogPage Title="Logs" />
 	</TabbedPage.Children>

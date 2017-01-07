@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using CoreBluetooth;
 using CoreFoundation;
@@ -14,6 +15,7 @@ namespace Acr.Ble
     public class BleContext : CBCentralManagerDelegate
     {
         readonly ConcurrentDictionary<string, IDevice> peripherals = new ConcurrentDictionary<string, IDevice>();
+
 
         public BleContext(BleAdapterConfiguration config)
         {
@@ -41,12 +43,27 @@ namespace Acr.Ble
         }
 
 
-        public IEnumerable<IDevice> GetConnectedDevices()
+        public IObservable<IEnumerable<IDevice>> GetConnectedDevices()
         {
-            return this.peripherals
-                .Where(x => x.Value.Status == ConnectionStatus.Connected)
+#if __IOS__
+            return Observable.Create<IEnumerable<IDevice>>(ob =>
+            {
+                var handler = new EventHandler<CBPeripheralsEventArgs>((sender, args) => 
+                {
+                    var devs = args.Peripherals.Select(this.GetDevice);
+                    ob.Respond(devs);
+                });
+                this.Manager.RetrievedConnectedPeripherals += handler;
+                this.Manager.RetrieveConnectedPeripherals();
+
+                return () => this.Manager.RetrievedConnectedPeripherals -= handler;
+            });
+#else
+            return Observable.Return(this.peripherals
+                .Where(x => x.Value.Status == ConnectionStatus.Connected || x.Value.Status == ConnectionStatus.Connecting)
                 .Select(x => x.Value)
-                .ToList();
+            );
+#endif
         }
 
 
@@ -63,6 +80,7 @@ namespace Acr.Ble
         public Subject<IDevice> WhenWillRestoreState { get; } = new Subject<IDevice>();
         public override void WillRestoreState(CBCentralManager central, NSDictionary dict)
         {
+#if __IOS__
             // TODO: restore scan? CBCentralManager.RestoredStateScanOptionsKey
             if (!dict.ContainsKey(CBCentralManager.RestoredStatePeripheralsKey))
                 return;
@@ -77,6 +95,7 @@ namespace Acr.Ble
                 this.WhenWillRestoreState.OnNext(dev);
                 // TODO: should I trigger any of the device events?
             }
+#endif
         }
 
 

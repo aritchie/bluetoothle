@@ -20,7 +20,7 @@ namespace Acr.Ble
         /// Gets a list of connected devices
         /// </summary>
         /// <returns></returns>
-        IEnumerable<IDevice> GetConnectedDevices();
+        IObservable<IEnumerable<IDevice>> GetConnectedDevices();
 
         /// <summary>
         /// Monitor for scanning status changes

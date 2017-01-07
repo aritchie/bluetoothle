@@ -223,10 +223,12 @@ namespace Acr.Ble
         {
             var ts = timeSpan ?? TimeSpan.FromSeconds(3);
 
+#if __IOS__ || __TVOS__
             return Observable.Create<int>(ob =>
             {
                 var handler = new EventHandler<CBRssiEventArgs>((sender, args) => ob.OnNext(args.Rssi?.Int32Value ?? 0));
                 this.peripheral.RssiRead += handler;
+
                 var innerOb = Observable
                     .Interval(ts)
                     .Where(x => this.Status == ConnectionStatus.Connected)
@@ -238,6 +240,24 @@ namespace Acr.Ble
                     this.peripheral.RssiRead -= handler;
                 };
             });
+#else
+            return Observable.Create<int>(ob =>
+            {
+                var handler = new EventHandler<NSErrorEventArgs>((sender, args) => ob.OnNext(this.peripheral.RSSI?.Int32Value ?? 0));
+                this.peripheral.RssiUpdated += handler;
+
+                var innerOb = Observable
+                    .Interval(ts)
+                    .Where(x => this.Status == ConnectionStatus.Connected)
+                    .Subscribe(_ => this.peripheral.ReadRSSI());
+
+                return () =>
+                {
+                    innerOb.Dispose();
+                    this.peripheral.RssiUpdated -= handler;
+                };
+            });
+#endif
         }
 
 
@@ -249,7 +269,12 @@ namespace Acr.Ble
 
         public override int GetCurrentMtuSize()
         {
+#if __IOS__ || __TVOS__
             return (int)this.peripheral.GetMaximumWriteValueLength(CBCharacteristicWriteType.WithResponse);
+#else 
+            // TODO: MAC
+            return 20;
+#endif
         }
 
 

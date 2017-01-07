@@ -54,7 +54,7 @@ namespace Acr.Ble
         }
 
 
-        public IEnumerable<IDevice> GetConnectedDevices()
+        public IObservable<IEnumerable<IDevice>> GetConnectedDevices()
         {
             return this.context.GetConnectedDevices();
         }

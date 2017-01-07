@@ -56,10 +56,11 @@ namespace Acr.Ble.Plugins
                             Write(ob, device, BleLogFlags.DeviceDisconnected, device.Uuid, $"Changed to {device.Status}");
                     }));
 
-                foreach (var device in adapter.GetConnectedDevices())
+                list.Add(adapter.GetConnectedDevices().Subscribe(devices => 
                 {
-                    HookDevice(device, ob, deviceEvents, flags);
-                }
+                    foreach (var device in devices)
+                        HookDevice(device, ob, deviceEvents, flags);
+                }));
 
                 return () =>
                 {
