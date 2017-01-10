@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 
 
 namespace Acr.Ble
 {
-    public abstract class AbstractDevice : IDevice
+    public abstract class AbstractDevice : IDevice, IDisposable
     {
         protected IDictionary<Guid, IGattService> Services { get; }
 
@@ -17,6 +16,12 @@ namespace Acr.Ble
             this.Name = initialName;
             this.Uuid = uuid;
             this.Services = new Dictionary<Guid, IGattService>();
+        } 
+
+
+        ~AbstractDevice()
+        {
+            this.Dispose(false);
         }
 
 
@@ -24,12 +29,20 @@ namespace Acr.Ble
         public Guid Uuid { get; protected set; }
         public abstract ConnectionStatus Status { get; }
 
-        public abstract void Disconnect();
+        public abstract void CancelConnection();
         public abstract IObservable<object> Connect();
         public abstract IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan);
         public abstract IObservable<ConnectionStatus> WhenStatusChanged();
         public abstract IObservable<IGattService> WhenServiceDiscovered();
         public abstract IObservable<string> WhenNameUpdated();
+
+
+        public virtual IObservable<IGattService> FindServices(params Guid[] serviceUuids)
+        {
+            return this.WhenServiceDiscovered()
+                       .Take(1)
+                       .Where(x => serviceUuids.Any(y => y.Equals(x)));
+        }
 
 
         public virtual PairingStatus PairingStatus => PairingStatus.Unavailiable;
@@ -59,40 +72,14 @@ namespace Acr.Ble
         }
 
 
-        IObservable<ConnectionStatus> connOb;
-        public virtual IObservable<ConnectionStatus> CreatePersistentConnection()
+        public void Dispose()
         {
-            this.connOb = this.connOb ?? Observable.Create<ConnectionStatus>(ob =>
-            {
-                var state = this
-                    .WhenStatusChanged()
-                    .Subscribe(async status =>
-                    {
-                        try
-                        {
-                            ob.OnNext(status);
-                            if (status == ConnectionStatus.Disconnected)
-                            {
-                                await Task.Delay(100);
-                                await this.Connect();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine("Error connecting to device - " + ex);
-                        }
-                    });
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-                return () =>
-                {
-                    state.Dispose();
-                    this.Disconnect();
-                };
-            })
-            .Replay(1)
-            .RefCount();
-
-            return this.connOb;
+        public virtual void Dispose(bool disposing)
+        {
         }
     }
 }

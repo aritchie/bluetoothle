@@ -1,5 +1,6 @@
 ﻿using System;
-
+using System.Linq;
+using System.Reactive.Linq;
 
 namespace Acr.Ble
 {
@@ -18,5 +19,13 @@ namespace Acr.Ble
         public bool IsPrimary { get; }
         public virtual string Description => Dictionaries.GetServiceDescription(this.Uuid);
         public abstract IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();
+
+
+        public virtual IObservable<IGattCharacteristic> FindCharacteristics(params Guid[] characteristicUuids) 
+        {
+            return this.WhenCharacteristicDiscovered()
+                       .Take(1)
+                       .Where(x => characteristicUuids.Any(y => y.Equals(x)));
+        }
     }
 }

@@ -9,6 +9,7 @@ namespace Acr.Ble
 
         Guid Uuid { get; }
         string Description { get; }
+        IObservable<IGattCharacteristic> FindCharacteristics(params Guid[] characteristicUuids);
         IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();
     }
 }
