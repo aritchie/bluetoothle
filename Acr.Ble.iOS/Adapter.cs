@@ -54,6 +54,12 @@ namespace Acr.Ble
         }
 
 
+        public IObservable<IDevice> Connect(Guid deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+
         public IEnumerable<IDevice> GetConnectedDevices()
         {
             return this.context.GetConnectedDevices();

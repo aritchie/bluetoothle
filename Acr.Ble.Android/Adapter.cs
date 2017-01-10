@@ -31,6 +31,12 @@ namespace Acr.Ble
         public bool IsScanning => this.manager.Adapter.IsDiscovering;
 
 
+        public IObservable<IDevice> Connect(Guid deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+
         public IEnumerable<IDevice> GetConnectedDevices()
         {
             return this.manager
