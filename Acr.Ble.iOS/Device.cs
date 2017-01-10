@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Linq;
 using CoreBluetooth;
 using Foundation;
@@ -44,32 +45,40 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<ConnectionStatus> CreatePersistentConnection()
-        {
-            return Observable.Create<ConnectionStatus>(async ob =>
-            {
-                var loop = true;
-                while (loop)
-                {
-                    try
-                    {
-                        await this.Connect();
-                        loop = false;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("Failed to reconnect - " + ex);
-                    }
-                }
+        //public override IObservable<ConnectionStatus> CreatePersistentConnection()
+        //{
+        //    return Observable.Create<ConnectionStatus>(async ob =>
+        //    {
+        //        var loop = true;
+        //        while (loop)
+        //        {
+        //            try
+        //            {
+        //                await this.Connect();
+        //                loop = false;
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Debug.WriteLine("Failed to reconnect - " + ex);
+        //            }
+        //        }
 
-                var sub = this.WhenStatusChanged().Subscribe(ob.OnNext);
-                return () =>
-                {
-                    loop = false;
-                    sub.Dispose();
-                    this.Disconnect();
-                };
-            });
+        //        var sub = this.WhenStatusChanged().Subscribe(ob.OnNext);
+        //        return () =>
+        //        {
+        //            loop = false;
+        //            sub.Dispose();
+        //            this.Disconnect();
+        //        };
+        //    });
+        //}
+
+
+        public override IObservable<IGattService> FindServices(params Guid[] serviceUuids)
+        {
+            var ob = this.WhenServiceDiscovered();
+            this.peripheral.DiscoverServices(serviceUuids.Select(x => x.ToCBUuid()).ToArray());
+            return ob;
         }
 
 
@@ -115,7 +124,7 @@ namespace Acr.Ble
         }
 
 
-        public override void Disconnect()
+        public override void CancelConnection()
         {
             this.context.Manager.CancelPeripheralConnection(this.peripheral);
         }

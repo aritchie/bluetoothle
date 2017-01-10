@@ -20,7 +20,7 @@ namespace Acr.Ble
         readonly GattCallbacks callbacks;
         readonly TaskScheduler scheduler;
         readonly Subject<ConnectionStatus> connSubject;
-        GattContext context;
+
 
 
         public Device(BluetoothManager manager,
@@ -33,6 +33,21 @@ namespace Acr.Ble
             this.callbacks = callbacks;
             this.scheduler = scheduler; // this is the thread that the device was scanned on (required by some devices)
             this.connSubject = new Subject<ConnectionStatus>();
+        }
+
+
+        GattContext context;
+        protected virtual GattContext Context
+        {
+            get
+            {
+                if (this.context == null)
+                {
+                    var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
+                    this.context = new GattContext(conn, this.callbacks);                    
+                }
+                return this.context;
+            }
         }
 
 
@@ -60,37 +75,46 @@ namespace Acr.Ble
         }
 
 
+        IDisposable reconnectOb;
+        protected virtual void SetupReconnection() 
+        {
+            if (this.reconnectOb != null)
+                return;
+
+            var stop = false;
+            this.reconnectOb = this.WhenStatusChanged()
+                .Where(x => x == ConnectionStatus.Disconnected)
+                .Skip(1)
+                .Subscribe(
+                    async _ => 
+                    {
+                        try
+                        {
+                            while (!stop && this.Status != ConnectionStatus.Connected)
+                            {
+                                await Task.Delay(300);
+                                await this.Connect();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine("Failed to reconnect - " + ex);
+                        }
+                    }
+                );
+        }
+
+
         public override IObservable<object> Connect()
         {
-            if (this.Status == ConnectionStatus.Connected)
+            if (this.Status == ConnectionStatus.Connected || this.Status == ConnectionStatus.Connecting)
                 return Observable.Empty<object>();
 
+            this.SetupReconnection();
             return Observable.Create<object>(ob =>
             {
                 var cancelSrc = new CancellationTokenSource();
-                IDisposable connected = null;
-
-                /*{
-                var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
-                {
-                if (!args.IsSuccess) // trigger dc
-                    if (args.Gatt.Device.Equals(this.native))
-                        ob.OnNext(this.Status);
-                });
-                this.callbacks.ConnectionStateChanged += handler;
-
-                 * *
-                    if (args.IsSuccessful)
-                    {
-                        ob.OnNext(this.Status);
-                    }
-                    else
-                    {
-                        ob.OnError(new ArgumentException($"Failed connection attempt - {args.Status}"));
-                        this.Disconnect();
-                    }
-                }*/
-                connected = this
+                var connected = this
                     .WhenStatusChanged()
                     .Take(1)
                     .Where(x => x == ConnectionStatus.Connected)
@@ -101,22 +125,16 @@ namespace Acr.Ble
                     try
                     {
                         ob.OnNext(ConnectionStatus.Connecting);
-                        var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
-                        this.context = new GattContext(conn, this.callbacks);
 
                         switch (AndroidConfig.ConnectionThread)
                         {
                             case ConnectionThread.MainThread:
-                                Application.SynchronizationContext.Post(_ =>
-                                {
-                                    conn.Connect();
-                                }, null);
+                                Application.SynchronizationContext.Post(_ => this.Context.Connect(), null);
                                 break;
 
                             case ConnectionThread.ScanThread:
                                 Task.Factory.StartNew(
-                                    () => conn.Connect(), // TODO: if this crashes, need to junk out the observable
-                                    // this could still fire even if we cancel it thereby tying up the connection
+                                    () => this.Context.Connect(),
                                     cancelSrc.Token,
                                     TaskCreationOptions.None,
                                     this.scheduler
@@ -125,7 +143,7 @@ namespace Acr.Ble
 
                             case ConnectionThread.Default:
                             default:
-                                conn.Connect();
+                                this.Context.Connect();
                                 break;
                         }
                     }
@@ -144,13 +162,15 @@ namespace Acr.Ble
         }
 
 
-        public override void Disconnect()
+        public override void CancelConnection()
         {
             if (this.Status != ConnectionStatus.Connected)
                 return;
 
             this.connSubject.OnNext(ConnectionStatus.Disconnecting);
-            this.context?.Dispose();
+            this.reconnectOb?.Dispose();
+            this.reconnectOb = null;
+            this.context.Close();
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
         }
 
@@ -438,10 +458,9 @@ namespace Acr.Ble
             var other = obj as Device;
             if (other == null)
                 return false;
-
-            // TODO: native might not be ready
-            //if (!this.native.Equals(other.native))
-            //    return false;
+            
+            if (!this.native.Equals(other.native))
+                return false;
 
             return true;
         }
@@ -450,6 +469,13 @@ namespace Acr.Ble
         public override string ToString()
         {
             return this.Uuid.ToString();
+        }
+
+
+        public override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            this.context?.Dispose();
         }
     }
 }

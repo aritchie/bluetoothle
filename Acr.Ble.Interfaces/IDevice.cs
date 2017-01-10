@@ -6,23 +6,37 @@ namespace Acr.Ble
 
     public interface IDevice
     {
+        /// <summary>
+        /// The device name - note that this is not readable in the background on most platforms
+        /// </summary>
         string Name { get; }
-        Guid Uuid { get; }
-        ConnectionStatus Status { get; }
 
-        void Disconnect();
 
         /// <summary>
-        /// This is a combination of 3 things - connection management, disconnect (dispose to dc), and state monitoring.  If you don't dispose, reconnect is implied
+        /// The device ID - note that this will not be the same per platform
         /// </summary>
-        /// <returns></returns>
-        IObservable<ConnectionStatus> CreatePersistentConnection();
+        Guid Uuid { get; }
+
+
+        /// <summary>
+        /// The current connection status
+        /// </summary>
+        /// <value>The status.</value>
+        ConnectionStatus Status { get; }
+
 
         /// <summary>
         /// Connect to a device
         /// </summary>
         /// <returns></returns>
         IObservable<object> Connect();
+
+
+        /// <summary>
+        /// Disconnect from the device and cancel persistent connection
+        /// </summary>
+        void CancelConnection();
+
 
         /// <summary>
         /// Monitor when RSSI updates
@@ -37,6 +51,14 @@ namespace Acr.Ble
         /// </summary>
         /// <returns></returns>
         IObservable<ConnectionStatus> WhenStatusChanged();
+
+
+        /// <summary>
+        /// Gets a service by its known UUID
+        /// </summary>
+        /// <returns>The service.</returns>
+        /// <param name="serviceId">Service identifier.</param>
+        IObservable<IGattService> FindServices(params Guid[] serviceId);
 
 
         /// <summary>
@@ -86,11 +108,13 @@ namespace Acr.Ble
         /// <param name="size"></param>
         IObservable<int> RequestMtu(int size);
 
+
         /// <summary>
         /// Gets the size of the current mtu.
         /// </summary>
         /// <returns>The current mtu size.</returns>
         int GetCurrentMtuSize();
+
 
         /// <summary>
         /// Fires when MTU size changes
@@ -99,8 +123,3 @@ namespace Acr.Ble
         IObservable<int> WhenMtuChanged();
     }
 }
-//IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();
-//IObservable<IGattCharacteristic, byte[]> WhenCharacteristicValueChanged();
-//IObservable<IGattDescriptor> WhenDescriptorDiscovered();
-//IObservable<IGattService> WhenServiceRemoved();
-//IObserver<IGattService> WhenServiceInvalidated();
