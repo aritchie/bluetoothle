@@ -16,12 +16,23 @@ namespace Acr.Ble.Internals
         public BluetoothGatt Gatt { get; }
         public GattCallbacks Callbacks { get; }
 
+        public bool Connect() 
+        {
+            return this.Gatt.Connect();
+        }
+
+
+        public void Close()
+        {
+            this.Gatt.Close();
+            this.Gatt.Disconnect();            
+        }
+
 
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            this.Gatt.Close();
-            this.Gatt.Disconnect();
+            this.Close();
         }
     }
 }
