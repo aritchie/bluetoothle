@@ -11,6 +11,12 @@ namespace Acr.Ble
 {
     public static class Extensions
     {
+        public static IObservable<IScanResult> ScanOrListen(this IAdapter adapter) 
+        {
+            return adapter.IsScanning ? adapter.ScanListen() : adapter.Scan();
+        }
+
+
         public static IObservable<CharacteristicResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
         {
             return Observable.Create<CharacteristicResult>(async ob =>
