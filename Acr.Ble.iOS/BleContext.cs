@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using CoreBluetooth;
@@ -43,31 +44,26 @@ namespace Acr.Ble
         }
 
 
-        public IObservable<IEnumerable<IDevice>> GetConnectedDevices()
+        public IEnumerable<IDevice> GetConnectedDevices()
         {
-#if __IOS__
-            return Observable.Create<IEnumerable<IDevice>>(ob =>
-            {
-                var handler = new EventHandler<CBPeripheralsEventArgs>((sender, args) => 
-                {
-                    var devs = args.Peripherals.Select(this.GetDevice);
-                    ob.Respond(devs);
-                });
-                this.Manager.RetrievedConnectedPeripherals += handler;
-                this.Manager.RetrieveConnectedPeripherals();
-
-                return () => this.Manager.RetrievedConnectedPeripherals -= handler;
-            });
-#else
-            return Observable.Return(this.peripherals
-                .Where(x => x.Value.Status == ConnectionStatus.Connected || x.Value.Status == ConnectionStatus.Connecting)
-                .Select(x => x.Value)
-            );
-#endif
+//#if __IOS__
+            // TODO: RetrieveConnectedPeripherals() async version crashes with bad selector
+            // TODO: this method doesn't work
+            //return this.Manager
+            //    .RetrieveConnectedPeripherals(new CBUUID[0])
+            //    .Select(this.GetDevice);
+//#else
+            return this.peripherals
+                .Where(x => 
+                    x.Value.Status == ConnectionStatus.Connected || 
+                    x.Value.Status == ConnectionStatus.Connecting
+                )
+                .Select(x => x.Value);
+//#endif
         }
 
 
-        public void Clear()
+        public void Clear()    
         {
             IDevice _;
             this.peripherals

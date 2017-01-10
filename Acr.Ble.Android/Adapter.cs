@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -32,17 +31,11 @@ namespace Acr.Ble
         public bool IsScanning => this.manager.Adapter.IsDiscovering;
 
 
-        public IObservable<IEnumerable<IDevice>> GetConnectedDevices()
+        public IEnumerable<IDevice> GetConnectedDevices()
         {
-            return Observable.Create<IEnumerable<IDevice>>(ob =>
-            {
-                var devices = this.manager
-                    .GetConnectedDevices(ProfileType.Gatt)
-                    .Select(x => this.context.Devices.GetDevice(x, TaskScheduler.Current));
-                ob.Respond(devices);
-
-                return Disposable.Empty;
-            });
+            return this.manager
+                .GetConnectedDevices(ProfileType.Gatt)
+                .Select(x => this.context.Devices.GetDevice(x, TaskScheduler.Current));
         }
 
 

@@ -54,7 +54,7 @@ namespace Acr.Ble
         }
 
 
-        public IObservable<IEnumerable<IDevice>> GetConnectedDevices()
+        public IEnumerable<IDevice> GetConnectedDevices()
         {
             return this.context.GetConnectedDevices();
         }
@@ -95,13 +95,13 @@ namespace Acr.Ble
 
         public IObservable<IScanResult> Scan(ScanConfig config)
         {
+            config = config ?? new ScanConfig();
             if (this.IsScanning)
                 throw new ArgumentException("There is already an existing scan");
 
             if (config.ScanType == BleScanType.Background && config.ServiceUuid == null)
                 throw new ArgumentException("Background scan type set but not ServiceUUID");
-
-            config = config ?? new ScanConfig();
+            
             return Observable.Create<IScanResult>(ob =>
             {
                 this.context.Clear();

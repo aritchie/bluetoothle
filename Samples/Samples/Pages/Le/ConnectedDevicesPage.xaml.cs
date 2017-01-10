@@ -1,4 +1,6 @@
 ﻿using System;
+using Autofac;
+using Samples.ViewModels.Le;
 
 
 namespace Samples.Pages.Le
@@ -8,6 +10,7 @@ namespace Samples.Pages.Le
         public ConnectedDevicesPage()
         {
             InitializeComponent();
+            this.BindingContext = App.Container.Resolve<ConnectedDevicesViewModel>();
         }
     }
 }

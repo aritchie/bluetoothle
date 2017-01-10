@@ -31,14 +31,13 @@ namespace Samples.ViewModels.Le
             this.ConnectionToggle = ReactiveCommand.CreateFromTask(
                 x =>
                 {
+                    // don't cleanup connection - force user to d/c
                     if (this.conn == null)
                     {
                         this.conn = this.device.CreatePersistentConnection().Subscribe();
-                        this.cleanup.Add(this.conn);
                     }
                     else
                     {
-                        this.cleanup.Remove(this.conn);
                         this.conn?.Dispose();
                         this.conn = null;
                     }

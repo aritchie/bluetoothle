@@ -35,7 +35,7 @@ namespace Samples.ViewModels.Le
                 .SetTitle($"Description - {this.Description} - {this.Uuid}")
                 .SetCancel()
                 .Add("Read", async () => await this.Read())
-                .Add("Write", async () => await this.Write())
+                //.Add("Write", async () => await this.Write())
             );
         }
 
@@ -57,10 +57,10 @@ namespace Samples.ViewModels.Le
         }
 
 
-        async Task Write()
-        {
-            //var value = await this.Descriptor.Write(
-        }
+        //async Task Write()
+        //{
+        //    //var value = await this.Descriptor.Write(
+        //}
     }
 }
 
