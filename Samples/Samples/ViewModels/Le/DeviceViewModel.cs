@@ -18,7 +18,6 @@ namespace Samples.ViewModels.Le
 
     public class DeviceViewModel : AbstractRootViewModel
     {
-        IDisposable conn;
         readonly IList<IDisposable> cleanup = new List<IDisposable>();
         IDevice device;
 
@@ -32,14 +31,13 @@ namespace Samples.ViewModels.Le
                 x =>
                 {
                     // don't cleanup connection - force user to d/c
-                    if (this.conn == null)
+                    if (this.device.Status == ConnectionStatus.Connected)
                     {
-                        this.conn = this.device.CreatePersistentConnection().Subscribe();
+                        this.device.Connect();
                     }
                     else
                     {
-                        this.conn?.Dispose();
-                        this.conn = null;
+                        this.device.CancelConnection();
                     }
                     return Task.FromResult(Unit.Default);
                 },

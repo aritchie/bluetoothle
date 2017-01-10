@@ -80,7 +80,7 @@
     <Compile Include="Utils.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="ViewModels\Le\ConnectedDevicesViewModel.cs" />
-    <Compile Include="Tasks\RestoreConnectionNotificationTask.cs" />
+    <Compile Include="Tasks\BackgroundNotificationTask.cs" />
     <Compile Include="Pages\Le\ConnectedDevicesPage.xaml.cs">
       <DependentUpon>ConnectedDevicesPage.xaml</DependentUpon>
     </Compile>
