@@ -75,42 +75,10 @@ namespace Acr.Ble
         }
 
 
-        IDisposable reconnectOb;
-        protected virtual void SetupReconnection() 
-        {
-            if (this.reconnectOb != null)
-                return;
-
-            var stop = false;
-            this.reconnectOb = this.WhenStatusChanged()
-                .Where(x => x == ConnectionStatus.Disconnected)
-                .Skip(1)
-                .Subscribe(
-                    async _ => 
-                    {
-                        try
-                        {
-                            while (!stop && this.Status != ConnectionStatus.Connected)
-                            {
-                                await Task.Delay(300);
-                                await this.Connect();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine("Failed to reconnect - " + ex);
-                        }
-                    }
-                );
-        }
-
-
         public override IObservable<object> Connect()
         {
-            if (this.Status == ConnectionStatus.Connected || this.Status == ConnectionStatus.Connecting)
-                return Observable.Empty<object>();
+            this.SetupAutoReconnect();
 
-            this.SetupReconnection();
             return Observable.Create<object>(ob =>
             {
                 var cancelSrc = new CancellationTokenSource();
@@ -164,12 +132,11 @@ namespace Acr.Ble
 
         public override void CancelConnection()
         {
+            base.CancelConnection();
             if (this.Status != ConnectionStatus.Connected)
                 return;
 
             this.connSubject.OnNext(ConnectionStatus.Disconnecting);
-            this.reconnectOb?.Dispose();
-            this.reconnectOb = null;
             this.context.Close();
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
         }

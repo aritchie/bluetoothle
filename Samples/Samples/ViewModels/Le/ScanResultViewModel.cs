@@ -8,7 +8,7 @@ namespace Samples.ViewModels.Le
 {
     public class ScanResultViewModel : AbstractViewModel
     {
-        IDisposable nameOb;
+        //IDisposable nameOb;
         public IDevice Device { get; private set; }
         [Reactive] public string Name { get; private set; }
         [Reactive] public bool IsConnected { get; set; }
@@ -29,10 +29,10 @@ namespace Samples.ViewModels.Le
             {
                 this.Device = result.Device;
                 this.Uuid = this.Device.Uuid;
-                this.nameOb = result
-                    .Device
-                    .WhenNameUpdated()
-                    .Subscribe(x => this.Name = x);
+                //this.nameOb = result
+                //    .Device
+                //    .WhenNameUpdated()
+                //    .Subscribe(x => this.Name = x);
 
                 response = true;
             }

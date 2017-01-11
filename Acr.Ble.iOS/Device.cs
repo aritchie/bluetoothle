@@ -45,35 +45,6 @@ namespace Acr.Ble
         }
 
 
-        //public override IObservable<ConnectionStatus> CreatePersistentConnection()
-        //{
-        //    return Observable.Create<ConnectionStatus>(async ob =>
-        //    {
-        //        var loop = true;
-        //        while (loop)
-        //        {
-        //            try
-        //            {
-        //                await this.Connect();
-        //                loop = false;
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                Debug.WriteLine("Failed to reconnect - " + ex);
-        //            }
-        //        }
-
-        //        var sub = this.WhenStatusChanged().Subscribe(ob.OnNext);
-        //        return () =>
-        //        {
-        //            loop = false;
-        //            sub.Dispose();
-        //            this.Disconnect();
-        //        };
-        //    });
-        //}
-
-
         public override IObservable<IGattService> FindServices(params Guid[] serviceUuids)
         {
             var ob = this.WhenServiceDiscovered();
@@ -84,6 +55,8 @@ namespace Acr.Ble
 
         public override IObservable<object> Connect()
         {
+            this.SetupAutoReconnect();
+
             return Observable.Create<object>(ob =>
             {
                 IDisposable sub1 = null;
@@ -126,6 +99,7 @@ namespace Acr.Ble
 
         public override void CancelConnection()
         {
+            base.CancelConnection();
             this.context.Manager.CancelPeripheralConnection(this.peripheral);
         }
 

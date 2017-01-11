@@ -27,25 +27,18 @@ namespace Samples.ViewModels.Le
             this.SelectCharacteristic = new Acr.Command<GattCharacteristicViewModel>(x => x.Select());
             this.SelectDescriptor = new Acr.Command<GattDescriptorViewModel>(x => x.Select());
 
-            this.ConnectionToggle = ReactiveCommand.CreateFromTask(
-                x =>
+            this.ConnectionToggle = ReactiveCommand.CreateFromTask(async x =>
+            {
+                // don't cleanup connection - force user to d/c
+                if (this.device.Status == ConnectionStatus.Disconnected)
                 {
-                    // don't cleanup connection - force user to d/c
-                    if (this.device.Status == ConnectionStatus.Connected)
-                    {
-                        this.device.Connect();
-                    }
-                    else
-                    {
-                        this.device.CancelConnection();
-                    }
-                    return Task.FromResult(Unit.Default);
-                },
-                this.WhenAny(
-                    x => x.Status,
-                    x => x.Value != ConnectionStatus.Disconnecting
-                )
-            );
+                    await this.device.Connect();
+                }
+                else
+                {
+                    this.device.CancelConnection();
+                }
+            });
             this.PairToDevice = ReactiveCommand.CreateFromTask(async x =>
             {
                 if (!this.device.IsPairingRequestSupported)
