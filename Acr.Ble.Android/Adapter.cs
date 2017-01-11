@@ -31,9 +31,13 @@ namespace Acr.Ble
         public bool IsScanning => this.manager.Adapter.IsDiscovering;
 
 
-        public IObservable<IDevice> Connect(Guid deviceId)
+        public IDevice GetKnownDevice(Guid deviceId)
         {
-            throw new NotImplementedException();
+            // TODO: guid flip the end in toString.... need to test this
+            var native = this.manager.Adapter.GetRemoteDevice(deviceId.ToString());
+            var device = this.context.Devices.GetDevice(native, TaskScheduler.Current);
+            return device;
+
         }
 
 
