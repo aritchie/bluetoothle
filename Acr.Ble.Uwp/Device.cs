@@ -24,11 +24,6 @@ namespace Acr.Ble
             this.adapter = adapter;
             this.deviceInfo = deviceInfo;
             this.deviceSubject = new Subject<bool>();
-
-            //this.Name = adData.Native.GetDeviceName();
-            //var mac = this.ToMacAddress(adData.BluetoothAddress);
-            //var uuid = this.ToDeviceId(mac);
-            //this.Uuid = uuid;
         }
 
 
@@ -36,25 +31,25 @@ namespace Acr.Ble
         public Guid Uuid { get; }
 
 
-        public IObservable<ConnectionStatus> CreatePersistentConnection()
-        {
-            return Observable.Create<ConnectionStatus>(async ob =>
-            {
-                var status = this
-                    .WhenStatusChanged()
-                    .Subscribe(s =>
-                    {
-                        ob.OnNext(s);
-                    // may not want to do this on UWP
-                    //if (s == ConnectionStatus.Disconnected)
-                    //    this.Connect();
-                });
-                // TODO: reconnect
-                await this.Connect();
+        //public IObservable<ConnectionStatus> CreatePersistentConnection()
+        //{
+        //    return Observable.Create<ConnectionStatus>(async ob =>
+        //    {
+        //        var status = this
+        //            .WhenStatusChanged()
+        //            .Subscribe(s =>
+        //            {
+        //                ob.OnNext(s);
+        //            // may not want to do this on UWP
+        //            //if (s == ConnectionStatus.Disconnected)
+        //            //    this.Connect();
+        //        });
+        //        // TODO: reconnect
+        //        await this.Connect();
 
-                return status;
-            });
-        }
+        //        return status;
+        //    });
+        //}
 
 
         public IObservable<object> Connect()
@@ -74,6 +69,7 @@ namespace Acr.Ble
                     if (this.native == null)
                         throw new ArgumentException("Device Not Found");
 
+                    // TODO: auto pairing config?
                     if (this.native.DeviceInformation.Pairing.CanPair && !this.native.DeviceInformation.Pairing.IsPaired)
                     {
                         var dpr = await this.native.DeviceInformation.Pairing.PairAsync(DevicePairingProtectionLevel.None);
@@ -99,7 +95,7 @@ namespace Acr.Ble
         }
 
 
-        public void Disconnect()
+        public void CancelConnection()
         {
             if (this.Status != ConnectionStatus.Connected)
                 return;
@@ -213,6 +209,12 @@ namespace Acr.Ble
             .RefCount();
 
             return this.nameOb;
+        }
+
+
+        public IObservable<IGattService> FindServices(params Guid[] serviceId)
+        {
+            throw new NotImplementedException();
         }
 
 

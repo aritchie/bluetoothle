@@ -63,17 +63,21 @@ namespace Acr.Ble
         }
 
 
-        public override void WriteWithoutResponse(byte[] value)
+        // TODO: reliable write with streams
+
+        public override void WriteWithoutResponse(byte[] value, bool reliableWrite)
         {
+            // TODO: reliable write
             this.AssertWrite(false);
             this.native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse);
             this.Value = value;
-            //this.WriteSubject.OnNext(this.Value);
+            this.WriteSubject.OnNext(new CharacteristicResult(this, CharacteristicEvent.Write, this.Value));
         }
 
 
-        public override IObservable<CharacteristicResult> Write(byte[] value)
+        public override IObservable<CharacteristicResult> Write(byte[] value, bool reliableWrite)
         {
+            // TODO: reliable write
             this.AssertWrite(false);
 
             return Observable.Create<CharacteristicResult>(async ob =>
