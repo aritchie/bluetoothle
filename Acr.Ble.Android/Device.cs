@@ -44,7 +44,7 @@ namespace Acr.Ble
                 if (this.context == null)
                 {
                     var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
-                    this.context = new GattContext(conn, this.callbacks);                    
+                    this.context = new GattContext(conn, this.callbacks);
                 }
                 return this.context;
             }
@@ -73,6 +73,7 @@ namespace Acr.Ble
                 }
             }
         }
+
 
 
         public override IObservable<object> Connect()
@@ -425,7 +426,7 @@ namespace Acr.Ble
             var other = obj as Device;
             if (other == null)
                 return false;
-            
+
             if (!this.native.Equals(other.native))
                 return false;
 

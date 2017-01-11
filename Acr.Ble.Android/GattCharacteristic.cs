@@ -28,14 +28,14 @@ namespace Acr.Ble
         }
 
 
-        public override void WriteWithoutResponse(byte[] value)
+        public override void WriteWithoutResponse(byte[] value, bool reliableWrite)
         {
             this.AssertWrite(false);
             this.RawWriteNoResponse(null, value);
         }
 
 
-        public override IObservable<CharacteristicResult> Write(byte[] value)
+        public override IObservable<CharacteristicResult> Write(byte[] value, bool reliableWrite)
         {
             this.AssertWrite(false);
 

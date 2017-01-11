@@ -7,10 +7,10 @@ namespace Acr.Ble
     public interface IAdapter
     {
         /// <summary>
-        /// Connect to a known device
+        /// Get a known device
         /// </summary>
         /// <param name="deviceId">Device identifier.</param>
-        IObservable<IDevice> Connect(Guid deviceId);
+        IDevice GetKnownDevice(Guid deviceId);
 
         /// <summary>
         /// Returns current status of adapter (on/off/permission)

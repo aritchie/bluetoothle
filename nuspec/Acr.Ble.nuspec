@@ -39,6 +39,7 @@ macOS
 [breaking] Disconnect has been renamed to CancelConnection as it cancels any pending connections now
 [fix][droid] disconnect on existing connection tries
 [fix][droid] more gatt 133 issues
+[fix][all] Blob write observable subscriptions not firing properly
 
 
 1.3
