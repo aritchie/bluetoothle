@@ -28,7 +28,6 @@ namespace Acr.Ble
         public CharacteristicProperties Properties { get; }
         public byte[] Value { get; protected set; }
 
-        public abstract void WriteWithoutResponse(byte[] value);
         public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();
         public abstract IObservable<CharacteristicResult> SubscribeToNotifications();
         public virtual IObservable<CharacteristicResult> WhenNotificationReceived() => this.NotifySubject;
@@ -36,18 +35,19 @@ namespace Acr.Ble
         public abstract IObservable<CharacteristicResult> Read();
         public virtual IObservable<CharacteristicResult> WhenRead() => this.ReadSubject;
 
-        public abstract IObservable<CharacteristicResult> Write(byte[] value);
         public virtual IObservable<CharacteristicResult> WhenWritten() => this.WriteSubject;
+        public abstract void WriteWithoutResponse(byte[] value, bool reliableWrite);
+        public abstract IObservable<CharacteristicResult> Write(byte[] value, bool reliableWrite);
 
 
-        public virtual IObservable<BleWriteSegment> BlobWrite(byte[] value)
+        public virtual IObservable<BleWriteSegment> BlobWrite(byte[] value, bool reliableWrite)
         {
             // don't need to dispose of memorystream
-            return this.BlobWrite(new MemoryStream(value));
+            return this.BlobWrite(new MemoryStream(value), reliableWrite);
         }
 
 
-        public virtual IObservable<BleWriteSegment> BlobWrite(Stream stream)
+        public virtual IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite)
         {
             return Observable.Create<BleWriteSegment>(async ob =>
             {
@@ -60,8 +60,10 @@ namespace Acr.Ble
 
                 while (!cts.IsCancellationRequested && read > 0)
                 {
-                    await this.Write(buffer).RunAsync(cts.Token);
+                    await this.Write(buffer, reliableWrite).RunAsync(cts.Token);
                     var seg = new BleWriteSegment(buffer, pos, len);
+                    ob.OnNext(seg);
+
                     read = stream.Read(buffer, 0, buffer.Length);
                     pos += read;
                 }

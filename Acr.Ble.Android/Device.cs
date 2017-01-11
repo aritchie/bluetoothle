@@ -44,7 +44,7 @@ namespace Acr.Ble
                 if (this.context == null)
                 {
                     var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
-                    this.context = new GattContext(conn, this.callbacks);                    
+                    this.context = new GattContext(conn, this.callbacks);
                 }
                 return this.context;
             }
@@ -76,7 +76,7 @@ namespace Acr.Ble
 
 
         IDisposable reconnectOb;
-        protected virtual void SetupReconnection() 
+        protected virtual void SetupReconnection()
         {
             if (this.reconnectOb != null)
                 return;
@@ -86,7 +86,7 @@ namespace Acr.Ble
                 .Where(x => x == ConnectionStatus.Disconnected)
                 .Skip(1)
                 .Subscribe(
-                    async _ => 
+                    async _ =>
                     {
                         try
                         {
@@ -458,7 +458,7 @@ namespace Acr.Ble
             var other = obj as Device;
             if (other == null)
                 return false;
-            
+
             if (!this.native.Equals(other.native))
                 return false;
 

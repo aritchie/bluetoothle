@@ -13,12 +13,6 @@ namespace Acr.Ble
         CharacteristicProperties Properties { get; }
 
         /// <summary>
-        /// This will fire and forget a write
-        /// </summary>
-        /// <param name="value"></param>
-        void WriteWithoutResponse(byte[] value);
-
-        /// <summary>
         /// The current value of the characteristic
         /// </summary>
         byte[] Value { get; }
@@ -41,20 +35,32 @@ namespace Acr.Ble
         IObservable<IGattDescriptor> WhenDescriptorDiscovered();
 
         /// <summary>
+        /// This will fire and forget a write
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="reliableWrite">Use reliable write atomic writing if available (windows and android)</param>
+        void WriteWithoutResponse(byte[] value, bool reliableWrite = false);
+
+        /// <summary>
         /// Writes the value to the remote characteristic
         /// </summary>
-        /// <param name="value">The bytes to send - default max is 20 bytes</param>
-        IObservable<CharacteristicResult> Write(byte[] value);
+        /// <param name="value">The bytes to send</param>
+        /// <param name="reliableWrite">Use reliable write atomic writing if available (windows and android)</param>
+        IObservable<CharacteristicResult> Write(byte[] value, bool reliableWrite = false);
 
         /// <summary>
         /// Used for writing blobs
         /// </summary>
-        IObservable<BleWriteSegment> BlobWrite(byte[] value);
+        /// <param name="value">The bytes to send</param>
+        /// <param name="reliableWrite">Use reliable write atomic writing if available (windows and android)</param>
+        IObservable<BleWriteSegment> BlobWrite(byte[] value, bool reliableWrite = false);
 
         /// <summary>
         /// Used for writing blobs
         /// </summary>
-        IObservable<BleWriteSegment> BlobWrite(Stream stream);
+        /// <param name="stream">The stream to send</param>
+        /// <param name="reliableWrite">Use reliable write atomic writing if available (windows and android)</param>
+        IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite = false);
 
         /// <summary>
         /// Monitor write tasks

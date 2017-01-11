@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using CoreBluetooth;
@@ -54,9 +55,11 @@ namespace Acr.Ble
         }
 
 
-        public IObservable<IDevice> Connect(Guid deviceId)
+        public IDevice GetKnownDevice(Guid deviceId)
         {
-            throw new NotImplementedException();
+            var peripheral = this.context.Manager.RetrievePeripheralsWithIdentifiers(deviceId.ToNSUuid()).FirstOrDefault();
+            var device = this.context.GetDevice(peripheral);
+            return device;
         }
 
 
@@ -107,7 +110,7 @@ namespace Acr.Ble
 
             if (config.ScanType == BleScanType.Background && config.ServiceUuid == null)
                 throw new ArgumentException("Background scan type set but not ServiceUUID");
-            
+
             return Observable.Create<IScanResult>(ob =>
             {
                 this.context.Clear();
