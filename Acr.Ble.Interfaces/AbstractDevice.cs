@@ -90,6 +90,7 @@ namespace Acr.Ble
         public virtual void Dispose(bool disposing)
         {
             this.ReconnectSubscription?.Dispose();
+            this.ReconnectSubscription = null;
         }
 
 
@@ -97,7 +98,7 @@ namespace Acr.Ble
         protected IDisposable ReconnectSubscription { get; set; }
         protected virtual void SetupAutoReconnect()
         {
-            if (this.ReconnectSubscription == null)
+            if (this.ReconnectSubscription != null)
                 return;
 
             this.cancelReconnect = false;

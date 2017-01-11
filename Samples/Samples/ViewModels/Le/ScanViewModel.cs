@@ -105,11 +105,11 @@ namespace Samples.ViewModels.Le
             base.OnActivate();
             this.BleAdapter
                 .WhenStatusChanged()
-                .Subscribe(x =>
+                .Subscribe(x => Device.BeginInvokeOnMainThread(() =>
                 {
                     this.IsSupported = x == AdapterStatus.PoweredOn;
                     this.Title = $"BLE Scanner ({x})";
-                });
+                }));
         }
 
 
