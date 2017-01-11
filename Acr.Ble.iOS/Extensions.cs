@@ -31,7 +31,7 @@ namespace Acr.Ble
 
         public static NSUuid ToNSUuid(this Guid guid)
         {
-            return new NSUuid(guid.ToByteArray());
+            return new NSUuid(guid.ToString());
         }
     }
 }
