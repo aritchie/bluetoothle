@@ -3,11 +3,13 @@
 ## 2.0
 * [feature] UWP support!
 * [feature] macOS support!
+* [feature][all] Connection configuration allows you to set connection priority, notification states on iOS/tvOS/macOS, and whether or not to make the connection persistent
 * [feature][macos/tvos/ios] Background mode via CBCentralInitOptions - On the platform project use BleAdapter.Init(BleAdapterConfiguration)
 * [feature][ios] Background - Adapter.WhenDeviceStateRestored() will allow to hook for background state restoration (must be used in conjunction with BleAdapter.Init)
-* [feature][uwp][droid] reliable writes!
+* [feature][uwp][droid] Reliable write transaction via Device.BeginReliableWriteTransaction() and GattReliableWriteTransaction
+* [feature][uwp][droid] WriteBlob now uses reliable write transactions
 * [feature] Device.GetService(Guid[]) and Service.GetCharacteristic(Guid[]) optimized calls
-* [feature] Adapter.Connect(Guid) to be able to connect to a known device
+* [feature] Adapter.GetKnownDevice(Guid) - explanation in the signature :)
 * [breaking][feature] RequestMtu now returns as an observable with what the accepted MTU was
 * [breaking] CreateConnection is gone - created more issues than it solved - Use Connect() as it creates persistent connections out of the gate
 * [breaking] Disconnect has been renamed to CancelConnection as it cancels any pending connections now
