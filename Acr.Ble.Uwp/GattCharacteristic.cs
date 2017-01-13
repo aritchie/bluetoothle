@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -13,21 +14,20 @@ namespace Acr.Ble
 {
     public class GattCharacteristic : AbstractGattCharacteristic
     {
-        readonly Native native;
-
-
         public GattCharacteristic(Native native, IGattService service) : base(service, native.Uuid, (CharacteristicProperties)native.CharacteristicProperties)
         {
-            this.native = native;
+            this.Native = native;
         }
 
+
+        public Native Native { get; }
 
         IObservable<IGattDescriptor> descriptorOb;
         public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
         {
             this.descriptorOb = this.descriptorOb ?? Observable.Create<IGattDescriptor>(ob =>
             {
-                var natives = this.native.GetAllDescriptors();
+                var natives = this.Native.GetAllDescriptors();
                 foreach (var dnative in natives)
                 {
                     var descriptor = new GattDescriptor(dnative, this);
@@ -46,7 +46,7 @@ namespace Acr.Ble
 
             return Observable.Create<CharacteristicResult>(async ob =>
             {
-                var result = await this.native.ReadValueAsync(BluetoothCacheMode.Uncached);
+                var result = await this.Native.ReadValueAsync(BluetoothCacheMode.Uncached);
                 if (result.Status != GattCommunicationStatus.Success)
                 {
                     ob.OnError(new Exception("Error reading characteristics - " + result.Status));
@@ -63,26 +63,32 @@ namespace Acr.Ble
         }
 
 
-        // TODO: reliable write with streams
-
-        public override void WriteWithoutResponse(byte[] value, bool reliableWrite)
+        public override IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite)
         {
-            // TODO: reliable write
+            var trans = new GattReliableWriteTransaction();
+
+            return base.BlobWrite(stream, reliableWrite);
+        }
+
+
+
+        public override void WriteWithoutResponse(byte[] value)
+        {
             this.AssertWrite(false);
-            this.native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse);
+            this.Native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse);
             this.Value = value;
             this.WriteSubject.OnNext(new CharacteristicResult(this, CharacteristicEvent.Write, this.Value));
         }
 
 
-        public override IObservable<CharacteristicResult> Write(byte[] value, bool reliableWrite)
+        public override IObservable<CharacteristicResult> Write(byte[] value)
         {
             // TODO: reliable write
             this.AssertWrite(false);
 
             return Observable.Create<CharacteristicResult>(async ob =>
             {
-                var result = await this.native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse);
+                var result = await this.Native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse);
 
                 if (result != GattCommunicationStatus.Success)
                 {
@@ -111,16 +117,16 @@ namespace Acr.Ble
 
                 var handler = new TypedEventHandler<Native, GattValueChangedEventArgs>((sender, args) =>
                 {
-                    if (sender.Equals(this.native))
+                    if (sender.Equals(this.Native))
                     {
                         var bytes = args.CharacteristicValue.ToArray();
                         //ob.OnNext(bytes);
                         //this.NotifySubject.OnNext(bytes);
                     }
                 });
-                this.native.ValueChanged += handler;
+                this.Native.ValueChanged += handler;
 
-                var status = await this.native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
                 if (status != GattCommunicationStatus.Success)
                 {
                     ob.OnError(new Exception("Could not subscribe to notifications"));
@@ -128,8 +134,8 @@ namespace Acr.Ble
 
                 return () =>
                 {
-                    this.native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None).GetResults();
-                    this.native.ValueChanged -= handler;
+                    this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None).GetResults();
+                    this.Native.ValueChanged -= handler;
                 };
             });
             return this.notificationOb;

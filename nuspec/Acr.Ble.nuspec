@@ -31,7 +31,8 @@ macOS
 [feature] macOS support!
 [feature][macos/tvos/ios] Background mode via CBCentralInitOptions - On the platform project use BleAdapter.Init(BleAdapterConfiguration)
 [feature][ios] Background - Adapter.WhenDeviceStateRestored() will allow to hook for background state restoration (must be used in conjunction with BleAdapter.Init)
-[feature][uwp][droid] reliable writes!
+[feature][uwp][droid] Reliable write transaction via Device.BeginReliableWriteTransaction() and GattReliableWriteTransaction
+[feature][uwp][droid] WriteBlob now uses reliable write transactions
 [feature] Device.GetService(Guid[]) and Service.GetCharacteristic(Guid[]) optimized calls
 [feature] Adapter.Connect(Guid) to be able to connect to a known device
 [breaking][feature] RequestMtu now returns as an observable with what the accepted MTU was

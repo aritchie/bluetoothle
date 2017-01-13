@@ -36,8 +36,8 @@ namespace Acr.Ble
         public virtual IObservable<CharacteristicResult> WhenRead() => this.ReadSubject;
 
         public virtual IObservable<CharacteristicResult> WhenWritten() => this.WriteSubject;
-        public abstract void WriteWithoutResponse(byte[] value, bool reliableWrite);
-        public abstract IObservable<CharacteristicResult> Write(byte[] value, bool reliableWrite);
+        public abstract void WriteWithoutResponse(byte[] value);
+        public abstract IObservable<CharacteristicResult> Write(byte[] value);
 
 
         public virtual IObservable<BleWriteSegment> BlobWrite(byte[] value, bool reliableWrite)
@@ -49,27 +49,48 @@ namespace Acr.Ble
 
         public virtual IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite)
         {
+            // TODO: reliable write transaction
+            //this.Service.Device.Adapter.Begin
+
             return Observable.Create<BleWriteSegment>(async ob =>
             {
-                var mtu = this.Service.Device.GetCurrentMtuSize();
                 var cts = new CancellationTokenSource();
-                var buffer = new byte[mtu];
-                var read = stream.Read(buffer, 0, buffer.Length);
-                var pos = read;
-                var len = Convert.ToInt32(stream.Length);
+                var trans = reliableWrite
+                    ? this.Service.Device.BeginReliableWriteTransaction()
+                    : new VoidGattReliableWriteTransaction();
 
-                while (!cts.IsCancellationRequested && read > 0)
+                using (trans)
                 {
-                    await this.Write(buffer, reliableWrite).RunAsync(cts.Token);
-                    var seg = new BleWriteSegment(buffer, pos, len);
-                    ob.OnNext(seg);
+                    var mtu = this.Service.Device.GetCurrentMtuSize();
+                    var buffer = new byte[mtu];
+                    var read = stream.Read(buffer, 0, buffer.Length);
+                    var pos = read;
+                    var len = Convert.ToInt32(stream.Length);
 
-                    read = stream.Read(buffer, 0, buffer.Length);
-                    pos += read;
+                    while (!cts.IsCancellationRequested && read > 0)
+                    {
+                        await trans.Write(this, buffer).RunAsync(cts.Token);
+                        //await this.Write(buffer).RunAsync(cts.Token);
+                        if (this.Value != buffer)
+                        {
+                            trans.Abort();
+                            throw new GattReliableWriteTransactionException("There was a mismatch response");
+                        }
+                        var seg = new BleWriteSegment(buffer, pos, len);
+                        ob.OnNext(seg);
+
+                        read = stream.Read(buffer, 0, buffer.Length);
+                        pos += read;
+                    }
+                    await trans.Commit();
                 }
                 ob.OnCompleted();
 
-                return () => cts.Cancel();
+                return () =>
+                {
+                    cts.Cancel();
+                    trans.Dispose();
+                };
             });
         }
     }

@@ -44,12 +44,6 @@ namespace Acr.Ble
         public bool IsScanning => this.adWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Started;
 
 
-        public IObservable<IEnumerable<IDevice>> GetConnectedDevices()
-        {
-            return Observable.Return(this.deviceManager.GetConnectedDevices());
-        }
-
-
         public AdapterStatus Status
         {
             get
@@ -70,6 +64,18 @@ namespace Acr.Ble
                         return AdapterStatus.PoweredOn;
                 }
             }
+        }
+
+
+        public IDevice GetKnownDevice(Guid deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public IEnumerable<IDevice> GetConnectedDevices()
+        {
+            return this.deviceManager.GetConnectedDevices();
         }
 
 

@@ -31,25 +31,10 @@ namespace Acr.Ble
         public Guid Uuid { get; }
 
 
-        //public IObservable<ConnectionStatus> CreatePersistentConnection()
-        //{
-        //    return Observable.Create<ConnectionStatus>(async ob =>
-        //    {
-        //        var status = this
-        //            .WhenStatusChanged()
-        //            .Subscribe(s =>
-        //            {
-        //                ob.OnNext(s);
-        //            // may not want to do this on UWP
-        //            //if (s == ConnectionStatus.Disconnected)
-        //            //    this.Connect();
-        //        });
-        //        // TODO: reconnect
-        //        await this.Connect();
-
-        //        return status;
-        //    });
-        //}
+        public IGattReliableWriteTransaction BeginReliableWriteTransaction()
+        {
+            return new GattReliableWriteTransaction();
+        }
 
 
         public IObservable<object> Connect()

@@ -1,5 +1,20 @@
 # CHANGE LOG
 
+## 2.0
+* [feature] UWP support!
+* [feature] macOS support!
+* [feature][macos/tvos/ios] Background mode via CBCentralInitOptions - On the platform project use BleAdapter.Init(BleAdapterConfiguration)
+* [feature][ios] Background - Adapter.WhenDeviceStateRestored() will allow to hook for background state restoration (must be used in conjunction with BleAdapter.Init)
+* [feature][uwp][droid] reliable writes!
+* [feature] Device.GetService(Guid[]) and Service.GetCharacteristic(Guid[]) optimized calls
+* [feature] Adapter.Connect(Guid) to be able to connect to a known device
+* [breaking][feature] RequestMtu now returns as an observable with what the accepted MTU was
+* [breaking] CreateConnection is gone - created more issues than it solved - Use Connect() as it creates persistent connections out of the gate
+* [breaking] Disconnect has been renamed to CancelConnection as it cancels any pending connections now
+* [fix][droid] disconnect on existing connection tries
+* [fix][droid] more gatt 133 issues
+* [fix][all] Blob write observable subscriptions not firing properly
+
 ## 1.3
 * [fix][droid] descriptors and characteristic read/writes now adhere to AndroidConfig.WriteOnMainThread
 * [fix][ios] WhenStatusChanged was causing OnError when a connection failure occurred

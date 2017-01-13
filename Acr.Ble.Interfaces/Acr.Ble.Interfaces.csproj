@@ -47,6 +47,8 @@
     <Compile Include="ConnectionStatus.cs" />
     <Compile Include="Dictionaries.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="GattReliableWriteTransactionException.cs" />
+    <Compile Include="IGattReliableWriteTransaction.cs" />
     <Compile Include="PairingStatus.cs" />
     <Compile Include="Plugins\HeartRate.cs" />
     <Compile Include="Plugins\Logging.cs" />
@@ -69,6 +71,7 @@
     <Compile Include="DescriptorResult.cs" />
     <Compile Include="DescriptorEvent.cs" />
     <Compile Include="ScanConfig.cs" />
+    <Compile Include="VoidGattReliableWriteTransaction.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">

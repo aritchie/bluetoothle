@@ -12,7 +12,6 @@ BleAdapter.Current.Status
 
 // monitor status changes
 BleAdapter.Current.WhenStatusChanged().Subscribe(status => {});
-
 ```
 
 **Scan for Devices**
@@ -27,6 +26,7 @@ var scanner = BleAdapter.Current.Scan().Subscribe(scanResult =>
 
 scanner.Dispose(); // to stop scanning
 ```
+
 
 **Scan for Devices - Advanced**
 ```csharp
@@ -50,6 +50,7 @@ if (BleAdapter.Current.CanOpenSettings)
 ```
 
 **Change Adapter State (Power on/off)**
+
 _Supported by Android only_
 ```csharp
 if (BleAdapter.Current.CanChangeAdapterState)
@@ -57,16 +58,15 @@ if (BleAdapter.Current.CanChangeAdapterState)
 ```
 
 **Listen to scans for decoupled components**
-With the use of observables everywhere, the option to hook up to the scan result events were taken away.  There are good cases to have listening options without actually starting a scan.  This is that option!
-```csharp
 
+_With the use of observables everywhere, the option to hook up to the scan result events were taken away.  There are good cases to have listening options without actually starting a scan.  This is that option!__
+```csharp
 BleAdapter.Current.ScanListen().Subscribe(scanResult => {});
 ```
 
 **Get Connected Devices**
 
 ```csharp
-
 var devices = BleAdapter.Current.GetConnectedDevices();
 foreach (var device in devices)
 {
@@ -81,20 +81,22 @@ adapter.ScanInterval(TimeSpan).Subscribe(scanResult => {});
 
 ```
 
-
 ## Toggle State of Adapter
 
 ```csharp
-
 // returns true if successful
 adapter.ToggleAdapterState();
-
 ```
-
 
 ## Open Settings
 
 ```csharp
-
 adapter.OpenSettings();
+```
+
+## Get Known Device
+
+_Allows you to get a known device by the device ID (GUID/UUID).  Note that this ID will be different platform to platform_
+```csharp
+var device = adapter.GetKnownDevice(Guid);
 ```

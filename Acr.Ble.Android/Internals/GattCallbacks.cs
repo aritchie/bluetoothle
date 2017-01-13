@@ -57,9 +57,11 @@ namespace Acr.Ble.Internals
         }
 
 
-        //public override void OnReliableWriteCompleted(BluetoothGatt gatt, GattStatus status)
-        //{
-        //}
+        public event EventHandler<GattEventArgs> ReliableWriteCompleted;
+        public override void OnReliableWriteCompleted(BluetoothGatt gatt, GattStatus status)
+        {
+            this.ReliableWriteCompleted?.Invoke(this, new GattEventArgs(gatt, status));
+        }
 
 
         public event EventHandler<GattEventArgs> ServicesDiscovered;

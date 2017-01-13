@@ -121,5 +121,12 @@ namespace Acr.Ble
         /// </summary>
         /// <returns>The mtu change requested.</returns>
         IObservable<int> WhenMtuChanged();
+
+
+        /// <summary>
+        /// Begins a reliable write transaction
+        /// </summary>
+        /// <returns>Transaction session</returns>
+        IGattReliableWriteTransaction BeginReliableWriteTransaction();
     }
 }

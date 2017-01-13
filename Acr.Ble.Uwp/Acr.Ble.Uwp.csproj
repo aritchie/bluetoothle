@@ -114,6 +114,7 @@
     <Compile Include="DeviceManager.cs" />
     <Compile Include="GattCharacteristic.cs" />
     <Compile Include="GattDescriptor.cs" />
+    <Compile Include="GattReliableWriteTransaction.cs" />
     <Compile Include="GattService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Acr.Ble.rd.xml" />

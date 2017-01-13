@@ -17,7 +17,7 @@ namespace Acr.Ble
             this.Name = initialName;
             this.Uuid = uuid;
             this.Services = new Dictionary<Guid, IGattService>();
-        } 
+        }
 
 
         ~AbstractDevice()
@@ -77,6 +77,12 @@ namespace Acr.Ble
         public virtual IObservable<int> WhenMtuChanged()
         {
             return Observable.Empty<int>();
+        }
+
+
+        public virtual IGattReliableWriteTransaction BeginReliableWriteTransaction()
+        {
+            return new VoidGattReliableWriteTransaction();
         }
 
 

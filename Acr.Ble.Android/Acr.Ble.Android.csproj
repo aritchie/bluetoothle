@@ -64,6 +64,7 @@
     <Compile Include="ConnectionThread.cs" />
     <Compile Include="Device.cs" />
     <Compile Include="GattCharacteristic.cs" />
+    <Compile Include="GattReliableWriteTransaction.cs" />
     <Compile Include="GattService.cs" />
     <Compile Include="Internals\AndroidObservables.cs" />
     <Compile Include="Internals\BleContext.cs" />

@@ -38,29 +38,27 @@ namespace Acr.Ble
         /// This will fire and forget a write
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="reliableWrite">Use reliable write atomic writing if available (windows and android)</param>
-        void WriteWithoutResponse(byte[] value, bool reliableWrite = false);
+        void WriteWithoutResponse(byte[] value);
 
         /// <summary>
         /// Writes the value to the remote characteristic
         /// </summary>
         /// <param name="value">The bytes to send</param>
-        /// <param name="reliableWrite">Use reliable write atomic writing if available (windows and android)</param>
-        IObservable<CharacteristicResult> Write(byte[] value, bool reliableWrite = false);
+        IObservable<CharacteristicResult> Write(byte[] value);
 
         /// <summary>
         /// Used for writing blobs
         /// </summary>
         /// <param name="value">The bytes to send</param>
         /// <param name="reliableWrite">Use reliable write atomic writing if available (windows and android)</param>
-        IObservable<BleWriteSegment> BlobWrite(byte[] value, bool reliableWrite = false);
+        IObservable<BleWriteSegment> BlobWrite(byte[] value, bool reliableWrite = true);
 
         /// <summary>
         /// Used for writing blobs
         /// </summary>
         /// <param name="stream">The stream to send</param>
         /// <param name="reliableWrite">Use reliable write atomic writing if available (windows and android)</param>
-        IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite = false);
+        IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite = true);
 
         /// <summary>
         /// Monitor write tasks

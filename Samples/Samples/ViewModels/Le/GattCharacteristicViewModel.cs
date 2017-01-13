@@ -75,7 +75,7 @@ namespace Samples.ViewModels.Le
                     }
                     catch (Exception ex)
                     {
-                        dialogs.Alert($"Error Reading {this.Characteristic.Uuid} - {ex}");
+                        this.dialogs.Alert($"Error Reading {this.Characteristic.Uuid} - {ex}");
                     }
                 });
             }
@@ -109,8 +109,13 @@ namespace Samples.ViewModels.Le
         }
 
 
-        void SendBlob()
+        async void SendBlob()
         {
+            var useReliableWrite = await this.dialogs.ConfirmAsync(new ConfirmConfig()
+                .UseYesNo()
+                .SetTitle("Confirm")
+                .SetMessage("Use reliable write transaction?")
+            );
             var value = RandomString(5000);
             var cts = new CancellationTokenSource();
             var bytes = Encoding.UTF8.GetBytes(value);
@@ -119,22 +124,25 @@ namespace Samples.ViewModels.Le
             sw.Start();
 
             var sub = this.Characteristic
-                .BlobWrite(bytes)
+                .BlobWrite(bytes, useReliableWrite)
                 .Subscribe(
                     s => dlg.Title = $"Sending Blob - Sent {s.Position} of {s.TotalLength} bytes",
-                    ex => 
+                    ex =>
                     {
                         dlg.Dispose();
                         this.dialogs.Alert("Failed writing blob - " + ex);
                         sw.Stop();
                     },
-                    () => 
+                    () =>
                     {
                         dlg.Dispose();
                         sw.Stop();
-                        this.dialogs.Alert("BLOB write took " + sw.Elapsed);
+
+                        var pre = useReliableWrite ? "reliable write" : "write";
+                        this.dialogs.Alert($"BLOB {pre} took " + sw.Elapsed);
                     }
                 );
+
             cts.Token.Register(() => sub.Dispose());
         }
 

@@ -41,21 +41,17 @@ namespace Acr.Ble
     }
 }
 /*
-
-            // Manufacturer data - currently unused
-            if (btAdv.Advertisement.ManufacturerData.Any())
-            {
-                foreach (var manufacturerData in btAdv.Advertisement.ManufacturerData)
-                {
-                    // Print the company ID + the raw data in hex format
-                    //var manufacturerDataString = $"0x{manufacturerData.CompanyId.ToString("X")}: {BitConverter.ToString(manufacturerData.Data.ToArray())}";
-                    //Debug.WriteLine("Manufacturer data: " + manufacturerDataString);
-                    var manufacturerDataArry = manufacturerData.Data.ToArray();
-                    if (manufacturerData.CompanyId == 0x4C && manufacturerData.Data.Length >= 23 &&
-                        manufacturerDataArry[0] == 0x02)
-                    {
-                     }
-            }
-        }
-
-     */
+// Manufacturer data - currently unused
+if (btAdv.Advertisement.ManufacturerData.Any())
+{
+foreach (var manufacturerData in btAdv.Advertisement.ManufacturerData)
+{
+// Print the company ID + the raw data in hex format
+//var manufacturerDataString = $"0x{manufacturerData.CompanyId.ToString("X")}: {BitConverter.ToString(manufacturerData.Data.ToArray())}";
+//Debug.WriteLine("Manufacturer data: " + manufacturerDataString);
+var manufacturerDataArry = manufacturerData.Data.ToArray();
+if (manufacturerData.CompanyId == 0x4C && manufacturerData.Data.Length >= 23 &&
+manufacturerDataArry[0] == 0x02)
+{
+}
+}*/

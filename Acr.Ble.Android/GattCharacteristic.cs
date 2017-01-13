@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
-using Android.App;
 using Android.Bluetooth;
 using Java.Util;
 using Acr.Ble.Internals;
@@ -28,14 +27,14 @@ namespace Acr.Ble
         }
 
 
-        public override void WriteWithoutResponse(byte[] value, bool reliableWrite)
+        public override void WriteWithoutResponse(byte[] value)
         {
             this.AssertWrite(false);
             this.RawWriteNoResponse(null, value);
         }
 
 
-        public override IObservable<CharacteristicResult> Write(byte[] value, bool reliableWrite)
+        public override IObservable<CharacteristicResult> Write(byte[] value)
         {
             this.AssertWrite(false);
 

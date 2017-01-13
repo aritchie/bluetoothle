@@ -22,7 +22,6 @@ namespace Acr.Ble
         readonly Subject<ConnectionStatus> connSubject;
 
 
-
         public Device(BluetoothManager manager,
                       BluetoothDevice native,
                       GattCallbacks callbacks,
@@ -73,7 +72,6 @@ namespace Acr.Ble
                 }
             }
         }
-
 
 
         public override IObservable<object> Connect()
@@ -306,6 +304,12 @@ namespace Acr.Ble
                     istatusOb?.Dispose();
                 };
             });
+        }
+
+
+        public override IGattReliableWriteTransaction BeginReliableWriteTransaction()
+        {
+            return new GattReliableWriteTransaction(this.context);
         }
 
 
