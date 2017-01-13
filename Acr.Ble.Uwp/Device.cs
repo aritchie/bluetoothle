@@ -37,8 +37,10 @@ namespace Acr.Ble
         }
 
 
-        public IObservable<object> Connect()
+        public IObservable<object> Connect(GattConnectionConfig config)
         {
+            config = config ?? GattConnectionConfig.DefaultConfiguration;
+            // TODO: config auto reconnect?
             // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
             return Observable.Create<object>(async ob =>
             {

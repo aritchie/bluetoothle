@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
+
 namespace Acr.Ble
 {
     public abstract class AbstractDevice : IDevice, IDisposable
@@ -30,7 +31,7 @@ namespace Acr.Ble
         public Guid Uuid { get; protected set; }
         public abstract ConnectionStatus Status { get; }
 
-        public abstract IObservable<object> Connect();
+        public abstract IObservable<object> Connect(GattConnectionConfig config);
         public abstract IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan);
         public abstract IObservable<ConnectionStatus> WhenStatusChanged();
         public abstract IObservable<IGattService> WhenServiceDiscovered();
@@ -102,9 +103,12 @@ namespace Acr.Ble
 
         bool cancelReconnect = false;
         protected IDisposable ReconnectSubscription { get; set; }
-        protected virtual void SetupAutoReconnect()
+        protected virtual void SetupAutoReconnect(GattConnectionConfig config)
         {
             if (this.ReconnectSubscription != null)
+                return;
+
+            if (!config.IsPersistent)
                 return;
 
             this.cancelReconnect = false;
@@ -118,7 +122,7 @@ namespace Acr.Ble
                         try
                         {
                             await Task.Delay(300);
-                            await this.Connect();
+                            await this.Connect(config);
                         }
                         catch (Exception ex)
                         {

@@ -28,8 +28,9 @@ namespace Acr.Ble
         /// <summary>
         /// Connect to a device
         /// </summary>
+        /// <param name="config">Connection configuration</param>
         /// <returns></returns>
-        IObservable<object> Connect();
+        IObservable<object> Connect(GattConnectionConfig config = null);
 
 
         /// <summary>

@@ -74,9 +74,10 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<object> Connect()
+        public override IObservable<object> Connect(GattConnectionConfig config)
         {
-            this.SetupAutoReconnect();
+            config = config ?? GattConnectionConfig.DefaultConfiguration;
+            this.SetupAutoReconnect(config);
 
             return Observable.Create<object>(ob =>
             {
@@ -96,12 +97,12 @@ namespace Acr.Ble
                         switch (AndroidConfig.ConnectionThread)
                         {
                             case ConnectionThread.MainThread:
-                                Application.SynchronizationContext.Post(_ => this.Context.Connect(), null);
+                                Application.SynchronizationContext.Post(_ => this.Context.Connect(config), null);
                                 break;
 
                             case ConnectionThread.ScanThread:
                                 Task.Factory.StartNew(
-                                    () => this.Context.Connect(),
+                                    () => this.Context.Connect(config),
                                     cancelSrc.Token,
                                     TaskCreationOptions.None,
                                     this.scheduler
@@ -110,7 +111,7 @@ namespace Acr.Ble
 
                             case ConnectionThread.Default:
                             default:
-                                this.Context.Connect();
+                                this.Context.Connect(config);
                                 break;
                         }
                     }

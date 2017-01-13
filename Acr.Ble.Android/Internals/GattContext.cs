@@ -16,16 +16,21 @@ namespace Acr.Ble.Internals
         public BluetoothGatt Gatt { get; }
         public GattCallbacks Callbacks { get; }
 
-        public bool Connect() 
+
+        public bool Connect(GattConnectionConfig config)
         {
-            return this.Gatt.Connect();
+            var success = this.Gatt.Connect();
+            if (success && config.Priority != ConnectionPriority.Normal)
+                this.Gatt.RequestConnectionPriority(this.ToNative(config.Priority));
+
+            return success;
         }
 
 
         public void Close()
         {
             this.Gatt.Close();
-            this.Gatt.Disconnect();            
+            this.Gatt.Disconnect();
         }
 
 
@@ -33,6 +38,22 @@ namespace Acr.Ble.Internals
         {
             GC.SuppressFinalize(this);
             this.Close();
+        }
+
+
+        GattConnectionPriority ToNative(ConnectionPriority priority)
+        {
+            switch (priority)
+            {
+                case ConnectionPriority.Low:
+                    return GattConnectionPriority.LowPower;
+
+                case ConnectionPriority.High:
+                    return GattConnectionPriority.High;
+
+                default:
+                    return GattConnectionPriority.Balanced;
+   ;         }
         }
     }
 }

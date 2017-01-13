@@ -1,7 +1,6 @@
 using System;
 using System.Reactive.Linq;
 using Acr.Ble.Internals;
-using Java.Lang;
 
 
 namespace Acr.Ble

@@ -53,9 +53,10 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<object> Connect()
+        public override IObservable<object> Connect(GattConnectionConfig config)
         {
-            this.SetupAutoReconnect();
+            config = config ?? GattConnectionConfig.DefaultConfiguration;
+            this.SetupAutoReconnect(config);
 
             return Observable.Create<object>(ob =>
             {
@@ -80,10 +81,10 @@ namespace Acr.Ble
 
                     this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
                     {
-                        NotifyOnDisconnection = true,
+                        NotifyOnDisconnection = config.NotifyOnDisconnect,
 #if __IOS__ || __TVOS__
-                        NotifyOnConnection = true,
-                        NotifyOnNotification = true
+                        NotifyOnConnection = config.NotifyOnConnect,
+                        NotifyOnNotification = config.NotifyOnNotification
 #endif
                     });
                 }
@@ -254,7 +255,7 @@ namespace Acr.Ble
         {
 #if __IOS__ || __TVOS__
             return (int)this.peripheral.GetMaximumWriteValueLength(CBCharacteristicWriteType.WithResponse);
-#else 
+#else
             // TODO: MAC
             return 20;
 #endif
