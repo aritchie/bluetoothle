@@ -6,10 +6,9 @@ using Java.Lang;
 
 namespace Acr.Ble
 {
-    public class GattReliableWriteTransaction : IGattReliableWriteTransaction
+    public class GattReliableWriteTransaction : AbstractGattReliableWriteTransaction
     {
         readonly GattContext context;
-        bool committed;
 
 
         public GattReliableWriteTransaction(GattContext context)
@@ -19,57 +18,53 @@ namespace Acr.Ble
         }
 
 
-        ~GattReliableWriteTransaction()
-        {
-            this.Dispose(false);
-        }
-
-
-        public IObservable<CharacteristicResult> Write(IGattCharacteristic characteristic, byte[] value)
+        public override IObservable<CharacteristicResult> Write(IGattCharacteristic characteristic, byte[] value)
         {
             // just write to the standard characteristic write
+            this.AssertAction();
             return characteristic.Write(value);
         }
 
 
-        public IObservable<object> Commit()
+        public override IObservable<object> Commit()
         {
+            this.AssertAction();
+
             return Observable.Create<object>(ob =>
             {
                 var handler = new EventHandler<GattEventArgs>((sender, args) =>
                 {
                     if (args.IsSuccessful)
+                    {
+                        this.Status = TransactionStatus.Committed;
                         ob.Respond(null);
+                    }
                     else
+                    {
+                        this.Status = TransactionStatus.Aborted; // TODO: or errored?
                         ob.OnError(new GattReliableWriteTransactionException("Error committing transaction"));
+                    }
                 });
 
                 this.context.Callbacks.ReliableWriteCompleted += handler;
                 this.context.Gatt.ExecuteReliableWrite();
-                this.committed = true;
+                this.Status = TransactionStatus.Committing;
 
                 return () => this.context.Callbacks.ReliableWriteCompleted -= handler;
             });
         }
 
 
-        public void Abort()
+        public override void Abort()
         {
+            this.AssertAction();
             this.context.Gatt.AbortReliableWrite();
+            this.Status = TransactionStatus.Aborted;
         }
 
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.committed)
-                this.Abort();
         }
     }
 }

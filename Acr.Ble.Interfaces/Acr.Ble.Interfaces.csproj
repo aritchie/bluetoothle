@@ -40,13 +40,16 @@
     <Compile Include="AbstractDevice.cs" />
     <Compile Include="AbstractGattCharacteristic.cs" />
     <Compile Include="AbstractGattService.cs" />
+    <Compile Include="AbstractGattReliableWriteTransaction.cs" />
     <Compile Include="AdapterStatus.cs" />
     <Compile Include="AdvertisementRecordType.cs" />
     <Compile Include="BleScanType.cs" />
     <Compile Include="CharacteristicProperties.cs" />
+    <Compile Include="ConnectionPriority.cs" />
     <Compile Include="ConnectionStatus.cs" />
     <Compile Include="Dictionaries.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="GattConnectionConfig.cs" />
     <Compile Include="GattReliableWriteTransactionException.cs" />
     <Compile Include="IGattReliableWriteTransaction.cs" />
     <Compile Include="PairingStatus.cs" />
@@ -71,6 +74,7 @@
     <Compile Include="DescriptorResult.cs" />
     <Compile Include="DescriptorEvent.cs" />
     <Compile Include="ScanConfig.cs" />
+    <Compile Include="TransactionStatus.cs" />
     <Compile Include="VoidGattReliableWriteTransaction.cs" />
   </ItemGroup>
   <ItemGroup>

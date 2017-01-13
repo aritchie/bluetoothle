@@ -4,8 +4,9 @@ using System.Reactive.Linq;
 
 namespace Acr.Ble
 {
-    public class VoidGattReliableWriteTransaction : IGattReliableWriteTransaction
+    public class VoidGattReliableWriteTransaction : AbstractGattReliableWriteTransaction
     {
+
         public void Dispose()
         {
         }
@@ -19,12 +20,19 @@ namespace Acr.Ble
 
         public IObservable<object> Commit()
         {
+            if (this.Status == TransactionStatus.Active)
+                this.Status = TransactionStatus.Committed;
+
             return Observable.Return(new object());
         }
 
 
         public void Abort()
         {
+            if (this.Status == TransactionStatus.Active)
+                this.Status = TransactionStatus.Aborted;
         }
+
+        public TransactionStatus Status { get; private set; } = TransactionStatus.Active;
     }
 }

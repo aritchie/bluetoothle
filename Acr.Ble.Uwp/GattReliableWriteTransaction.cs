@@ -7,10 +7,9 @@ using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattReliableWri
 
 namespace Acr.Ble
 {
-    public class GattReliableWriteTransaction : IGattReliableWriteTransaction
+    public class GattReliableWriteTransaction : AbstractGattReliableWriteTransaction
     {
         readonly Native native;
-        bool committed;
 
 
         public GattReliableWriteTransaction()
@@ -19,43 +18,47 @@ namespace Acr.Ble
         }
 
 
-        public void Dispose()
+        public override IObservable<CharacteristicResult> Write(IGattCharacteristic characteristic, byte[] value)
         {
-            if (!this.committed)
-                this.Abort();
-        }
+            this.AssertAction();
 
-
-        public IObservable<CharacteristicResult> Write(IGattCharacteristic characteristic, byte[] value)
-        {
             var platform = characteristic as GattCharacteristic;
             if (platform == null)
                 throw new ArgumentException("");
 
             // TODO: need write observable
             this.native.WriteValue(platform.Native, null);
-            this.committed = true;
             return null;
         }
 
 
-        public IObservable<object> Commit()
+        public override IObservable<object> Commit()
         {
+            this.AssertAction();
+
             return Observable.Create<object>(async ob =>
             {
+                this.Status = TransactionStatus.Committing;
+
                 var result = await this.native.CommitAsync();
                 if (result == GattCommunicationStatus.Success)
+                {
+                    this.Status = TransactionStatus.Committed;
                     ob.Respond(null);
+                }
                 else
+                {
+                    this.Status = TransactionStatus.Aborted;
                     ob.OnError(new GattReliableWriteTransactionException("Failed to write transaction"));
-
+                }
                 return Disposable.Empty;
             });
         }
 
 
-        public void Abort()
+        public override void Abort()
         {
+            this.AssertAction();
             // TODO: how to abort?
         }
     }
