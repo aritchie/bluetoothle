@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26014.0
+VisualStudioVersion = 15.0.26020.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Droid", "Samples\Samples.Droid\Samples.Droid.csproj", "{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}"
 EndProject
@@ -146,8 +146,6 @@ Global
 		{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}.Debug|x86.Build.0 = Debug|Any CPU
 		{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}.Debug|x86.Deploy.0 = Debug|Any CPU
 		{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}.Release|ARM.ActiveCfg = Release|Any CPU
 		{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}.Release|ARM.Build.0 = Release|Any CPU
 		{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}.Release|ARM.Deploy.0 = Release|Any CPU
@@ -582,6 +580,7 @@ Global
 		{8A0FC475-221D-4FE0-8308-3F703DC08F52}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{8A0FC475-221D-4FE0-8308-3F703DC08F52}.Debug|x86.Build.0 = Debug|Any CPU
 		{8A0FC475-221D-4FE0-8308-3F703DC08F52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A0FC475-221D-4FE0-8308-3F703DC08F52}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8A0FC475-221D-4FE0-8308-3F703DC08F52}.Release|ARM.ActiveCfg = Release|Any CPU
 		{8A0FC475-221D-4FE0-8308-3F703DC08F52}.Release|ARM.Build.0 = Release|Any CPU
 		{8A0FC475-221D-4FE0-8308-3F703DC08F52}.Release|iPhone.ActiveCfg = Release|Any CPU

@@ -18,7 +18,7 @@ macOS
         <authors>Allan Ritchie</authors>
         <owners>Allan Ritchie</owners>
         <iconUrl>https://github.com/aritchie/bluetoothle/raw/master/icon.png</iconUrl>
-        <licenseUrl>hhttps://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</licenseUrl>
+        <licenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</licenseUrl>
         <projectUrl>https://github.com/aritchie/bluetoothle</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <tags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle</tags>
@@ -27,8 +27,8 @@ macOS
         </dependencies>
         <releaseNotes>
 2.0
-[feature] macOS support!
-[feature][all] Connection configuration allows you to set connection priority, notification states on iOS/tvOS/macOS, and whether or not to make the connection persistent
+[feature] macOS support
+[feature][all] Connection configuration allows you to set connection priority, notification states on iOS, tvOS, macOS, and whether or not to make the connection persistent
 [feature][macos/tvos/ios] Background mode via CBCentralInitOptions - On the platform project use BleAdapter.Init(BleAdapterConfiguration)
 [feature][ios] Background - Adapter.WhenDeviceStateRestored() will allow to hook for background state restoration (must be used in conjunction with BleAdapter.Init)
 [feature][uwp][droid] Reliable write transaction via Device.BeginReliableWriteTransaction() and GattReliableWriteTransaction
