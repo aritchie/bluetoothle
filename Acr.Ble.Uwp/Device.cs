@@ -52,17 +52,9 @@ namespace Acr.Ble
                 {
                     // TODO: connecting
                     this.native = await BluetoothLEDevice.FromIdAsync(this.deviceInfo.Id);
-
                     if (this.native == null)
                         throw new ArgumentException("Device Not Found");
 
-                    // TODO: auto pairing config?
-                    if (this.native.DeviceInformation.Pairing.CanPair && !this.native.DeviceInformation.Pairing.IsPaired)
-                    {
-                        var dpr = await this.native.DeviceInformation.Pairing.PairAsync(DevicePairingProtectionLevel.None);
-                        if (dpr.Status != DevicePairingResultStatus.Paired)
-                            throw new ArgumentException($"Pairing to device failed - " + dpr.Status);
-                    }
                     ob.Respond(null);
                     this.deviceSubject.OnNext(true);
                 }
@@ -153,9 +145,11 @@ namespace Acr.Ble
                 this
                     .WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(x =>
+                    .Subscribe(async x =>
                     {
-                        foreach (var nservice in this.native.GattServices)
+                        var result = await this.native.GetGattServicesAsync(BluetoothCacheMode.Uncached);
+
+                        foreach (var nservice in result.Services)
                         {
                             var service = new GattService(nservice, this);
                             ob.OnNext(service);
@@ -196,12 +190,6 @@ namespace Acr.Ble
             .RefCount();
 
             return this.nameOb;
-        }
-
-
-        public IObservable<IGattService> FindServices(params Guid[] serviceId)
-        {
-            throw new NotImplementedException();
         }
 
 

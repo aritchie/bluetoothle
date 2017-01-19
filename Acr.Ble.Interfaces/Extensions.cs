@@ -1,19 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
-using System.Threading.Tasks;
 
 
 namespace Acr.Ble
 {
     public static class Extensions
     {
-        public static IObservable<IScanResult> ScanOrListen(this IAdapter adapter) 
+        public static IObservable<IScanResult> ScanOrListen(this IAdapter adapter)
         {
             return adapter.IsScanning ? adapter.ScanListen() : adapter.Scan();
+        }
+
+
+        public static IObservable<IGattCharacteristic> WhenAnyCharacteristicDiscovered(this IDevice device)
+        {
+            return device.WhenServiceDiscovered().SelectMany(x => x.WhenCharacteristicDiscovered());
+        }
+
+
+        public static IObservable<IGattDescriptor> WhenAnyDescriptorDiscovered(this IDevice device)
+        {
+            return device.WhenAnyCharacteristicDiscovered().SelectMany(x => x.WhenDescriptorDiscovered());
         }
 
 
@@ -44,81 +54,6 @@ namespace Acr.Ble
         public static IConnectableObservable<TItem> ReplayWithReset<TItem, TReset>(this IObservable<TItem> src, IObservable<TReset> resetTrigger)
         {
             return new ClearableReplaySubject<TItem, TReset>(src, resetTrigger);
-        }
-
-
-        public static IObservable<IGattCharacteristic> WhenAnyCharacteristicDiscovered(this IDevice device)
-        {
-            return device
-                .WhenServiceDiscovered()
-                .SelectMany(x => x.WhenCharacteristicDiscovered().Select(y => y));
-        }
-
-
-        public static IObservable<IGattDescriptor> WhenyAnyDescriptorDiscovered(this IDevice device)
-        {
-            return device
-                .WhenAnyCharacteristicDiscovered()
-                .SelectMany(x => x.WhenDescriptorDiscovered().Select(y => y));
-        }
-
-
-        public static IObservable<CharacteristicResult> WhenAnyCharacteristicNotificationReceived(this IDevice device, bool doSubscriptions)
-        {
-            return Observable.Create<CharacteristicResult>(ob =>
-            {
-                var list = new List<IDisposable>();
-
-                var all = device
-                    .WhenAnyCharacteristicDiscovered()
-                    .Subscribe(ch =>
-                    {
-                        if (doSubscriptions)
-                        {
-                            list.Add(ch
-                                .SubscribeToNotifications()
-                                .Subscribe(ob.OnNext)
-                            );
-                        }
-                        else
-                        {
-                            list.Add(ch
-                                .WhenNotificationReceived()
-                                .Subscribe(ob.OnNext)
-                            );
-                        }
-                    });
-
-                list.Add(all);
-
-                return () =>
-                {
-                    foreach (var item in list)
-                        item.Dispose();
-                };
-            });
-        }
-
-
-        public static async Task<IList<IGattCharacteristic>> GetAllCharacteristics(this IDevice device, int waitMillis = 2000)
-        {
-            var result = await device
-                .WhenAnyCharacteristicDiscovered()
-                .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(waitMillis))
-                .ToList();
-
-            return result;
-        }
-
-
-        public static async Task<IList<IGattDescriptor>> GetAllDescriptors(this IDevice device, int waitMillis = 2000)
-        {
-            var result = await device
-                .WhenyAnyDescriptorDiscovered()
-                .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(waitMillis))
-                .ToList();
-
-            return result;
         }
 
 

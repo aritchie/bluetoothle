@@ -26,7 +26,7 @@ namespace Acr.Ble
         {
             this.characteristicOb = this.characteristicOb ?? Observable.Create<IGattCharacteristic>(ob =>
             {
-                foreach (var nch in native.Characteristics)
+                foreach (var nch in this.native.Characteristics)
                 {
                     var wrap = new GattCharacteristic(this, this.context, nch);
                     ob.OnNext(wrap);

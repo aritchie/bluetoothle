@@ -45,14 +45,6 @@ namespace Acr.Ble
         }
 
 
-        public override IObservable<IGattService> FindServices(params Guid[] serviceUuids)
-        {
-            var ob = this.WhenServiceDiscovered();
-            this.peripheral.DiscoverServices(serviceUuids.Select(x => x.ToCBUuid()).ToArray());
-            return ob;
-        }
-
-
         public override IObservable<object> Connect(GattConnectionConfig config)
         {
             config = config ?? GattConnectionConfig.DefaultConfiguration;

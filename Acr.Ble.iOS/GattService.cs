@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
 using CoreBluetooth;
 
@@ -15,14 +14,6 @@ namespace Acr.Ble
         public GattService(IDevice device, CBService native) : base(device, native.UUID.ToGuid(), native.Primary)
         {
             this.native = native;
-        }
-
-
-        public override IObservable<IGattCharacteristic> FindCharacteristics(params Guid[] characteristicUuids)
-        {
-            var ob = this.WhenCharacteristicDiscovered();
-            this.native.Peripheral.DiscoverCharacteristics(characteristicUuids.Select(x => x.ToCBUuid()).ToArray(), this.native);
-            return ob;
         }
 
 

@@ -49,9 +49,6 @@ namespace Acr.Ble
 
         public virtual IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite)
         {
-            // TODO: reliable write transaction
-            //this.Service.Device.Adapter.Begin
-
             return Observable.Create<BleWriteSegment>(async ob =>
             {
                 var cts = new CancellationTokenSource();

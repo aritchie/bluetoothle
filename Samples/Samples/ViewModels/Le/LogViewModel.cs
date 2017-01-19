@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Windows.Input;
 using Acr;
 using Acr.Ble;
-using Acr.Ble.Plugins;
 using Acr.UserDialogs;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -53,11 +51,11 @@ namespace Samples.ViewModels.Le
 
                     if (enabled)
                     {
-                        this.logger = this.adapter
-                            .CreateLogger(BleLogFlags.All)
-                            .Buffer(TimeSpan.FromSeconds(5))
-                            .Where(x => x.Count > 0)
-                            .Subscribe(x => this.LoadData());
+                        //this.logger = this.adapter
+                        //    .CreateLogger(BleLogFlags.All)
+                        //    .Buffer(TimeSpan.FromSeconds(5))
+                        //    .Where(x => x.Count > 0)
+                        //    .Subscribe(x => this.LoadData());
                     }
                     else
                     {

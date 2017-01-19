@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive;
-using System.Reactive.Linq;
-using Acr;
 using Acr.Ble;
-using Acr.Ble.Plugins;
 using Acr.UserDialogs;
 using Autofac;
 using ReactiveUI;
-using Samples.Models;
 using Samples.Services;
 
 
@@ -23,9 +16,9 @@ namespace Samples.Tasks
         IDisposable sub;
 
 
-        public LogToFileTask(IAdapter adapter, 
-                             IAppSettings settings, 
-                             IUserDialogs dialogs, 
+        public LogToFileTask(IAdapter adapter,
+                             IAppSettings settings,
+                             IUserDialogs dialogs,
                              SampleDbConnection data)
         {
             this.adapter = adapter;
@@ -42,12 +35,12 @@ namespace Samples.Tasks
                 {
                     if (doLog)
                     {
-                        this.sub = this.adapter
-                            .CreateLogger(BleLogFlags.All)
-                            //.CreateLogger(BleLogFlags.CharacteristicRead | BleLogFlags.CharacteristicWrite)
-                            .Timestamp()
-                            .Buffer(TimeSpan.FromSeconds(5))
-                            .Subscribe(this.WriteLog);
+                        //this.sub = this.adapter
+                        //    .CreateLogger(BleLogFlags.All)
+                        //    //.CreateLogger(BleLogFlags.CharacteristicRead | BleLogFlags.CharacteristicWrite)
+                        //    .Timestamp()
+                        //    .Buffer(TimeSpan.FromSeconds(5))
+                        //    .Subscribe(this.WriteLog);
                     }
                     else
                     {
@@ -57,16 +50,16 @@ namespace Samples.Tasks
         }
 
 
-        void WriteLog(IList<Timestamped<BleLogEvent>> events)
-        {
-            this.data.InsertAll(
-                events
-                    .Select(e => new BleRecord
-                    {
-                        Description = $"[{e.Value.Category}]({e.Value.Uuid}) {e.Value.Details}",
-                        TimestampLocal = e.Timestamp.LocalDateTime
-                    }
-            ));
-        }
+        //void WriteLog(IList<Timestamped<BleLogEvent>> events)
+        //{
+        //    this.data.InsertAll(
+        //        events
+        //            .Select(e => new BleRecord
+        //            {
+        //                Description = $"[{e.Value.Category}]({e.Value.Uuid}) {e.Value.Details}",
+        //                TimestampLocal = e.Timestamp.LocalDateTime
+        //            }
+        //    ));
+        //}
     }
 }

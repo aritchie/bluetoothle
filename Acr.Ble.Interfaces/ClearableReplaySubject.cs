@@ -1,6 +1,5 @@
 ﻿// copied from: http://stackoverflow.com/questions/28945061/how-can-i-clear-the-buffer-on-a-replaysubject/
 using System;
-using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -23,7 +22,7 @@ namespace Acr.Ble
         {
             //this.source = src;
             //this.trigger = clearTrigger;
-            //this.underlying = Observable.Create<TSource>(ob => 
+            //this.underlying = Observable.Create<TSource>(ob =>
             //{
             //    var sub1 = src.Subscribe(this.list.Add);
             //    var sub2 = clearTrigger.Subscribe(_ => this.list.Clear());

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
@@ -10,14 +8,10 @@ namespace Acr.Ble
 {
     public abstract class AbstractDevice : IDevice, IDisposable
     {
-        protected IDictionary<Guid, IGattService> Services { get; }
-
-
         protected AbstractDevice(string initialName, Guid uuid)
         {
             this.Name = initialName;
             this.Uuid = uuid;
-            this.Services = new Dictionary<Guid, IGattService>();
         }
 
 
@@ -43,14 +37,6 @@ namespace Acr.Ble
             this.cancelReconnect = true;
             this.ReconnectSubscription?.Dispose();
             this.ReconnectSubscription = null;
-        }
-
-
-        public virtual IObservable<IGattService> FindServices(params Guid[] serviceUuids)
-        {
-            return this.WhenServiceDiscovered()
-                       .Take(1)
-                       .Where(x => serviceUuids.Any(y => y.Equals(x)));
         }
 
 

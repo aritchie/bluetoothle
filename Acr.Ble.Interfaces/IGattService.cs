@@ -7,9 +7,19 @@ namespace Acr.Ble
     {
         IDevice Device { get; }
 
+        /// <summary>
+        /// The service UUID
+        /// </summary>
         Guid Uuid { get; }
+
+        /// <summary>
+        /// A general description of what the services if known
+        /// </summary>
         string Description { get; }
-        IObservable<IGattCharacteristic> FindCharacteristics(params Guid[] characteristicUuids);
+
+        /// <summary>
+        /// This will return a repeatable observable of discovered characteristics
+        /// </summary>
         IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();
     }
 }

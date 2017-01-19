@@ -23,7 +23,7 @@ namespace Acr.Ble
         IObservable<CharacteristicResult> SubscribeToNotifications();
 
         /// <summary>
-        /// This will only monitor any notifications to the characteristic.  It will not (un)subscribe them.  Use SubscribeToNotifications
+        /// This will only monitor any notifications to the characteristic if it is hooked.  It will not (un)subscribe them.  Use SubscribeToNotifications
         /// </summary>
         /// <returns></returns>
         IObservable<CharacteristicResult> WhenNotificationReceived();

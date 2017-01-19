@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Windows.Devices.Bluetooth;
 using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattDeviceService;
 
 
@@ -20,10 +21,10 @@ namespace Acr.Ble
         IObservable<IGattCharacteristic> characteristicOb;
         public override IObservable<IGattCharacteristic> WhenCharacteristicDiscovered()
         {
-            this.characteristicOb = this.characteristicOb ?? Observable.Create<IGattCharacteristic>(ob =>
+            this.characteristicOb = this.characteristicOb ?? Observable.Create<IGattCharacteristic>(async ob =>
             {
-                var characteristics = this.native.GetAllCharacteristics();
-                foreach (var characteristic in characteristics)
+                var result = await this.native.GetCharacteristicsAsync(BluetoothCacheMode.Uncached);
+                foreach (var characteristic in result.Characteristics)
                 {
                     var wrap = new GattCharacteristic(characteristic, this);
                     ob.OnNext(wrap);

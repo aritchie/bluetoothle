@@ -25,10 +25,11 @@ namespace Acr.Ble
         IObservable<IGattDescriptor> descriptorOb;
         public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
         {
-            this.descriptorOb = this.descriptorOb ?? Observable.Create<IGattDescriptor>(ob =>
+            this.descriptorOb = this.descriptorOb ?? Observable.Create<IGattDescriptor>(async ob =>
             {
-                var natives = this.Native.GetAllDescriptors();
-                foreach (var dnative in natives)
+                var result = await this.Native.GetDescriptorsAsync(BluetoothCacheMode.Uncached);
+                //if (result.Status)
+                foreach (var dnative in result.Descriptors)
                 {
                     var descriptor = new GattDescriptor(dnative, this);
                     ob.OnNext(descriptor);
@@ -72,10 +73,10 @@ namespace Acr.Ble
 
 
 
-        public override void WriteWithoutResponse(byte[] value)
+        public override async void WriteWithoutResponse(byte[] value)
         {
             this.AssertWrite(false);
-            this.Native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse);
+            await this.Native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithoutResponse);
             this.Value = value;
             this.WriteSubject.OnNext(new CharacteristicResult(this, CharacteristicEvent.Write, this.Value));
         }
