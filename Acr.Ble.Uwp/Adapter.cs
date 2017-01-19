@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using Windows.Devices.Bluetooth;
 using Windows.Foundation;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Enumeration;
@@ -81,11 +83,9 @@ namespace Acr.Ble
 
         public IObservable<bool> WhenScanningStatusChanged()
         {
-            return Observable.Create<bool>(ob =>
-            {
-                ob.OnNext(this.IsScanning);
-                return this.scanStatusSubject.AsObservable().Subscribe(ob.OnNext);
-            });
+            return this.scanStatusSubject
+                .AsObservable()
+                .StartWith(this.IsScanning);
         }
 
 
@@ -94,10 +94,10 @@ namespace Acr.Ble
             if (this.IsScanning)
                 throw new ArgumentException("There is already an active scan");
 
-            return Observable.Create<IScanResult>(ob =>
+            var observer = Observable.Create<IScanResult>(ob =>
             {
                 var sub = this.ScanListen().Subscribe(ob.OnNext);
-                //this.adWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+                this.adWatcher.ScanningMode = BluetoothLEScanningMode.Active;
                 this.adWatcher.Start();
                 this.scanStatusSubject.OnNext(true);
 
@@ -108,11 +108,12 @@ namespace Acr.Ble
                     sub.Dispose();
                 };
             });
-            //        .Where(x => x
-            //            .AdvertisementData
-            //            .ServiceUuids?
-            //            .Any(uuid => uuid.Equals(serviceUuid)) ?? false
-            //        );
+            if (config?.ServiceUuid != null)
+            {
+                observer = observer.Where(x => x.AdvertisementData?.ServiceUuids.Contains(config.ServiceUuid.Value) ?? false);
+            }
+
+            return observer;
         }
 
 
@@ -121,8 +122,6 @@ namespace Acr.Ble
         {
             this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
             {
-                var syncLock = new object();
-                var nativeDevices = new Dictionary<string, DeviceInformation>();
                 this.deviceManager.Clear();
 
                 // TODO: when a device and ad are available, device discovered
@@ -130,42 +129,46 @@ namespace Acr.Ble
                 (
                     (sender, args) =>
                     {
-                        //var adData = new AdvertisementData(args);
-                        //var device = this.deviceManager.GetDevice(adData);
-                        //var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
-                        //ob.OnNext(scanResult);
+                        var device = this.deviceManager.GetDevice(args.BluetoothAddress);
+                        if (device == null)
+                        {
+                            Debug.WriteLine($"Device not found yet - " + args.BluetoothAddress);
+                            // causes Element Not Found exception
+                            //var native = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
+                            //device = this.deviceManager.GetDevice(native);
+                            return;
+                        }
+                        var adData = new AdvertisementData(args);
+                        var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
+                        ob.OnNext(scanResult);
                     }
                 );
 
-                var addHandler = new TypedEventHandler<DeviceWatcher, DeviceInformation>((sender, args) =>
+                var handler = new TypedEventHandler<DeviceWatcher, DeviceInformation>(async (sender, args) =>
                 {
-                    lock (syncLock)
-                    {
-                        nativeDevices.Add(args.Id, args);
-                    }
-                });
-                var remHandler = new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>((sender, args) =>
-                {
-                    lock (syncLock)
-                    {
-                        nativeDevices.Remove(args.Id);
-                    }
+                    Debug.WriteLine($"[DeviceInfo] Info: {args.Id} / {args.Name}");
+                    var native = await BluetoothLEDevice.FromIdAsync(args.Id);
+
+                    Debug.WriteLine($"[DeviceInfo] BLE Device: {native.BluetoothAddress} / {native.DeviceId} / {native.Name}");
+                    this.deviceManager.GetDevice(native);
                 });
 
-                this.deviceWatcher.Added += addHandler;
-                this.deviceWatcher.Removed += remHandler;
+                this.deviceWatcher.Added += handler;
                 this.adWatcher.Received += adHandler;
 
-                this.adWatcher.Start();
+                this.deviceWatcher.EnumerationCompleted += (sender, args) =>
+                {
+                    Debug.WriteLine("this shit stopped I think.  Start it up again!");
+                };
                 this.deviceWatcher.Start();
+                this.adWatcher.Start();
 
                 return () =>
                 {
                     this.adWatcher.Stop();
                     this.deviceWatcher.Stop();
 
-                    this.deviceWatcher.Added -= addHandler;
-                    this.deviceWatcher.Removed -= remHandler;
+                    this.deviceWatcher.Added -= handler;
                     this.adWatcher.Received -= adHandler;
                 };
             })
@@ -185,8 +188,14 @@ namespace Acr.Ble
                 var handler = new TypedEventHandler<Radio, object>((sender, args) =>
                     ob.OnNext(this.Status)
                 );
-                this.radio.Value.StateChanged += handler;
-                return () => this.radio.Value.StateChanged -= handler;
+                if (this.radio.Value != null)
+                    this.radio.Value.StateChanged += handler;
+
+                return () =>
+                {
+                    if (this.radio.Value != null)
+                        this.radio.Value.StateChanged -= handler;
+                };
             })
             .Replay(1)
             .RefCount();
@@ -195,9 +204,25 @@ namespace Acr.Ble
         }
 
 
+        IObservable<IDevice> deviceStatusOb;
         public IObservable<IDevice> WhenDeviceStatusChanged()
         {
-            return Observable.Empty<IDevice>(); // TODO
+            this.deviceStatusOb = this.deviceStatusOb ?? Observable.Create<IDevice>(ob =>
+            {
+                var cleanup = new List<IDisposable>();
+                var devices = this.deviceManager.GetDiscoveredDevices();
+
+                foreach (var device in devices)
+                {
+                    cleanup.Add(device
+                        .WhenStatusChanged()
+                        .Subscribe(_ => ob.OnNext(device))
+                    );
+                }
+                return () => cleanup.ForEach(x => x.Dispose());
+            });
+            return this.deviceStatusOb;
+
         }
 
 

@@ -2,14 +2,14 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Windows.Devices.Enumeration;
+using Windows.Devices.Bluetooth;
 
 
 namespace Acr.Ble
 {
     public class DeviceManager
     {
-        readonly ConcurrentDictionary<string, IDevice> devices = new ConcurrentDictionary<string, IDevice>();
+        readonly ConcurrentDictionary<ulong, IDevice> devices = new ConcurrentDictionary<ulong, IDevice>();
         readonly IAdapter adapter;
 
 
@@ -19,12 +19,20 @@ namespace Acr.Ble
         }
 
 
-        public IDevice GetDevice(DeviceInformation deviceInfo)
+        public IDevice GetDevice(BluetoothLEDevice native)
         {
             return this.devices.GetOrAdd(
-                deviceInfo.Id,
-                x => new Device(this.adapter, deviceInfo)
+                native.BluetoothAddress,
+                x => new Device(this.adapter, native)
             );
+        }
+
+
+        public IDevice GetDevice(ulong bluetoothAddress)
+        {
+            IDevice device = null;
+            this.devices.TryGetValue(bluetoothAddress, out device);
+            return device;
         }
 
 
@@ -44,6 +52,12 @@ namespace Acr.Ble
                 .Where(x => x.Value.Status != ConnectionStatus.Connected)
                 .ToList()
                 .ForEach(x => this.devices.TryRemove(x.Key, out _));
+        }
+
+
+        public IList<IDevice> GetDiscoveredDevices()
+        {
+            return this.devices.Values.ToList();
         }
     }
 }

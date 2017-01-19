@@ -15,20 +15,23 @@ namespace Acr.Ble
     {
         readonly Subject<bool> deviceSubject;
         readonly IAdapter adapter;
-        readonly DeviceInformation deviceInfo;
         BluetoothLEDevice native;
 
 
-        public Device(IAdapter adapter, DeviceInformation deviceInfo)
+        public Device(IAdapter adapter, BluetoothLEDevice native)
         {
             this.adapter = adapter;
-            this.deviceInfo = deviceInfo;
+            this.native = native;
             this.deviceSubject = new Subject<bool>();
+
+            var mac = this.ToMacAddress(native.BluetoothAddress);
+            this.Uuid = this.GetDeviceId(mac);
+            //this.Uuid = this.GetDeviceId(native.DeviceId);
         }
 
 
-        public string Name => this.deviceInfo.Name;
-        public Guid Uuid { get; }
+        public string Name => this.native.Name;
+        public Guid Uuid { get; } // TODO
 
 
         public IGattReliableWriteTransaction BeginReliableWriteTransaction()
@@ -40,9 +43,10 @@ namespace Acr.Ble
         public IObservable<object> Connect(GattConnectionConfig config)
         {
             config = config ?? GattConnectionConfig.DefaultConfiguration;
+
             // TODO: config auto reconnect?
             // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
-            return Observable.Create<object>(async ob =>
+            return Observable.Create<object>(ob =>
             {
                 if (this.Status == ConnectionStatus.Connected)
                 {
@@ -50,12 +54,7 @@ namespace Acr.Ble
                 }
                 else
                 {
-                    // TODO: connecting
-                    this.native = await BluetoothLEDevice.FromIdAsync(this.deviceInfo.Id);
-                    if (this.native == null)
-                        throw new ArgumentException("Device Not Found");
-
-                    ob.Respond(null);
+                    //ob.Respond(null);
                     this.deviceSubject.OnNext(true);
                 }
                 return Disposable.Empty;
@@ -67,20 +66,17 @@ namespace Acr.Ble
         {
             // TODO: what if scan filters are applied?
             // TODO: create another advertisewatcher
-            return this.adapter
-                .Scan() // TODO: this will run a duplicate
-                .Where(x => x.Device.Uuid.Equals(this.Uuid))
-                .Select(x => x.Rssi);
+            //return this.adapter
+            //    .ScanOrListen() // TODO: this will run a duplicate
+            //    .Where(x => x.Device.Uuid.Equals(this.Uuid))
+            //    .Select(x => x.Rssi);
+            return Observable.Return(-1);
         }
 
 
         public void CancelConnection()
         {
-            if (this.Status != ConnectionStatus.Connected)
-                return;
-
-            this.native?.Dispose();
-            this.native = null;
+            // TODO
         }
 
 
@@ -89,9 +85,6 @@ namespace Acr.Ble
             get
             {
                 // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
-                if (this.native == null)
-                    return ConnectionStatus.Disconnected;
-
                 switch (this.native.ConnectionStatus)
                 {
                     case BluetoothConnectionStatus.Connected:
@@ -115,22 +108,9 @@ namespace Acr.Ble
                 var handler = new TypedEventHandler<BluetoothLEDevice, object>(
                     (sender, args) => ob.OnNext(this.Status)
                 );
+                this.native.ConnectionStatusChanged += handler;
 
-                var sub = this.deviceSubject
-                    .AsObservable()
-                    .Subscribe(x =>
-                    {
-                        ob.OnNext(this.Status);
-                        if (this.native != null)
-                            this.native.ConnectionStatusChanged += handler;
-                    });
-
-                return () =>
-                {
-                    sub.Dispose();
-                    if (this.native != null)
-                        this.native.ConnectionStatusChanged -= handler;
-                };
+                return () => this.native.ConnectionStatusChanged -= handler;
             })
             .Replay(1);
 
@@ -175,16 +155,9 @@ namespace Acr.Ble
                 var handler = new TypedEventHandler<BluetoothLEDevice, object>(
                     (sender, args) => ob.OnNext(this.Name)
                 );
-                var sub = this.WhenStatusChanged()
-                    .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(x => this.native.NameChanged += handler);
+                this.native.NameChanged += handler;
 
-                return () =>
-                {
-                    sub.Dispose();
-                    if (this.native != null)
-                        this.native.NameChanged -= handler;
-                };
+                return () => this.native.NameChanged -= handler;
             })
             .Publish()
             .RefCount();
@@ -213,7 +186,7 @@ namespace Acr.Ble
         public bool IsMtuRequestAvailable => false;
         public IObservable<int> RequestMtu(int size)
         {
-            throw new NotImplementedException();
+            return Observable.Return(20); // TODO
         }
 
 
@@ -228,30 +201,36 @@ namespace Acr.Ble
         }
 
 
+        static readonly Regex macRegex = new Regex("(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})");
+        const string REGEX_REPLACE = "$1:$2:$3:$4:$5:$6";
+
+
         string ToMacAddress(ulong address)
         {
             var tempMac = address.ToString("X");
             //tempMac is now 'E7A1F7842F17'
 
             //string.Join(":", BitConverter.GetBytes(BluetoothAddress).Reverse().Select(b => b.ToString("X2"))).Substring(6);
-            var regex = "(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})";
-            var replace = "$1:$2:$3:$4:$5:$6";
-            var macAddress = Regex.Replace(tempMac, regex, replace);
+            var macAddress = macRegex.Replace(tempMac, REGEX_REPLACE);
             return macAddress;
         }
 
 
-        Guid ToDeviceId(string address)
+        protected Guid GetDeviceId(string address)
         {
+            var mac = address
+                .Replace("BluetoothLE#BluetoothLE", String.Empty)
+                .Replace(":", String.Empty)
+                .Replace("-", String.Empty);
+
             var deviceGuid = new byte[16];
-            var mac = address.Replace(":", "");
             var macBytes = Enumerable
                 .Range(0, mac.Length)
                 .Where(x => x % 2 == 0)
                 .Select(x => Convert.ToByte(mac.Substring(x, 2), 16))
                 .ToArray();
 
-            macBytes.CopyTo(deviceGuid, 10);
+            macBytes.CopyTo(deviceGuid, 10); // 12 bytes here if off the BluetoothLEDevice
             return new Guid(deviceGuid);
         }
     }
