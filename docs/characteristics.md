@@ -58,7 +58,8 @@ characteristic.WhenDescriptorsDiscovered().Subscribe(descriptor => {});
 ```
 
 **BLOB Writes**
-Used for sending larger arrays or streams of data without working with the 20 byte gap
+
+Used for sending larger arrays or streams of data without working with the MTU byte gap
 
 ```csharp
 characteristic.BlobWrite(stream).Subscribe(x => 
@@ -81,9 +82,6 @@ characteristic.ReadInterval(TimeSpan).Subscribe(result => { result.Data... });
 
 // discover all characteristics without finding services first
 device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {});
-
-// subscribe to ALL characteristic that notify (DANGER: you should really pick out your characteristics)
-device.WhenAnyCharacteristicNotificationReceived().Subscribe(characterArgs => {});
 
 // will continue to read in a loop until ending bytes (argument) is detected
 device.ReadUntil(new byte[] { 0x0 }).Subscribe(result => { result.Data... });

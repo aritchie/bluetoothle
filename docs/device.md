@@ -8,9 +8,37 @@ You should maintain a reference to a device if you intend to connect to it.
 
 ```csharp
 // connect
-await device.Connect(); // this is an observable so you can do other funky timeouts
+await device.Connect(new GattConnectionConfig 
+{
+        /// <summary>
+        /// This will cause disconnected devices to try to immediately reconnect.  It will cause WillRestoreState to fire on iOS. Defaults to true
+        /// </summary>
+        public bool IsPersistent { get;  set; } = true;
 
-device.Disconnect();
+        /// <summary>
+        /// Android only - If you have characteristics where you need faster replies, you can set this to high
+        /// </summary>
+        public ConnectionPriority Priority { get; set; } = ConnectionPriority.Normal;
+
+        /// <summary>
+        /// iOS only
+        /// </summary>
+        public bool NotifyOnConnect { get; set; }
+
+        /// <summary>
+        /// iOS/tvOS/macOS only
+        /// </summary>
+        public bool NotifyOnDisconnect { get; set; }
+
+        /// <summary>
+        /// iOS only
+        /// </summary>
+        public bool NotifyOnNotification { get; set; }    
+});
+
+// this will disconnect a current connection, cancel a connection attempt, and
+// remove persistent connections
+device.CancelConnection();
 ```
 
 **Pairing with a device**
@@ -31,8 +59,8 @@ If MTU requests are available (Android Only - API 21+)
 This is specific to Android only where this negotiation is not automatic.
 The size can be up to 512, but you should be careful with anything above 255 in practice
 ```csharp
-// Request a greater MTU size (Androd API 21+ only)
-device.RequestMtu(255);
+// Request a greater MTU size (Androd API 21+ only), but return the final negotiated value
+var newMtuValue = await device.RequestMtu(255);
 
 // iOS will return current, Android will return 20 unless changes are observed
 device.GetCurrentMtu();
@@ -55,23 +83,5 @@ device.WhenStatusChanged().Subscribe(connectionState => {});
 
 // monitor MTU size changes (droid only)
 device.WhenMtuChanged().Subscribe(size => {});
-
-```
-
-
-**Smart/Persistent Connection**
-
-_CreateConnection creates a resilient connection that will immediately attempt to reconnect if disconnected as long as you maintain a reference to the observable subscription_
-
-```csharp
-var connection = device.CreateConnection().Subscribe(connectionState => 
-{
-    // you can see the connection transitions here
-    // dont try to manage reconnections, this guy will do it for you!
-});
-
-// this will close the connection and stop reconnection attempts.
-// the GC can also get at this for you!
-connection.Dispose();  
 
 ```
