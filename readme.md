@@ -4,7 +4,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS
 [![NuGet](https://img.shields.io/nuget/v/Acr.Ble.svg?maxAge=2592000)](https://www.nuget.org/packages/Acr.Ble/)
 [![Downloads](https://www.nuget.org/packages/Acr.Ble")](https://img.shields.io/nuget/dt/Acr.Ble.svg)
 
-[Change Log - Dec 18, 2016](docs/changelog.md)
+[Change Log - Jan 19, 2017](docs/changelog.md)
 
 
 ## PLATFORMS
@@ -18,17 +18,20 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS
 
 ## FEATURES
 
-* Scan for advertisement packets and devices
+* Scan for advertisement packets and devices (with full control of the scanning features)
 * Monitor adapter status (and control it on android)
-* Open setting screens
-* Connect to device and monitor status
+* Open Bluetooth settings screen
+* Persistent connections
 * Discover services, characteristics, & descriptors
 * Read, write, & receive notifications for characteristics
+* Support for reliable write transactions
 * Read & write descriptors
 * Request & monitor MTU changes
-* Monitor all aspects of the BLE plugin via CreateLogging extension
 * Connect to heart rate monitors
 * Deals with most of the Android fubars
+* Manages iOS backgrounding by allowing hooks to WhenWillRestoreState
+* Control the adapter state on Android
+* Pair with devices
 
 
 ## SETUP
@@ -97,8 +100,7 @@ Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
 * Platform Specifics
     * [Android](docs/android.md)
     * [iOS](docs/ios.md)
-* Plugins
-    * [Logging](docs/logging.md)
+* Extensions
     * [Heart Rate](docs/heartrate.md)
 
 

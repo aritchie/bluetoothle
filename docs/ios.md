@@ -44,7 +44,7 @@ _There is additional configuration required to use this event_
 BleAdapter.Init(BleAdapterConfiguration.DefaultBackgroudingConfig);
 
 // then in your shared code (somewhere near your initialization)
-BleAdapter.Current.WhenStateRestored().Subscribe(device => 
+BleAdapter.Current.WhenDeviceStateRestored().Subscribe(device => 
 {
     // will return the device(s) that are reconnecting
 });

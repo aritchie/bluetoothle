@@ -41,6 +41,20 @@ await device.Connect(new GattConnectionConfig
 device.CancelConnection();
 ```
 
+**Reliable Write Transactions**
+
+_Android and UWP only_
+
+```csharp
+using (var trans = device.BeginReliableWriteTransaction()) 
+{
+    await trans.Write(theCharacteristicToWriteTo, bytes);
+    // you should do multiple writes here as that is the reason for this mechanism
+    trans.Commit();
+}
+```
+
+
 **Pairing with a device**
 ```csharp
 if (device.IsPairingRequestSupported && device.PairingStatus != PairingStatus.Paired) 
