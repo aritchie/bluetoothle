@@ -39,13 +39,13 @@ namespace Samples.ViewModels.Le
             });
             this.Devices = new ObservableCollection<ScanResultViewModel>();
 
-            this.SelectDevice = new Acr.Command<ScanResultViewModel>(x =>
+            this.SelectDevice = ReactiveCommand.Create<ScanResultViewModel>(x =>
             {
                 this.scan?.Dispose();
                 services.VmManager.Push<DeviceViewModel>(x.Device);
             });
 
-            this.OpenSettings = new Command(() =>
+            this.OpenSettings = ReactiveCommand.Create(() =>
             {
                 if (this.BleAdapter.CanOpenSettings)
                 {
@@ -56,8 +56,8 @@ namespace Samples.ViewModels.Le
                     this.Dialogs.Alert("Cannot open bluetooth settings");
                 }
             });
-            this.ToggleAdapterState = ReactiveCommand.CreateFromTask(
-                x =>
+            this.ToggleAdapterState = ReactiveCommand.Create(
+                () =>
                 {
                     if (this.BleAdapter.CanChangeAdapterState)
                     {
@@ -67,15 +67,14 @@ namespace Samples.ViewModels.Le
                     {
                         this.Dialogs.Alert("Cannot change bluetooth adapter state");
                     }
-                    return Task.FromResult(Unit.Default);
                 },
                 this.BleAdapter
                     .WhenStatusChanged()
                     .Select(x => x == AdapterStatus.PoweredOff)
             );
 
-            this.ScanToggle = ReactiveCommand.CreateFromTask(
-                x =>
+            this.ScanToggle = ReactiveCommand.Create(
+                () =>
                 {
                     if (this.IsScanning)
                     {
@@ -90,7 +89,6 @@ namespace Samples.ViewModels.Le
                             .Scan()
                             .Subscribe(this.OnScanResult);
                     }
-                    return Task.FromResult<object>(null);
                 },
                 this.WhenAny(
                     x => x.IsSupported,
@@ -116,7 +114,7 @@ namespace Samples.ViewModels.Le
         public ICommand ScanToggle { get; }
         public ICommand OpenSettings { get; }
         public ICommand ToggleAdapterState { get; }
-        public Acr.Command<ScanResultViewModel> SelectDevice { get; }
+        public ICommand SelectDevice { get; }
         public ObservableCollection<ScanResultViewModel> Devices { get; }
         [Reactive] public bool IsScanning { get; private set; }
         [Reactive] public bool IsSupported { get; private set; }

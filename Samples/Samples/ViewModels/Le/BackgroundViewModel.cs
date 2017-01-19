@@ -20,7 +20,9 @@ namespace Samples.ViewModels.Le
                 .Subscribe(x =>
                 {
                     if (!x)
+                    {
                         settings.EnableBackgroundScan = false;
+                    }
                     else
                     {
                         var uuid = Guid.Empty;
@@ -29,7 +31,7 @@ namespace Samples.ViewModels.Le
                             dialogs.Alert("Invalid UUID");
                         }
                         else
-                        {                            
+                        {
                             settings.EnableBackgroundScan = true;
                             settings.BackgroundScanServiceUuid = uuid;
                             dialogs.Alert("Background Settings Updated", "Success");

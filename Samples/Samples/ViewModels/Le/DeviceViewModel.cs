@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Acr.Ble;
 using Acr.UserDialogs;
@@ -24,8 +22,8 @@ namespace Samples.ViewModels.Le
 
         public DeviceViewModel(ICoreServices services) : base(services)
         {
-            this.SelectCharacteristic = new Acr.Command<GattCharacteristicViewModel>(x => x.Select());
-            this.SelectDescriptor = new Acr.Command<GattDescriptorViewModel>(x => x.Select());
+            this.SelectCharacteristic = ReactiveCommand.Create<GattCharacteristicViewModel>(x => x.Select());
+            this.SelectDescriptor = ReactiveCommand.Create<GattDescriptorViewModel>(x => x.Select());
 
             this.ConnectionToggle = ReactiveCommand.CreateFromTask(async x =>
             {
@@ -193,8 +191,8 @@ namespace Samples.ViewModels.Le
         public ICommand ConnectionToggle { get; }
         public ICommand PairToDevice { get; }
         public ICommand RequestMtu { get; }
-        public Acr.Command<GattCharacteristicViewModel> SelectCharacteristic { get; }
-        public Acr.Command<GattDescriptorViewModel> SelectDescriptor { get; }
+        public ICommand SelectCharacteristic { get; }
+        public ICommand SelectDescriptor { get; }
         [Reactive] public string Name { get; private set; }
         [Reactive] public string ConnectText { get; private set; } = "Connect";
         [Reactive] public Guid Uuid { get; private set; }

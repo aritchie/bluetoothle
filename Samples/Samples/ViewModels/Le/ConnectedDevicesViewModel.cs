@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Windows.Input;
 using Acr.Ble;
 using ReactiveUI;
@@ -20,7 +18,7 @@ namespace Samples.ViewModels.Le
 
         public ConnectedDevicesViewModel(ICoreServices services) : base(services)
         {
-            this.SelectDevice = new Command<IDevice>(dev => 
+            this.SelectDevice = new Command<IDevice>(dev =>
                 this.VmManager.Push<DeviceViewModel>(dev)
             );
         }
