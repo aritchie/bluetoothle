@@ -14,13 +14,13 @@ namespace Acr.Ble
     public class Device : IDevice
     {
         readonly Subject<bool> deviceSubject;
-        readonly IAdapter adapter;
-        BluetoothLEDevice native;
+        readonly BleContext context;
+        readonly BluetoothLEDevice native;
 
 
-        public Device(IAdapter adapter, BluetoothLEDevice native)
+        public Device(BleContext context, BluetoothLEDevice native)
         {
-            this.adapter = adapter;
+            this.context = context;
             this.native = native;
             this.deviceSubject = new Subject<bool>();
 
@@ -31,7 +31,7 @@ namespace Acr.Ble
 
 
         public string Name => this.native.Name;
-        public Guid Uuid { get; } // TODO
+        public Guid Uuid { get; }
 
 
         public IGattReliableWriteTransaction BeginReliableWriteTransaction()
@@ -64,13 +64,10 @@ namespace Acr.Ble
 
         public IObservable<int> WhenRssiUpdated(TimeSpan? frequency = null)
         {
-            // TODO: what if scan filters are applied?
-            // TODO: create another advertisewatcher
-            //return this.adapter
-            //    .ScanOrListen() // TODO: this will run a duplicate
-            //    .Where(x => x.Device.Uuid.Equals(this.Uuid))
-            //    .Select(x => x.Rssi);
-            return Observable.Return(-1);
+            return this.context
+                .CreateAdvertisementWatcher()
+                .Where(x => x.BluetoothAddress == this.native.BluetoothAddress)
+                .Select(x => (int)x.RawSignalStrengthInDBm);
         }
 
 
@@ -183,6 +180,7 @@ namespace Acr.Ble
             });
         }
 
+
         public bool IsMtuRequestAvailable => false;
         public IObservable<int> RequestMtu(int size)
         {
@@ -194,6 +192,7 @@ namespace Acr.Ble
         {
             return 20;
         }
+
 
         public IObservable<int> WhenMtuChanged()
         {

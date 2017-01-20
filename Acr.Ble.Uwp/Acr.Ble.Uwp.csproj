@@ -111,7 +111,8 @@
     <Compile Include="AdvertisementExtensions.cs" />
     <Compile Include="Device.cs" />
     <Compile Include="Adapter.cs" />
-    <Compile Include="DeviceManager.cs" />
+    <Compile Include="BleContext.cs" />
+    <Compile Include="DeviceInfoArgs.cs" />
     <Compile Include="GattCharacteristic.cs" />
     <Compile Include="GattDescriptor.cs" />
     <Compile Include="GattReliableWriteTransaction.cs" />

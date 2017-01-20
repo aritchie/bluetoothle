@@ -16,22 +16,16 @@ namespace Acr.Ble
 {
     public class Adapter : IAdapter
     {
-        const string AqsFilter = "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
-        static readonly string[] requestProperites = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
-
-        readonly DeviceManager deviceManager;
+        readonly BleContext context;
         readonly Lazy<Radio> radio;
         readonly Subject<bool> scanStatusSubject;
-        readonly BluetoothLEAdvertisementWatcher adWatcher;
-        readonly DeviceWatcher deviceWatcher;
 
 
         public Adapter()
         {
             this.scanStatusSubject = new Subject<bool>();
-            this.deviceManager = new DeviceManager(this);
-            this.adWatcher = new BluetoothLEAdvertisementWatcher();
-            this.deviceWatcher = DeviceInformation.CreateWatcher(AqsFilter, requestProperites, DeviceInformationKind.AssociationEndpoint);
+            this.context = new BleContext();
+
 
             this.radio = new Lazy<Radio>(() =>
                 Radio
@@ -43,7 +37,19 @@ namespace Acr.Ble
         }
 
 
-        public bool IsScanning => this.adWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Started;
+        bool isScanning = false;
+        public bool IsScanning
+        {
+            get { return this.isScanning; }
+            private set
+            {
+                if (this.isScanning == value)
+                    return;
+
+                this.isScanning = value;
+                this.scanStatusSubject.OnNext(value);
+            }
+        }
 
 
         public AdapterStatus Status
@@ -77,7 +83,7 @@ namespace Acr.Ble
 
         public IEnumerable<IDevice> GetConnectedDevices()
         {
-            return this.deviceManager.GetConnectedDevices();
+            return this.context.GetConnectedDevices();
         }
 
 
@@ -97,14 +103,11 @@ namespace Acr.Ble
             var observer = Observable.Create<IScanResult>(ob =>
             {
                 var sub = this.ScanListen().Subscribe(ob.OnNext);
-                this.adWatcher.ScanningMode = BluetoothLEScanningMode.Active;
-                this.adWatcher.Start();
-                this.scanStatusSubject.OnNext(true);
+                this.IsScanning = true; // this will actually fire off the scanner
 
                 return () =>
                 {
-                    this.adWatcher.Stop();
-                    this.scanStatusSubject.OnNext(false);
+                    this.IsScanning = false;
                     sub.Dispose();
                 };
             });
@@ -120,58 +123,52 @@ namespace Acr.Ble
         IObservable<IScanResult> scanListenOb;
         public IObservable<IScanResult> ScanListen()
         {
+            IDisposable adWatcher = null;
+            IDisposable devWatcher = null;
+
             this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
-            {
-                this.deviceManager.Clear();
-
-                // TODO: when a device and ad are available, device discovered
-                var adHandler = new TypedEventHandler<BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>
-                (
-                    (sender, args) =>
+                this.WhenScanningStatusChanged().Subscribe(scan =>
+                {
+                    if (!scan)
                     {
-                        var device = this.deviceManager.GetDevice(args.BluetoothAddress);
-                        if (device == null)
-                        {
-                            Debug.WriteLine($"Device not found yet - " + args.BluetoothAddress);
-                            // causes Element Not Found exception
-                            //var native = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
-                            //device = this.deviceManager.GetDevice(native);
-                            return;
-                        }
-                        var adData = new AdvertisementData(args);
-                        var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
-                        ob.OnNext(scanResult);
+                        adWatcher?.Dispose();
+                        devWatcher?.Dispose();
                     }
-                );
+                    else
+                    {
+                        this.context.Clear();
 
-                var handler = new TypedEventHandler<DeviceWatcher, DeviceInformation>(async (sender, args) =>
-                {
-                    Debug.WriteLine($"[DeviceInfo] Info: {args.Id} / {args.Name}");
-                    var native = await BluetoothLEDevice.FromIdAsync(args.Id);
+                        adWatcher = this.context
+                            .CreateAdvertisementWatcher()
+                            .Subscribe(args =>
+                            {
+                                var device = this.context.GetDevice(args.BluetoothAddress);
+                                if (device == null)
+                                {
+                                    Debug.WriteLine("Device not found yet - " + args.BluetoothAddress);
+                                    // causes Element Not Found exception
+                                    //var native = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
+                                    //device = this.context.GetDevice(native);
+                                    return;
+                                }
+                                var adData = new AdvertisementData(args);
+                                var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
+                                ob.OnNext(scanResult);
+                            });
 
-                    Debug.WriteLine($"[DeviceInfo] BLE Device: {native.BluetoothAddress} / {native.DeviceId} / {native.Name}");
-                    this.deviceManager.GetDevice(native);
-                });
+                        devWatcher = this.context
+                            .CreateDeviceWatcher()
+                            .Subscribe(async args =>
+                            {
+                                Debug.WriteLine($"[DeviceInfo] Info: {args.Id} / {args.Name}");
+                                var native = await BluetoothLEDevice.FromIdAsync(args.Id);
 
-                this.deviceWatcher.Added += handler;
-                this.adWatcher.Received += adHandler;
-
-                this.deviceWatcher.EnumerationCompleted += (sender, args) =>
-                {
-                    Debug.WriteLine("this shit stopped I think.  Start it up again!");
-                };
-                this.deviceWatcher.Start();
-                this.adWatcher.Start();
-
-                return () =>
-                {
-                    this.adWatcher.Stop();
-                    this.deviceWatcher.Stop();
-
-                    this.deviceWatcher.Added -= handler;
-                    this.adWatcher.Received -= adHandler;
-                };
-            })
+                                Debug.WriteLine($"[DeviceInfo] BLE Device: {native.BluetoothAddress} / {native.DeviceId} / {native.Name}");
+                                this.context.GetDevice(native); // set discovered device for adscanner to see
+                            });
+                    }
+                })
+            )
             .Publish()
             .RefCount();
 
@@ -210,7 +207,7 @@ namespace Acr.Ble
             this.deviceStatusOb = this.deviceStatusOb ?? Observable.Create<IDevice>(ob =>
             {
                 var cleanup = new List<IDisposable>();
-                var devices = this.deviceManager.GetDiscoveredDevices();
+                var devices = this.context.GetDiscoveredDevices();
 
                 foreach (var device in devices)
                 {
