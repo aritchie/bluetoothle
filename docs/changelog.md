@@ -10,12 +10,14 @@
 * [feature][uwp][droid] WriteBlob now uses reliable write transactions
 * [feature] Device.GetService(Guid[]) and Service.GetCharacteristic(Guid[]) optimized calls
 * [feature] Adapter.GetKnownDevice(Guid) - explanation in the signature :)
+* [feature] Adapter.GetPairedDevices() - pretty self explanatory
 * [breaking][feature] RequestMtu now returns as an observable with what the accepted MTU was
 * [breaking] CreateConnection is gone - created more issues than it solved - Use Connect() as it creates persistent connections out of the gate
 * [breaking] Disconnect has been renamed to CancelConnection as it cancels any pending connections now
 * [fix][droid] disconnect on existing connection tries
 * [fix][droid] more gatt 133 issues
 * [fix][all] Blob write observable subscriptions not firing properly
+* [fix][all] NotifyEncryptionRequired, Indicate, and IndicateEncryptionRequired return true for CanNotify
 
 ## 1.3
 * [fix][droid] descriptors and characteristic read/writes now adhere to AndroidConfig.WriteOnMainThread

@@ -76,6 +76,12 @@ namespace Acr.Ble
                 //deviceWatcher.Removed += remHandler;
                 deviceWatcher.Start();
 
+                deviceWatcher.EnumerationCompleted += (s, a) =>
+                {
+                    s.Stop();
+                    s.Start();
+                };
+
                 return () =>
                 {
                     deviceWatcher.Stop();

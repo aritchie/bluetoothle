@@ -37,7 +37,17 @@ namespace Acr.Ble
             var native = this.manager.Adapter.GetRemoteDevice(deviceId.ToString());
             var device = this.context.Devices.GetDevice(native, TaskScheduler.Current);
             return device;
+        }
 
+
+        public IEnumerable<IDevice> GetPairedDevices()
+        {
+            return this.manager
+                .Adapter
+                .BondedDevices
+                .Where(x => x.Type == BluetoothDeviceType.Dual || x.Type == BluetoothDeviceType.Le) // TODO: does it know?
+                .Select(x => this.context.Devices.GetDevice(x, TaskScheduler.Current))
+                .ToList();
         }
 
 

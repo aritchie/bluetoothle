@@ -81,6 +81,13 @@ namespace Acr.Ble
         }
 
 
+        static readonly IList<IDevice> NullList = new List<IDevice>();
+        public IEnumerable<IDevice> GetPairedDevices()
+        {
+            return NullList;
+        }
+
+
         public IEnumerable<IDevice> GetConnectedDevices()
         {
             return this.context.GetConnectedDevices();

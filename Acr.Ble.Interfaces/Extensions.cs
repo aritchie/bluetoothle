@@ -153,7 +153,10 @@ namespace Acr.Ble
 
         public static bool CanNotify(this IGattCharacteristic ch)
         {
-            return ch.Properties.HasFlag(CharacteristicProperties.Notify);
+            return ch.Properties.HasFlag(CharacteristicProperties.Notify) ||
+                   ch.Properties.HasFlag(CharacteristicProperties.NotifyEncryptionRequired) ||
+                   ch.Properties.HasFlag(CharacteristicProperties.Indicate) ||
+                   ch.Properties.HasFlag(CharacteristicProperties.IndicateEncryptionRequired);
         }
 
 

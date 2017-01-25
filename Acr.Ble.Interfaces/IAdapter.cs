@@ -29,6 +29,12 @@ namespace Acr.Ble
         IEnumerable<IDevice> GetConnectedDevices();
 
         /// <summary>
+        /// Get the list of paired devices
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<IDevice> GetPairedDevices();
+
+            /// <summary>
         /// Monitor for scanning status changes
         /// </summary>
         /// <returns></returns>
