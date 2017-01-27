@@ -13,16 +13,15 @@ namespace Acr.Ble
 {
     public class Device : IDevice
     {
-        readonly Subject<bool> deviceSubject;
         readonly BleContext context;
         readonly BluetoothLEDevice native;
+        readonly Subject<ConnectionStatus> connSubject;
 
 
         public Device(BleContext context, BluetoothLEDevice native)
         {
             this.context = context;
             this.native = native;
-            this.deviceSubject = new Subject<bool>();
 
             var mac = this.ToMacAddress(native.BluetoothAddress);
             this.Uuid = this.GetDeviceId(mac);
@@ -42,55 +41,39 @@ namespace Acr.Ble
 
         public IObservable<object> Connect(GattConnectionConfig config)
         {
-            // TODO: config auto reconnect?
+            // TODO: configurable "connection" type - RSSI check, timed read on first characteristic, device watcher
             // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
-            this.native.
-            return Observable.Create<object>(ob =>
-            {
-                if (this.Status == ConnectionStatus.Connected)
-                {
-                    ob.Respond(null);
-                }
-                else
-                {
-                    //ob.Respond(null);
-                    this.deviceSubject.OnNext(true);
-                }
-                return Disposable.Empty;
-            });
-        }
-
-
-        public IObservable<int> WhenRssiUpdated(TimeSpan? frequency = null)
-        {
-            return this.context
-                .CreateAdvertisementWatcher()
-                .Where(x => x.BluetoothAddress == this.native.BluetoothAddress)
-                .Select(x => (int)x.RawSignalStrengthInDBm);
+            this.connSubject.OnNext(ConnectionStatus.Connected);
+            this.status = ConnectionStatus.Connected;
+            return Observable.Return(new object());
         }
 
 
         public void CancelConnection()
         {
-            // TODO
+            this.connSubject.OnNext(ConnectionStatus.Disconnected);
+            this.status = ConnectionStatus.Disconnected;
+            // TODO: kill RSSI, devicewatcher
+            // TODO: kill all characteristics
         }
 
 
-        public ConnectionStatus Status
-        {
-            get
-            {
+        ConnectionStatus status = ConnectionStatus.Disconnected;
+        public ConnectionStatus Status => this.status;
+        //{
+        //    get
+        //    {
                 // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
-                switch (this.native.ConnectionStatus)
-                {
-                    case BluetoothConnectionStatus.Connected:
-                        return ConnectionStatus.Connected;
+                //switch (this.native.ConnectionStatus)
+                //{
+                //    case BluetoothConnectionStatus.Connected:
+                //        return ConnectionStatus.Connected;
 
-                    default:
-                        return ConnectionStatus.Disconnected;
-                }
-            }
-        }
+                //    default:
+                //        return ConnectionStatus.Disconnected;
+                //}
+        //    }
+        //}
 
 
         IObservable<ConnectionStatus> statusOb;
@@ -111,6 +94,15 @@ namespace Acr.Ble
             .Replay(1);
 
             return this.statusOb;
+        }
+
+
+        public IObservable<int> WhenRssiUpdated(TimeSpan? frequency = null)
+        {
+            return this.context
+                .CreateAdvertisementWatcher()
+                .Where(x => x.BluetoothAddress == this.native.BluetoothAddress)
+                .Select(x => (int)x.RawSignalStrengthInDBm);
         }
 
 

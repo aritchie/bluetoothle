@@ -27,14 +27,21 @@ namespace Samples.ViewModels.Le
 
             this.ConnectionToggle = ReactiveCommand.CreateFromTask(async x =>
             {
-                // don't cleanup connection - force user to d/c
-                if (this.device.Status == ConnectionStatus.Disconnected)
+                try
                 {
-                    await this.device.Connect();
+                    // don't cleanup connection - force user to d/c
+                    if (this.device.Status == ConnectionStatus.Disconnected)
+                    {
+                        await this.device.Connect();
+                    }
+                    else
+                    {
+                        this.device.CancelConnection();
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    this.device.CancelConnection();
+                    this.Dialogs.Alert(ex.ToString());
                 }
             });
             this.PairToDevice = ReactiveCommand.CreateFromTask(async x =>
