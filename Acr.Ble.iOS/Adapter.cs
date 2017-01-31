@@ -63,6 +63,12 @@ namespace Acr.Ble
         }
 
 
+        public IEnumerable<IDevice> GetPairedDevices()
+        {
+            return new IDevice[0];
+        }
+
+
         public IEnumerable<IDevice> GetConnectedDevices()
         {
             return this.context.GetConnectedDevices();
