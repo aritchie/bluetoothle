@@ -75,6 +75,12 @@ namespace Acr.Ble
         }
 
 
+		public IEnumerable<IDevice> GetPairedDevices()
+		{
+			return new IDevice[0];
+		}
+
+
         IObservable<AdapterStatus> statusOb;
         public IObservable<AdapterStatus> WhenStatusChanged()
         {
@@ -248,5 +254,5 @@ namespace Acr.Ble
             this.IsScanning = isScanning;
 #endif
         }
-    }
+	}
 }
