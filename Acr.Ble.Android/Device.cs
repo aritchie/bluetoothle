@@ -138,6 +138,7 @@ namespace Acr.Ble
 
             this.connSubject.OnNext(ConnectionStatus.Disconnecting);
             this.context.Close();
+            this.context = null;
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
         }
 
