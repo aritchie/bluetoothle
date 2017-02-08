@@ -29,7 +29,6 @@ namespace Acr.Ble.Internals
 
         public void Close()
         {
-            this.Gatt.Close();
             this.Gatt.Disconnect();
         }
 
@@ -37,7 +36,7 @@ namespace Acr.Ble.Internals
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            this.Close();
+            this.Gatt.Close();
         }
 
 
@@ -53,7 +52,7 @@ namespace Acr.Ble.Internals
 
                 default:
                     return GattConnectionPriority.Balanced;
-   ;         }
+            }
         }
     }
 }

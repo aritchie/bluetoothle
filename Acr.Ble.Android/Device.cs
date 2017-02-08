@@ -137,7 +137,7 @@ namespace Acr.Ble
                 return;
 
             this.connSubject.OnNext(ConnectionStatus.Disconnecting);
-            this.context.Close();
+            this.Context.Close();
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
         }
 
@@ -192,7 +192,7 @@ namespace Acr.Ble
                     {
                         foreach (var ns in args.Gatt.Services)
                         {
-                            var service = new GattService(this, this.context, ns);
+                            var service = new GattService(this, this.Context, ns);
                             ob.OnNext(service);
                         }
                     }
@@ -203,7 +203,7 @@ namespace Acr.Ble
                     .Subscribe(_ =>
                     {
                         Thread.Sleep(1000); // this helps alleviate gatt 133 error
-                        this.context.Gatt.DiscoverServices();
+                        this.Context.Gatt.DiscoverServices();
                     });
 
                 return () =>
@@ -235,7 +235,7 @@ namespace Acr.Ble
                     if (args.Gatt.Device.Equals(this.native) && args.IsSuccessful)
                         ob.OnNext(args.Rssi);
                 });
-                this.context.Callbacks.ReadRemoteRssi += handler;
+                this.Context.Callbacks.ReadRemoteRssi += handler;
 
                 var sub = this
                     .WhenStatusChanged()
@@ -245,7 +245,7 @@ namespace Acr.Ble
                         {
                             timer = Observable
                                 .Interval(ts)
-                                .Subscribe(_ => this.context.Gatt.ReadRemoteRssi());
+                                .Subscribe(_ => this.Context.Gatt.ReadRemoteRssi());
                         }
                         else
                         {
@@ -257,7 +257,7 @@ namespace Acr.Ble
                 {
                     timer?.Dispose();
                     sub.Dispose();
-                    this.context.Callbacks.ReadRemoteRssi -= handler;
+                    this.Context.Callbacks.ReadRemoteRssi -= handler;
                 };
             });
         }
@@ -310,7 +310,7 @@ namespace Acr.Ble
 
         public override IGattReliableWriteTransaction BeginReliableWriteTransaction()
         {
-            return new GattReliableWriteTransaction(this.context);
+            return new GattReliableWriteTransaction(this.Context);
         }
 
 
@@ -358,7 +358,7 @@ namespace Acr.Ble
             if (!this.IsMtuRequestAvailable)
                 return base.RequestMtu(size);
 
-            this.context.Gatt.RequestMtu(size);
+            this.Context.Gatt.RequestMtu(size);
             return this.WhenMtuChanged().Take(1);
         }
 
@@ -370,7 +370,7 @@ namespace Acr.Ble
             {
                 var handler = new EventHandler<MtuChangedEventArgs>((sender, args) =>
                 {
-                    if (args.Gatt.Equals(this.context.Gatt))
+                    if (args.Gatt.Equals(this.Context.Gatt))
                     {
                         this.currentMtu = args.Mtu;
                         ob.OnNext(args.Mtu);
@@ -381,14 +381,14 @@ namespace Acr.Ble
                     .Subscribe(_ =>
                     {
                         ob.OnNext(this.currentMtu);
-                        this.context.Callbacks.MtuChanged += handler;
+                        this.Context.Callbacks.MtuChanged += handler;
                     });
 
                 return () =>
                 {
                     sub.Dispose();
-                    if (this.context?.Callbacks != null)
-                        this.context.Callbacks.MtuChanged -= handler;
+                    if (this.Context?.Callbacks != null)
+                        this.Context.Callbacks.MtuChanged -= handler;
                 };
             })
             .Replay(1)
@@ -448,7 +448,7 @@ namespace Acr.Ble
         public override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            this.context?.Dispose();
+            this.Context.Dispose();
         }
     }
 }
