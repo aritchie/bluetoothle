@@ -248,5 +248,5 @@ namespace Acr.Ble
             this.IsScanning = isScanning;
 #endif
         }
-    }
+	}
 }
