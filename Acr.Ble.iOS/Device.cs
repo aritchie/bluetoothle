@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reactive.Linq;
 using CoreBluetooth;
 using Foundation;
@@ -20,6 +19,15 @@ namespace Acr.Ble
             this.context = context;
             this.peripheral = peripheral;
         }
+
+
+#if __IOS__ || __TVOS__
+        public override DeviceFeatures Features => DeviceFeatures.PairingRequests;
+#else
+            // TODO: MAC
+        public override DeviceFeatures Features => DeviceFeatures.None;
+#endif
+
 
 
         public override ConnectionStatus Status

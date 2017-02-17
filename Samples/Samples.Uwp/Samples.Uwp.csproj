@@ -134,10 +134,6 @@
       <Project>{01d11ef2-074c-4bc0-9c05-5a6a9f974e05}</Project>
       <Name>Acr.Ble.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Acr.Ble.Uwp\Acr.Ble.Uwp.csproj">
-      <Project>{74399318-b10f-47dc-9500-1f5b9e337dbc}</Project>
-      <Name>Acr.Ble.Uwp</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Samples\Samples.csproj">
       <Project>{af0917dd-079a-49cb-9115-ba08340e4ed8}</Project>
       <Name>Samples</Name>

@@ -46,7 +46,7 @@ namespace Samples.ViewModels.Le
             });
             this.PairToDevice = ReactiveCommand.CreateFromTask(async x =>
             {
-                if (!this.device.IsPairingRequestSupported)
+                if (!this.device.Features.HasFlag(DeviceFeatures.PairingRequests))
                 {
                     this.Dialogs.Alert("Pairing is not supported on this platform");
                 }
@@ -62,7 +62,7 @@ namespace Samples.ViewModels.Le
             this.RequestMtu = ReactiveCommand.CreateFromTask(
                 async x =>
                 {
-                    if (!this.device.IsMtuRequestAvailable)
+                    if (!this.device.Features.HasFlag(DeviceFeatures.MtuRequests))
                     {
                         this.Dialogs.Alert("MTU Request not supported on this platform");
                     }

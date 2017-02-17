@@ -47,7 +47,7 @@ namespace Samples.ViewModels.Le
 
             this.OpenSettings = ReactiveCommand.Create(() =>
             {
-                if (this.BleAdapter.CanOpenSettings)
+                if (this.BleAdapter.Features.HasFlag(AdapterFeatures.OpenSettings))
                 {
                     this.BleAdapter.OpenSettings();
                 }
@@ -59,7 +59,7 @@ namespace Samples.ViewModels.Le
             this.ToggleAdapterState = ReactiveCommand.Create(
                 () =>
                 {
-                    if (this.BleAdapter.CanChangeAdapterState)
+                    if (this.BleAdapter.CanControlAdapterState())
                     {
                         this.BleAdapter.SetAdapterState(true);
                     }
