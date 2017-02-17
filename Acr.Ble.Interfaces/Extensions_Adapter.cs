@@ -36,6 +36,15 @@ namespace Acr.Ble
         }
 
 
+        public static IObservable<IDevice> ScanForUniqueDevices(this IAdapter adapter)
+        {
+            return adapter
+                .Scan()
+                .Distinct(x => x.Device.Uuid)
+                .Select(x => x.Device);
+        }
+
+
         public static IObservable<IScanResult> ScanWhenAdapterReady(this IAdapter adapter)
         {
             return Observable.Create<IScanResult>(ob =>
