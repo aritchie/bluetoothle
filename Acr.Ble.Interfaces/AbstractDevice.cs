@@ -24,6 +24,7 @@ namespace Acr.Ble
         public string Name { get; protected set; }
         public Guid Uuid { get; protected set; }
         public abstract ConnectionStatus Status { get; }
+        public abstract DeviceFeatures Features { get; }
 
         public abstract IObservable<object> Connect(GattConnectionConfig config);
         public abstract IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan);
@@ -41,14 +42,12 @@ namespace Acr.Ble
 
 
         public virtual PairingStatus PairingStatus => PairingStatus.Unavailiable;
-        public virtual bool IsPairingRequestSupported => false;
         public virtual IObservable<bool> PairingRequest(string pin)
         {
             throw new ArgumentException("Pairing request is not supported on this platform");
         }
 
 
-        public virtual bool IsMtuRequestAvailable => false;
         public virtual int GetCurrentMtuSize()
         {
             return 20;

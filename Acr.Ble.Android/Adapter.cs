@@ -28,6 +28,7 @@ namespace Acr.Ble
         }
 
 
+        public AdapterFeatures Features => AdapterFeatures.All;
         public bool IsScanning => this.manager.Adapter.IsDiscovering;
 
 
@@ -111,13 +112,9 @@ namespace Acr.Ble
 
         public IObservable<bool> WhenScanningStatusChanged()
         {
-            return Observable.Create<bool>(ob =>
-            {
-                ob.OnNext(this.IsScanning);
-                return this.scanStatusChanged
-                    .AsObservable()
-                    .Subscribe(ob.OnNext);
-            });
+           return this.scanStatusChanged
+                .AsObservable()
+                .StartWith(this.IsScanning);
         }
 
 
@@ -185,9 +182,6 @@ namespace Acr.Ble
         }
 
 
-        public bool CanOpenSettings => true;
-
-
         public void OpenSettings()
         {
             var intent = new Intent(Android.Provider.Settings.ActionBluetoothSettings);
@@ -195,8 +189,6 @@ namespace Acr.Ble
             Application.Context.StartActivity(intent);
         }
 
-
-        public bool CanChangeAdapterState => true;
 
         public void SetAdapterState(bool enable)
         {

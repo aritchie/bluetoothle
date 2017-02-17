@@ -41,12 +41,14 @@
     <Compile Include="AbstractGattCharacteristic.cs" />
     <Compile Include="AbstractGattService.cs" />
     <Compile Include="AbstractGattReliableWriteTransaction.cs" />
+    <Compile Include="AdapterFeatures.cs" />
     <Compile Include="AdapterStatus.cs" />
     <Compile Include="AdvertisementRecordType.cs" />
     <Compile Include="BleScanType.cs" />
     <Compile Include="CharacteristicProperties.cs" />
     <Compile Include="ConnectionPriority.cs" />
     <Compile Include="ConnectionStatus.cs" />
+    <Compile Include="DeviceFeatures.cs" />
     <Compile Include="Dictionaries.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="GattConnectionConfig.cs" />

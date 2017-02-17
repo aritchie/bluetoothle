@@ -7,6 +7,11 @@ namespace Acr.Ble
     public interface IAdapter
     {
         /// <summary>
+        /// This readonly property contains a flags enum stating what platform adapter features that are available
+        /// </summary>
+        AdapterFeatures Features { get; }
+
+        /// <summary>
         /// Get a known device
         /// </summary>
         /// <param name="deviceId">Device identifier.</param>
@@ -66,19 +71,9 @@ namespace Acr.Ble
         IObservable<IDevice> WhenDeviceStatusChanged();
 
         /// <summary>
-        /// True if settings screen can be opened from this library/platform
-        /// </summary>
-        bool CanOpenSettings { get; }
-
-        /// <summary>
         /// Opens the platform settings screen
         /// </summary>
         void OpenSettings();
-
-        /// <summary>
-        /// True if adapter state can be managed by this library/platform
-        /// </summary>
-        bool CanChangeAdapterState { get; }
 
         /// <summary>
         /// Toggles the bluetooth adapter on/off - returns true if successful

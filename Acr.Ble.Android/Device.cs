@@ -35,6 +35,9 @@ namespace Acr.Ble
         }
 
 
+        public override DeviceFeatures Features => DeviceFeatures.All;
+
+
         GattContext context;
         protected virtual GattContext Context
         {
@@ -263,9 +266,6 @@ namespace Acr.Ble
         }
 
 
-        public override bool IsPairingRequestSupported => true;
-
-
         public override IObservable<bool> PairingRequest(string pin)
         {
             return Observable.Create<bool>(ob =>
@@ -349,13 +349,10 @@ namespace Acr.Ble
         }
 
 
-        public override bool IsMtuRequestAvailable => Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
-
-
         int currentMtu = 20;
         public override IObservable<int> RequestMtu(int size)
         {
-            if (!this.IsMtuRequestAvailable)
+            if (!this.IsMtuRequestAvailable())
                 return base.RequestMtu(size);
 
             this.Context.Gatt.RequestMtu(size);

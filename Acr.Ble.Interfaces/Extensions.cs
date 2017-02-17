@@ -27,6 +27,69 @@ namespace Acr.Ble
         }
 
 
+        public static bool CanOpenSettings(this IAdapter adapter)
+        {
+            return adapter.Features.HasFlag(AdapterFeatures.OpenSettings);
+        }
+
+
+        public static bool CanViewPairedDevices(this IAdapter adapter)
+        {
+            return adapter.Features.HasFlag(AdapterFeatures.ViewPairedDevices);
+        }
+
+
+        public static bool CanControlAdapterState(this IAdapter adapter)
+        {
+            return adapter.Features.HasFlag(AdapterFeatures.ControlAdapterState);
+        }
+
+
+        public static bool CanPerformLowPoweredScans(this IAdapter adapter)
+        {
+            return adapter.Features.HasFlag(AdapterFeatures.LowPoweredScan);
+        }
+
+
+        public static bool IsPairingAvailable(this IDevice device)
+        {
+            return device.Features.HasFlag(DeviceFeatures.PairingRequests);
+        }
+
+
+        public static bool IsMtuRequestAvailable(this IDevice device)
+        {
+            return device.Features.HasFlag(DeviceFeatures.MtuRequests);
+        }
+
+
+        public static bool IsReliableTransactionsAvailable(this IDevice device)
+        {
+            return device.Features.HasFlag(DeviceFeatures.ReliableTransactions);
+        }
+
+
+        public static IObservable<IScanResult> ScanWhenAdapterReady(this IAdapter adapter)
+        {
+            return Observable.Create<IScanResult>(ob =>
+            {
+                IDisposable scan = null;
+                var sub = adapter
+                    .WhenStatusChanged()
+                    .Where(x => x == AdapterStatus.PoweredOn)
+                    .Subscribe(x =>
+                        scan = adapter.Scan().Subscribe(ob.OnNext)
+                    );
+
+                return () =>
+                {
+                    scan?.Dispose();
+                    sub.Dispose();
+                };
+            });
+        }
+
+
         public static IObservable<CharacteristicResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
         {
             return Observable.Create<CharacteristicResult>(async ob =>

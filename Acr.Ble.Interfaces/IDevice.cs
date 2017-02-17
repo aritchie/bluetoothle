@@ -7,6 +7,11 @@ namespace Acr.Ble
     public interface IDevice
     {
         /// <summary>
+        /// Contains a flags enum stating what platform features are available
+        /// </summary>
+        DeviceFeatures Features { get; }
+
+        /// <summary>
         /// The device name - note that this is not readable in the background on most platforms
         /// </summary>
         string Name { get; }
@@ -65,22 +70,10 @@ namespace Acr.Ble
         PairingStatus PairingStatus { get; }
 
         /// <summary>
-        /// States whether the API supports pairing or not
-        /// </summary>
-        bool IsPairingRequestSupported { get; }
-
-        /// <summary>
         /// Make a pairing request
         /// </summary>
         /// <returns></returns>
         IObservable<bool> PairingRequest(string pin = null);
-
-        /// <summary>
-        /// If MTU requests are available (Android Only)
-        /// This is specific to Android only where this negotiation is not automatic.
-        /// The size can be up to 512, but you should be careful with anything above 255 in practice
-        /// </summary>
-        bool IsMtuRequestAvailable { get; }
 
         /// <summary>
         /// Send request to set MTU size
