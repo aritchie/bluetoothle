@@ -37,6 +37,9 @@ namespace Acr.Ble
         }
 
 
+        public AdapterFeatures Features => AdapterFeatures.All;
+
+
         bool isScanning = false;
         public bool IsScanning
         {
@@ -79,6 +82,7 @@ namespace Acr.Ble
         {
             throw new NotImplementedException();
         }
+
 
 
         static readonly IList<IDevice> NullList = new List<IDevice>();
@@ -230,15 +234,11 @@ namespace Acr.Ble
         }
 
 
-        public bool CanOpenSettings => true;
-
         public async void OpenSettings()
         {
             await Launcher.LaunchUriAsync(new Uri("ms-settings:bluetooth"));
         }
 
-
-        public bool CanChangeAdapterState => true;
 
         public async void SetAdapterState(bool enable)
         {

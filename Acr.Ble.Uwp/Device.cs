@@ -31,6 +31,7 @@ namespace Acr.Ble
 
         public string Name => this.native.Name;
         public Guid Uuid { get; }
+        public DeviceFeatures Features => DeviceFeatures.PairingRequests | DeviceFeatures.ReliableTransactions;
 
 
         public IGattReliableWriteTransaction BeginReliableWriteTransaction()
@@ -159,7 +160,6 @@ namespace Acr.Ble
             : PairingStatus.NotPaired;
 
 
-        public bool IsPairingRequestSupported => true;
         public IObservable<bool> PairingRequest(string pin = null)
         {
             return Observable.Create<bool>(async ob =>
@@ -172,7 +172,6 @@ namespace Acr.Ble
         }
 
 
-        public bool IsMtuRequestAvailable => false;
         public IObservable<int> RequestMtu(int size)
         {
             return Observable.Return(20); // TODO
