@@ -33,6 +33,7 @@ namespace Acr.Ble
         }
 
 
+        // TODO: is this working?
         public static ParcelUuid ToParcelUuid(this Guid guid)
         {
             return ParcelUuid.FromString(guid.ToString());

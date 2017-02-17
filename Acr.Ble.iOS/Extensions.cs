@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Foundation;
 using CoreBluetooth;
 
@@ -25,7 +26,10 @@ namespace Acr.Ble
 
         public static CBUUID ToCBUuid(this Guid guid)
         {
-            return CBUUID.FromBytes(guid.ToByteArray());
+            // guids tobytes endianizes the result, thereby changing the actual guid for everything else, this is the quickest fix
+            var bytes = Encoding.UTF8.GetBytes(guid.ToString());
+            return CBUUID.FromBytes(bytes);
+            //return CBUUID.FromBytes(guid.ToByteArray());
         }
 
 

@@ -94,6 +94,7 @@ namespace Acr.Ble.Internals
         }
 
 
+        // TODO: scanfilter?
         protected virtual void StartPreLollipopScan()
         {
             this.oldCallback = new PreLollipopScanCallback(args => this.Scanned?.Invoke(this, args));

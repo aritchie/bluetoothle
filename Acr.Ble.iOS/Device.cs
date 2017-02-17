@@ -29,7 +29,6 @@ namespace Acr.Ble
 #endif
 
 
-
         public override ConnectionStatus Status
         {
             get
