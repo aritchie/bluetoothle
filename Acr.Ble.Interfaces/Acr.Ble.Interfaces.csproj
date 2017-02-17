@@ -57,7 +57,7 @@
     <Compile Include="GattConnectionConfig.cs" />
     <Compile Include="GattReliableWriteTransactionException.cs" />
     <Compile Include="IGattReliableWriteTransaction.cs" />
-    <Compile Include="ITrace.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="PairingStatus.cs" />
     <Compile Include="HeartRateExtensions.cs" />
     <Compile Include="IAdapter.cs" />
