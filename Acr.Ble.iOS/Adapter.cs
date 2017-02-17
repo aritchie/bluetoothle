@@ -25,6 +25,21 @@ namespace Acr.Ble
             this.scanStatusChanged = new Subject<bool>();
         }
 
+#if __IOS__
+        public AdapterFeatures Features
+        {
+            get
+            {
+                var v8or9 = UIDevice.CurrentDevice.CheckSystemVersion(8, 0) && !UIDevice.CurrentDevice.CheckSystemVersion(10, 0);
+                return v8or9
+                    ? AdapterFeatures.OpenSettings
+                    : AdapterFeatures.None;
+            }
+        }
+#else
+        public AdapterFeatures Features => AdapterFeatures.None;
+#endif
+
 
         public AdapterStatus Status
         {
@@ -98,19 +113,19 @@ namespace Acr.Ble
 
         public IObservable<bool> WhenScanningStatusChanged()
         {
-            return Observable.Create<bool>(ob =>
-            {
-                ob.OnNext(this.IsScanning);
-                return this.scanStatusChanged
-                    .AsObservable()
-                    .Subscribe(ob.OnNext);
-            });
+            return this.scanStatusChanged
+                .AsObservable()
+                .StartWith(this.IsScanning);
         }
 
 
         public IObservable<IScanResult> Scan(ScanConfig config)
         {
             config = config ?? new ScanConfig();
+
+            if (this.Status != AdapterStatus.PoweredOn)
+                throw new ArgumentException("Your adapter status is " + this.Status);
+
             if (this.IsScanning)
                 throw new ArgumentException("There is already an existing scan");
 
@@ -178,10 +193,6 @@ namespace Acr.Ble
 
 #if __IOS__
 
-        //public bool CanOpenSettings => !UIDevice.CurrentDevice.CheckSystemVersion(10, 0); // if it is 8 or 9 but not 10
-        public bool CanOpenSettings => UIDevice.CurrentDevice.CheckSystemVersion(8, 0) && !UIDevice.CurrentDevice.CheckSystemVersion(10, 0);
-
-
         public void OpenSettings()
         {
             if (UIDevice.CurrentDevice.CheckSystemVersion(10, 0))
@@ -218,16 +229,12 @@ namespace Acr.Ble
         }
 
 #else
-        public bool CanOpenSettings => false;
-
-
         public void OpenSettings()
         {
         }
 #endif
 
 
-        public bool CanChangeAdapterState => false;
         public void SetAdapterState(bool enabled)
         {
         }
