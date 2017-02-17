@@ -1,95 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading;
 
 
 namespace Acr.Ble
 {
-    public static class Extensions
+    public static partial class Extensions
     {
-        public static IObservable<IScanResult> ScanOrListen(this IAdapter adapter)
-        {
-            return adapter.IsScanning ? adapter.ScanListen() : adapter.Scan();
-        }
-
-
-        public static IObservable<IGattCharacteristic> WhenAnyCharacteristicDiscovered(this IDevice device)
-        {
-            return device.WhenServiceDiscovered().SelectMany(x => x.WhenCharacteristicDiscovered());
-        }
-
-
-        public static IObservable<IGattDescriptor> WhenAnyDescriptorDiscovered(this IDevice device)
-        {
-            return device.WhenAnyCharacteristicDiscovered().SelectMany(x => x.WhenDescriptorDiscovered());
-        }
-
-
-        public static bool CanOpenSettings(this IAdapter adapter)
-        {
-            return adapter.Features.HasFlag(AdapterFeatures.OpenSettings);
-        }
-
-
-        public static bool CanViewPairedDevices(this IAdapter adapter)
-        {
-            return adapter.Features.HasFlag(AdapterFeatures.ViewPairedDevices);
-        }
-
-
-        public static bool CanControlAdapterState(this IAdapter adapter)
-        {
-            return adapter.Features.HasFlag(AdapterFeatures.ControlAdapterState);
-        }
-
-
-        public static bool CanPerformLowPoweredScans(this IAdapter adapter)
-        {
-            return adapter.Features.HasFlag(AdapterFeatures.LowPoweredScan);
-        }
-
-
-        public static bool IsPairingAvailable(this IDevice device)
-        {
-            return device.Features.HasFlag(DeviceFeatures.PairingRequests);
-        }
-
-
-        public static bool IsMtuRequestAvailable(this IDevice device)
-        {
-            return device.Features.HasFlag(DeviceFeatures.MtuRequests);
-        }
-
-
-        public static bool IsReliableTransactionsAvailable(this IDevice device)
-        {
-            return device.Features.HasFlag(DeviceFeatures.ReliableTransactions);
-        }
-
-
-        public static IObservable<IScanResult> ScanWhenAdapterReady(this IAdapter adapter)
-        {
-            return Observable.Create<IScanResult>(ob =>
-            {
-                IDisposable scan = null;
-                var sub = adapter
-                    .WhenStatusChanged()
-                    .Where(x => x == AdapterStatus.PoweredOn)
-                    .Subscribe(x =>
-                        scan = adapter.Scan().Subscribe(ob.OnNext)
-                    );
-
-                return () =>
-                {
-                    scan?.Dispose();
-                    sub.Dispose();
-                };
-            });
-        }
-
-
         public static IObservable<CharacteristicResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
         {
             return Observable.Create<CharacteristicResult>(async ob =>
@@ -111,12 +29,6 @@ namespace Acr.Ble
                 }
                 return () => cancelSrc.Cancel();
             });
-        }
-
-
-        public static IConnectableObservable<TItem> ReplayWithReset<TItem, TReset>(this IObservable<TItem> src, IObservable<TReset> resetTrigger)
-        {
-            return new ClearableReplaySubject<TItem, TReset>(src, resetTrigger);
         }
 
 
@@ -143,48 +55,6 @@ namespace Acr.Ble
                 return character.ReadInterval(readInterval);
 
             throw new ArgumentException($"Characteristic {character.Uuid} does not have read or notify permissions");
-        }
-
-
-        public static IObservable<IScanResult> ScanInterval(this IAdapter adapter, TimeSpan timeSpan)
-        {
-            return Observable.Create<IScanResult>(ob =>
-            {
-                var scanner = adapter
-                    .Scan()
-                    .Subscribe(ob.OnNext);
-
-                var timer = Observable
-                    .Interval(timeSpan)
-                    .Subscribe(x =>
-                    {
-                        if (scanner == null)
-                        {
-                            scanner = adapter
-                                .Scan()
-                                .Subscribe(ob.OnNext);
-                        }
-                        else
-                        {
-                            scanner.Dispose();
-                            scanner = null;
-                        }
-                    });
-
-                return () =>
-                {
-                    timer.Dispose();
-                    scanner?.Dispose();
-                };
-            });
-
-        }
-
-
-        public static void Respond<T>(this IObserver<T> ob, T value)
-        {
-            ob.OnNext(value);
-            ob.OnCompleted();
         }
 
 

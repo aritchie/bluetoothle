@@ -50,7 +50,10 @@
     <Compile Include="ConnectionStatus.cs" />
     <Compile Include="DeviceFeatures.cs" />
     <Compile Include="Dictionaries.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Extensions_Characteristics.cs" />
+    <Compile Include="Extensions_Rx.cs" />
+    <Compile Include="Extensions_Device.cs" />
+    <Compile Include="Extensions_Adapter.cs" />
     <Compile Include="GattConnectionConfig.cs" />
     <Compile Include="GattReliableWriteTransactionException.cs" />
     <Compile Include="IGattReliableWriteTransaction.cs" />
