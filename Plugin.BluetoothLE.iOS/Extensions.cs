@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Foundation;
 using CoreBluetooth;
 
@@ -25,7 +26,7 @@ namespace Plugin.BluetoothLE
 
         public static CBUUID ToCBUuid(this Guid guid)
         {
-            return CBUUID.FromBytes(guid.ToByteArray());
+            return CBUUID.FromString(guid.ToString());
         }
 
 

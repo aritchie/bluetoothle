@@ -29,7 +29,6 @@ namespace Plugin.BluetoothLE
 #endif
 
 
-
         public override ConnectionStatus Status
         {
             get

@@ -33,6 +33,7 @@ namespace Plugin.BluetoothLE
         }
 
 
+        // TODO: is this working?
         public static ParcelUuid ToParcelUuid(this Guid guid)
         {
             return ParcelUuid.FromString(guid.ToString());
