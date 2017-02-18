@@ -2,7 +2,7 @@
 using System.Diagnostics;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public static class Log
     {
