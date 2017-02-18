@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Acr.Ble.Internals
+namespace Plugin.BluetoothLE.Internals
 {
     public class InternalScanRecord
     {

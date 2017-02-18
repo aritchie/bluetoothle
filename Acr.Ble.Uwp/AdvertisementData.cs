@@ -5,7 +5,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Devices.Bluetooth.Advertisement;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class AdvertisementData : IAdvertisementData
     {

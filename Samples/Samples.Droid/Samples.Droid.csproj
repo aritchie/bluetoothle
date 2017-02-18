@@ -206,13 +206,13 @@
     <AndroidResource Include="Resources\values-v21\style.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Acr.Ble.Android\Acr.Ble.Android.csproj">
+    <ProjectReference Include="..\..\Acr.Ble.Android\Plugin.BluetoothLE.Android.csproj">
       <Project>{89f4b2db-539d-467d-b9b1-74608e636349}</Project>
-      <Name>Acr.Ble.Android</Name>
+      <Name>Plugin.BluetoothLE.Android</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Acr.Ble.Interfaces\Acr.Ble.Interfaces.csproj">
+    <ProjectReference Include="..\..\Acr.Ble.Interfaces\Plugin.BluetoothLE.Abstractions.csproj">
       <Project>{01d11ef2-074c-4bc0-9c05-5a6a9f974e05}</Project>
-      <Name>Acr.Ble.Interfaces</Name>
+      <Name>Plugin.BluetoothLE.Abstractions</Name>
     </ProjectReference>
     <ProjectReference Include="..\Samples\Samples.csproj">
       <Name>Samples</Name>

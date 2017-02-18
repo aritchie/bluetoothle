@@ -2,7 +2,7 @@
 using System.Reactive.Subjects;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public abstract class AbstractGattDescriptor : IGattDescriptor
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
 
     public static class Dictionaries

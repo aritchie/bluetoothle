@@ -2,7 +2,7 @@
 using System.Reactive.Linq;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class VoidGattReliableWriteTransaction : AbstractGattReliableWriteTransaction
     {

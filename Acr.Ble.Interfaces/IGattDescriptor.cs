@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public interface IGattDescriptor
     {

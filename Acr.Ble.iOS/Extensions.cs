@@ -3,7 +3,7 @@ using Foundation;
 using CoreBluetooth;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     internal static class BleExtensions
     {

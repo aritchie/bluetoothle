@@ -6,8 +6,8 @@
     <ProjectGuid>{8A0FC475-221D-4FE0-8308-3F703DC08F52}</ProjectGuid>
     <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>Acr.Ble</RootNamespace>
-    <AssemblyName>Acr.Ble</AssemblyName>
+    <RootNamespace>Plugin.BluetoothLE</RootNamespace>
+    <AssemblyName>Plugin.BluetoothLE</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
@@ -74,9 +74,9 @@
     <Reference Include="Xamarin.Mac" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Acr.Ble.Interfaces\Acr.Ble.Interfaces.csproj">
+    <ProjectReference Include="..\Acr.Ble.Interfaces\Plugin.BluetoothLE.Abstractions.csproj">
       <Project>{01d11ef2-074c-4bc0-9c05-5a6a9f974e05}</Project>
-      <Name>Acr.Ble.Interfaces</Name>
+      <Name>Plugin.BluetoothLE.Abstractions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

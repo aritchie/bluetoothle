@@ -4,7 +4,7 @@ using Android.OS;
 using B = Android.OS.Build;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public static class AndroidConfig
     {

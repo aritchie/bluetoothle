@@ -7,7 +7,7 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattDescriptor;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class GattDescriptor : AbstractGattDescriptor
     {

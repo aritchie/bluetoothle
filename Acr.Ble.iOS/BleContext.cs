@@ -11,7 +11,7 @@ using CoreFoundation;
 using Foundation;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class BleContext : CBCentralManagerDelegate
     {

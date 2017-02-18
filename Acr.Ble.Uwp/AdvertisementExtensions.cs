@@ -5,7 +5,7 @@ using System.Text;
 using Windows.Devices.Bluetooth.Advertisement;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public static class AdvertisementExtensions
     {

@@ -11,7 +11,7 @@ using ObjCRuntime;
 #endif
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class Adapter : IAdapter
     {

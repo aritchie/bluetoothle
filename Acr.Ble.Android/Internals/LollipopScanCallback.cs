@@ -3,7 +3,7 @@ using Android.Bluetooth.LE;
 using SR = Android.Bluetooth.LE.ScanResult;
 
 
-namespace Acr.Ble.Internals
+namespace Plugin.BluetoothLE.Internals
 {
     public class LollipopScanCallback : ScanCallback
     {

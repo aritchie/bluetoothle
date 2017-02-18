@@ -1,5 +1,5 @@
 ﻿using System;
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class CharacteristicResult
     {

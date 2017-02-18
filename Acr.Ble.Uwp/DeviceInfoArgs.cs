@@ -2,7 +2,7 @@
 using Windows.Devices.Enumeration;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class DeviceInfoArgs
     {

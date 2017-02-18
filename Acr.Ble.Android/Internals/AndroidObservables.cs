@@ -5,7 +5,7 @@ using Android.App;
 using Android.Content;
 
 
-namespace Acr.Ble.Internals
+namespace Plugin.BluetoothLE.Internals
 {
     public static class AndroidObservables
     {

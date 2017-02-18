@@ -12,7 +12,7 @@ using Windows.Devices.Radios;
 using Windows.System;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class Adapter : IAdapter
     {

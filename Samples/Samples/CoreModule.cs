@@ -1,5 +1,5 @@
 ﻿using System;
-using Acr.Ble;
+using Plugin.BluetoothLE;
 using Acr.Notifications;
 using Acr.Settings;
 using Acr.UserDialogs;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using Acr;
-using Acr.Ble;
+using Plugin.BluetoothLE;
 using Acr.UserDialogs;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;

@@ -6,8 +6,8 @@
     <ProjectGuid>{E9BC91B2-A392-4EED-9000-A0629E69D5A7}</ProjectGuid>
     <ProjectTypeGuids>{06FA79CB-D6CD-4721-BB4B-1BD202089C55};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>Acr.Ble</RootNamespace>
-    <AssemblyName>Acr.Ble</AssemblyName>
+    <RootNamespace>Plugin.BluetoothLE</RootNamespace>
+    <AssemblyName>Plugin.BluetoothLE</AssemblyName>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -92,9 +92,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Acr.Ble.Interfaces\Acr.Ble.Interfaces.csproj">
+    <ProjectReference Include="..\Acr.Ble.Interfaces\Plugin.BluetoothLE.Abstractions.csproj">
       <Project>{01D11EF2-074C-4BC0-9C05-5A6A9F974E05}</Project>
-      <Name>Acr.Ble.Interfaces</Name>
+      <Name>Plugin.BluetoothLE.Abstractions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

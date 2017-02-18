@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Acr;
-using Acr.Ble;
+using Plugin.BluetoothLE;
 using Acr.UserDialogs;
 using ReactiveUI.Fody.Helpers;
 using Xamarin.Forms;

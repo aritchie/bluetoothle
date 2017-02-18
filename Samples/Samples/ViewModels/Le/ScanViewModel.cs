@@ -5,7 +5,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Acr.Ble;
+using Plugin.BluetoothLE;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Samples.Services;

@@ -4,7 +4,7 @@ using System.Reactive.Linq;
 using CoreBluetooth;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class GattService : AbstractGattService
     {

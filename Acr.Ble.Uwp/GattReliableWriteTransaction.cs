@@ -5,7 +5,7 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattReliableWriteTransaction;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class GattReliableWriteTransaction : AbstractGattReliableWriteTransaction
     {

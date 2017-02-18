@@ -2,7 +2,7 @@ using System;
 using Android.Bluetooth;
 
 
-namespace Acr.Ble.Internals
+namespace Plugin.BluetoothLE.Internals
 {
     public class GattDescriptorEventArgs : GattEventArgs
     {

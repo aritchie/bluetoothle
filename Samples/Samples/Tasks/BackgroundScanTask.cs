@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using Acr.Ble;
+using Plugin.BluetoothLE;
 using Acr.Notifications;
 using Samples.Services;
 

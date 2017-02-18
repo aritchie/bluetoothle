@@ -6,7 +6,7 @@ using Android.OS;
 using ScanMode = Android.Bluetooth.LE.ScanMode;
 
 
-namespace Acr.Ble.Internals
+namespace Plugin.BluetoothLE.Internals
 {
     public class BleContext
     {

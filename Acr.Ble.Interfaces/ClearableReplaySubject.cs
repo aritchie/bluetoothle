@@ -6,7 +6,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class ClearableReplaySubject<TSource, TClearTrigger> : IConnectableObservable<TSource>
     {

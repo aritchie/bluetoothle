@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using Acr.Ble.Internals;
 using Android.Bluetooth.LE;
+using Plugin.BluetoothLE.Internals;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class AdvertisementData : IAdvertisementData
     {

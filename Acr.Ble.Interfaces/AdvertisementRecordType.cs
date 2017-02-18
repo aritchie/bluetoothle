@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     // https://www.bluetooth.org/en-us/specification/assigned-numbers/generic-access-profile
     public enum AdvertisementRecordType

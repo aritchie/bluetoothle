@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Android.Bluetooth;
 
 
-namespace Acr.Ble.Internals
+namespace Plugin.BluetoothLE.Internals
 {
     public class DeviceManager
     {

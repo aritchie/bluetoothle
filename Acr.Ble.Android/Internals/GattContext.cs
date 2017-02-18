@@ -2,7 +2,7 @@
 using Android.Bluetooth;
 
 
-namespace Acr.Ble.Internals
+namespace Plugin.BluetoothLE.Internals
 {
     public class GattContext : IDisposable
     {

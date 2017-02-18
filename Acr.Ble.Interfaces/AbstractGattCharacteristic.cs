@@ -5,7 +5,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public abstract class AbstractGattCharacteristic : IGattCharacteristic
     {

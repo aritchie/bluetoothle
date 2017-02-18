@@ -1,11 +1,11 @@
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Acr.Ble.Internals;
 using Android.Bluetooth;
+using Plugin.BluetoothLE.Internals;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class GattService : AbstractGattService
     {

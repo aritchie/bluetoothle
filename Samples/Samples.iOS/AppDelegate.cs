@@ -1,5 +1,5 @@
 ﻿using System;
-using Acr.Ble;
+using Plugin.BluetoothLE;
 using Autofac;
 using Foundation;
 using UIKit;

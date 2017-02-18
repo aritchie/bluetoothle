@@ -2,7 +2,7 @@
 using System.IO;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public interface IGattCharacteristic
     {

@@ -3,7 +3,7 @@ using CoreBluetooth;
 using Foundation;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class PeripheralConnectionFailed
     {

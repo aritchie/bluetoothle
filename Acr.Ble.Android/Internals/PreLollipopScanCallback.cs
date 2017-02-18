@@ -1,7 +1,7 @@
 using System;
 using Android.Bluetooth;
 
-namespace Acr.Ble.Internals
+namespace Plugin.BluetoothLE.Internals
 {
     public class PreLollipopScanCallback : Java.Lang.Object, BluetoothAdapter.ILeScanCallback
     {

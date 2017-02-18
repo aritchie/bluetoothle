@@ -9,7 +9,7 @@ using Windows.Devices.Enumeration;
 using Windows.Foundation;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class Device : IDevice
     {

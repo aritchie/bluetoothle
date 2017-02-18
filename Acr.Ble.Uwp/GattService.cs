@@ -5,7 +5,7 @@ using Windows.Devices.Bluetooth;
 using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattDeviceService;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class GattService : AbstractGattService
     {

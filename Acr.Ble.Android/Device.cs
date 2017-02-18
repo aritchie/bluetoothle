@@ -5,13 +5,13 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using Acr.Ble.Internals;
 using Android.App;
 using Android.Bluetooth;
 using Android.OS;
+using Plugin.BluetoothLE.Internals;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class Device : AbstractDevice
     {

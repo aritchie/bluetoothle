@@ -3,7 +3,7 @@ using Android.OS;
 using Java.Util;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     internal static class Extensions
     {

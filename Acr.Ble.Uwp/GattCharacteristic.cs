@@ -10,7 +10,7 @@ using Windows.Foundation;
 using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattCharacteristic;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class GattCharacteristic : AbstractGattCharacteristic
     {

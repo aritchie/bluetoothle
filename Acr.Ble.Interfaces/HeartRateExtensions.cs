@@ -4,7 +4,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public static class HeartRateExtensions
     {

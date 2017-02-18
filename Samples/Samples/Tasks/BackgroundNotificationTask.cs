@@ -1,6 +1,6 @@
 ﻿using System;
 using Autofac;
-using Acr.Ble;
+using Plugin.BluetoothLE;
 using Acr.Notifications;
 using Samples.Services;
 using Xamarin.Forms;

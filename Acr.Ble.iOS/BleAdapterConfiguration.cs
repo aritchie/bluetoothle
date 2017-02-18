@@ -2,7 +2,7 @@
 using CoreFoundation;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class BleAdapterConfiguration
     {

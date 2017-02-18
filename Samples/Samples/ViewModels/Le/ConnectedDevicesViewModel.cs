@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using Acr.Ble;
+using Plugin.BluetoothLE;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Samples.Services;

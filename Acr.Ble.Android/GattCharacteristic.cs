@@ -5,13 +5,13 @@ using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using Android.Bluetooth;
 using Java.Util;
-using Acr.Ble.Internals;
+using Plugin.BluetoothLE.Internals;
 using static System.Diagnostics.Debug;
 using Observable = System.Reactive.Linq.Observable;
 
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class GattCharacteristic : AbstractGattCharacteristic
     {

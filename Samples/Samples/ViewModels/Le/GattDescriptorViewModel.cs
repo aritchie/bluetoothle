@@ -3,7 +3,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
-using Acr.Ble;
+using Plugin.BluetoothLE;
 using ReactiveUI.Fody.Helpers;
 
 

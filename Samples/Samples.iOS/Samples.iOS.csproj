@@ -102,13 +102,13 @@
     <ITunesArtwork Include="iTunesArtwork%402x" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Acr.Ble.Interfaces\Acr.Ble.Interfaces.csproj">
+    <ProjectReference Include="..\..\Acr.Ble.Interfaces\Plugin.BluetoothLE.Abstractions.csproj">
       <Project>{01d11ef2-074c-4bc0-9c05-5a6a9f974e05}</Project>
-      <Name>Acr.Ble.Interfaces</Name>
+      <Name>Plugin.BluetoothLE.Abstractions</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Acr.Ble.iOS\Acr.Ble.iOS.csproj">
+    <ProjectReference Include="..\..\Acr.Ble.iOS\Plugin.BluetoothLE.iOS.csproj">
       <Project>{57d5ff44-345d-4229-aefc-e3f7f260a665}</Project>
-      <Name>Acr.Ble.iOS</Name>
+      <Name>Plugin.BluetoothLE.iOS</Name>
       <IsAppExtension>false</IsAppExtension>
       <IsWatchApp>false</IsWatchApp>
     </ProjectReference>

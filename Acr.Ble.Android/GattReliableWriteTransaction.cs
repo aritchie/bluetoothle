@@ -1,9 +1,9 @@
 using System;
 using System.Reactive.Linq;
-using Acr.Ble.Internals;
+using Plugin.BluetoothLE.Internals;
 
 
-namespace Acr.Ble
+namespace Plugin.BluetoothLE
 {
     public class GattReliableWriteTransaction : AbstractGattReliableWriteTransaction
     {

@@ -3,7 +3,7 @@ using Android.Bluetooth;
 using Android.Bluetooth.LE;
 
 
-namespace Acr.Ble.Internals {
+namespace Plugin.BluetoothLE.Internals {
 
     public class ScanEventArgs : EventArgs
     {
