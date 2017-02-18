@@ -15,7 +15,7 @@ namespace Samples.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             Forms.Init();
-            BleAdapter.Init(BleAdapterConfiguration.DefaultBackgroudingConfig);
+            CrossBleAdapter.Init(BleAdapterConfiguration.DefaultBackgroudingConfig);
 
             var builder = new ContainerBuilder();
             builder.RegisterModule(new PlatformModule());

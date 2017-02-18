@@ -17,7 +17,7 @@ namespace Samples
             base.Load(builder);
 
             builder
-                .Register(x => BleAdapter.Current)
+                .Register(x => CrossBleAdapter.Current)
                 .As<IAdapter>()
                 .SingleInstance();
 

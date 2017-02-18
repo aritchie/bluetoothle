@@ -9,7 +9,7 @@
     <Import_RootNamespace>Plugin.BluetoothLE</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)BleAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CrossBleAdapter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CommonAssemblyInfo.cs" />
   </ItemGroup>
 </Project>
