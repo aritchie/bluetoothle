@@ -5,11 +5,11 @@
     <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{01D11EF2-074C-4BC0-9C05-5A6A9F974E05}</ProjectGuid>
+    <ProjectGuid>{F44FEBBA-7EA7-4B92-BF25-EBDCC1DB1830}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Plugin.BluetoothLE</RootNamespace>
-    <AssemblyName>Plugin.BluetoothLE.Interfaces</AssemblyName>
+    <AssemblyName>Plugin.BluetoothLE</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -17,68 +17,24 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;PCL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;PCL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Acr.Ble.Shared\CommonAssemblyInfo.cs">
-      <Link>Properties\CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="AbstractDevice.cs" />
-    <Compile Include="AbstractGattCharacteristic.cs" />
-    <Compile Include="AbstractGattService.cs" />
-    <Compile Include="AbstractGattReliableWriteTransaction.cs" />
-    <Compile Include="AdapterFeatures.cs" />
-    <Compile Include="AdapterStatus.cs" />
-    <Compile Include="AdvertisementRecordType.cs" />
-    <Compile Include="BleScanType.cs" />
-    <Compile Include="CharacteristicProperties.cs" />
-    <Compile Include="ConnectionPriority.cs" />
-    <Compile Include="ConnectionStatus.cs" />
-    <Compile Include="DeviceFeatures.cs" />
-    <Compile Include="Dictionaries.cs" />
-    <Compile Include="Extensions_Characteristics.cs" />
-    <Compile Include="Extensions_Rx.cs" />
-    <Compile Include="Extensions_Device.cs" />
-    <Compile Include="Extensions_Adapter.cs" />
-    <Compile Include="GattConnectionConfig.cs" />
-    <Compile Include="GattReliableWriteTransactionException.cs" />
-    <Compile Include="IGattReliableWriteTransaction.cs" />
-    <Compile Include="ITrace.cs" />
-    <Compile Include="PairingStatus.cs" />
-    <Compile Include="HeartRateExtensions.cs" />
-    <Compile Include="IAdapter.cs" />
-    <Compile Include="IAdvertisementData.cs" />
-    <Compile Include="IGattCharacteristic.cs" />
-    <Compile Include="IGattDescriptor.cs" />
-    <Compile Include="IGattService.cs" />
-    <Compile Include="IDevice.cs" />
-    <Compile Include="IScanResult.cs" />
-    <Compile Include="ScanResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AbstractGattDescriptor.cs" />
-    <Compile Include="ClearableReplaySubject.cs" />
-    <Compile Include="BleWriteSegment.cs" />
-    <Compile Include="CharacteristicResult.cs" />
-    <Compile Include="CharacteristicEvent.cs" />
-    <Compile Include="DescriptorResult.cs" />
-    <Compile Include="DescriptorEvent.cs" />
-    <Compile Include="ScanConfig.cs" />
-    <Compile Include="TransactionStatus.cs" />
-    <Compile Include="VoidGattReliableWriteTransaction.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -101,6 +57,13 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj">
+      <Project>{01d11ef2-074c-4bc0-9c05-5a6a9f974e05}</Project>
+      <Name>Plugin.BluetoothLE.Abstractions</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="..\Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

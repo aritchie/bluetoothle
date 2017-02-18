@@ -130,7 +130,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Acr.Ble.Interfaces\Plugin.BluetoothLE.Abstractions.csproj">
+    <ProjectReference Include="..\..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj">
       <Project>{01d11ef2-074c-4bc0-9c05-5a6a9f974e05}</Project>
       <Name>Plugin.BluetoothLE.Abstractions</Name>
     </ProjectReference>

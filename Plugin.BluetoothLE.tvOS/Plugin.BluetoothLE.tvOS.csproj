@@ -59,40 +59,40 @@
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Acr.Ble.iOS\BleAdapterConfiguration.cs">
+    <Compile Include="..\Plugin.BluetoothLE.iOS\BleAdapterConfiguration.cs">
       <Link>BleAdapterConfiguration.cs</Link>
     </Compile>
-    <Compile Include="..\Acr.Ble.iOS\BleContext.cs">
+    <Compile Include="..\Plugin.BluetoothLE.iOS\BleContext.cs">
       <Link>BleContext.cs</Link>
     </Compile>
-    <Compile Include="..\Acr.Ble.iOS\PeripheralConnectionFailed.cs">
+    <Compile Include="..\Plugin.BluetoothLE.iOS\PeripheralConnectionFailed.cs">
       <Link>PeripheralConnectionFailed.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\Acr.Ble.iOS\Adapter.cs">
+    <Compile Include="..\Plugin.BluetoothLE.iOS\Adapter.cs">
       <Link>Adapter.cs</Link>
     </Compile>
-    <Compile Include="..\Acr.Ble.iOS\AdvertisementData.cs">
+    <Compile Include="..\Plugin.BluetoothLE.iOS\AdvertisementData.cs">
       <Link>AdvertisementData.cs</Link>
     </Compile>
-    <Compile Include="..\Acr.Ble.iOS\Device.cs">
+    <Compile Include="..\Plugin.BluetoothLE.iOS\Device.cs">
       <Link>Device.cs</Link>
     </Compile>
-    <Compile Include="..\Acr.Ble.iOS\Extensions.cs">
+    <Compile Include="..\Plugin.BluetoothLE.iOS\Extensions.cs">
       <Link>Extensions.cs</Link>
     </Compile>
-    <Compile Include="..\Acr.Ble.iOS\GattCharacteristic.cs">
+    <Compile Include="..\Plugin.BluetoothLE.iOS\GattCharacteristic.cs">
       <Link>GattCharacteristic.cs</Link>
     </Compile>
-    <Compile Include="..\Acr.Ble.iOS\GattDescriptor.cs">
+    <Compile Include="..\Plugin.BluetoothLE.iOS\GattDescriptor.cs">
       <Link>GattDescriptor.cs</Link>
     </Compile>
-    <Compile Include="..\Acr.Ble.iOS\GattService.cs">
+    <Compile Include="..\Plugin.BluetoothLE.iOS\GattService.cs">
       <Link>GattService.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Acr.Ble.Interfaces\Plugin.BluetoothLE.Abstractions.csproj">
+    <ProjectReference Include="..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj">
       <Project>{01D11EF2-074C-4BC0-9C05-5A6A9F974E05}</Project>
       <Name>Plugin.BluetoothLE.Abstractions</Name>
     </ProjectReference>
@@ -100,6 +100,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="..\Acr.Ble.Shared\Acr.Ble.Shared.projitems" Label="Shared" Condition="Exists('..\Acr.Ble.Shared\Acr.Ble.Shared.projitems')" />
+  <Import Project="..\Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems" Label="Shared" Condition="Exists('..\Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\TVOS\Xamarin.TVOS.CSharp.targets" />
 </Project>

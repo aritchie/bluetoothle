@@ -24,21 +24,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Uwp", "samples\Samples.Uwp\Samples.Uwp.csproj", "{6ED7A633-FF4E-4A86-91B9-BE95D626B767}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Plugin.BluetoothLE.Shared", "Acr.Ble.Shared\Plugin.BluetoothLE.Shared.shproj", "{B6CFBF05-04E5-4AE6-8516-C6527C7A2BE8}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Plugin.BluetoothLE.Shared", "Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.shproj", "{B6CFBF05-04E5-4AE6-8516-C6527C7A2BE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE", "Acr.Ble\Plugin.BluetoothLE.csproj", "{F44FEBBA-7EA7-4B92-BF25-EBDCC1DB1830}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE", "Plugin.BluetoothLE\Plugin.BluetoothLE.csproj", "{F44FEBBA-7EA7-4B92-BF25-EBDCC1DB1830}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.iOS", "Acr.Ble.iOS\Plugin.BluetoothLE.iOS.csproj", "{57D5FF44-345D-4229-AEFC-E3F7F260A665}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.iOS", "Plugin.BluetoothLE.iOS\Plugin.BluetoothLE.iOS.csproj", "{57D5FF44-345D-4229-AEFC-E3F7F260A665}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Android", "Acr.Ble.Android\Plugin.BluetoothLE.Android.csproj", "{89F4B2DB-539D-467D-B9B1-74608E636349}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Android", "Plugin.BluetoothLE.Android\Plugin.BluetoothLE.Android.csproj", "{89F4B2DB-539D-467D-B9B1-74608E636349}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Uwp", "Acr.Ble.Uwp\Plugin.BluetoothLE.Uwp.csproj", "{74399318-B10F-47DC-9500-1F5B9E337DBC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Uwp", "Plugin.BluetoothLE.Uwp\Plugin.BluetoothLE.Uwp.csproj", "{74399318-B10F-47DC-9500-1F5B9E337DBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Abstractions", "Acr.Ble.Interfaces\Plugin.BluetoothLE.Abstractions.csproj", "{01D11EF2-074C-4BC0-9C05-5A6A9F974E05}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Abstractions", "Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj", "{01D11EF2-074C-4BC0-9C05-5A6A9F974E05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Mac", "Acr.Ble.Mac\Plugin.BluetoothLE.Mac.csproj", "{8A0FC475-221D-4FE0-8308-3F703DC08F52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Mac", "Plugin.BluetoothLE.Mac\Plugin.BluetoothLE.Mac.csproj", "{8A0FC475-221D-4FE0-8308-3F703DC08F52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.tvOS", "Acr.Ble.tvOS\Plugin.BluetoothLE.tvOS.csproj", "{E9BC91B2-A392-4EED-9000-A0629E69D5A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.tvOS", "Plugin.BluetoothLE.tvOS\Plugin.BluetoothLE.tvOS.csproj", "{E9BC91B2-A392-4EED-9000-A0629E69D5A7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E72A2C1E-FB4B-4037-9B10-C675EF2F139C}"
 	ProjectSection(SolutionItems) = preProject
@@ -59,13 +59,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E72A2C1E-F
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{57d5ff44-345d-4229-aefc-e3f7f260a665}*SharedItemsImports = 4
-		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{74399318-b10f-47dc-9500-1f5b9e337dbc}*SharedItemsImports = 4
-		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{89f4b2db-539d-467d-b9b1-74608e636349}*SharedItemsImports = 4
-		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{8a0fc475-221d-4fe0-8308-3f703dc08f52}*SharedItemsImports = 4
-		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{b6cfbf05-04e5-4ae6-8516-c6527c7a2be8}*SharedItemsImports = 13
-		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{e9bc91b2-a392-4eed-9000-a0629e69d5a7}*SharedItemsImports = 4
-		Acr.Ble.Shared\Acr.Ble.Shared.projitems*{f44febba-7ea7-4b92-bf25-ebdcc1db1830}*SharedItemsImports = 4
+		Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems*{57d5ff44-345d-4229-aefc-e3f7f260a665}*SharedItemsImports = 4
+		Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems*{74399318-b10f-47dc-9500-1f5b9e337dbc}*SharedItemsImports = 4
+		Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems*{89f4b2db-539d-467d-b9b1-74608e636349}*SharedItemsImports = 4
+		Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems*{8a0fc475-221d-4fe0-8308-3f703dc08f52}*SharedItemsImports = 4
+		Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems*{b6cfbf05-04e5-4ae6-8516-c6527c7a2be8}*SharedItemsImports = 13
+		Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems*{e9bc91b2-a392-4eed-9000-a0629e69d5a7}*SharedItemsImports = 4
+		Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems*{f44febba-7ea7-4b92-bf25-ebdcc1db1830}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Ad-Hoc|Any CPU = Ad-Hoc|Any CPU
