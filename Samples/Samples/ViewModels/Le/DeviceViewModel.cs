@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
+using System.Threading;
 using System.Windows.Input;
 using Plugin.BluetoothLE;
 using Acr.UserDialogs;
@@ -32,7 +34,13 @@ namespace Samples.ViewModels.Le
                     // don't cleanup connection - force user to d/c
                     if (this.device.Status == ConnectionStatus.Disconnected)
                     {
-                        await this.device.Connect();
+                        using (var cancelSrc = new CancellationTokenSource())
+                        {
+                            using (this.Dialogs.Loading("Connecting", cancelSrc.Cancel, "Cancel"))
+                            {
+                                await this.device.Connect().ToTask(cancelSrc.Token);
+                            }
+                        }
                     }
                     else
                     {
