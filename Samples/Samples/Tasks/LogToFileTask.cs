@@ -1,8 +1,7 @@
 ﻿using System;
 using Plugin.BluetoothLE;
-using Acr.UserDialogs;
 using Autofac;
-using ReactiveUI;
+using Samples.Models;
 using Samples.Services;
 
 
@@ -10,18 +9,12 @@ namespace Samples.Tasks
 {
     public class LogToFileTask : IStartable
     {
-        readonly IAdapter adapter;
         readonly IAppSettings settings;
         readonly SampleDbConnection data;
-        IDisposable sub;
 
 
-        public LogToFileTask(IAdapter adapter,
-                             IAppSettings settings,
-                             IUserDialogs dialogs,
-                             SampleDbConnection data)
+        public LogToFileTask(IAppSettings settings, SampleDbConnection data)
         {
-            this.adapter = adapter;
             this.settings = settings;
             this.data = data;
         }
@@ -29,37 +22,17 @@ namespace Samples.Tasks
 
         public void Start()
         {
-            this.settings
-                .WhenAnyValue(x => x.IsLoggingEnabled)
-                .Subscribe(doLog =>
+            Log.Out = log =>
+            {
+                if (this.settings.IsLoggingEnabled)
                 {
-                    if (doLog)
+                    this.data.Insert(new BleRecord
                     {
-                        //this.sub = this.adapter
-                        //    .CreateLogger(BleLogFlags.All)
-                        //    //.CreateLogger(BleLogFlags.CharacteristicRead | BleLogFlags.CharacteristicWrite)
-                        //    .Timestamp()
-                        //    .Buffer(TimeSpan.FromSeconds(5))
-                        //    .Subscribe(this.WriteLog);
-                    }
-                    else
-                    {
-                        this.sub?.Dispose();
-                    }
-                });
+                        Description = log,
+                        TimestampLocal = DateTime.Now
+                    });
+                }
+            };
         }
-
-
-        //void WriteLog(IList<Timestamped<BleLogEvent>> events)
-        //{
-        //    this.data.InsertAll(
-        //        events
-        //            .Select(e => new BleRecord
-        //            {
-        //                Description = $"[{e.Value.Category}]({e.Value.Uuid}) {e.Value.Details}",
-        //                TimestampLocal = e.Timestamp.LocalDateTime
-        //            }
-        //    ));
-        //}
     }
 }

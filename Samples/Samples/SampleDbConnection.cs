@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
+using Plugin.BluetoothLE;
 using Samples.Models;
-using SQLite.Net;
-using SQLite.Net.Interop;
+using SQLite;
 
 
 namespace Samples
@@ -11,9 +11,10 @@ namespace Samples
     public class SampleDbConnection : SQLiteConnection
     {
 
-        public SampleDbConnection(ISQLitePlatform platform, string databasePath) : base(platform, Path.Combine(databasePath, "ble.db"))
+        public SampleDbConnection(string databasePath) : base(Path.Combine(databasePath, "ble.db"))
         {
             this.CreateTable<BleRecord>();
+            Log.Out = log => { };
         }
 
 

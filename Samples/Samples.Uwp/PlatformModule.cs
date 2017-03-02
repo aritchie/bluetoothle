@@ -1,6 +1,5 @@
 ﻿using System;
 using Autofac;
-using SQLite.Net.Platform.WinRT;
 
 
 namespace Samples.Uwp
@@ -12,10 +11,7 @@ namespace Samples.Uwp
             base.Load(builder);
             builder.RegisterModule(new CoreModule());
             builder
-                .Register(x => new SampleDbConnection(
-                    new SQLitePlatformWinRT(),
-                    Windows.Storage.ApplicationData.Current.LocalFolder.Path
-                ))
+                .Register(x => new SampleDbConnection(Windows.Storage.ApplicationData.Current.LocalFolder.Path))
                 .AsSelf()
                 .SingleInstance();
         }
