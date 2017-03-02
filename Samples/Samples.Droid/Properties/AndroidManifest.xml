@@ -7,5 +7,5 @@
 	<uses-permission android:name="android.permission.LOCATION_HARDWARE" />
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-	<application android:label="ACR BluetoothLE" android:icon="@drawable/icon" android:theme="@style/MyTheme"></application>
+	<application android:label="BluetoothLE Plugin" android:icon="@drawable/icon" android:theme="@style/MyTheme"></application>
 </manifest>
