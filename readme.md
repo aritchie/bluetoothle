@@ -1,8 +1,7 @@
 # ACR Reactive BluetoothLE Plugin for Xamarin & Windows
-Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS, tvOS, and Windows UWP
+Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS & tvOS
 
-[![NuGet](https://img.shields.io/nuget/v/Acr.Ble.svg?maxAge=2592000)](https://www.nuget.org/packages/Acr.Ble/)
-[![Downloads](https://www.nuget.org/packages/Acr.Ble")](https://img.shields.io/nuget/dt/Acr.Ble.svg)
+[![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
 
 [Change Log - Jan 19, 2017](docs/changelog.md)
 
@@ -13,7 +12,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS
 * iOS 7+
 * macOS
 * tvOS
-* Windows UWP 
+* Windows UWP (COMING SOON)
 
 
 ## FEATURES
@@ -38,7 +37,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS
 
 Be sure to install the Acr.Ble nuget package in all of your main platform projects as well as your core/PCL project
 
-[![NuGet](https://img.shields.io/nuget/v/Acr.Ble.svg?maxAge=2592000)](https://www.nuget.org/packages/Acr.Ble/)
+[![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
 
 **Android**
 
