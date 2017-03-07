@@ -71,7 +71,7 @@ To add a description to the Bluetooth request message (on iOS 10 this is require
 ```csharp
 
 // discover some devices
-BleAdapter.Current.Scan().Subscribe(scanResult => {});
+CrossBleAdapter.Current.Scan().Subscribe(scanResult => {});
 
 // Once finding the device/scanresult you want
 await scanResult.Device.Connect();
