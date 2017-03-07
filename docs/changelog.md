@@ -1,7 +1,6 @@
 # CHANGE LOG
 
 ## 2.0
-* [feature] UWP support!
 * [feature] macOS support!
 * [feature][all] Connection configuration allows you to set connection priority, notification states on iOS/tvOS/macOS, and whether or not to make the connection persistent
 * [feature][macos/tvos/ios] Background mode via CBCentralInitOptions - On the platform project use BleAdapter.Init(BleAdapterConfiguration)
@@ -14,6 +13,8 @@
 * [breaking][feature] RequestMtu now returns as an observable with what the accepted MTU was
 * [breaking] CreateConnection is gone - created more issues than it solved - Use Connect() as it creates persistent connections out of the gate
 * [breaking] Disconnect has been renamed to CancelConnection as it cancels any pending connections now
+* [breaking] BleAdapter has been renamed to CrossBleAdapter
+* [breaking] Acr.Ble namespace has been renamed to Plugin.BluetoothLE
 * [fix][droid] disconnect on existing connection tries
 * [fix][droid] more gatt 133 issues
 * [fix][all] Blob write observable subscriptions not firing properly
