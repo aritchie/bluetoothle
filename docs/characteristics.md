@@ -73,6 +73,11 @@ characteristic.BlobWrite(stream).Subscribe(x =>
 characteristic.BlobWrite(bytes).Subscribe(x => {}); 
 ```
 
+**Reliable Write Transactions**
+```csharp
+// TODO
+```
+
 ## Extensions
 
 ```csharp
