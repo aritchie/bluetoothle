@@ -1,6 +1,8 @@
 # ACR Reactive BluetoothLE Plugin for Xamarin
 Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS & tvOS
 
+## Please note that v2.0 of this plugin has had its namespace and assembly renamed to Plugin.BluetoothLE.  If you are having any difficulties with the install, uninstall Acr.Ble and continue with the Plugin.BluetoothLE nuget package
+
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
 
 [Change Log - Jan 19, 2017](docs/changelog.md)
