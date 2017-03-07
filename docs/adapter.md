@@ -8,16 +8,16 @@ method will scan continuously (or restart the scan when the cycle completes) unt
 **Monitor and read status of adapter**
 ```csharp
 // current status
-BleAdapter.Current.Status
+CrossBleAdapter.Current.Status
 
 // monitor status changes
-BleAdapter.Current.WhenStatusChanged().Subscribe(status => {});
+CrossBleAdapter.Current.WhenStatusChanged().Subscribe(status => {});
 ```
 
 **Scan for Devices**
 
 ```csharp
-var scanner = BleAdapter.Current.Scan().Subscribe(scanResult => 
+var scanner = CrossBleAdapter.Current.Scan().Subscribe(scanResult => 
 {
     // do something with it
     // the scanresult contains the device, RSSI, and advertisement packet
@@ -30,7 +30,7 @@ scanner.Dispose(); // to stop scanning
 
 **Scan for Devices - Advanced**
 ```csharp
-BleAdapter.Current.Scan(
+CrossBleAdapter.Current.Scan(
     new ScanSettings 
     {
         ServiceUUID = new Guid("<your guid here>")
@@ -45,16 +45,16 @@ BleAdapter.Current.Scan(
 
 _Currently support by iOS8, iOS9, and Android only_
 ```csharp
-if (BleAdapter.Current.CanOpenSettings)
-    BleAdapter.Current.OpenSettings();
+if (CrossBleAdapter.Current.CanOpenSettings)
+    CrossBleAdapter.Current.OpenSettings();
 ```
 
 **Change Adapter State (Power on/off)**
 
 _Supported by Android only_
 ```csharp
-if (BleAdapter.Current.CanChangeAdapterState)
-    BleAdapter.Current.SetAdapterState(true); // or false to disable
+if (CrossBleAdapter.Current.CanChangeAdapterState)
+    CrossBleAdapter.Current.SetAdapterState(true); // or false to disable
 ```
 
 **Listen to scans for decoupled components**
@@ -67,7 +67,7 @@ BleAdapter.Current.ScanListen().Subscribe(scanResult => {});
 **Get Connected Devices**
 
 ```csharp
-var devices = BleAdapter.Current.GetConnectedDevices();
+var devices = CrossBleAdapter.Current.GetConnectedDevices();
 foreach (var device in devices)
 {
     // do something
@@ -77,7 +77,7 @@ foreach (var device in devices)
 ## Extensions
 ```csharp
 // this essentially recreates the scan cycles like on Android
-adapter.ScanInterval(TimeSpan).Subscribe(scanResult => {});
+CrossBleAdapter.Current.ScanInterval(TimeSpan).Subscribe(scanResult => {});
 
 ```
 
@@ -85,18 +85,18 @@ adapter.ScanInterval(TimeSpan).Subscribe(scanResult => {});
 
 ```csharp
 // returns true if successful
-adapter.ToggleAdapterState();
+CrossBleAdapter.Current.ToggleAdapterState();
 ```
 
 ## Open Settings
 
 ```csharp
-adapter.OpenSettings();
+CrossBleAdapter.Current.OpenSettings();
 ```
 
 ## Get Known Device
 
 _Allows you to get a known device by the device ID (GUID/UUID).  Note that this ID will be different platform to platform_
 ```csharp
-var device = adapter.GetKnownDevice(Guid);
+var device = CrossBleAdapter.Current.GetKnownDevice(Guid);
 ```
