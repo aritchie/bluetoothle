@@ -38,6 +38,7 @@ namespace Plugin.BluetoothLE
         public override DeviceFeatures Features => DeviceFeatures.All;
 
 
+
         GattContext context;
         protected virtual GattContext Context
         {
@@ -442,10 +443,15 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            this.Context.Dispose();
-        }
+        //bool disposed;
+        //public override void Dispose(bool disposing)
+        //{
+        //    base.Dispose(disposing);
+        //    if (disposing && this.context != null && !this.disposed)
+        //    {
+        //        this.disposed = true;
+        //        this.Context.Dispose();
+        //    }
+        //}
     }
 }

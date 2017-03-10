@@ -25,6 +25,9 @@ macOS
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
+2.0.1
+[fix][android] finalization was causing NRE
+
 2.0
 [feature] macOS support
 [feature][all] Connection configuration allows you to set connection priority, notification states on iOS, tvOS, macOS, and whether or not to make the connection persistent
