@@ -1,4 +1,4 @@
 ﻿using System.Reflection;
 
-[assembly: AssemblyTitle("Acr.Ble.tvOS")]
+[assembly: AssemblyTitle("Plugin.BluetoothLE.tvOS")]
 [assembly: AssemblyDescription("")]

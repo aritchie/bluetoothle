@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>c7a39d81-d1b1-4a5d-a75a-235a6051b705</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Plugin.BluetoothLE</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Adapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AdvertisementData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BleAdapterConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BleContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Device.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GattCharacteristic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GattDescriptor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GattService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PeripheralConnectionFailed.cs" />
+  </ItemGroup>
+</Project>

@@ -1,4 +1,4 @@
 ﻿using System.Reflection;
 
-[assembly: AssemblyTitle("Acr.Ble.iOS")]
+[assembly: AssemblyTitle("Plugin.BluetoothLE.iOS")]
 [assembly: AssemblyDescription("")]
