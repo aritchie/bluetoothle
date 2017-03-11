@@ -16,10 +16,9 @@ namespace Plugin.BluetoothLE
     public class Device : AbstractDevice
     {
         readonly BluetoothManager manager;
-        readonly BluetoothDevice native;
-        readonly GattCallbacks callbacks;
         readonly TaskScheduler scheduler;
         readonly Subject<ConnectionStatus> connSubject;
+        readonly GattContext context;
 
 
         public Device(BluetoothManager manager,
@@ -27,9 +26,9 @@ namespace Plugin.BluetoothLE
                       GattCallbacks callbacks,
                       TaskScheduler scheduler) : base(native.Name, ToDeviceId(native.Address))
         {
+            this.context = new GattContext(native, callbacks);
+
             this.manager = manager;
-            this.native = native;
-            this.callbacks = callbacks;
             this.scheduler = scheduler; // this is the thread that the device was scanned on (required by some devices)
             this.connSubject = new Subject<ConnectionStatus>();
         }
@@ -38,27 +37,11 @@ namespace Plugin.BluetoothLE
         public override DeviceFeatures Features => DeviceFeatures.All;
 
 
-
-        GattContext context;
-        protected virtual GattContext Context
-        {
-            get
-            {
-                if (this.context == null)
-                {
-                    var conn = this.native.ConnectGatt(Application.Context, false, this.callbacks);
-                    this.context = new GattContext(conn, this.callbacks);
-                }
-                return this.context;
-            }
-        }
-
-
         public override ConnectionStatus Status
         {
             get
             {
-                var state = this.manager.GetConnectionState(this.native, ProfileType.Gatt);
+                var state = this.manager.GetConnectionState(this.context.NativeDevice, ProfileType.Gatt);
                 switch (state)
                 {
                     case ProfileState.Connected:
@@ -101,12 +84,12 @@ namespace Plugin.BluetoothLE
                         switch (AndroidConfig.ConnectionThread)
                         {
                             case ConnectionThread.MainThread:
-                                Application.SynchronizationContext.Post(_ => this.Context.Connect(config), null);
+                                Application.SynchronizationContext.Post(_ => this.context.Connect(config), null);
                                 break;
 
                             case ConnectionThread.ScanThread:
                                 Task.Factory.StartNew(
-                                    () => this.Context.Connect(config),
+                                    () => this.context.Connect(config),
                                     cancelSrc.Token,
                                     TaskCreationOptions.None,
                                     this.scheduler
@@ -115,7 +98,7 @@ namespace Plugin.BluetoothLE
 
                             case ConnectionThread.Default:
                             default:
-                                this.Context.Connect(config);
+                                this.context.Connect(config);
                                 break;
                         }
                     }
@@ -141,18 +124,16 @@ namespace Plugin.BluetoothLE
                 return;
 
             this.connSubject.OnNext(ConnectionStatus.Disconnecting);
-            this.Context.Close();
+            this.context.Close();
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
         }
 
 
-        public override IObservable<string> WhenNameUpdated()
-        {
-            return BluetoothObservables
+        public override IObservable<string> WhenNameUpdated() =>
+            BluetoothObservables
                 .WhenDeviceNameChanged()
-                .Where(x => x.Equals(this.native))
+                .Where(x => x.Equals(this.context.NativeDevice))
                 .Select(x => this.Name);
-        }
 
 
         IObservable<ConnectionStatus> statusOb;
@@ -163,10 +144,10 @@ namespace Plugin.BluetoothLE
                 ob.OnNext(this.Status);
                 var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
                 {
-                    if (args.Gatt.Device.Equals(this.native))
+                    if (args.Gatt.Device.Equals(this.context.NativeDevice))
                         ob.OnNext(this.Status);
                 });
-                this.callbacks.ConnectionStateChanged += handler;
+                this.context.Callbacks.ConnectionStateChanged += handler;
                 var sub = this.connSubject
                     .AsObservable()
                     .Subscribe(ob.OnNext);
@@ -174,7 +155,7 @@ namespace Plugin.BluetoothLE
                 return () =>
                 {
                     sub.Dispose();
-                    this.callbacks.ConnectionStateChanged -= handler;
+                    this.context.Callbacks.ConnectionStateChanged -= handler;
                 };
             })
             .DistinctUntilChanged()
@@ -192,28 +173,28 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<GattEventArgs>((sender, args) =>
                 {
-                    if (args.Gatt.Device.Equals(this.native))
+                    if (args.Gatt.Device.Equals(this.context.NativeDevice))
                     {
                         foreach (var ns in args.Gatt.Services)
                         {
-                            var service = new GattService(this, this.Context, ns);
+                            var service = new GattService(this, this.context, ns);
                             ob.OnNext(service);
                         }
                     }
                 });
-                this.callbacks.ServicesDiscovered += handler;
+                this.context.Callbacks.ServicesDiscovered += handler;
                 var sub = this.WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
                     .Subscribe(_ =>
                     {
                         Thread.Sleep(1000); // this helps alleviate gatt 133 error
-                        this.Context.Gatt.DiscoverServices();
+                        this.context.Gatt.DiscoverServices();
                     });
 
                 return () =>
                 {
                     sub.Dispose();
-                    this.callbacks.ServicesDiscovered -= handler;
+                    this.context.Callbacks.ServicesDiscovered -= handler;
                 };
             })
             .ReplayWithReset(this
@@ -236,10 +217,10 @@ namespace Plugin.BluetoothLE
                 IDisposable timer = null;
                 var handler = new EventHandler<GattRssiEventArgs>((sender, args) =>
                 {
-                    if (args.Gatt.Device.Equals(this.native) && args.IsSuccessful)
+                    if (args.Gatt.Device.Equals(this.context.NativeDevice) && args.IsSuccessful)
                         ob.OnNext(args.Rssi);
                 });
-                this.Context.Callbacks.ReadRemoteRssi += handler;
+                this.context.Callbacks.ReadRemoteRssi += handler;
 
                 var sub = this
                     .WhenStatusChanged()
@@ -249,7 +230,7 @@ namespace Plugin.BluetoothLE
                         {
                             timer = Observable
                                 .Interval(ts)
-                                .Subscribe(_ => this.Context.Gatt.ReadRemoteRssi());
+                                .Subscribe(_ => this.context.Gatt.ReadRemoteRssi());
                         }
                         else
                         {
@@ -261,7 +242,7 @@ namespace Plugin.BluetoothLE
                 {
                     timer?.Dispose();
                     sub.Dispose();
-                    this.Context.Callbacks.ReadRemoteRssi -= handler;
+                    this.context.Callbacks.ReadRemoteRssi -= handler;
                 };
             });
         }
@@ -284,7 +265,7 @@ namespace Plugin.BluetoothLE
                     {
                         requestOb = BluetoothObservables
                             .WhenBondRequestReceived()
-                            .Where(x => x.Equals(this.native))
+                            .Where(x => x.Equals(this.context.NativeDevice))
                             .Subscribe(x =>
                             {
                                 var bytes = ConvertPinToBytes(pin);
@@ -294,11 +275,11 @@ namespace Plugin.BluetoothLE
                     }
                     istatusOb = BluetoothObservables
                         .WhenBondStatusChanged()
-                        .Where(x => x.Equals(this.native) && x.BondState != Bond.Bonding)
+                        .Where(x => x.Equals(this.context.NativeDevice) && x.BondState != Bond.Bonding)
                         .Subscribe(x => ob.Respond(x.BondState == Bond.Bonded)); // will complete here
 
                     // execute
-                    this.native.CreateBond();
+                    this.context.NativeDevice.CreateBond();
                 }
                 return () =>
                 {
@@ -309,10 +290,8 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IGattReliableWriteTransaction BeginReliableWriteTransaction()
-        {
-            return new GattReliableWriteTransaction(this.Context);
-        }
+        public override IGattReliableWriteTransaction BeginReliableWriteTransaction() =>
+            new GattReliableWriteTransaction(this.context);
 
 
         public static byte[] ConvertPinToBytes(string pin)
@@ -337,7 +316,7 @@ namespace Plugin.BluetoothLE
         {
             get
             {
-                switch (this.native.BondState)
+                switch (this.context.NativeDevice.BondState)
                 {
                     case Bond.Bonded:
                         return PairingStatus.Paired;
@@ -356,8 +335,22 @@ namespace Plugin.BluetoothLE
             if (!this.IsMtuRequestAvailable())
                 return base.RequestMtu(size);
 
-            this.Context.Gatt.RequestMtu(size);
-            return this.WhenMtuChanged().Take(1);
+            return Observable.Create<int>(ob =>
+            {
+                var sub1 = this.WhenStatusChanged()
+                    .Where(x => x == ConnectionStatus.Connected)
+                    .Subscribe(x => this.context.Gatt.RequestMtu(size));
+
+                var sub2 = this.WhenMtuChanged()
+                    .Take(1)
+                    .Subscribe(ob.Respond);
+
+                return () =>
+                {
+                    sub1.Dispose();
+                    sub2.Dispose();
+                };
+            });
         }
 
 
@@ -368,7 +361,7 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<MtuChangedEventArgs>((sender, args) =>
                 {
-                    if (args.Gatt.Equals(this.Context.Gatt))
+                    if (args.Gatt.Equals(this.context.Gatt))
                     {
                         this.currentMtu = args.Mtu;
                         ob.OnNext(args.Mtu);
@@ -379,14 +372,14 @@ namespace Plugin.BluetoothLE
                     .Subscribe(_ =>
                     {
                         ob.OnNext(this.currentMtu);
-                        this.Context.Callbacks.MtuChanged += handler;
+                        this.context.Callbacks.MtuChanged += handler;
                     });
 
                 return () =>
                 {
                     sub.Dispose();
-                    if (this.Context?.Callbacks != null)
-                        this.Context.Callbacks.MtuChanged -= handler;
+                    if (this.context?.Callbacks != null)
+                        this.context.Callbacks.MtuChanged -= handler;
                 };
             })
             .Replay(1)
@@ -396,10 +389,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override int GetCurrentMtuSize()
-        {
-            return this.currentMtu;
-        }
+        public override int GetCurrentMtuSize() => this.currentMtu;
 
 
         // thanks monkey robotics
@@ -418,10 +408,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override int GetHashCode()
-        {
-            return this.native.GetHashCode();
-        }
+        public override int GetHashCode() => this.context.NativeDevice.GetHashCode();
 
 
         public override bool Equals(object obj)
@@ -430,28 +417,13 @@ namespace Plugin.BluetoothLE
             if (other == null)
                 return false;
 
-            if (!this.native.Equals(other.native))
+            if (!this.context.NativeDevice.Equals(other.context.NativeDevice))
                 return false;
 
             return true;
         }
 
 
-        public override string ToString()
-        {
-            return this.Uuid.ToString();
-        }
-
-
-        //bool disposed;
-        //public override void Dispose(bool disposing)
-        //{
-        //    base.Dispose(disposing);
-        //    if (disposing && this.context != null && !this.disposed)
-        //    {
-        //        this.disposed = true;
-        //        this.Context.Dispose();
-        //    }
-        //}
+        public override string ToString() => this.Uuid.ToString();
     }
 }
