@@ -120,9 +120,6 @@ namespace Plugin.BluetoothLE
         public override void CancelConnection()
         {
             base.CancelConnection();
-            if (this.Status != ConnectionStatus.Connected)
-                return;
-
             this.connSubject.OnNext(ConnectionStatus.Disconnecting);
             this.context.Close();
             this.connSubject.OnNext(ConnectionStatus.Disconnected);

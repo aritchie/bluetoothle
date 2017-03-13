@@ -64,7 +64,8 @@ namespace Plugin.BluetoothLE
                         try
                         {
                             await Task.Delay(300);
-                            await this.Connect(config);
+                            if (!this.cancelReconnect)
+                                await this.Connect(config);
                         }
                         catch (Exception ex)
                         {
