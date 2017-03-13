@@ -71,7 +71,6 @@ namespace Plugin.BluetoothLE
                 var cancelSrc = new CancellationTokenSource();
                 var connected = this
                     .WhenStatusChanged()
-                    .Take(1)
                     .Where(x => x == ConnectionStatus.Connected)
                     .Subscribe(_ => ob.Respond(null));
 
