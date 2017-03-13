@@ -2,6 +2,8 @@
 
 ## 2.0.2
 * [fix][android] more gatt133 fixes
+* [fix][android] additional fixes for cancel connection
+* [fix][android] Connect completion wasn't being called properly
 
 ## 2.0.1
 * [fix][android] finalization was causing NRE
