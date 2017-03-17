@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+## 2.0.2
+* [fix][android] more gatt133 fixes
+
+## 2.0.1
+* [fix][android] finalization was causing NRE
+
 ## 2.0
 * [feature] macOS support!
 * [feature][all] Connection configuration allows you to set connection priority, notification states on iOS/tvOS/macOS, and whether or not to make the connection persistent

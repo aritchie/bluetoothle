@@ -1,23 +1,16 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 
 namespace Plugin.BluetoothLE
 {
-    public abstract class AbstractDevice : IDevice, IDisposable
+    public abstract class AbstractDevice : IDevice
     {
         protected AbstractDevice(string initialName, Guid uuid)
         {
             this.Name = initialName;
             this.Uuid = uuid;
-        }
-
-
-        ~AbstractDevice()
-        {
-            this.Dispose(false);
         }
 
 
@@ -42,48 +35,12 @@ namespace Plugin.BluetoothLE
 
 
         public virtual PairingStatus PairingStatus => PairingStatus.Unavailiable;
-        public virtual IObservable<bool> PairingRequest(string pin)
-        {
+        public virtual IObservable<bool> PairingRequest(string pin) =>
             throw new ArgumentException("Pairing request is not supported on this platform");
-        }
-
-
-        public virtual int GetCurrentMtuSize()
-        {
-            return 20;
-        }
-
-
-        public virtual IObservable<int> RequestMtu(int size)
-        {
-            return Observable.Return(this.GetCurrentMtuSize());
-        }
-
-
-        public virtual IObservable<int> WhenMtuChanged()
-        {
-            return Observable.Empty<int>();
-        }
-
-
-        public virtual IGattReliableWriteTransaction BeginReliableWriteTransaction()
-        {
-            return new VoidGattReliableWriteTransaction();
-        }
-
-
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-
-        public virtual void Dispose(bool disposing)
-        {
-            this.ReconnectSubscription?.Dispose();
-            this.ReconnectSubscription = null;
-        }
+        public virtual int GetCurrentMtuSize() => 20;
+        public virtual IObservable<int> RequestMtu(int size) => Observable.Return(this.GetCurrentMtuSize());
+        public virtual IObservable<int> WhenMtuChanged() => Observable.Empty<int>();
+        public virtual IGattReliableWriteTransaction BeginReliableWriteTransaction() => new VoidGattReliableWriteTransaction();
 
 
         bool cancelReconnect = false;
@@ -107,11 +64,12 @@ namespace Plugin.BluetoothLE
                         try
                         {
                             await Task.Delay(300);
-                            await this.Connect(config);
+                            if (!this.cancelReconnect)
+                                await this.Connect(config);
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine("Failed to reconnect to device - " + ex);
+                            Log.Out("Failed to reconnect to device - " + ex);
                         }
                     }
                 });

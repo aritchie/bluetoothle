@@ -1,19 +1,37 @@
 ﻿using System;
+using Android.App;
 using Android.Bluetooth;
 
 
 namespace Plugin.BluetoothLE.Internals
 {
-    public class GattContext : IDisposable
+    public class GattContext
     {
-        public GattContext(BluetoothGatt gatt, GattCallbacks callbacks)
+        BluetoothGatt gatt;
+
+
+        public GattContext(BluetoothDevice device, GattCallbacks callbacks)
         {
-            this.Gatt = gatt;
+            this.NativeDevice = device;
             this.Callbacks = callbacks;
         }
 
 
-        public BluetoothGatt Gatt { get; }
+        public BluetoothGatt Gatt
+        {
+            get
+            {
+                this.gatt = this.gatt ?? this.NativeDevice.ConnectGatt(
+                    Application.Context,
+                    false,
+                    this.Callbacks
+                );
+                return this.gatt;
+            }
+        }
+
+
+        public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
 
 
@@ -29,14 +47,9 @@ namespace Plugin.BluetoothLE.Internals
 
         public void Close()
         {
-            this.Gatt.Disconnect();
-        }
-
-
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            this.Gatt.Close();
+            this.gatt?.Disconnect();
+            this.gatt?.Close();
+            this.gatt = null;
         }
 
 
