@@ -195,7 +195,6 @@ namespace Plugin.BluetoothLE
             })
             .ReplayWithReset(this
                 .WhenStatusChanged()
-                .Skip(1)
                 .Where(x => x == ConnectionStatus.Disconnected)
             )
             .RefCount();
