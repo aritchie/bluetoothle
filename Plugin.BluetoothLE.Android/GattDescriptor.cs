@@ -82,10 +82,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override int GetHashCode()
-        {
-            return this.native.GetHashCode();
-        }
+        public override int GetHashCode() => this.native.GetHashCode();
 
 
         public override bool Equals(object obj)
@@ -101,10 +98,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override string ToString()
-        {
-            return this.Uuid.ToString();
-        }
+        public override string ToString() => this.Uuid.ToString();
     }
 }
 
