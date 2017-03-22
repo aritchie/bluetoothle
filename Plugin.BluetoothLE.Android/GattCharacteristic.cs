@@ -6,7 +6,6 @@ using System.Reactive.Disposables;
 using Android.Bluetooth;
 using Java.Util;
 using Plugin.BluetoothLE.Internals;
-using static System.Diagnostics.Debug;
 using Observable = System.Reactive.Linq.Observable;
 
 
@@ -42,10 +41,10 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
-                    WriteLine($"Incoming Characteristic Write Event - " + args.Characteristic.Uuid);
-
-                    if (args.Characteristic.Equals(this.native))
+                    if (this.Equals(args.Characteristic))
                     {
+                        Log.Write("Incoming Characteristic Write Event - " + args.Characteristic.Uuid);
+
                         if (!args.IsSuccessful)
                         {
                             ob.OnError(new ArgumentException($"Failed to write characteristic - {args.Status}"));
@@ -62,13 +61,13 @@ namespace Plugin.BluetoothLE
 
                 if (this.Properties.HasFlag(CharacteristicProperties.Write))
                 {
-                    WriteLine("Hooking for write response - " + this.Uuid);
+                    Log.Write("Hooking for write response - " + this.Uuid);
                     this.context.Callbacks.CharacteristicWrite += handler;
                     this.RawWriteWithResponse(value);
                 }
                 else
                 {
-                    WriteLine("Write with No Response - " + this.Uuid);
+                    Log.Write("Write with No Response - " + this.Uuid);
                     this.RawWriteNoResponse(ob, value);
                 }
                 return () => this.context.Callbacks.CharacteristicWrite -= handler;
@@ -84,7 +83,7 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (args.Characteristic.Equals(this.native))
+                    if (this.Equals(args.Characteristic))
                     {
                         if (!args.IsSuccessful)
                         {
@@ -117,7 +116,7 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (args.Characteristic.Equals(this.native))
+                    if (this.Equals(args.Characteristic))
                     {
                         if (!args.IsSuccessful)
                         {
@@ -207,9 +206,6 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override int GetHashCode() => this.native.GetHashCode();
-
-
         public override bool Equals(object obj)
         {
             var other = obj as GattCharacteristic;
@@ -223,7 +219,26 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override int GetHashCode() => this.native.GetHashCode();
         public override string ToString() => this.Uuid.ToString();
+
+
+        bool Equals(GattCharacteristicEventArgs args)
+        {
+            if (this.native.Equals(args.Characteristic))
+                return true;
+
+            if (!this.native.Uuid.Equals(args.Characteristic.Uuid))
+                return false;
+
+            if (!this.native.Service.Uuid.Equals(args.Characteristic.Service.Uuid))
+                return false;
+
+            if (!this.context.Gatt.Equals(args.Gatt))
+                return false;
+
+            return true;
+        }
 
 
         void RawWriteWithResponse(byte[] bytes)

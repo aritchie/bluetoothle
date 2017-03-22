@@ -13,8 +13,11 @@ namespace Plugin.BluetoothLE
         readonly BluetoothGattService native;
 
 
-        public GattService(IDevice device, GattContext context, BluetoothGattService native)
-                : base(device, native.Uuid.ToGuid(), native.Type == GattServiceType.Primary)
+        public GattService(IDevice device,
+                           GattContext context,
+                           BluetoothGattService native) : base(device,
+                                                               native.Uuid.ToGuid(),
+                                                               native.Type == GattServiceType.Primary)
         {
             this.context = context;
             this.native = native;
@@ -40,9 +43,6 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override int GetHashCode() => this.native.GetHashCode();
-
-
         public override bool Equals(object obj)
         {
             var other = obj as GattService;
@@ -56,6 +56,7 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override int GetHashCode() => this.native.GetHashCode();
         public override string ToString() => this.Uuid.ToString();
     }
 }

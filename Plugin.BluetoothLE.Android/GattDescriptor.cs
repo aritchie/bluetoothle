@@ -12,7 +12,9 @@ namespace Plugin.BluetoothLE
         readonly GattContext context;
 
 
-        public GattDescriptor(IGattCharacteristic characteristic, GattContext context, BluetoothGattDescriptor native) : base(characteristic, native.Uuid.ToGuid())
+        public GattDescriptor(IGattCharacteristic characteristic,
+                              GattContext context,
+                              BluetoothGattDescriptor native) : base(characteristic, native.Uuid.ToGuid())
         {
             this.context = context;
             this.native = native;
@@ -25,7 +27,7 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
                 {
-                    if (args.Descriptor.Equals(this.native))
+                    if (this.Equals(args.Descriptor))
                     {
                         if (!args.IsSuccessful)
                         {
@@ -82,7 +84,25 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override int GetHashCode() => this.native.GetHashCode();
+        bool Equals(GattDescriptorEventArgs args)
+        {
+            if (this.native.Equals(args.Descriptor))
+                return true;
+
+            if (!this.native.Uuid.Equals(args.Descriptor.Uuid))
+                return false;
+
+            if (!this.native.Characteristic.Uuid.Equals(args.Descriptor.Characteristic.Uuid))
+                return false;
+
+            if (!this.native.Characteristic.Service.Uuid.Equals(args.Descriptor.Characteristic.Service.Uuid))
+                return false;
+
+            if (!this.context.Gatt.Equals(args.Gatt))
+                return false;
+
+            return true;
+        }
 
 
         public override bool Equals(object obj)
@@ -98,6 +118,7 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override int GetHashCode() => this.native.GetHashCode();
         public override string ToString() => this.Uuid.ToString();
     }
 }
