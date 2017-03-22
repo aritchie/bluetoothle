@@ -8,11 +8,7 @@ namespace Plugin.BluetoothLE
 {
     internal static class BleExtensions
     {
-        public static Guid ToGuid(this NSUuid uuid)
-        {
-            return Guid.ParseExact(uuid.AsString(), "d");
-        }
-
+        public static Guid ToGuid(this NSUuid uuid) => Guid.ParseExact(uuid.AsString(), "d");
 
         public static Guid ToGuid(this CBUUID uuid)
         {
@@ -24,15 +20,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public static CBUUID ToCBUuid(this Guid guid)
-        {
-            return CBUUID.FromString(guid.ToString());
-        }
-
-
-        public static NSUuid ToNSUuid(this Guid guid)
-        {
-            return new NSUuid(guid.ToString());
-        }
+        public static CBUUID ToCBUuid(this Guid guid) => CBUUID.FromString(guid.ToString());
+        public static NSUuid ToNSUuid(this Guid guid) => new NSUuid(guid.ToString());
     }
 }

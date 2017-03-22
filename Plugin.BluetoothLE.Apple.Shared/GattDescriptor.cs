@@ -25,7 +25,7 @@ namespace Plugin.BluetoothLE
 
                 var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
                 {
-                    if (args.Descriptor.UUID.Equals(this.native.UUID))
+                    if (!this.Equals(args.Descriptor))
                     {
                         if (args.Error != null)
                         {
@@ -56,7 +56,7 @@ namespace Plugin.BluetoothLE
 
                 var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
                 {
-                    if (args.Descriptor.UUID.Equals(this.native.UUID))
+                    if (!this.Equals(args.Descriptor))
                     {
                         if (args.Error != null)
                         {
@@ -82,9 +82,21 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override int GetHashCode()
+        bool Equals(CBDescriptor descriptor)
         {
-            return this.native.GetHashCode();
+            if (!this.native.UUID.Equals(descriptor.UUID))
+                return false;
+
+            if (!this.native.Characteristic.UUID.Equals(descriptor.Characteristic.UUID))
+                return false;
+
+            if (!this.native.Characteristic.Service.UUID.Equals(descriptor.Characteristic.Service.UUID))
+                return false;
+
+            if (!this.native.Characteristic.Service.Peripheral.UUID.Equals(descriptor.Characteristic.Service.Peripheral.UUID))
+                return false;
+
+            return true;
         }
 
 
@@ -101,9 +113,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override string ToString()
-        {
-            return this.Uuid.ToString();
-        }
+        public override int GetHashCode() => this.native.GetHashCode();
+        public override string ToString() => this.Uuid.ToString();
     }
 }

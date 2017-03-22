@@ -25,7 +25,7 @@ namespace Plugin.BluetoothLE
                 var characteristics = new Dictionary<Guid, IGattCharacteristic>();
                 var handler = new EventHandler<CBServiceEventArgs>((sender, args) =>
                 {
-                    if (!args.Service.Equals(this.native))
+                    if (!this.Equals(args.Service))
                         return;
 
                     foreach (var nch in this.native.Characteristics)
@@ -50,11 +50,16 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override int GetHashCode()
+        bool Equals(CBService service)
         {
-            return this.native.GetHashCode();
-        }
+            if (!this.native.UUID.Equals(service.UUID))
+                return false;
 
+            if (!this.native.Peripheral.UUID.Equals(service.Peripheral.UUID))
+                return false;
+
+            return true;
+        }
 
         public override bool Equals(object obj)
         {
@@ -69,9 +74,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override string ToString()
-        {
-            return this.Uuid.ToString();
-        }
+        public override int GetHashCode() => this.native.GetHashCode();
+        public override string ToString() => this.Uuid.ToString();
     }
 }

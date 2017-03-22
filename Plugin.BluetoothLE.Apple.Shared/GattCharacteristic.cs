@@ -36,7 +36,7 @@ namespace Plugin.BluetoothLE
                 var p = this.native.Service.Peripheral;
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (args.Characteristic.UUID.Equals(this.native.UUID))
+                    if (this.Equals(args.Characteristic))
                     {
                         if (args.Error != null)
                         {
@@ -75,7 +75,7 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (args.Characteristic.UUID.Equals(this.native.UUID))
+                    if (this.Equals(args.Characteristic))
                     {
                         if (args.Error != null)
                         {
@@ -107,7 +107,7 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (args.Characteristic.UUID.Equals(this.native.UUID))
+                    if (this.Equals(args.Characteristic))
                     {
                         if (args.Error != null)
                         {
@@ -186,11 +186,20 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override int GetHashCode()
-        {
-            return this.native.GetHashCode();
-        }
 
+        bool Equals(CBCharacteristic ch)
+        {
+            if (!this.native.UUID.Equals(ch.UUID))
+                return false;
+
+            if (!this.native.Service.UUID.Equals(ch.Service.UUID))
+                return false;
+
+            if (!this.native.Service.Peripheral.UUID.Equals(ch.Service.Peripheral.UUID))
+                return false;
+
+            return true;
+        }
 
         public override bool Equals(object obj)
         {
@@ -205,9 +214,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override string ToString()
-        {
-            return this.Uuid.ToString();
-        }
+        public override int GetHashCode() => this.native.GetHashCode();
+        public override string ToString() => this.Uuid.ToString();
     }
 }
