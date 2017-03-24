@@ -412,13 +412,13 @@ namespace Plugin.BluetoothLE
             if (other == null)
                 return false;
 
-            if (!this.context.NativeDevice.Equals(other.context.NativeDevice))
+            if (!Object.ReferenceEquals(this, other))
                 return false;
 
             return true;
         }
 
 
-        public override string ToString() => this.Uuid.ToString();
+        public override string ToString() => $"Device: {this.Uuid}";
     }
 }
