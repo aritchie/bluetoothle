@@ -212,7 +212,7 @@ namespace Plugin.BluetoothLE
             if (other == null)
                 return false;
 
-            if (!this.native.Equals(other.native))
+            if (!Object.ReferenceEquals(this, other))
                 return false;
 
             return true;
@@ -220,23 +220,33 @@ namespace Plugin.BluetoothLE
 
 
         public override int GetHashCode() => this.native.GetHashCode();
-        public override string ToString() => this.Uuid.ToString();
+        public override string ToString() => $"Characteristic: {this.Uuid}";
 
 
         bool Equals(GattCharacteristicEventArgs args)
         {
+            Log.Write($"Characteristic Comparison - {this.native.Uuid} vs {args.Characteristic.Uuid}");
+
             if (this.native.Equals(args.Characteristic))
+            {
+                Log.Write("Same instances");
                 return true;
-
+            }
             if (!this.native.Uuid.Equals(args.Characteristic.Uuid))
+            {
+                Log.Write("UUIDs don't match");
                 return false;
-
+            }
             if (!this.native.Service.Uuid.Equals(args.Characteristic.Service.Uuid))
+            {
+                Log.Write("Services aren't the same");
                 return false;
-
+            }
             if (!this.context.Gatt.Equals(args.Gatt))
+            {
+                Log.Write("GATT connections don't match");
                 return false;
-
+            }
             return true;
         }
 

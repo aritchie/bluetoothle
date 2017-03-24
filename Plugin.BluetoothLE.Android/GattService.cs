@@ -49,7 +49,7 @@ namespace Plugin.BluetoothLE
             if (other == null)
                 return false;
 
-            if (!this.native.Equals(other.native))
+            if (!Object.ReferenceEquals(this, other))
                 return false;
 
             return true;
@@ -57,6 +57,6 @@ namespace Plugin.BluetoothLE
 
 
         public override int GetHashCode() => this.native.GetHashCode();
-        public override string ToString() => this.Uuid.ToString();
+        public override string ToString() => $"Device {this.Uuid}";
     }
 }
