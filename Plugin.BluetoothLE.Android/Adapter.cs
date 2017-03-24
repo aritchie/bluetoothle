@@ -41,23 +41,19 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IEnumerable<IDevice> GetPairedDevices()
-        {
-            return this.manager
+        public IEnumerable<IDevice> GetPairedDevices() =>
+            this.manager
                 .Adapter
                 .BondedDevices
                 .Where(x => x.Type == BluetoothDeviceType.Dual || x.Type == BluetoothDeviceType.Le) // TODO: does it know?
                 .Select(x => this.context.Devices.GetDevice(x, TaskScheduler.Current))
                 .ToList();
-        }
 
 
-        public IEnumerable<IDevice> GetConnectedDevices()
-        {
-            return this.manager
+        public IEnumerable<IDevice> GetConnectedDevices() =>
+            this.manager
                 .GetConnectedDevices(ProfileType.Gatt)
                 .Select(x => this.context.Devices.GetDevice(x, TaskScheduler.Current));
-        }
 
 
         public AdapterStatus Status
@@ -110,12 +106,10 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IObservable<bool> WhenScanningStatusChanged()
-        {
-           return this.scanStatusChanged
+        public IObservable<bool> WhenScanningStatusChanged() =>
+            this.scanStatusChanged
                 .AsObservable()
                 .StartWith(this.IsScanning);
-        }
 
 
         public IObservable<IScanResult> Scan(ScanConfig config)
@@ -200,9 +194,6 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IObservable<IDevice> WhenDeviceStateRestored()
-        {
-            return Observable.Empty<IDevice>();
-        }
+        public IObservable<IDevice> WhenDeviceStateRestored() => Observable.Empty<IDevice>();
     }
 }
