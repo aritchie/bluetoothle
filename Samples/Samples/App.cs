@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Acr;
 using Autofac;
 using Samples.Pages;
@@ -19,6 +20,11 @@ namespace Samples
             Container = container;
             var page = container.Resolve<MainPage>();
             this.MainPage = new NavigationPage(page);
+
+            Plugin.BluetoothLE.Log.Out = x =>
+            {
+                Debug.WriteLine(x);
+            };
         }
 
 

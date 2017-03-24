@@ -27,7 +27,7 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
                 {
-                    if (this.Equals(args.Descriptor))
+                    if (this.NativeEquals(args))
                     {
                         if (!args.IsSuccessful)
                         {
@@ -84,7 +84,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        bool Equals(GattDescriptorEventArgs args)
+        bool NativeEquals(GattDescriptorEventArgs args)
         {
             if (this.native.Equals(args.Descriptor))
                 return true;

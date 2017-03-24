@@ -151,10 +151,10 @@ namespace Samples.ViewModels.Le
 
                         case ConnectionStatus.Connected:
                             this.ConnectText = "Disconnect";
-                            this.cleanup.Add(this.device
-                                .WhenRssiUpdated()
-                                .Subscribe(rssi => this.Rssi = rssi)
-                            );
+                            //this.cleanup.Add(this.device
+                            //    .WhenRssiUpdated()
+                            //    .Subscribe(rssi => this.Rssi = rssi)
+                            //);
                             break;
                     }
                 }))

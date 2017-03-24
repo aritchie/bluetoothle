@@ -68,7 +68,7 @@ namespace Samples.ViewModels.Le
                     {
                         var value = await this.Characteristic
                             .Read()
-                            .Timeout(TimeSpan.FromSeconds(3))
+                            //.Timeout(TimeSpan.FromSeconds(3))
                             .ToTask();
                         var utf8 = await this.dialogs.ConfirmAsync("Display Value as UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
                         this.SetReadValue(value, utf8);
@@ -175,7 +175,7 @@ namespace Samples.ViewModels.Le
                             {
                                 await this.Characteristic
                                     .Write(bytes)
-                                    .Timeout(TimeSpan.FromSeconds(3))
+                                    //.Timeout(TimeSpan.FromSeconds(3))
                                     .ToTask();
                             }
                             else
