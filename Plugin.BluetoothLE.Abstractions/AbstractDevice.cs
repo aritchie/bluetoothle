@@ -35,8 +35,12 @@ namespace Plugin.BluetoothLE
 
 
         public virtual PairingStatus PairingStatus => PairingStatus.Unavailiable;
-        public virtual IObservable<bool> PairingRequest(string pin) =>
-            throw new ArgumentException("Pairing request is not supported on this platform");
+		public virtual IObservable<bool> PairingRequest(string pin)
+		{
+			throw new ArgumentException("Pairing request is not supported on this platform");
+		}
+
+
         public virtual int GetCurrentMtuSize() => 20;
         public virtual IObservable<int> RequestMtu(int size) => Observable.Return(this.GetCurrentMtuSize());
         public virtual IObservable<int> WhenMtuChanged() => Observable.Empty<int>();

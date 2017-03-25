@@ -55,7 +55,7 @@ namespace Plugin.BluetoothLE
             if (!this.native.UUID.Equals(service.UUID))
                 return false;
 
-            if (!this.native.Peripheral.UUID.Equals(service.Peripheral.UUID))
+			if (!this.native.Peripheral.Identifier.Equals(service.Peripheral.Identifier))
                 return false;
 
             return true;
@@ -67,7 +67,7 @@ namespace Plugin.BluetoothLE
             if (other == null)
                 return false;
 
-            if (!this.native.Equals(other.native))
+			if (!Object.ReferenceEquals(this, other))
                 return false;
 
             return true;
