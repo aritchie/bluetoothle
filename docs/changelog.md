@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.0.3
+* [fix][android][ios] improved equality checks to help with android events
+
 ## 2.0.2
 * [fix][android] more gatt133 fixes
 * [fix][android] additional fixes for cancel connection
