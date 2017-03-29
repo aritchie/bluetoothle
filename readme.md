@@ -5,7 +5,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
 
-[Change Log - Jan 19, 2017](docs/changelog.md)
+[Change Log - Mar 28, 2017](docs/changelog.md)
 
 
 ## PLATFORMS
@@ -130,3 +130,7 @@ Q. I cannot see the device name in Android 6+
 Q. I cannot see the device name when scanning in the background on iOS
 
 > This is the work of iOS.  The library cannot fix this.  You should scan by service UUIDs instead
+
+Q. Does this support Bluetooth v2?
+
+> No - please read about bluetooth specifications before using this library.  LE (Low Energy) is part of the v4.0 specification.
