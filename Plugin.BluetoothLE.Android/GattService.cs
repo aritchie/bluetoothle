@@ -43,6 +43,15 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds)
+        {
+            return Observable.Create<IGattCharacteristic>(ob =>
+            {
+                return Disposable.Empty;
+            });
+        }
+
+
         public override bool Equals(object obj)
         {
             var other = obj as GattService;
