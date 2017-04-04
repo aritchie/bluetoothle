@@ -34,8 +34,7 @@ namespace Plugin.BluetoothLE
 
         public IDevice GetKnownDevice(Guid deviceId)
         {
-            // TODO: guid flip the end in toString.... need to test this
-            var native = this.manager.Adapter.GetRemoteDevice(deviceId.ToString());
+            var native = this.manager.Adapter.GetRemoteDevice(deviceId.ToByteArray().Skip(10).Take(6).ToArray());
             var device = this.context.Devices.GetDevice(native, TaskScheduler.Current);
             return device;
         }
