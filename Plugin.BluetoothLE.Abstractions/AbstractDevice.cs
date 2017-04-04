@@ -24,6 +24,7 @@ namespace Plugin.BluetoothLE
         public abstract IObservable<ConnectionStatus> WhenStatusChanged();
         public abstract IObservable<IGattService> WhenServiceDiscovered();
         public abstract IObservable<string> WhenNameUpdated();
+        public abstract IObservable<IGattService> GetKnownService(Guid serviceUuid);
 
 
         public virtual void CancelConnection()

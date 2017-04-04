@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## 2.0.4
+[feature] New methods - Device.GetKnownService, Service.GetKnownCharacteristics(uuids), and Device.GetKnownCharacteristics(serviceUuid, characteristicUuids)
+[fix][android] GetKnownDevice
+
 ## 2.0.3
 * [fix][android][ios] improved equality checks to help with android events
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using CoreBluetooth;
 using Foundation;
@@ -93,6 +95,15 @@ namespace Plugin.BluetoothLE
                     sub1?.Dispose();
                     sub2?.Dispose();
                 };
+            });
+        }
+
+
+        public override IObservable<IGattService> GetKnownService(Guid serviceUuid)
+        {
+            return Observable.Create<IGattService>(ob =>
+            {
+
             });
         }
 

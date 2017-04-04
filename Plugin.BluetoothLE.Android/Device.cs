@@ -116,6 +116,14 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override IObservable<IGattService> GetKnownService(Guid serviceUuid)
+        {
+            return Observable.Create<IGattService>(ob =>
+            {
+            });
+        }
+
+
         public override void CancelConnection()
         {
             base.CancelConnection();

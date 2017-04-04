@@ -58,6 +58,15 @@ namespace Plugin.BluetoothLE
         /// </summary>
         IObservable<IGattService> WhenServiceDiscovered();
 
+
+        /// <summary>
+        /// Searches for a known service
+        /// </summary>
+        /// <param name="serviceUuid"></param>
+        /// <returns></returns>
+        IObservable<IGattService> GetKnownService(Guid serviceUuid);
+
+
         /// <summary>
         /// Monitor device name changes
         /// </summary>

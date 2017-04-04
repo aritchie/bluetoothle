@@ -21,5 +21,12 @@ namespace Plugin.BluetoothLE
         /// This will return a repeatable observable of discovered characteristics
         /// </summary>
         IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();
+
+        /// <summary>
+        /// Search for known characteristics
+        /// </summary>
+        /// <param name="characteristicIds"></param>
+        /// <returns></returns>
+        IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds);
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using CoreBluetooth;
 
@@ -14,6 +16,37 @@ namespace Plugin.BluetoothLE
         public GattService(IDevice device, CBService native) : base(device, native.UUID.ToGuid(), native.Primary)
         {
             this.native = native;
+        }
+
+
+        public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds)
+        {
+            return Observable.Create<IGattCharacteristic>(ob =>
+            {
+                var characteristics = new Dictionary<Guid, IGattCharacteristic>();
+                var handler = new EventHandler<CBServiceEventArgs>((sender, args) =>
+                {
+                    if (!this.Equals(args.Service))
+                        return;
+
+                    foreach (var nch in this.native.Characteristics)
+                    {
+                        var ch = new GattCharacteristic(this, nch);
+                        if (!characteristics.ContainsKey(ch.Uuid))
+                        {
+                            characteristics.Add(ch.Uuid, ch);
+                            ob.OnNext(ch);
+                        }
+                    }
+                    if (characteristics.Count == characteristicIds.Length)
+                        ob.OnCompleted();
+                });
+                var uuids = characteristicIds.Select(x => x.ToCBUuid()).ToArray();
+                this.native.Peripheral.DiscoveredCharacteristic += handler;
+                this.native.Peripheral.DiscoverCharacteristics(uuids, this.native);
+
+                return () => this.native.Peripheral.DiscoveredCharacteristic -= handler;
+            });
         }
 
 
