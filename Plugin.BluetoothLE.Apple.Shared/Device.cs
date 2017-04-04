@@ -99,15 +99,6 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<IGattService> GetKnownService(Guid serviceUuid)
-        {
-            return Observable.Create<IGattService>(ob =>
-            {
-
-            });
-        }
-
-
         public override void CancelConnection()
         {
             base.CancelConnection();
@@ -163,12 +154,40 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override IObservable<IGattService> GetKnownService(Guid serviceUuid)
+        {
+            return Observable.Create<IGattService>(ob =>
+            {
+                var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
+                {
+                    if (this.peripheral.Services == null)
+                        return;
+
+                    foreach (var native in this.peripheral.Services)
+                    {
+                        var service = new GattService(this, native);
+                        if (service.Uuid.Equals(serviceUuid))
+                        {
+                            ob.OnNext(service);
+                            ob.OnCompleted();
+                            break;
+                        }
+                    }
+                });
+                this.peripheral.DiscoverServices(new [] { serviceUuid.ToCBUuid() });
+                this.peripheral.DiscoveredService += handler;
+
+                return () => this.peripheral.DiscoveredService -= handler;
+            });
+        }
+
+
         IObservable<IGattService> serviceOb;
         public override IObservable<IGattService> WhenServiceDiscovered()
         {
             this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
             {
-                Debug.WriteLine("Hooked for services for device " + this.Uuid);
+                //Debug.WriteLine("Hooked for services for device " + this.Uuid);
                 var services = new Dictionary<Guid, IGattService>();
 
                 var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
