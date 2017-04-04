@@ -78,16 +78,8 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IEnumerable<IDevice> GetPairedDevices()
-        {
-            return new IDevice[0];
-        }
-
-
-        public IEnumerable<IDevice> GetConnectedDevices()
-        {
-            return this.context.GetConnectedDevices();
-        }
+        public IEnumerable<IDevice> GetPairedDevices() => new IDevice[0];
+        public IEnumerable<IDevice> GetConnectedDevices() => this.context.GetConnectedDevices();
 
 
         IObservable<AdapterStatus> statusOb;
@@ -240,12 +232,10 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IObservable<IDevice> WhenDeviceStateRestored()
-        {
-            return this.context
+        public IObservable<IDevice> WhenDeviceStateRestored() =>
+            this.context
                 .WhenWillRestoreState
                 .AsObservable();
-        }
 
 
         void ToggleScanStatus(bool isScanning)
