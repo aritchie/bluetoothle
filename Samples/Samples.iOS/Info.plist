@@ -54,6 +54,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>
+		<string>bluetooth-peripheral</string>
 	</array>
 	<key>CFBundleName</key>
 	<string>Bluetooth</string>
