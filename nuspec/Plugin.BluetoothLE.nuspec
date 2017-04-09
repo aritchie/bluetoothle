@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Plugin.BluetoothLE</id>
-        <version>2.0.4</version>
+        <version>3.0.0</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -20,12 +20,15 @@ macOS
         <licenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</licenseUrl>
         <projectUrl>https://github.com/aritchie/bluetoothle</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <tags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle</tags>
+        <tags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</tags>
         <dependencies>
             <dependency id="rx-main" version="[2.2.5, 3)" />
         </dependencies>
         <releaseNotes>
-2.0.4
+3.0.0
+[feature] GATT Server is now built into this library
+[feature] GATT server and advertising has been separated
+[feature] Manufacturer data can be advertised on Windows and Android
 [feature] New methods - Device.GetKnownService, Service.GetKnownCharacteristics(uuids), and Device.GetKnownCharacteristics(serviceUuid, characteristicUuids)
 [fix][android] GetKnownDevice
 

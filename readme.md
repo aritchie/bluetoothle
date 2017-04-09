@@ -1,11 +1,8 @@
 # ACR Reactive BluetoothLE Plugin for Xamarin
 Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS & tvOS
 
-## Please note that v2.0 of this plugin has had its namespace and assembly renamed to Plugin.BluetoothLE.  If you are having any difficulties with the install, uninstall Acr.Ble and continue with the Plugin.BluetoothLE nuget package
-
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
-
-[Change Log - Apr 3, 2017](docs/changelog.md)
+[Change Log - Apr 10, 2017](docs/changelog.md)
 
 
 ## PLATFORMS
@@ -33,11 +30,20 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS
 * Manages iOS backgrounding by allowing hooks to WhenWillRestoreState
 * Control the adapter state on Android
 * Pair with devices
-
+* GATT Server and Advertising Support
+    * Advertising
+      * Manufactuer Data
+      * Service UUIDs
+    * Charactertistics
+      * Read
+      * Write
+      * Notify & Broadcast
+      * Manage Subscribers
+      * Status Replies
 
 ## SETUP
 
-Be sure to install the Acr.Ble nuget package in all of your main platform projects as well as your core/PCL project
+Be sure to install the Plugin.BluetoothLE nuget package in all of your main platform projects as well as your core/PCL project
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
 
@@ -58,17 +64,23 @@ Add the following to your AndroidManifest.xml
 If you want to use background BLE periperhals, add the following to your Info.plist
 
 ```xml
+<!--for connecting to devices (client)-->
 <array>
-<string>bluetooth-central</string>
+    <string>bluetooth-central</string>
 </array>
 
-To add a description to the Bluetooth request message (on iOS 10 this is required!)
-```xml
+<!--for server configurations-->
+<array>
+    <string>bluetooth-peripheral</string>
+</array>
+
+<!--To add a description to the Bluetooth request message (on iOS 10 this is required!)-->
+
 <key>NSBluetoothPeripheralUsageDescription</key>
 <string>YOUR CUSTOM MESSAGE</string>
 ```
 
-## HOW TO USE BASICS
+## HOW TO USE - CLIENT BASICS
 
 ```csharp
 
@@ -91,6 +103,69 @@ Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
 ```
 
 
+## HOW TO USE - SERVER BASICS
+
+Most important things - you should setup all of your services and characteristics BEFORE you Start() the server!
+
+```csharp
+var server = CrossBleAdapter.Current.CreateGattServer();
+var service = server.AddService(Guid.NewGuid(), true);
+
+var characteristic = service.AddCharacteristic(
+    Guid.NewGuid(),
+    CharacteristicProperties.Read | CharacteristicProperties.Write | CharacteristicProperties.WriteWithoutResponse,
+    GattPermissions.Read | GattPermissions.Write
+);
+
+var notifyCharacteristic = service.AddCharacteristic
+(
+    Guid.NewGuid(),
+    CharacteristicProperties.Indicate | CharacteristicProperties.Notify,
+    GattPermissions.Read | GattPermissions.Write
+);
+
+IDisposable notifyBroadcast = null;
+notifyCharacteristic.WhenDeviceSubscriptionChanged().Subscribe(e =>
+{
+    var @event = e.IsSubscribed ? "Subscribed" : "Unsubcribed";
+
+    if (notifyBroadcast == null)
+    {
+        this.notifyBroadcast = Observable
+            .Interval(TimeSpan.FromSeconds(1))
+            .Where(x => notifyCharacteristic.SubscribedDevices.Count > 0)
+            .Subscribe(_ =>
+            {
+                Debug.WriteLine("Sending Broadcast");
+                var dt = DateTime.Now.ToString("g");
+                var bytes = Encoding.UTF8.GetBytes(dt);
+                notifyCharacteristic.Broadcast(bytes);
+            });
+    }
+});
+
+characteristic.WhenReadReceived().Subscribe(x =>
+{
+    var write = "HELLO";
+
+    // you must set a reply value
+    x.Value = Encoding.UTF8.GetBytes(write);
+
+    x.Status = GattStatus.Success; // you can optionally set a status, but it defaults to Success
+});
+characteristic.WhenWriteReceived().Subscribe(x =>
+{
+    var write = Encoding.UTF8.GetString(x.Value, 0, x.Value.Length);
+    // do something value
+});
+
+await server.Start(new AdvertisementData
+{
+    LocalName = "TestServer"
+});
+```
+
+
 ## DOCUMENTATION
 
 * [Adapter](docs/adapter.md)
@@ -103,7 +178,10 @@ Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
     * [iOS](docs/ios.md)
 * Extensions
     * [Heart Rate](docs/heartrate.md)
-
+* Server
+    * [Advertising](docs/server_advertising.md)
+    * [Services](docs/server_services.md)
+    * [Characteristics](docs/server_characteristics.md)
 
 ## FAQ
 
@@ -134,3 +212,12 @@ Q. I cannot see the device name when scanning in the background on iOS
 Q. Does this support Bluetooth v2?
 
 > No - please read about bluetooth specifications before using this library.  LE (Low Energy) is part of the v4.0 specification.
+
+Q. Why can't I disconnect devices selectively in the GATT server?
+
+> On android, you can, but exposing this functionality in xplat proves challenging since iOS does not support A LOT of things
+
+
+Q. Why can't I configure the device name on Android?
+
+> Please read the [advertising docs](docs/server_advertising.md) on this

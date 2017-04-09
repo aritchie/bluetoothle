@@ -1,8 +1,11 @@
 # CHANGE LOG
 
-## 2.0.4
-[feature] New methods - Device.GetKnownService, Service.GetKnownCharacteristics(uuids), and Device.GetKnownCharacteristics(serviceUuid, characteristicUuids)
-[fix][android] GetKnownDevice
+## 3.0
+* [feature] GATT Server is now built into this library
+* [feature] GATT server and advertising has been separated
+* [feature] Manufacturer data can be advertised on Windows and Android
+* [feature] New methods - Device.GetKnownService, Service.GetKnownCharacteristics(uuids), and Device.GetKnownCharacteristics(serviceUuid, characteristicUuids)
+* [fix][android] GetKnownDevice
 
 ## 2.0.3
 * [fix][android][ios] improved equality checks to help with android events

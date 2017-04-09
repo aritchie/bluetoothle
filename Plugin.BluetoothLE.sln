@@ -11,7 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CB45572F-4288-4D54-98BB-B2807C2A8C54}"
 	ProjectSection(SolutionItems) = preProject
-		nuspec\Acr.Ble.nuspec = nuspec\Acr.Ble.nuspec
 		build.cake = build.cake
 		build.cmd = build.cmd
 		icon.png = icon.png
@@ -51,8 +50,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E72A2C1E-F
 		docs\heartrate.md = docs\heartrate.md
 		docs\ios.md = docs\ios.md
 		ISSUE_TEMPLATE = ISSUE_TEMPLATE
-		docs\logging.md = docs\logging.md
 		readme.md = readme.md
+		..\bleserver\docs\server_advertising.md = ..\bleserver\docs\server_advertising.md
+		..\bleserver\docs\server_characteristics.md = ..\bleserver\docs\server_characteristics.md
+		..\bleserver\docs\server_services.md = ..\bleserver\docs\server_services.md
 		docs\services.md = docs\services.md
 		docs\setup.md = docs\setup.md
 	EndProjectSection

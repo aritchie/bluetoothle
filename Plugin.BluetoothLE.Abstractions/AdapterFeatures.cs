@@ -12,9 +12,14 @@ namespace Plugin.BluetoothLE
         ViewPairedDevices = 4,
         LowPoweredScan = 8,
 
-        //ServerDeviceAdvertising = 16,
-        //ServerGatt = 32,
+        ServerAdvertising = 16,
+        ServerGatt = 32,
+        // AdvertiseManufacturerData
 
-        All = ControlAdapterState | OpenSettings | ViewPairedDevices | LowPoweredScan
+        AllClient = ViewPairedDevices | LowPoweredScan,
+        AllServer = ServerAdvertising | ServerGatt,
+        AllControls = ControlAdapterState | OpenSettings,
+
+        All = AllClient | AllServer | AllControls
     }
 }
