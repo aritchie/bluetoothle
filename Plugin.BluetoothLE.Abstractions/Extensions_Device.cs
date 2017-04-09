@@ -9,8 +9,8 @@ namespace Plugin.BluetoothLE
         public static IObservable<IGattCharacteristic> GetKnownCharacteristics(this IDevice device, Guid serviceUuid, params Guid[] characteristicIds)
             => device
                 .GetKnownService(serviceUuid)
-                .FirstOrDefaultAsync()
-                .SelectMany(x => x.GetKnownCharacteristics(characteristicIds));
+                .SelectMany(x => x.GetKnownCharacteristics(characteristicIds))
+                .Take(characteristicIds.Length);
 
 
         public static IObservable<IGattCharacteristic> WhenAnyCharacteristicDiscovered(this IDevice device)

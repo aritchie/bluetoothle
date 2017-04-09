@@ -122,8 +122,7 @@ namespace Plugin.BluetoothLE
             {
                 var ns = this.context.Gatt.GetService(serviceUuid.ToUuid());
                 var service = new GattService(this, this.context, ns);
-                ob.OnNext(service);
-                ob.OnCompleted();
+                ob.Respond(service);
                 return Disposable.Empty;
             });
 

@@ -155,8 +155,7 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<IGattService> GetKnownService(Guid serviceUuid)
-        {
-            return Observable.Create<IGattService>(ob =>
+            => Observable.Create<IGattService>(ob =>
             {
                 var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
                 {
@@ -174,12 +173,13 @@ namespace Plugin.BluetoothLE
                         }
                     }
                 });
-                this.peripheral.DiscoverServices(new [] { serviceUuid.ToCBUuid() });
                 this.peripheral.DiscoveredService += handler;
+                this.WhenStatusChanged()
+                    .Where(x => x == ConnectionStatus.Connected)
+                    .Subscribe(x => this.peripheral.DiscoverServices(new[] { serviceUuid.ToCBUuid() }));
 
                 return () => this.peripheral.DiscoveredService -= handler;
             });
-        }
 
 
         IObservable<IGattService> serviceOb;
