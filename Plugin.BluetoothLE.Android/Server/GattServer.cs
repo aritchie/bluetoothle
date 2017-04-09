@@ -65,7 +65,9 @@ namespace Plugin.BluetoothLE.Server
             if (this.isRunning)
                 return Task.CompletedTask;
 
-            this.StartAdvertising(adData);
+            if (adData != null)
+                this.StartAdvertising(adData);
+
             this.StartGatt();
             this.isRunning = true;
             return Task.CompletedTask;
