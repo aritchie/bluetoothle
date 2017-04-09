@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
@@ -117,11 +118,14 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<IGattService> GetKnownService(Guid serviceUuid)
-        {
-            return Observable.Create<IGattService>(ob =>
+            => Observable.Create<IGattService>(ob =>
             {
+                var ns = this.context.Gatt.GetService(serviceUuid.ToUuid());
+                var service = new GattService(this, this.context, ns);
+                ob.OnNext(service);
+                ob.OnCompleted();
+                return Disposable.Empty;
             });
-        }
 
 
         public override void CancelConnection()

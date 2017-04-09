@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Android.Bluetooth;
@@ -47,6 +48,15 @@ namespace Plugin.BluetoothLE
         {
             return Observable.Create<IGattCharacteristic>(ob =>
             {
+                var cids = characteristicIds.Select(x => x.ToUuid()).ToArray();
+                foreach (var cid in cids)
+                {
+                    var cs = this.native.GetCharacteristic(cid);
+                    var characteristic = new GattCharacteristic(this, this.context, cs);
+                    ob.OnNext(characteristic);
+                }
+                ob.OnCompleted();
+
                 return Disposable.Empty;
             });
         }
