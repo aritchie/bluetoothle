@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using CoreBluetooth;
+using Plugin.BluetoothLE.Server;
 #if __IOS__
 using UIKit;
 using Foundation;
@@ -39,6 +40,9 @@ namespace Plugin.BluetoothLE
 #else
         public AdapterFeatures Features => AdapterFeatures.None;
 #endif
+
+
+        public IGattServer CreateGattServer() => new GattServer();
 
 
         public AdapterStatus Status

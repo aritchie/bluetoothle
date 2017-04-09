@@ -86,6 +86,25 @@
     <Compile Include="Internals\GattContext.cs" />
     <Compile Include="Internals\InternalScanRecord.cs" />
     <Compile Include="AndroidConfig.cs" />
+    <Compile Include="Server\Device.cs" />
+    <Compile Include="Server\GattCharacteristic.cs" />
+    <Compile Include="Server\GattDescriptor.cs" />
+    <Compile Include="Server\GattService.cs" />
+    <Compile Include="Server\IDroidGattCharacteristic.cs" />
+    <Compile Include="Server\IDroidGattDescriptor.cs" />
+    <Compile Include="Server\IDroidGattService.cs" />
+    <Compile Include="Server\Internals\AdvertisementCallbacks.cs" />
+    <Compile Include="Server\Internals\CharacteristicReadEventArgs.cs" />
+    <Compile Include="Server\Internals\CharacteristicWriteEventArgs.cs" />
+    <Compile Include="Server\Internals\ConnectionStateChangeEventArgs.cs" />
+    <Compile Include="Server\Internals\DescriptorReadEventArgs.cs" />
+    <Compile Include="Server\Internals\DescriptorWriteEventArgs.cs" />
+    <Compile Include="Server\Internals\GattContext.cs" />
+    <Compile Include="Server\Internals\GattEventArgs.cs" />
+    <Compile Include="Server\Internals\GattRequestEventArgs.cs" />
+    <Compile Include="Server\GattServer.cs" />
+    <Compile Include="Server\Internals\GattServerCallbacks.cs" />
+    <Compile Include="Server\Internals\WriteRequestEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj">
@@ -96,6 +115,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="..\Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

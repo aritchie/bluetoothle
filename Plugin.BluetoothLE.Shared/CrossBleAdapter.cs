@@ -23,7 +23,7 @@ namespace Plugin.BluetoothLE
         {
             get
             {
-#if BAIT
+#if BAIT || MONO
                 if (current == null)
                     throw new ArgumentException("[Plugin.BluetoothLE] No platform plugin found.  Did you install the nuget package in your app project as well?");
 

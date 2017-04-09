@@ -77,6 +77,24 @@
     <Compile Include="DescriptorResult.cs" />
     <Compile Include="DescriptorEvent.cs" />
     <Compile Include="ScanConfig.cs" />
+    <Compile Include="Server\AbstractGattCharacteristic.cs" />
+    <Compile Include="Server\AbstractGattDescriptor.cs" />
+    <Compile Include="Server\AbstractGattServer.cs" />
+    <Compile Include="Server\AbstractGattService.cs" />
+    <Compile Include="Server\AdvertisementData.cs" />
+    <Compile Include="Server\CharacteristicBroadcast.cs" />
+    <Compile Include="Server\CharacteristicSubscription.cs" />
+    <Compile Include="Server\DeviceSubscriptionEvent.cs" />
+    <Compile Include="Server\GattPermissions.cs" />
+    <Compile Include="Server\GattStatus.cs" />
+    <Compile Include="Server\IDevice.cs" />
+    <Compile Include="Server\IGattCharacteristic.cs" />
+    <Compile Include="Server\IGattDescriptor.cs" />
+    <Compile Include="Server\IGattServer.cs" />
+    <Compile Include="Server\IGattService.cs" />
+    <Compile Include="Server\ManufacturerData.cs" />
+    <Compile Include="Server\ReadRequest.cs" />
+    <Compile Include="Server\WriteRequest.cs" />
     <Compile Include="TransactionStatus.cs" />
     <Compile Include="VoidGattReliableWriteTransaction.cs" />
   </ItemGroup>
@@ -101,6 +119,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

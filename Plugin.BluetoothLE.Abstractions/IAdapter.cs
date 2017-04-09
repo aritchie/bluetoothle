@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using Plugin.BluetoothLE.Server;
 
 
 namespace Plugin.BluetoothLE
 {
     public interface IAdapter
     {
+        /// <summary>
+        /// Create a BLE server
+        /// </summary>
+        /// <returns></returns>
+        IGattServer CreateGattServer();
+
         /// <summary>
         /// This readonly property contains a flags enum stating what platform adapter features that are available
         /// </summary>

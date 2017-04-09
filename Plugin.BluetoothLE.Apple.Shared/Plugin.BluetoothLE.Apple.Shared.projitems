@@ -19,5 +19,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)GattDescriptor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GattService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PeripheralConnectionFailed.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\Device.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\GattCharacteristic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\GattDescriptor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\GattServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\GattService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\IIosGattCharacteristic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\IIosGattDescriptor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\IIosGattService.cs" />
   </ItemGroup>
 </Project>

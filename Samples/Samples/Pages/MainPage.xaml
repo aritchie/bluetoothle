@@ -8,6 +8,7 @@
         <le:ScanPage Title="Scan" />
 		<le:ConnectedDevicesPage Title="Connected" />
         <le:BackgroundPage Title="Background" />
+        <le:ServerPage Title="Server" />
         <le:LogPage Title="Logs" />
 	</TabbedPage.Children>
 </TabbedPage>

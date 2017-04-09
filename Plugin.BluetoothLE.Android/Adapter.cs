@@ -9,6 +9,7 @@ using Android.Bluetooth;
 using Android.Content;
 using Android.OS;
 using Plugin.BluetoothLE.Internals;
+using Plugin.BluetoothLE.Server;
 
 
 namespace Plugin.BluetoothLE
@@ -30,6 +31,7 @@ namespace Plugin.BluetoothLE
 
         public AdapterFeatures Features => AdapterFeatures.All;
         public bool IsScanning => this.manager.Adapter.IsDiscovering;
+        public IGattServer CreateGattServer() => new GattServer();
 
 
         public IDevice GetKnownDevice(Guid deviceId)
