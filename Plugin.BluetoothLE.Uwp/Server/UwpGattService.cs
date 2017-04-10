@@ -17,10 +17,8 @@ namespace Plugin.BluetoothLE.Server
         }
 
 
-        protected override Windows.Devices.Bluetooth.GenericAttributeProfile.IGattCharacteristic CreateNative(Guid uuid, CharacteristicProperties properties, GattPermissions permissions)
-        {
-            return new UwpGattCharacteristic(this, uuid, properties, permissions);
-        }
+        protected override IGattCharacteristic CreateNative(Guid uuid, CharacteristicProperties properties, GattPermissions permissions)
+            => new UwpGattCharacteristic(this, uuid, properties, permissions);
 
 
         public async Task Init()
@@ -42,9 +40,6 @@ namespace Plugin.BluetoothLE.Server
         }
 
 
-        public void Stop()
-        {
-            this.native?.ServiceProvider.StopAdvertising();
-        }
+        public void Stop() => this.native?.ServiceProvider.StopAdvertising();
     }
 }

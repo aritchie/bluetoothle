@@ -222,5 +222,10 @@ namespace Plugin.BluetoothLE
             macBytes.CopyTo(deviceGuid, 10); // 12 bytes here if off the BluetoothLEDevice
             return new Guid(deviceGuid);
         }
+
+        public IObservable<IGattService> GetKnownService(Guid serviceUuid)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

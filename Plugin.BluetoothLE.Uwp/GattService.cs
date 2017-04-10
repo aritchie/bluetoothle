@@ -35,5 +35,11 @@ namespace Plugin.BluetoothLE
 
             return this.characteristicOb;
         }
+
+
+        public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -10,7 +10,7 @@ namespace Plugin.BluetoothLE.Server
         GattLocalDescriptor native;
 
 
-        public UwpGattDescriptor(Windows.Devices.Bluetooth.GenericAttributeProfile.IGattCharacteristic characteristic, Guid descriptorUuid, byte[] value) : base(characteristic, descriptorUuid, value)
+        public UwpGattDescriptor(IGattCharacteristic characteristic, Guid descriptorUuid, byte[] value) : base(characteristic, descriptorUuid, value)
         {
         }
 

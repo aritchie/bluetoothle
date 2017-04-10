@@ -6,10 +6,9 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Windows.Devices.Bluetooth;
 using Windows.Foundation;
-using Windows.Devices.Bluetooth.Advertisement;
-using Windows.Devices.Enumeration;
 using Windows.Devices.Radios;
 using Windows.System;
+using Plugin.BluetoothLE.Server;
 
 
 namespace Plugin.BluetoothLE
@@ -40,10 +39,13 @@ namespace Plugin.BluetoothLE
         public AdapterFeatures Features => AdapterFeatures.All;
 
 
+        public IGattServer CreateGattServer() => new GattServer();
+
+
         bool isScanning = false;
         public bool IsScanning
         {
-            get { return this.isScanning; }
+            get => this.isScanning;
             private set
             {
                 if (this.isScanning == value)
@@ -86,16 +88,8 @@ namespace Plugin.BluetoothLE
 
 
         static readonly IList<IDevice> NullList = new List<IDevice>();
-        public IEnumerable<IDevice> GetPairedDevices()
-        {
-            return NullList;
-        }
-
-
-        public IEnumerable<IDevice> GetConnectedDevices()
-        {
-            return this.context.GetConnectedDevices();
-        }
+        public IEnumerable<IDevice> GetPairedDevices() => NullList;
+        public IEnumerable<IDevice> GetConnectedDevices() => this.context.GetConnectedDevices();
 
 
         public IObservable<bool> WhenScanningStatusChanged()
@@ -171,10 +165,10 @@ namespace Plugin.BluetoothLE
                             .CreateDeviceWatcher()
                             .Subscribe(async args =>
                             {
-                                Debug.WriteLine($"[DeviceInfo] Info: {args.Id} / {args.Name}");
+                                Log.Write($"[DeviceInfo] Info: {args.Id} / {args.Name}");
                                 var native = await BluetoothLEDevice.FromIdAsync(args.Id);
 
-                                Debug.WriteLine($"[DeviceInfo] BLE Device: {native.BluetoothAddress} / {native.DeviceId} / {native.Name}");
+                                Log.Write($"[DeviceInfo] BLE Device: {native.BluetoothAddress} / {native.DeviceId} / {native.Name}");
                                 this.context.GetDevice(native); // set discovered device for adscanner to see
                             });
                     }
@@ -230,14 +224,11 @@ namespace Plugin.BluetoothLE
                 return () => cleanup.ForEach(x => x.Dispose());
             });
             return this.deviceStatusOb;
-
         }
 
 
         public async void OpenSettings()
-        {
-            await Launcher.LaunchUriAsync(new Uri("ms-settings:bluetooth"));
-        }
+            => await Launcher.LaunchUriAsync(new Uri("ms-settings:bluetooth"));
 
 
         public async void SetAdapterState(bool enable)
@@ -247,9 +238,6 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IObservable<IDevice> WhenDeviceStateRestored()
-        {
-            return Observable.Empty<IDevice>();
-        }
+        public IObservable<IDevice> WhenDeviceStateRestored() => Observable.Empty<IDevice>();
     }
 }

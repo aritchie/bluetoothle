@@ -5,7 +5,7 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 
 namespace Plugin.BluetoothLE.Server
 {
-    public interface IUwpGattCharacteristic : Windows.Devices.Bluetooth.GenericAttributeProfile.IGattCharacteristic
+    public interface IUwpGattCharacteristic : IGattCharacteristic
     {
         Task Init(GattLocalService gatt);
     }

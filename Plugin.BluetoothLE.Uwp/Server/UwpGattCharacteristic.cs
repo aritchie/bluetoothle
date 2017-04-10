@@ -31,10 +31,8 @@ namespace Plugin.BluetoothLE.Server
         }
 
 
-        protected override Windows.Devices.Bluetooth.GenericAttributeProfile.IGattDescriptor CreateNative(Guid uuid, byte[] value)
-        {
-            return new UwpGattDescriptor(this, uuid, value);
-        }
+        protected override IGattDescriptor CreateNative(Guid uuid, byte[] value)
+            => new UwpGattDescriptor(this, uuid, value);
 
 
         public override IReadOnlyList<IDevice> SubscribedDevices { get; }

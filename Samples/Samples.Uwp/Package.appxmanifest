@@ -23,6 +23,7 @@
       <Extensions>
         <Extension Category="windows.backgroundTasks" StartPage="MainPage.xaml">
           <BackgroundTasks>
+            <Task Type="deviceConnectionChange" />
             <Task Type="bluetooth" />
           </BackgroundTasks>
         </Extension>
