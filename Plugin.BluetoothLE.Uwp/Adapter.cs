@@ -13,6 +13,7 @@ using Plugin.BluetoothLE.Server;
 
 namespace Plugin.BluetoothLE
 {
+    //BluetoothAdapter.IsPeripheralRoleSupported
     public class Adapter : IAdapter
     {
         readonly BleContext context;

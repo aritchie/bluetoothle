@@ -208,6 +208,7 @@ namespace Plugin.BluetoothLE.Server
         {
             var value = props
                 .ToString()
+                .Replace(CharacteristicProperties.WriteNoResponse.ToString(), GattCharacteristicProperties.WriteWithoutResponse.ToString())
                 .Replace(CharacteristicProperties.NotifyEncryptionRequired.ToString(), String.Empty)
                 .Replace(CharacteristicProperties.IndicateEncryptionRequired.ToString(), String.Empty);
 
