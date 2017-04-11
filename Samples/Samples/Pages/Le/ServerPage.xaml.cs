@@ -1,6 +1,6 @@
 ﻿using System;
 using Autofac;
-using Sample.ViewModels.Le;
+using Samples.ViewModels.Le;
 using Xamarin.Forms;
 
 

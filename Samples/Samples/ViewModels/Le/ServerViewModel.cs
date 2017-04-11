@@ -6,12 +6,11 @@ using System.Windows.Input;
 using Plugin.BluetoothLE;
 using Plugin.BluetoothLE.Server;
 using Samples.Services;
-using Samples.ViewModels;
 using Device = Xamarin.Forms.Device;
 using Command = Xamarin.Forms.Command;
 
 
-namespace Sample.ViewModels.Le
+namespace Samples.ViewModels.Le
 {
     public class ServerViewModel : AbstractRootViewModel
     {
@@ -60,7 +59,7 @@ namespace Sample.ViewModels.Le
         }
 
 
-        public string ServerText { get; set; }
+        public string ServerText { get; set; } = "Start Server";
         public string CharacteristicValue { get; set; }
         public string DescriptorValue { get; set; }
         public string Output { get; private set; }
