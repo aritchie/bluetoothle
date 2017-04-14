@@ -6,8 +6,8 @@
 [assembly: AssemblyConfiguration("")]
 #endif
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Acr.Ble")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyProduct("Plugin.BluetoothLE")]
+[assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
