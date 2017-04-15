@@ -18,6 +18,7 @@ namespace Plugin.BluetoothLE
         public Guid Uuid { get; protected set; }
         public abstract ConnectionStatus Status { get; }
         public abstract DeviceFeatures Features { get; }
+        public abstract object NativeDevice { get; }
 
         public abstract IObservable<object> Connect(GattConnectionConfig config);
         public abstract IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan);

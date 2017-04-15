@@ -35,6 +35,7 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override object NativeDevice => this.context.NativeDevice;
         public override DeviceFeatures Features => DeviceFeatures.All;
 
 

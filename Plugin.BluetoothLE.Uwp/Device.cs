@@ -31,6 +31,7 @@ namespace Plugin.BluetoothLE
 
         public string Name => this.native.Name;
         public Guid Uuid { get; }
+        public object NativeDevice => this.native;
         public DeviceFeatures Features => DeviceFeatures.PairingRequests | DeviceFeatures.ReliableTransactions;
 
 

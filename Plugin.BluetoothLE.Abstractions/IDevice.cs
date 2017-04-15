@@ -7,6 +7,11 @@ namespace Plugin.BluetoothLE
     public interface IDevice
     {
         /// <summary>
+        /// Returns the native device instance for external use
+        /// </summary>
+        object NativeDevice { get; }
+
+        /// <summary>
         /// Contains a flags enum stating what platform features are available
         /// </summary>
         DeviceFeatures Features { get; }
