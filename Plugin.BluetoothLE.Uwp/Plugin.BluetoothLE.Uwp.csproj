@@ -107,6 +107,7 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdapterScannerImpl.cs" />
     <Compile Include="AdvertisementData.cs" />
     <Compile Include="AdvertisementExtensions.cs" />
     <Compile Include="Device.cs" />

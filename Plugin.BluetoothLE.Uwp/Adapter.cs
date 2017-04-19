@@ -17,23 +17,18 @@ namespace Plugin.BluetoothLE
     public class Adapter : IAdapter
     {
         readonly BleContext context;
-        readonly Lazy<Radio> radio;
+        readonly Radio radio;
         readonly Subject<bool> scanStatusSubject;
 
 
-        public Adapter()
+        public Adapter(Radio bluetoothRadio)
         {
+            if (bluetoothRadio.Kind != RadioKind.Bluetooth)
+                throw new ArgumentException("Invalid radio type");
+
             this.scanStatusSubject = new Subject<bool>();
             this.context = new BleContext();
-
-
-            this.radio = new Lazy<Radio>(() =>
-                Radio
-                    .GetRadiosAsync()
-                    .AsTask()
-                    .Result
-                    .FirstOrDefault(x => x.Kind == RadioKind.Bluetooth)
-            );
+            this.radio = bluetoothRadio;
         }
 
 

@@ -17,6 +17,22 @@ namespace Plugin.BluetoothLE
 
 #endif
 
+        static IAdapterScanner scanner;
+
+        /// <summary>
+        /// Only supported on UWP - will be null on other platforms
+        /// </summary>
+        public static IAdapterScanner AdapterScanner
+        {
+            get
+            {
+#if WINDOWS_UWP
+                scanner = scanner ?? new AdapterScannerImpl();
+#endif
+                return scanner;
+            }
+            set { scanner = value; }
+        }
 
         static IAdapter current;
         public static IAdapter Current

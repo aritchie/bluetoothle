@@ -56,6 +56,7 @@
     <Compile Include="Extensions_Adapter.cs" />
     <Compile Include="GattConnectionConfig.cs" />
     <Compile Include="GattReliableWriteTransactionException.cs" />
+    <Compile Include="IAdapterScanner.cs" />
     <Compile Include="IGattReliableWriteTransaction.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="PairingStatus.cs" />
