@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.Threading.Tasks;
 using Android.Bluetooth;
 using Java.Util;
 using Plugin.BluetoothLE.Internals;
@@ -19,17 +20,21 @@ namespace Plugin.BluetoothLE
         readonly GattContext context;
 
 
-        public GattCharacteristic(IGattService service, GattContext context, BluetoothGattCharacteristic native) : base(service, native.Uuid.ToGuid(), (CharacteristicProperties)(int)native.Properties)
+        public GattCharacteristic(IGattService service,
+                                  GattContext context,
+                                  BluetoothGattCharacteristic native) : base(service,
+                                                                             native.Uuid.ToGuid(),
+                                                                             (CharacteristicProperties)(int)native.Properties)
         {
             this.context = context;
             this.native = native;
         }
 
 
-        public override void WriteWithoutResponse(byte[] value)
+        public override async void WriteWithoutResponse(byte[] value)
         {
             this.AssertWrite(false);
-            this.RawWriteNoResponse(null, value);
+            await this.RawWriteNoResponse(null, value);
         }
 
 
@@ -37,7 +42,7 @@ namespace Plugin.BluetoothLE
         {
             this.AssertWrite(false);
 
-            return Observable.Create<CharacteristicResult>(ob =>
+            return Observable.Create<CharacteristicResult>(async ob =>
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
@@ -63,12 +68,12 @@ namespace Plugin.BluetoothLE
                 {
                     Log.Write("Hooking for write response - " + this.Uuid);
                     this.context.Callbacks.CharacteristicWrite += handler;
-                    this.RawWriteWithResponse(value);
+                    await this.RawWriteWithResponse(value);
                 }
                 else
                 {
                     Log.Write("Write with No Response - " + this.Uuid);
-                    this.RawWriteNoResponse(ob, value);
+                    await this.RawWriteNoResponse(ob, value);
                 }
                 return () => this.context.Callbacks.CharacteristicWrite -= handler;
             });
@@ -79,7 +84,7 @@ namespace Plugin.BluetoothLE
         {
             this.AssertRead();
 
-            return Observable.Create<CharacteristicResult>(ob =>
+            return Observable.Create<CharacteristicResult>(async ob =>
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
@@ -100,7 +105,7 @@ namespace Plugin.BluetoothLE
                     }
                 });
                 this.context.Callbacks.CharacteristicRead += handler;
-                this.context.Gatt.ReadCharacteristic(this.native);
+                await this.context.Queue.Await(() => this.context.Gatt.ReadCharacteristic(this.native), true);
 
                 return () => this.context.Callbacks.CharacteristicRead -= handler;
             });
@@ -132,8 +137,8 @@ namespace Plugin.BluetoothLE
                         }
                     }
                 });
-                this.EnableNotifications();
                 this.context.Callbacks.CharacteristicChanged += handler;
+                this.EnableNotifications();
 
                 return () =>
                 {
@@ -167,27 +172,25 @@ namespace Plugin.BluetoothLE
         }
 
 
-        protected virtual bool EnableNotifications()
-        {
-            var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
-            if (descriptor == null)
-                throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
-
-            var success = this.context.Gatt.SetCharacteristicNotification(this.native, true);
-            Thread.Sleep(100);
-
-            if (success)
+        protected virtual Task<bool> EnableNotifications()
+            => this.context.Queue.Await<bool>(() =>
             {
-                AndroidConfig.SyncPost(() =>
+                var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
+                if (descriptor == null)
+                    throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
+
+                var success = this.context.Gatt.SetCharacteristicNotification(this.native, true);
+                Thread.Sleep(100);
+
+                if (success)
                 {
                     descriptor.SetValue(BluetoothGattDescriptor.EnableNotificationValue.ToArray());
                     success = this.context.Gatt.WriteDescriptor(descriptor);
                     if (success)
                         this.IsNotifying = true;
-                });
-            }
-            return success;
-        }
+                }
+                return success;
+            }, true);
 
 
         protected virtual void DisableNotifications()
@@ -196,13 +199,13 @@ namespace Plugin.BluetoothLE
             if (descriptor == null)
                 throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
 
-            AndroidConfig.SyncPost(() =>
+            this.context.Queue.Await(() =>
             {
                 descriptor.SetValue(BluetoothGattDescriptor.DisableNotificationValue.ToArray());
                 this.context.Gatt.WriteDescriptor(descriptor);
                 this.context.Gatt.SetCharacteristicNotification(this.native, false);
                 this.IsNotifying = false;
-            });
+            }, true);
         }
 
 
@@ -241,30 +244,27 @@ namespace Plugin.BluetoothLE
         }
 
 
-        void RawWriteWithResponse(byte[] bytes)
-        {
-            AndroidConfig.SyncPost(() =>
+        Task RawWriteWithResponse(byte[] bytes)
+            => this.context.Queue.Await(() =>
             {
                 this.native.SetValue(bytes);
                 this.native.WriteType = GattWriteType.Default;
                 this.context.Gatt.WriteCharacteristic(this.native);
-            });
-        }
+            }, true);
 
 
-        void RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
-        {
-            var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
-
-            AndroidConfig.SyncPost(() =>
+        Task RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
+            => this.context.Queue.Await(() =>
             {
+
                 this.native.SetValue(bytes);
                 this.native.WriteType = GattWriteType.NoResponse;
                 this.context.Gatt.WriteCharacteristic(this.native);
                 this.Value = bytes;
-            });
-            this.WriteSubject.OnNext(result);
-            ob?.Respond(result);
-        }
+
+                var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
+                this.WriteSubject.OnNext(result);
+                ob?.Respond(result);
+            }, true);
     }
 }

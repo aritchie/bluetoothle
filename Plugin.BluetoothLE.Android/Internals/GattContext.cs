@@ -31,6 +31,7 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
+        public ActionQueue Queue { get; } = new ActionQueue();
         public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
 

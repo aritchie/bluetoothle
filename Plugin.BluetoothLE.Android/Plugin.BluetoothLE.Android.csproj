@@ -66,6 +66,7 @@
     <Compile Include="GattCharacteristic.cs" />
     <Compile Include="GattReliableWriteTransaction.cs" />
     <Compile Include="GattService.cs" />
+    <Compile Include="Internals\ActionQueue.cs" />
     <Compile Include="Internals\AndroidObservables.cs" />
     <Compile Include="Internals\BleContext.cs" />
     <Compile Include="Internals\BluetoothObservables.cs" />

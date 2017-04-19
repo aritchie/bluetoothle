@@ -42,18 +42,5 @@ namespace Plugin.BluetoothLE
         /// This is suggested for most Android devices to be true (defaults to true)
         /// </summary>
         public static bool WriteOnMainThread { get; set; } = true;
-
-
-        public static void SyncPost(this Action action)
-        {
-            if (AndroidConfig.WriteOnMainThread)
-            {
-                Application.SynchronizationContext.Post(_ => action(), null);
-            }
-            else
-            {
-                action();
-            }
-        }
     }
 }

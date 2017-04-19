@@ -23,7 +23,7 @@ namespace Plugin.BluetoothLE
 
         public override IObservable<DescriptorResult> Write(byte[] data)
         {
-            return Observable.Create<DescriptorResult>(ob =>
+            return Observable.Create<DescriptorResult>(async ob =>
             {
                 var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
                 {
@@ -44,11 +44,12 @@ namespace Plugin.BluetoothLE
                     }
                 });
                 this.context.Callbacks.DescriptorWrite += handler;
-                AndroidConfig.SyncPost(() =>
+                await this.context.Queue.Await(() =>
                 {
                     this.native.SetValue(data);
                     this.context.Gatt.WriteDescriptor(this.native);
-                });
+                }, true);
+
                 return () => this.context.Callbacks.DescriptorWrite -= handler;
             });
         }
