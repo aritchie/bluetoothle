@@ -2,10 +2,13 @@
 
 ## 3.0
 * [feature] GATT Server is now built into this library
-* [feature] GATT server and advertising has been separated
 * [feature] Manufacturer data can be advertised on Windows and Android
+* [feature] ability to scan for multiple bluetooth adapters
+* [feature] expose service data as part of advertisement data
+* [feature] expose native device from IDevice as object
 * [feature] New methods - Device.GetKnownService, Service.GetKnownCharacteristics(uuids), and Device.GetKnownCharacteristics(serviceUuid, characteristicUuids)
 * [fix][android] GetKnownDevice
+* [fix][android] bad UUID parsing in ad data for service UUIDs
 
 ## 2.0.3
 * [fix][android][ios] improved equality checks to help with android events
