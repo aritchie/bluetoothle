@@ -41,6 +41,12 @@ namespace Plugin.BluetoothLE.Internals
                             sr.LocalName = Encoding.UTF8.GetString(data, 0, data.Length);
                         break;
 
+                    case AdvertisementRecordType.ServiceData128Bit:
+                    case AdvertisementRecordType.ServiceData32Bit:
+                    case AdvertisementRecordType.ServiceData16Bit:
+                        sr.ServiceData.Add(data);
+                        break;
+
                     case AdvertisementRecordType.ManufacturerSpecificData:
                         sr.ManufacturerData = data;
                         break;
@@ -67,6 +73,7 @@ namespace Plugin.BluetoothLE.Internals
         public bool IsConnectable { get; private set; }
         public int TxPower { get; private set; }
         public IList<Guid> ServiceUuids { get; } = new List<Guid>();
+        public List<byte[]> ServiceData { get; } = new List<byte[]>();
     }
 
 

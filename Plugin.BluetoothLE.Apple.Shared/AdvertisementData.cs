@@ -14,6 +14,7 @@ namespace Plugin.BluetoothLE
         readonly Lazy<byte[]> manufacturerData;
         readonly Lazy<int> txpower;
         readonly Lazy<Guid[]> serviceUuids;
+        readonly Lazy<List<byte[]>> serviceData;
 
 
         public AdvertisementData(NSDictionary adData)
@@ -23,6 +24,25 @@ namespace Plugin.BluetoothLE
             this.connectable = this.GetLazy(CBAdvertisement.IsConnectable, x => ((NSNumber)x).Int16Value == 1);
             this.txpower = this.GetLazy(CBAdvertisement.DataTxPowerLevelKey, x => Convert.ToInt32(((NSNumber)x).Int16Value));
             this.manufacturerData = this.GetLazy(CBAdvertisement.DataManufacturerDataKey, x => ((NSData)x).ToArray());
+            this.serviceData = this.GetLazy(CBAdvertisement.DataServiceDataKey, item =>
+            {
+                var data = (NSDictionary)item;
+                var list = new List<byte[]>();
+
+                foreach (CBUUID key in data.Keys)
+                {
+                    var rawKey = key.Data.ToArray();
+                    var rawValue = ((NSData)data.ObjectForKey(key)).ToArray();
+
+                    Array.Reverse(rawKey);
+                    var result = new byte[rawKey.Length + rawValue.Length];
+                    Buffer.BlockCopy(rawKey, 0, result, 0, rawKey.Length);
+                    Buffer.BlockCopy(rawValue, 0, result, rawKey.Length, rawValue.Length);
+
+                    list.Add(result);
+                }
+                return list;
+            });
             this.serviceUuids = this.GetLazy(CBAdvertisement.DataServiceUUIDsKey, x =>
             {
                 var array = (NSArray)x;
@@ -41,6 +61,7 @@ namespace Plugin.BluetoothLE
         public bool IsConnectable => this.connectable.Value;
         public byte[] ManufacturerData => this.manufacturerData.Value;
         public Guid[] ServiceUuids => this.serviceUuids.Value;
+        public IReadOnlyList<byte[]> ServiceData => this.serviceData.Value;
         public int TxPower => this.txpower.Value;
 
 

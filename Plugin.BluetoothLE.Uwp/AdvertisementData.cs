@@ -35,6 +35,7 @@ namespace Plugin.BluetoothLE
         public ulong BluetoothAddress => this.adData.BluetoothAddress;
         public string LocalName => this.adData.Advertisement.LocalName;
         public bool IsConnectable { get; }
+        public IReadOnlyList<byte[]> ServiceData { get; }
         public byte[] ManufacturerData { get;  }
         public Guid[] ServiceUuids { get; }
         public int TxPower { get; }

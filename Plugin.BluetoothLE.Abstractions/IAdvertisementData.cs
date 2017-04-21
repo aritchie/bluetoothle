@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 
 namespace Plugin.BluetoothLE
@@ -7,7 +8,7 @@ namespace Plugin.BluetoothLE
     {
         string LocalName { get; }
         bool IsConnectable { get; }
-        //byte[] ServiceData { get; }
+        IReadOnlyList<byte[]> ServiceData { get; }
         byte[] ManufacturerData { get; }
         Guid[] ServiceUuids { get; }
         int TxPower { get; }
