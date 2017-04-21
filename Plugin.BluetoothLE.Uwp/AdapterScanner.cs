@@ -7,7 +7,7 @@ using Windows.Devices.Radios;
 
 namespace Plugin.BluetoothLE
 {
-    public class AdapterScannerImpl : IAdapterScanner
+    public class AdapterScanner : IAdapterScanner
     {
         public IObservable<IAdapter> FindAdapters()
             => Observable.Create<IAdapter>(async ob =>

@@ -57,10 +57,7 @@ namespace Plugin.BluetoothLE
         {
             get
             {
-                if (this.radio.Value == null)
-                    return AdapterStatus.Unsupported;
-
-                switch (this.radio.Value.State)
+                switch (this.radio.State)
                 {
                     case RadioState.Disabled:
                     case RadioState.Off:
@@ -186,14 +183,9 @@ namespace Plugin.BluetoothLE
                 var handler = new TypedEventHandler<Radio, object>((sender, args) =>
                     ob.OnNext(this.Status)
                 );
-                if (this.radio.Value != null)
-                    this.radio.Value.StateChanged += handler;
+                this.radio.StateChanged += handler;
 
-                return () =>
-                {
-                    if (this.radio.Value != null)
-                        this.radio.Value.StateChanged -= handler;
-                };
+                return () => this.radio.StateChanged -= handler;
             })
             .Replay(1)
             .RefCount();
@@ -230,7 +222,7 @@ namespace Plugin.BluetoothLE
         public async void SetAdapterState(bool enable)
         {
             var state = enable ? RadioState.On : RadioState.Off;
-            await this.radio.Value.SetStateAsync(state);
+            await this.radio.SetStateAsync(state);
         }
 
 

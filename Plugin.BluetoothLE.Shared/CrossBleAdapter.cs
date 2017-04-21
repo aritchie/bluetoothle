@@ -27,27 +27,33 @@ namespace Plugin.BluetoothLE
             get
             {
 #if WINDOWS_UWP || MAC
-                scanner = scanner ?? new AdapterScannerImpl();
+                scanner = scanner ?? new AdapterScanner();
 #endif
                 return scanner;
             }
             set { scanner = value; }
         }
 
+
         static IAdapter current;
         public static IAdapter Current
         {
             get
             {
-#if BAIT || MONO
+#if BAIT
                 if (current == null)
                     throw new ArgumentException("[Plugin.BluetoothLE] No platform plugin found.  Did you install the nuget package in your app project as well?");
 
-                return current;
+//#elif WINDOWS_UWP || MONO || MAC
+#elif WINDOWS_UWP
+                if (current == null)
+                    throw new ArgumentException("[Plugin.BluetoothLE] UWP requires that you use the CrossBleAdapter.AdapterScanner to set the Current");
+                    //throw new ArgumentException("[Plugin.BluetoothLE] UWP, Mono, & Mac implementations require that you use the CrossBleAdapter.AdapterScanner to set the Current");
 #else
                 current = current ?? new Adapter();
-                return current;
+
 #endif
+                return current;
             }
             set { current = value; }
         }
