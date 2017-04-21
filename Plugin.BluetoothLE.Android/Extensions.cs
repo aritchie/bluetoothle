@@ -21,13 +21,16 @@ namespace Plugin.BluetoothLE
             {
                 case 4:
                     id = $"0000{id}-0000-1000-8000-00805f9b34fb";
-                    break;
+                    return Guid.ParseExact(id, "d");
 
                 case 8:
                     id = $"{id}-0000-1000-8000-00805f9b34fb";
-                    break;
+                    return Guid.ParseExact(id, "d");
+
+                default:
+                    Log.Write("Invalid UUID Detect - " + id);
+                    return Guid.Empty;
             }
-            return Guid.ParseExact(id, "d");
         }
 
 
