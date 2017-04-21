@@ -26,7 +26,7 @@ namespace Plugin.BluetoothLE
         {
             get
             {
-#if WINDOWS_UWP
+#if WINDOWS_UWP || MAC
                 scanner = scanner ?? new AdapterScannerImpl();
 #endif
                 return scanner;
