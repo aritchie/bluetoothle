@@ -117,7 +117,7 @@ namespace Plugin.BluetoothLE
         {
             this.AssertNotify();
 
-            this.notifyOb = this.notifyOb ?? Observable.Create<CharacteristicResult>(ob =>
+            this.notifyOb = this.notifyOb ?? Observable.Create<CharacteristicResult>(async ob =>
             {
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
@@ -138,11 +138,11 @@ namespace Plugin.BluetoothLE
                     }
                 });
                 this.context.Callbacks.CharacteristicChanged += handler;
-                this.EnableNotifications();
+                await this.EnableNotifications();
 
-                return () =>
+                return async () =>
                 {
-                    this.DisableNotifications();
+                    await this.DisableNotifications();
                     this.context.Callbacks.CharacteristicChanged -= handler;
                 };
             })
@@ -172,40 +172,35 @@ namespace Plugin.BluetoothLE
         }
 
 
-        protected virtual Task<bool> EnableNotifications()
-            => this.context.Queue.Await<bool>(() =>
-            {
-                var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
-                if (descriptor == null)
-                    throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
-
-                var success = this.context.Gatt.SetCharacteristicNotification(this.native, true);
-                Thread.Sleep(100);
-
-                if (success)
-                {
-                    descriptor.SetValue(BluetoothGattDescriptor.EnableNotificationValue.ToArray());
-                    success = this.context.Gatt.WriteDescriptor(descriptor);
-                    if (success)
-                        this.IsNotifying = true;
-                }
-                return success;
-            }, true);
-
-
-        protected virtual void DisableNotifications()
+        protected virtual async Task<bool> EnableNotifications()
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
             if (descriptor == null)
                 throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
 
-            this.context.Queue.Await(() =>
+            var wrap = new GattDescriptor(this, this.context, descriptor);
+            var success = this.context.Gatt.SetCharacteristicNotification(this.native, true);
+            await Task.Delay(250);
+
+            if (success)
             {
-                descriptor.SetValue(BluetoothGattDescriptor.DisableNotificationValue.ToArray());
-                this.context.Gatt.WriteDescriptor(descriptor);
-                this.context.Gatt.SetCharacteristicNotification(this.native, false);
-                this.IsNotifying = false;
-            }, true);
+                await wrap.Write(BluetoothGattDescriptor.EnableNotificationValue.ToArray());
+                this.IsNotifying = true;
+            }
+            return success;
+        }
+
+
+        protected virtual async Task DisableNotifications()
+        {
+            var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
+            if (descriptor == null)
+                throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
+
+            var wrap = new GattDescriptor(this, this.context, descriptor);
+            await wrap.Write(BluetoothGattDescriptor.DisableNotificationValue.ToArray());
+            this.context.Gatt.SetCharacteristicNotification(this.native, false);
+            this.IsNotifying = false;
         }
 
 

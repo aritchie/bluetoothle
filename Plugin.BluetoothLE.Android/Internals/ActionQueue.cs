@@ -11,6 +11,8 @@ namespace Plugin.BluetoothLE.Internals
         readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
 
+        
+
         public async Task<T> Await<T>(Func<T> func, bool executeOnMainThread)
         {
             await this.semaphore.WaitAsync();
