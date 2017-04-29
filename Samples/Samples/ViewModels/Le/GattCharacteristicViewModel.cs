@@ -175,7 +175,7 @@ namespace Samples.ViewModels.Le
                             {
                                 await this.Characteristic
                                     .Write(bytes)
-                                    //.Timeout(TimeSpan.FromSeconds(3))
+                                    .Timeout(TimeSpan.FromSeconds(5))
                                     .ToTask();
                             }
                             else

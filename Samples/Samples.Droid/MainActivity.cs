@@ -1,5 +1,6 @@
 ﻿using System;
 using Acr.UserDialogs;
+using Android;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
@@ -34,7 +35,11 @@ namespace Samples.Droid
 
             this.LoadApplication(new App(container));
 
-            this.RequestPermissions(new [] { "android.permission.ACCESS_COARSE_LOCATION" }, 0);
+            this.RequestPermissions(new []
+            {
+                Manifest.Permission.AccessCoarseLocation,
+                Manifest.Permission.BluetoothPrivileged
+            }, 0);
         }
 
 
