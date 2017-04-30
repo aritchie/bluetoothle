@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Plugin.BluetoothLE</id>
-        <version>3.0.0-beta1</version>
+        <version>3.0.0-beta2</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -32,6 +32,7 @@ macOS
 [feature] expose service data as part of advertisement data
 [feature] expose native device from IDevice as object
 [feature] New methods - Device.GetKnownService, Service.GetKnownCharacteristics(uuids), and Device.GetKnownCharacteristics(serviceUuid, characteristicUuids)
+[fix][ios] reconnection characteristic discovery NRE
 [fix][android] GetKnownDevice
 [fix][android] bad UUID parsing in ad data for service UUIDs
 
