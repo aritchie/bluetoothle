@@ -27,12 +27,12 @@ namespace Samples
                 .SingleInstance();
 
             builder
-                .Register(x => Settings.Local.Bind<AppSettingsImpl>())
+                .Register(x => Settings.Current.Bind<AppSettingsImpl>())
                 .As<IAppSettings>()
                 .SingleInstance();
 
             builder
-                .Register(x => Notifications.Instance)
+                .Register(x => CrossNotifications.Current)
                 .As<INotifications>()
                 .SingleInstance();
 
@@ -53,20 +53,20 @@ namespace Samples
 
             builder
                 .RegisterAssemblyTypes(this.ThisAssembly)
-                .Where(x => x.Namespace.StartsWith("Samples.Tasks"))
+                .Where(x => x.Namespace?.StartsWith("Samples.Tasks") ?? false)
                 .AsImplementedInterfaces()
                 .AutoActivate()
                 .SingleInstance();
 
             builder
                 .RegisterAssemblyTypes(this.ThisAssembly)
-                .Where(x => x.Namespace.StartsWith("Samples.Pages"))
+                .Where(x => x.Namespace?.StartsWith("Samples.Pages") ?? false)
                 .AsSelf()
                 .InstancePerDependency();
 
             builder
                 .RegisterAssemblyTypes(this.ThisAssembly)
-                .Where(x => x.Namespace.StartsWith("Samples.ViewModels"))
+                .Where(x => x.Namespace?.StartsWith("Samples.ViewModels") ?? false)
                 .AsSelf()
                 .InstancePerDependency();
         }
