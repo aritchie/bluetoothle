@@ -37,7 +37,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS
 
 ## SETUP
 
-Be sure to install the Acr.Ble nuget package in all of your main platform projects as well as your core/PCL project
+Be sure to install the Plugin.BluetoothLE nuget package in all of your main platform projects as well as your core/PCL project
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
 
