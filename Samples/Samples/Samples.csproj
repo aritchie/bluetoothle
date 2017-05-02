@@ -88,6 +88,9 @@
       <DependentUpon>ConnectedDevicesPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\Le\ServerViewModel.cs" />
+    <Compile Include="ViewModels\TestCases\ITestCaseViewModel.cs" />
+    <Compile Include="ViewModels\TestCases\Test1ViewModel.cs" />
+    <Compile Include="ViewModels\TestCases\TestCasesViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
