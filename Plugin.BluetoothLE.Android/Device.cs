@@ -118,13 +118,14 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<IGattService> GetKnownService(Guid serviceUuid)
-            => Observable.Create<IGattService>(ob =>
+        public override IObservable<IGattService> GetKnownService(Guid serviceUuid) => this
+            .WhenStatusChanged()
+            .Where(x => x == ConnectionStatus.Connected)
+            .Select(_ =>
             {
                 var ns = this.context.Gatt.GetService(serviceUuid.ToUuid());
                 var service = new GattService(this, this.context, ns);
-                ob.Respond(service);
-                return Disposable.Empty;
+                return service;
             });
 
 
