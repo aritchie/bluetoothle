@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Text;
 using System.Windows.Input;
 using Plugin.BluetoothLE;
 using ReactiveUI;
 using Samples.Services;
+using Xamarin.Forms;
 
 
 namespace Samples.ViewModels.TestCases
@@ -12,34 +15,52 @@ namespace Samples.ViewModels.TestCases
     public class Test1ViewModel : AbstractRootViewModel, ITestCaseViewModel
     {
         static readonly Guid ScratchServiceUuid = Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE");
+        IDisposable scan;
+        IDevice device;
+
 
         public Test1ViewModel(ICoreServices services) : base(services)
         {
-            //this.Run = ReactiveCommand.CreateFromObservable(this.BleAdapter
-            //    .ScanWhenAdapterReady()
-            //    .Where(x => x.AdvertisementData.ServiceUuids.Any(y => y.Equals(ScratchServiceUuid)))
-            //    .Take(1)
-            //    .Select(result =>
-            //    {
-            //        var ob = result.Device
-            //            .WhenStatusChanged()
-            //            .Where(status => status == ConnectionStatus.Connected)
-            //            .Select(_ => result.Device);
-            //        result.Device.Connect();
-            //        return ob;
-            //        //dev.Device.GetKnownService(null);
-            //    })
-            //    .Switch()
-            //    .Select(dev => dev
-            //        .GetKnownService(ScratchServiceUuid)
-            //        .Select(x => x.WhenCharacteristicDiscovered())
-            //    )
-            //);
+            this.Run = ReactiveCommand.Create(() =>
+            {
+                if (this.scan == null)
+                {
+                    this.scan = this.BleAdapter
+                        .ScanWhenAdapterReady()
+                        .Where(x => x.AdvertisementData.ServiceUuids.Any(y => y.Equals(ScratchServiceUuid)))
+                        .Select(x =>
+                        {
+                            this.device = x.Device;
+                            x.Device.Connect().Subscribe();
+                            return x.Device.GetKnownService(ScratchServiceUuid);
+                        })
+                        .Switch()
+                        .Select(x => x.WhenCharacteristicDiscovered())
+                        .Switch()
+                        .Select(x => x.SubscribeToNotifications())
+                        .Switch()
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Subscribe(x =>
+                            this.LogItems.Add(new LogItem
+                            {
+                                Text = x.Characteristic.Uuid.ToString(),
+                                Detail = UTF8Encoding.UTF8.GetString(x.Data, 0, x.Data.Length)
+                            })
+                        );
+                }
+                else
+                {
+                    this.scan?.Dispose();
+                    this.scan = null;
+                    this.device?.CancelConnection();
+                }
+            });
         }
 
 
         public string Name { get; } = "PunchThrough Bean+ - Two Characteristic Subscriptions";
         public ICommand Run { get; }
+        public ObservableCollection<LogItem> LogItems { get; } = new ObservableCollection<LogItem>();
     }
 }
 /*

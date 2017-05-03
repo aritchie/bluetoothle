@@ -57,6 +57,9 @@
     <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\TestCases\Test1Page.xaml.cs">
+      <DependentUpon>Test1Page.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SampleDbConnection.cs" />
     <Compile Include="Services\IAppLifecycle.cs" />
@@ -89,6 +92,7 @@
     </Compile>
     <Compile Include="ViewModels\Le\ServerViewModel.cs" />
     <Compile Include="ViewModels\TestCases\ITestCaseViewModel.cs" />
+    <Compile Include="ViewModels\TestCases\LogItem.cs" />
     <Compile Include="ViewModels\TestCases\Test1ViewModel.cs" />
     <Compile Include="ViewModels\TestCases\TestCasesViewModel.cs" />
   </ItemGroup>
@@ -218,6 +222,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Pages\Le\ServerPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Pages\TestCases\Test1Page.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </EmbeddedResource>
