@@ -27,7 +27,9 @@ namespace Samples.ViewModels.TestCases
                 {
                     this.scan = this.BleAdapter
                         .ScanWhenAdapterReady()
-                        .Where(x => x.AdvertisementData.ServiceUuids.Any(y => y.Equals(ScratchServiceUuid)))
+                        //.Where(x => x.AdvertisementData.ServiceUuids.Any(y => y.Equals(ScratchServiceUuid)))
+                        .Where(x => x.Device?.Name.StartsWith("bean", StringComparison.CurrentCultureIgnoreCase) ?? false)
+                        .Take(1)
                         .Select(x =>
                         {
                             this.device = x.Device;
