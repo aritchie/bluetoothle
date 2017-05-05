@@ -15,12 +15,28 @@ namespace Samples.ViewModels.TestCases
     public class Test1ViewModel : AbstractRootViewModel, ITestCaseViewModel
     {
         static readonly Guid ScratchServiceUuid = Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE");
+                                                            //a495ff20-c5b1-4b44-b512-1370f02d74de
         IDisposable scan;
         IDevice device;
 
 
         public Test1ViewModel(ICoreServices services) : base(services)
         {
+            this.BleAdapter
+                .WhenScanningStatusChanged()
+                .Skip(1)
+                .Subscribe(x => this.WriteMsg(
+                    "BLE Scanning " + (x ? "Started" : "Stopped"),
+                    String.Empty
+                ));
+
+            this.BleAdapter
+                .WhenDeviceStatusChanged()
+                .Subscribe(x => this.WriteMsg(
+                     "Device " + x.Status,
+                     x.Name
+                ));
+
             this.Run = ReactiveCommand.Create(() =>
             {
                 if (this.scan == null)
@@ -28,7 +44,7 @@ namespace Samples.ViewModels.TestCases
                     this.scan = this.BleAdapter
                         .ScanWhenAdapterReady()
                         //.Where(x => x.AdvertisementData.ServiceUuids.Any(y => y.Equals(ScratchServiceUuid)))
-                        .Where(x => x.Device?.Name.StartsWith("bean", StringComparison.CurrentCultureIgnoreCase) ?? false)
+                        .Where(x => x.Device?.Name?.StartsWith("bean", StringComparison.CurrentCultureIgnoreCase) ?? false)
                         .Take(1)
                         .Select(x =>
                         {
@@ -36,19 +52,20 @@ namespace Samples.ViewModels.TestCases
                             x.Device.Connect().Subscribe();
                             return x.Device.GetKnownService(ScratchServiceUuid);
                         })
+                        .Where(x => x != null)
                         .Switch()
                         .Select(x => x.WhenCharacteristicDiscovered())
                         .Switch()
-                        .Select(x => x.SubscribeToNotifications())
+                        .Select(x =>
+                        {
+                            this.WriteMsg("Subscribing to characteristic", x.Uuid.ToString());
+                            return x.SubscribeToNotifications();
+                        })
                         .Switch()
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .Subscribe(x =>
-                            this.LogItems.Add(new LogItem
-                            {
-                                Text = x.Characteristic.Uuid.ToString(),
-                                Detail = UTF8Encoding.UTF8.GetString(x.Data, 0, x.Data.Length)
-                            })
-                        );
+                        .Subscribe(x => this.WriteMsg(
+                            x.Characteristic.Uuid.ToString(),
+                            UTF8Encoding.UTF8.GetString(x.Data, 0, x.Data.Length)
+                        ));
                 }
                 else
                 {
@@ -63,6 +80,15 @@ namespace Samples.ViewModels.TestCases
         public string Name { get; } = "PunchThrough Bean+ - Two Characteristic Subscriptions";
         public ICommand Run { get; }
         public ObservableCollection<LogItem> LogItems { get; } = new ObservableCollection<LogItem>();
+
+
+        void WriteMsg(string text, string detail) => Device.BeginInvokeOnMainThread(() =>
+            this.LogItems.Insert(0, new LogItem
+            {
+                Text = text,
+                Detail = detail
+            })
+        );
     }
 }
 /*
