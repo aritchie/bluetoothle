@@ -118,15 +118,12 @@ namespace Plugin.BluetoothLE
         }
 
 
+        // android does not have a find "1" service - it must discover all services.... seems shit
         public override IObservable<IGattService> GetKnownService(Guid serviceUuid) => this
-            .WhenStatusChanged()
-            .Where(x => x == ConnectionStatus.Connected)
-            .Select(_ =>
-            {
-                var ns = this.context.Gatt.GetService(serviceUuid.ToUuid());
-                var service = new GattService(this, this.context, ns);
-                return service;
-            });
+            .WhenServiceDiscovered()
+            .Where(x => x.Uuid.Equals(serviceUuid))
+            .Take(1)
+            .Select(x => x);
 
 
         public override void CancelConnection()
