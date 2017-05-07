@@ -8,11 +8,17 @@ namespace Plugin.BluetoothLE
 {
     public class GattDescriptor : AbstractGattDescriptor
     {
+        readonly GattCharacteristic characteristicObj;
         readonly CBDescriptor native;
 
+        public CBCharacteristic NativeCharacteristic => this.characteristicObj.NativeCharacteristic;
+        public CBService NativeService => this.characteristicObj.NativeService;
+        public CBPeripheral Peripheral => this.characteristicObj.Peripheral;
 
-        public GattDescriptor(IGattCharacteristic characteristic, CBDescriptor native) : base(characteristic, native.UUID.ToGuid())
+
+        public GattDescriptor(GattCharacteristic characteristic, CBDescriptor native) : base(characteristic, native.UUID.ToGuid())
         {
+            this.characteristicObj = characteristic;
             this.native = native;
         }
 
@@ -21,8 +27,6 @@ namespace Plugin.BluetoothLE
         {
             return Observable.Create<DescriptorResult>(ob =>
             {
-                var p = this.native.Characteristic.Service.Peripheral;
-
                 var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
                 {
                     if (!this.Equals(args.Descriptor))
@@ -41,9 +45,10 @@ namespace Plugin.BluetoothLE
                         }
                     }
                 });
-                p.UpdatedValue += handler;
-                p.ReadValue(this.native);
-                return () => p.UpdatedValue -= handler;
+                this.Peripheral.UpdatedValue += handler;
+                this.Peripheral.ReadValue(this.native);
+
+                return () => this.Peripheral.UpdatedValue -= handler;
             });
         }
 
@@ -52,8 +57,6 @@ namespace Plugin.BluetoothLE
         {
             return Observable.Create<DescriptorResult>(ob =>
             {
-                var p = this.native.Characteristic.Service.Peripheral;
-
                 var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
                 {
                     if (!this.Equals(args.Descriptor))
@@ -73,11 +76,11 @@ namespace Plugin.BluetoothLE
                     }
                 });
 
-                p.WroteDescriptorValue += handler;
                 var nsdata = NSData.FromArray(data);
-                p.WriteValue(nsdata, this.native);
+                this.Peripheral.WroteDescriptorValue += handler;
+                this.Peripheral.WriteValue(nsdata, this.native);
 
-                return () => p.WroteDescriptorValue -= handler;
+                return () => this.Peripheral.WroteDescriptorValue -= handler;
             });
         }
 
@@ -87,13 +90,13 @@ namespace Plugin.BluetoothLE
             if (!this.native.UUID.Equals(descriptor.UUID))
                 return false;
 
-            if (!this.native.Characteristic.UUID.Equals(descriptor.Characteristic.UUID))
+            if (!this.NativeCharacteristic.UUID.Equals(descriptor.Characteristic.UUID))
                 return false;
 
-            if (!this.native.Characteristic.Service.UUID.Equals(descriptor.Characteristic.Service.UUID))
+            if (!this.NativeService.UUID.Equals(descriptor.Characteristic.Service.UUID))
                 return false;
 
-			if (!this.native.Characteristic.Service.Peripheral.Identifier.Equals(descriptor.Characteristic.Service.Peripheral.Identifier))
+			if (!this.Peripheral.Identifier.Equals(descriptor.Characteristic.Service.Peripheral.Identifier))
                 return false;
 
             return true;

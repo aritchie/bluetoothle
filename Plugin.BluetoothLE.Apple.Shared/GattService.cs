@@ -9,12 +9,14 @@ namespace Plugin.BluetoothLE
 {
     public class GattService : AbstractGattService
     {
-        readonly CBService native;
+        public CBService Service { get; }
+        public CBPeripheral Peripherial { get; }
 
 
-        public GattService(IDevice device, CBService native) : base(device, native.UUID.ToGuid(), native.Primary)
+        public GattService(Device device, CBService native) : base(device, native.UUID.ToGuid(), native.Primary)
         {
-            this.native = native;
+            this.Peripherial = device.Peripheral;
+            this.Service = native;
         }
 
 
@@ -28,7 +30,7 @@ namespace Plugin.BluetoothLE
                     if (!this.Equals(args.Service))
                         return;
 
-                    foreach (var nch in this.native.Characteristics)
+                    foreach (var nch in this.Service.Characteristics)
                     {
                         var ch = new GattCharacteristic(this, nch);
                         if (!characteristics.ContainsKey(ch.Uuid))
@@ -41,10 +43,10 @@ namespace Plugin.BluetoothLE
                         ob.OnCompleted();
                 });
                 var uuids = characteristicIds.Select(x => x.ToCBUuid()).ToArray();
-                this.native.Peripheral.DiscoveredCharacteristic += handler;
-                this.native.Peripheral.DiscoverCharacteristics(uuids, this.native);
+                this.Peripherial.DiscoveredCharacteristic += handler;
+                this.Peripherial.DiscoverCharacteristics(uuids, this.Service);
 
-                return () => this.native.Peripheral.DiscoveredCharacteristic -= handler;
+                return () => this.Peripherial.DiscoveredCharacteristic -= handler;
             });
         }
 
@@ -57,13 +59,13 @@ namespace Plugin.BluetoothLE
                 var characteristics = new Dictionary<Guid, IGattCharacteristic>();
                 var handler = new EventHandler<CBServiceEventArgs>((sender, args) =>
                 {
-                    if (this.native.Characteristics == null)
+                    if (this.Service.Characteristics == null)
                         return;
-                    
+
                     if (!this.Equals(args.Service))
                         return;
 
-                    foreach (var nch in this.native.Characteristics)
+                    foreach (var nch in this.Service.Characteristics)
                     {
                         var ch = new GattCharacteristic(this, nch);
                         if (!characteristics.ContainsKey(ch.Uuid))
@@ -73,10 +75,10 @@ namespace Plugin.BluetoothLE
                         }
                     }
                 });
-                this.native.Peripheral.DiscoveredCharacteristic += handler;
-                this.native.Peripheral.DiscoverCharacteristics(this.native);
+                this.Peripherial.DiscoveredCharacteristic += handler;
+                this.Peripherial.DiscoverCharacteristics(this.Service);
 
-                return () => this.native.Peripheral.DiscoveredCharacteristic -= handler;
+                return () => this.Peripherial.DiscoveredCharacteristic -= handler;
             })
             .Replay()
             .RefCount();
@@ -87,10 +89,10 @@ namespace Plugin.BluetoothLE
 
         bool Equals(CBService service)
         {
-            if (!this.native.UUID.Equals(service.UUID))
+            if (!this.Service.UUID.Equals(service.UUID))
                 return false;
 
-			if (!this.native.Peripheral.Identifier.Equals(service.Peripheral.Identifier))
+			if (!this.Peripherial.Identifier.Equals(service.Peripheral.Identifier))
                 return false;
 
             return true;
@@ -109,7 +111,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override int GetHashCode() => this.native.GetHashCode();
+        public override int GetHashCode() => this.Service.GetHashCode();
         public override string ToString() => this.Uuid.ToString();
     }
 }

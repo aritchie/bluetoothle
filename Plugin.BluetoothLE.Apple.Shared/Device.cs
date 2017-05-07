@@ -23,6 +23,7 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public CBPeripheral Peripheral => this.peripheral;
         public override object NativeDevice => this.peripheral;
 
 #if __IOS__ || __TVOS__
