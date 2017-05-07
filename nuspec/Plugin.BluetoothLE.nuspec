@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Plugin.BluetoothLE</id>
-        <version>3.0.0-beta2</version>
+        <version>3.0.0-beta3</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -35,6 +35,8 @@ macOS
 [fix][ios] reconnection characteristic discovery NRE
 [fix][android] GetKnownDevice
 [fix][android] bad UUID parsing in ad data for service UUIDs
+[fix][android] multiple notification subscriptions
+[fix][ios] reconnection issues
 
 2.0.3
 [fix][android][ios] improved equality checks to help with android events
