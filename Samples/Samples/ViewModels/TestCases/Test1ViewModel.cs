@@ -56,16 +56,16 @@ namespace Samples.ViewModels.TestCases
                         .Switch()
                         .Select(x => x.WhenCharacteristicDiscovered())
                         .Switch()
-                        .Select(x =>
+                        .Subscribe(ch =>
                         {
-                            this.WriteMsg("Subscribing to characteristic", x.Uuid.ToString());
-                            return x.SubscribeToNotifications();
-                        })
-                        .Switch()
-                        .Subscribe(x => this.WriteMsg(
-                            x.Characteristic.Uuid.ToString(),
-                            UTF8Encoding.UTF8.GetString(x.Data, 0, x.Data.Length)
-                        ));
+                            this.WriteMsg("Subscribing to characteristic", ch.Uuid.ToString());
+                            ch
+                                .SubscribeToNotifications()
+                                .Subscribe(x => this.WriteMsg(
+                                x.Characteristic.Uuid.ToString(),
+                                UTF8Encoding.UTF8.GetString(x.Data, 0, x.Data.Length)
+                            ));
+                        });
                 }
                 else
                 {

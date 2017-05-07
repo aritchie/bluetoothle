@@ -98,6 +98,7 @@ namespace Plugin.BluetoothLE
             return true;
         }
 
+
         public override bool Equals(object obj)
         {
             var other = obj as GattService;
