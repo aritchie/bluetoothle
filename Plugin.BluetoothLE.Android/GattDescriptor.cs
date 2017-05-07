@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
+using System.Threading;
 using Android.Bluetooth;
 using Plugin.BluetoothLE.Internals;
 
@@ -25,10 +26,14 @@ namespace Plugin.BluetoothLE
         {
             return Observable.Create<DescriptorResult>(async ob =>
             {
+                var cancelSrc = new CancellationTokenSource();
+
                 var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
                 {
                     if (this.NativeEquals(args))
                     {
+                        this.context.Semaphore.Release();
+
                         if (!args.IsSuccessful)
                         {
                             ob.OnError(new ArgumentException($"Failed to write descriptor value - {this.Uuid} - {args.Status}"));
@@ -43,14 +48,20 @@ namespace Plugin.BluetoothLE
                         }
                     }
                 });
+
+                await this.context.Semaphore.WaitAsync(cancelSrc.Token);
                 this.context.Callbacks.DescriptorWrite += handler;
-                await this.context.Queue.Await(() =>
+                this.context.Marshall(() =>
                 {
                     this.native.SetValue(data);
                     this.context.Gatt.WriteDescriptor(this.native);
-                }, true);
+                });
 
-                return () => this.context.Callbacks.DescriptorWrite -= handler;
+                return () =>
+                {
+                    cancelSrc.Dispose();
+                    this.context.Callbacks.DescriptorWrite -= handler;
+                };
             });
         }
 
@@ -58,12 +69,16 @@ namespace Plugin.BluetoothLE
         public override IObservable<DescriptorResult> Read()
         {
             //this.native.Permissions == GattDescriptorPermission.Read
-            return Observable.Create<DescriptorResult>(ob =>
+            return Observable.Create<DescriptorResult>(async ob =>
             {
+                var cancelSrc = new CancellationTokenSource();
+
                 var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
                 {
                     if (args.Descriptor.Equals(this.native))
                     {
+                        this.context.Semaphore.Release();
+
                         if (!args.IsSuccessful)
                         {
                             ob.OnError(new ArgumentException($"Failed to read descriptor value {this.Uuid} - {args.Status}"));
@@ -78,9 +93,17 @@ namespace Plugin.BluetoothLE
                         }
                     }
                 });
+
+                await this.context.Semaphore.WaitAsync(cancelSrc.Token);
                 this.context.Callbacks.DescriptorRead += handler;
-                this.context.Gatt.ReadDescriptor(this.native);
-                return () => this.context.Callbacks.DescriptorRead -= handler;
+                this.context.Marshall(() =>
+                    this.context.Gatt.ReadDescriptor(this.native)
+                );
+                return () =>
+                {
+                    cancelSrc.Dispose();
+                    this.context.Callbacks.DescriptorRead -= handler;
+                };
             });
         }
 

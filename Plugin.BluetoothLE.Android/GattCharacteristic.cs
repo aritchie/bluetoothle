@@ -31,10 +31,12 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override async void WriteWithoutResponse(byte[] value)
+        public override void WriteWithoutResponse(byte[] value)
         {
             this.AssertWrite(false);
-            await this.RawWriteNoResponse(null, value);
+
+            // TODO: this needs to be synchonrized
+            this.RawWriteNoResponse(null, value);
         }
 
 
@@ -44,10 +46,15 @@ namespace Plugin.BluetoothLE
 
             return Observable.Create<CharacteristicResult>(async ob =>
             {
+                CancellationTokenSource cancelSrc = null;
+
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
                     if (this.NativeEquals(args))
                     {
+                        if (cancelSrc != null)
+                            this.context.Semaphore.Release();
+
                         Log.Write("Incoming Characteristic Write Event - " + args.Characteristic.Uuid);
 
                         if (!args.IsSuccessful)
@@ -66,16 +73,24 @@ namespace Plugin.BluetoothLE
 
                 if (this.Properties.HasFlag(CharacteristicProperties.Write))
                 {
+                    cancelSrc = new CancellationTokenSource();
+
                     Log.Write("Hooking for write response - " + this.Uuid);
+
+                    await this.context.Semaphore.WaitAsync(cancelSrc.Token);
                     this.context.Callbacks.CharacteristicWrite += handler;
-                    await this.RawWriteWithResponse(value);
+                    this.RawWriteWithResponse(value);
                 }
                 else
                 {
                     Log.Write("Write with No Response - " + this.Uuid);
-                    await this.RawWriteNoResponse(ob, value);
+                    this.RawWriteNoResponse(ob, value);
                 }
-                return () => this.context.Callbacks.CharacteristicWrite -= handler;
+                return () =>
+                {
+                    cancelSrc?.Dispose();
+                    this.context.Callbacks.CharacteristicWrite -= handler;
+                };
             });
         }
 
@@ -86,10 +101,14 @@ namespace Plugin.BluetoothLE
 
             return Observable.Create<CharacteristicResult>(async ob =>
             {
+                var cancelSrc = new CancellationTokenSource();
+
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
                     if (this.NativeEquals(args))
                     {
+                        this.context.Semaphore.Release();
+
                         if (!args.IsSuccessful)
                         {
                             ob.OnError(new ArgumentException($"Failed to read characteristic - {args.Status}"));
@@ -105,7 +124,11 @@ namespace Plugin.BluetoothLE
                     }
                 });
                 this.context.Callbacks.CharacteristicRead += handler;
-                await this.context.Queue.Await(() => this.context.Gatt.ReadCharacteristic(this.native), true);
+                await this.context.Semaphore.WaitAsync(cancelSrc.Token);
+
+                this.context.Marshall(() =>
+                    this.context.Gatt.ReadCharacteristic(this.native)
+                );
 
                 return () => this.context.Callbacks.CharacteristicRead -= handler;
             });
@@ -239,17 +262,17 @@ namespace Plugin.BluetoothLE
         }
 
 
-        Task RawWriteWithResponse(byte[] bytes)
-            => this.context.Queue.Await(() =>
+        void RawWriteWithResponse(byte[] bytes)
+            => this.context.Marshall(() =>
             {
                 this.native.SetValue(bytes);
                 this.native.WriteType = GattWriteType.Default;
                 this.context.Gatt.WriteCharacteristic(this.native);
-            }, true);
+            });
 
 
-        Task RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
-            => this.context.Queue.Await(() =>
+        void RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
+            => this.context.Marshall(() =>
             {
 
                 this.native.SetValue(bytes);
@@ -260,6 +283,6 @@ namespace Plugin.BluetoothLE
                 var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
                 this.WriteSubject.OnNext(result);
                 ob?.Respond(result);
-            }, true);
+            });
     }
 }

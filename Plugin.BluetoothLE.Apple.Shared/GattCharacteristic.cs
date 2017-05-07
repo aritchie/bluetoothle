@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using System.Threading;
 using CoreBluetooth;
 using Foundation;
 
@@ -36,6 +37,8 @@ namespace Plugin.BluetoothLE
 
             return Observable.Create<CharacteristicResult>(ob =>
             {
+                var cancelSrc = new CancellationTokenSource();
+
                 var data = NSData.FromArray(value);
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {

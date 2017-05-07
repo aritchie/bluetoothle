@@ -1,5 +1,6 @@
 using System;
-using System.Collections.Generic;
+using System.Threading;
+using Android.App;
 using Android.Bluetooth;
 using Android.Bluetooth.LE;
 using Android.OS;
@@ -11,6 +12,8 @@ namespace Plugin.BluetoothLE.Internals
     public class BleContext
     {
         public GattCallbacks Callbacks { get; } = new GattCallbacks();
+
+
         readonly BluetoothManager manager;
         LollipopScanCallback newCallback;
         PreLollipopScanCallback oldCallback;
@@ -72,6 +75,7 @@ namespace Plugin.BluetoothLE.Internals
                 this.newCallback
             );
         }
+
 
 
         protected virtual ScanMode ToNative(BleScanType scanType)

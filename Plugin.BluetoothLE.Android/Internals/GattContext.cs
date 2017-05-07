@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Android.App;
 using Android.Bluetooth;
 
@@ -31,9 +32,23 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        public ActionQueue Queue { get; } = new ActionQueue();
+
+        public SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1, 1);
         public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
+
+
+        public void Marshall(Action action)
+        {
+            if (AndroidConfig.WriteOnMainThread)
+            {
+                Application.SynchronizationContext.Post(_ => action(), null);
+            }
+            else
+            {
+                action();
+            }
+        }
 
 
         public bool Connect(GattConnectionConfig config)
