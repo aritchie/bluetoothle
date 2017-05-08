@@ -22,7 +22,7 @@ namespace Plugin.BluetoothLE
 
 
 #if __IOS__ || __TVOS__
-        public override DeviceFeatures Features => DeviceFeatures.PairingRequests;
+        public override DeviceFeatures Features => DeviceFeatures.MtuRequests;
 #else
             // TODO: MAC
         public override DeviceFeatures Features => DeviceFeatures.None;
