@@ -27,7 +27,7 @@ namespace Plugin.BluetoothLE
         public override object NativeDevice => this.peripheral;
 
 #if __IOS__ || __TVOS__
-        public override DeviceFeatures Features => DeviceFeatures.PairingRequests;
+        public override DeviceFeatures Features => DeviceFeatures.MtuRequests;
 #else
             // TODO: MAC
         public override DeviceFeatures Features => DeviceFeatures.None;
