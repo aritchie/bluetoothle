@@ -8,7 +8,7 @@ using Plugin.BluetoothLE.Server;
 using Samples.Services;
 using Device = Xamarin.Forms.Device;
 using Command = Xamarin.Forms.Command;
-
+using ReactiveUI.Fody.Helpers;
 
 namespace Samples.ViewModels.Le
 {
@@ -59,11 +59,11 @@ namespace Samples.ViewModels.Le
         }
 
 
-        public string ServerText { get; set; } = "Start Server";
-        public string CharacteristicValue { get; set; }
-        public string DescriptorValue { get; set; }
-        public string Output { get; private set; }
-        public AdapterStatus Status { get; set; }
+        [Reactive] public string ServerText { get; set; } = "Start Server";
+        [Reactive] public string CharacteristicValue { get; set; }
+        [Reactive] public string DescriptorValue { get; set; }
+        [Reactive] public string Output { get; private set; }
+        [Reactive] public AdapterStatus Status { get; set; }
         public ICommand ToggleServer { get; }
         public ICommand Clear { get; }
 
@@ -149,7 +149,7 @@ namespace Samples.ViewModels.Le
                         this.Dialogs.Alert("Error Starting GATT Server - " + ex);
                         return Observable.Return(false);
                     })
-                    .Subscribe(started =>
+                    .Subscribe(started => Device.BeginInvokeOnMainThread(() => 
                     {
                         if (!started)
                         {
@@ -172,7 +172,7 @@ namespace Samples.ViewModels.Le
                                 }
                             }
                         }
-                    });
+                    }));
 
                 this.server
                     .WhenAnyCharacteristicSubscriptionChanged()
