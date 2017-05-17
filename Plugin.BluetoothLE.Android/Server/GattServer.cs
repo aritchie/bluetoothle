@@ -38,25 +38,26 @@ namespace Plugin.BluetoothLE.Server
         IObservable<bool> runningOb;
         public override IObservable<bool> WhenRunningChanged()
         {
-            this.runningOb = this.runningOb ?? Observable.Create<bool>(ob =>
-            {
-                this.adCallbacks.Failed = ob.OnError;
-                this.adCallbacks.Started = () => ob.OnNext(true);
-                var sub = this.runningSubj
-                    .AsObservable()
-                    .Subscribe(x => ob.OnNext(false));
+            return this.runningSubj;
+            //this.runningOb = this.runningOb ?? Observable.Create<bool>(ob =>
+            //{
+            //    this.adCallbacks.Failed = ob.OnError;
+            //    this.adCallbacks.Started = () => ob.OnNext(true);
+            //    var sub = this.runningSubj
+            //        .AsObservable()
+            //        .Subscribe(x => ob.OnNext);
 
-                return () =>
-                {
-                    sub.Dispose();
-                    this.adCallbacks.Failed = null;
-                    this.adCallbacks.Started = null;
-                };
-            })
-            .Publish()
-            .RefCount();
+            //    return () =>
+            //    {
+            //        sub.Dispose();
+            //        this.adCallbacks.Failed = null;
+            //        this.adCallbacks.Started = null;
+            //    };
+            //})
+            //.Publish()
+            //.RefCount();
 
-            return this.runningOb;
+            //return this.runningOb;
         }
 
 
@@ -69,6 +70,7 @@ namespace Plugin.BluetoothLE.Server
                 this.StartAdvertising(adData);
 
             this.StartGatt();
+            this.runningSubj.OnNext(true);
             this.isRunning = true;
             return Task.CompletedTask;
         }
