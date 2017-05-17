@@ -74,17 +74,15 @@ namespace Plugin.BluetoothLE.Server
             if (this.manager.State != CBPeripheralManagerState.PoweredOn)
                 throw new ArgumentException("Invalid State - " + this.manager.State);
 
-            if (adData != null)
+
+            this.manager.StartAdvertising(new StartAdvertisingOptions
             {
-                this.manager.StartAdvertising(new StartAdvertisingOptions
-                {
-                    LocalName = adData.LocalName,
-                    ServicesUUID = adData
-                        .ServiceUuids
-                        .Select(x => CBUUID.FromString(x.ToString()))
-                        .ToArray()
-                });
-            }
+                LocalName = adData.LocalName,
+                ServicesUUID = adData
+                    .ServiceUuids
+                    .Select(x => CBUUID.FromString(x.ToString()))
+                    .ToArray()
+            });
 
             this.services
                 .Cast<IIosGattService>()

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Foundation;
 using CoreBluetooth;
 
@@ -26,27 +25,39 @@ namespace Plugin.BluetoothLE
 
         public static CBCharacteristicProperties ToNative(this CharacteristicProperties properties)
         {
-            var native = ConvertFlags<CBCharacteristicProperties>(properties);
-            return native;
-        }
+            var nativeProps = CBCharacteristicProperties.Read;
 
+            if (!properties.HasFlag(CharacteristicProperties.Read))
+                nativeProps &= ~CBCharacteristicProperties.Read;
+            
+            if (properties.HasFlag(CharacteristicProperties.AuthenticatedSignedWrites))
+                nativeProps |= CBCharacteristicProperties.AuthenticatedSignedWrites;
 
-        static T ConvertFlags<T>(Enum flags1)
-        {
-            if (!typeof(T).IsEnum)
-                throw new ArgumentException(typeof(T) + " is not an enum!");
+            if (properties.HasFlag(CharacteristicProperties.Broadcast))
+                nativeProps |= CBCharacteristicProperties.Broadcast;
 
-            var values = new List<string>();
-            var allValues = Enum.GetValues(flags1.GetType());
-            foreach (var all in allValues)
-            {
-                if (flags1.HasFlag((Enum)all))
-                    values.Add(all.ToString());
-            }
-            var raw = String.Join(",", values.ToArray());
-            var result = (T)Enum.Parse(typeof(T), raw);
+            if (properties.HasFlag(CharacteristicProperties.ExtendedProperties))
+                nativeProps |= CBCharacteristicProperties.ExtendedProperties;
 
-            return result;
+            if (properties.HasFlag(CharacteristicProperties.Indicate))
+                nativeProps |= CBCharacteristicProperties.Indicate;
+
+            if (properties.HasFlag(CharacteristicProperties.IndicateEncryptionRequired))
+                nativeProps |= CBCharacteristicProperties.IndicateEncryptionRequired;
+
+            if (properties.HasFlag(CharacteristicProperties.Notify))
+                nativeProps |= CBCharacteristicProperties.Notify;
+
+            if (properties.HasFlag(CharacteristicProperties.NotifyEncryptionRequired))
+                nativeProps |= CBCharacteristicProperties.NotifyEncryptionRequired;
+
+            if (properties.HasFlag(CharacteristicProperties.Write))
+                nativeProps |= CBCharacteristicProperties.Write;
+
+            if (properties.HasFlag(CharacteristicProperties.WriteNoResponse))
+                nativeProps |= CBCharacteristicProperties.WriteWithoutResponse;
+
+            return nativeProps;
         }
     }
 }

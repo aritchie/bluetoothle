@@ -77,7 +77,7 @@ namespace Samples.ViewModels.TestCases
         }
 
 
-        public string Name { get; } = "PunchThrough Bean+ - Two Characteristic Subscriptions";
+        public string Name { get; } = "PunchThrough Bean+ - Five Characteristic Subscriptions";
         public ICommand Run { get; }
         public ObservableCollection<LogItem> LogItems { get; } = new ObservableCollection<LogItem>();
 
