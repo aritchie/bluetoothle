@@ -8,6 +8,11 @@ namespace Plugin.BluetoothLE
     public interface IAdapter
     {
         /// <summary>
+        /// The detected name of the device
+        /// </summary>
+        string DeviceName { get; }
+
+        /// <summary>
         /// Create a BLE server
         /// </summary>
         /// <returns></returns>

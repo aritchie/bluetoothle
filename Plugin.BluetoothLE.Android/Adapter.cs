@@ -29,6 +29,7 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public string DeviceName => "Default Bluetooth Device";
         public AdapterFeatures Features => AdapterFeatures.All;
         public bool IsScanning => this.manager.Adapter.IsDiscovering;
         public IGattServer CreateGattServer() => new GattServer();

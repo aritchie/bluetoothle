@@ -26,6 +26,8 @@ namespace Plugin.BluetoothLE
             this.scanStatusChanged = new Subject<bool>();
         }
 
+
+        public string DeviceName => "Default Bluetooth Device";
 #if __IOS__
         public AdapterFeatures Features
         {
