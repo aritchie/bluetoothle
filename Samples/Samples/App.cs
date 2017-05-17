@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Acr;
 using Autofac;
+using Plugin.BluetoothLE;
 using Samples.Pages;
+using Samples.Pages.Le;
 using Samples.Services;
 using Xamarin.Forms;
 
@@ -18,13 +20,17 @@ namespace Samples
         public App(IContainer container)
         {
             Container = container;
-            var page = container.Resolve<MainPage>();
-            this.MainPage = new NavigationPage(page);
-
-            Plugin.BluetoothLE.Log.Out = x =>
+            if (CrossBleAdapter.AdapterScanner == null)
             {
-                Debug.WriteLine(x);
-            };
+                var page = container.Resolve<MainPage>();
+                this.MainPage = new NavigationPage(page);
+            }
+            else
+            {
+                this.MainPage = new NavigationPage(new AdapterListPage());
+            }
+
+            Plugin.BluetoothLE.Log.Out = x => Debug.WriteLine(x);
         }
 
 

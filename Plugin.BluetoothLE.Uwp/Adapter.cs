@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Foundation;
 using Windows.Devices.Radios;
@@ -16,23 +17,47 @@ namespace Plugin.BluetoothLE
     //BluetoothAdapter.IsPeripheralRoleSupported
     public class Adapter : IAdapter
     {
-        readonly BleContext context;
-        readonly Radio radio;
-        readonly Subject<bool> scanStatusSubject;
+        readonly BleContext context = new BleContext();
+        readonly Subject<bool> scanStatusSubject = new Subject<bool>();
+        BluetoothAdapter native;
+        Radio radio;
 
 
-        public Adapter(Radio bluetoothRadio)
+        public Adapter()
         {
-            if (bluetoothRadio.Kind != RadioKind.Bluetooth)
-                throw new ArgumentException("Invalid radio type");
-
-            this.scanStatusSubject = new Subject<bool>();
-            this.context = new BleContext();
-            this.radio = bluetoothRadio;
         }
 
 
-        public AdapterFeatures Features => AdapterFeatures.All;
+        public Adapter(BluetoothAdapter native, Radio radio)
+        {
+            this.native = native;
+            this.radio = radio;
+        }
+
+
+        public string DeviceName => this.radio?.Name;
+
+
+        public AdapterFeatures Features
+        {
+            get
+            {
+                if (!this.native.IsLowEnergySupported)
+                    return AdapterFeatures.None;
+
+                var features = AdapterFeatures.AllClient;
+                if (!this.native.IsCentralRoleSupported)
+                    features &= ~AdapterFeatures.AllClient;
+
+                if (this.native.IsPeripheralRoleSupported)
+                    features |= AdapterFeatures.AllServer;
+
+                if (this.native.IsCentralRoleSupported || this.native.IsPeripheralRoleSupported)
+                    features |= AdapterFeatures.AllControls;
+
+                return features;
+            }
+        }
 
 
         public IGattServer CreateGattServer() => new GattServer();
@@ -57,6 +82,9 @@ namespace Plugin.BluetoothLE
         {
             get
             {
+                if (this.radio == null)
+                    return AdapterStatus.Unknown;
+
                 switch (this.radio.State)
                 {
                     case RadioState.Disabled:
@@ -86,11 +114,9 @@ namespace Plugin.BluetoothLE
 
 
         public IObservable<bool> WhenScanningStatusChanged()
-        {
-            return this.scanStatusSubject
+            => this.scanStatusSubject
                 .AsObservable()
                 .StartWith(this.IsScanning);
-        }
 
 
         public IObservable<IScanResult> Scan(ScanConfig config)
@@ -98,8 +124,10 @@ namespace Plugin.BluetoothLE
             if (this.IsScanning)
                 throw new ArgumentException("There is already an active scan");
 
-            var observer = Observable.Create<IScanResult>(ob =>
+            var observer = Observable.Create<IScanResult>(async ob =>
             {
+                await this.EnsureRadio();
+
                 var sub = this.ScanListen().Subscribe(ob.OnNext);
                 this.IsScanning = true; // this will actually fire off the scanner
 
@@ -177,12 +205,13 @@ namespace Plugin.BluetoothLE
         IObservable<AdapterStatus> statusOb;
         public IObservable<AdapterStatus> WhenStatusChanged()
         {
-            this.statusOb = this.statusOb ?? Observable.Create<AdapterStatus>(ob =>
+            this.statusOb = this.statusOb ?? Observable.Create<AdapterStatus>(async ob =>
             {
                 ob.OnNext(this.Status);
                 var handler = new TypedEventHandler<Radio, object>((sender, args) =>
                     ob.OnNext(this.Status)
                 );
+                await this.EnsureRadio();
                 this.radio.StateChanged += handler;
 
                 return () => this.radio.StateChanged -= handler;
@@ -227,5 +256,18 @@ namespace Plugin.BluetoothLE
 
 
         public IObservable<IDevice> WhenDeviceStateRestored() => Observable.Empty<IDevice>();
+
+
+        async Task EnsureRadio()
+        {
+            if (this.radio != null)
+                return;
+
+            this.native = await BluetoothAdapter.GetDefaultAsync();
+            if (this.native == null)
+                throw new ArgumentException("No bluetooth adapter found");
+
+            this.radio = await this.native.GetRadioAsync();
+        }
     }
 }

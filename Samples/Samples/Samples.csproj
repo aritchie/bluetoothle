@@ -39,6 +39,9 @@
     <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="CoreModule.cs" />
     <Compile Include="Models\BleRecord.cs" />
+    <Compile Include="Pages\Le\AdapterListPage.xaml.cs">
+      <DependentUpon>AdapterListPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\Le\DevicePage.xaml.cs">
       <DependentUpon>DevicePage.xaml</DependentUpon>
     </Compile>
@@ -228,6 +231,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Pages\TestCases\Test1Page.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Pages\Le\AdapterListPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </EmbeddedResource>

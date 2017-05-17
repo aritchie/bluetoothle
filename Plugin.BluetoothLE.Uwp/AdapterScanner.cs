@@ -1,29 +1,26 @@
 ﻿using System;
-using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Windows.Devices.Radios;
+using Windows.Devices.Bluetooth;
+using Windows.Devices.Enumeration;
 
 
 namespace Plugin.BluetoothLE
 {
     public class AdapterScanner : IAdapterScanner
     {
-        public IObservable<IAdapter> FindAdapters()
-            => Observable.Create<IAdapter>(async ob =>
+        public IObservable<IAdapter> FindAdapters() => Observable.Create<IAdapter>(async ob =>
+        {
+            var devices = await DeviceInformation.FindAllAsync(BluetoothAdapter.GetDeviceSelector());
+            foreach (var dev in devices)
             {
-                var radios = await Radio.GetRadiosAsync();
-                radios
-                    .Where(x => x.Kind == RadioKind.Bluetooth)
-                    .ToList()
-                    .ForEach(x =>
-                    {
-                        var adapter = new Adapter(x);
-                        ob.OnNext(adapter);
-                    });
-
-                ob.OnCompleted();
-                return Disposable.Empty;
-            });
+                var native = await BluetoothAdapter.FromIdAsync(dev.Id);
+                var radio = await native.GetRadioAsync();
+                var adapter = new Adapter(native, radio);
+                ob.OnNext(adapter);
+            }
+            ob.OnCompleted();
+            return Disposable.Empty;
+        });
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using Windows.Devices.Bluetooth;
@@ -20,50 +19,36 @@ namespace Plugin.BluetoothLE
 
 
         public IDevice GetDevice(BluetoothLEDevice native)
-        {
-            return this.devices.GetOrAdd(
+            => this.devices.GetOrAdd(
                 native.BluetoothAddress,
                 x => new Device(this, native)
             );
-        }
 
 
         public IDevice GetDevice(ulong bluetoothAddress)
         {
-            IDevice device = null;
-            this.devices.TryGetValue(bluetoothAddress, out device);
+            this.devices.TryGetValue(bluetoothAddress, out var device);
             return device;
         }
 
 
-        public IEnumerable<IDevice> GetConnectedDevices()
-        {
-            return this.devices
-                .Where(x => x.Value.Status == ConnectionStatus.Connected)
-                .Select(x => x.Value)
-                .ToList();
-        }
+        public IEnumerable<IDevice> GetConnectedDevices() => this.devices
+            .Where(x => x.Value.Status == ConnectionStatus.Connected)
+            .Select(x => x.Value)
+            .ToList();
 
 
-        public void Clear()
-        {
-            IDevice _;
-            this.devices
-                .Where(x => x.Value.Status != ConnectionStatus.Connected)
-                .ToList()
-                .ForEach(x => this.devices.TryRemove(x.Key, out _));
-        }
+        public void Clear() => this.devices
+            .Where(x => x.Value.Status != ConnectionStatus.Connected)
+            .ToList()
+            .ForEach(x => this.devices.TryRemove(x.Key, out _));
 
 
-        public IList<IDevice> GetDiscoveredDevices()
-        {
-            return this.devices.Values.ToList();
-        }
+        public IList<IDevice> GetDiscoveredDevices() => this.devices.Values.ToList();
 
 
         public IObservable<DeviceInformation> CreateDeviceWatcher()
-        {
-            return Observable.Create<DeviceInformation>(ob =>
+            => Observable.Create<DeviceInformation>(ob =>
             {
                 var deviceWatcher = DeviceInformation.CreateWatcher(AqsFilter, requestProperites, DeviceInformationKind.AssociationEndpoint);
                 var addHandler = new TypedEventHandler<DeviceWatcher, DeviceInformation>(
@@ -88,12 +73,10 @@ namespace Plugin.BluetoothLE
                     //deviceWatcher.Removed -= remHandler;
                 };
             });
-        }
 
 
         public IObservable<BluetoothLEAdvertisementReceivedEventArgs> CreateAdvertisementWatcher()
-        {
-            return Observable.Create<BluetoothLEAdvertisementReceivedEventArgs>(ob =>
+            => Observable.Create<BluetoothLEAdvertisementReceivedEventArgs>(ob =>
             {
                 var adWatcher = new BluetoothLEAdvertisementWatcher
                 {
@@ -111,6 +94,5 @@ namespace Plugin.BluetoothLE
                     adWatcher.Received -= handler;
                 };
             });
-        }
     }
 }
