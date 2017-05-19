@@ -150,13 +150,19 @@ namespace Plugin.BluetoothLE.Server
 
             foreach (var service in this.Services.OfType<IDroidGattService>())
             {
+                if (!this.context.Server.AddService(service.Native))
+                    throw new ArgumentException($"Could not add service {service.Uuid} to server");
+
                 foreach (var characteristic in service.Characteristics.OfType<IDroidGattCharacteristic>())
                 {
+                    if (!service.Native.AddCharacteristic(characteristic.Native))
+                        throw new ArgumentException($"Could not add characteristic '{characteristic.Uuid}' to service '{service.Uuid}'");
+
                     foreach (var descriptor in characteristic.Descriptors.OfType<IDroidGattDescriptor>())
                     {
-                        characteristic.Native.AddDescriptor(descriptor.Native);
+                        if (!characteristic.Native.AddDescriptor(descriptor.Native))
+                            throw new ArgumentException($"Could not add descriptor '{descriptor.Uuid}' to characteristic '{characteristic.Uuid}'");
                     }
-                    service.Native.AddCharacteristic(characteristic.Native);
                 }
                 this.server.AddService(service.Native);
             }
