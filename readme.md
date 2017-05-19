@@ -20,6 +20,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS
 * Monitor adapter status (and control it on android)
 * Open Bluetooth settings screen
 * Persistent connections
+* Deals with the Android threading and defect headaches
 * Discover services, characteristics, & descriptors
 * Read, write, & receive notifications for characteristics
 * Support for reliable write transactions
