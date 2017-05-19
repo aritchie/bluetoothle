@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Droid", "Samples\Samples.Droid\Samples.Droid.csproj", "{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}"
 EndProject
@@ -689,7 +689,6 @@ Global
 		{08ACA868-EE1D-4928-A4C3-D7B991CE19DF}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{08ACA868-EE1D-4928-A4C3-D7B991CE19DF}.Debug|x86.Build.0 = Debug|Any CPU
 		{08ACA868-EE1D-4928-A4C3-D7B991CE19DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{08ACA868-EE1D-4928-A4C3-D7B991CE19DF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{08ACA868-EE1D-4928-A4C3-D7B991CE19DF}.Release|ARM.ActiveCfg = Release|Any CPU
 		{08ACA868-EE1D-4928-A4C3-D7B991CE19DF}.Release|ARM.Build.0 = Release|Any CPU
 		{08ACA868-EE1D-4928-A4C3-D7B991CE19DF}.Release|iPhone.ActiveCfg = Release|Any CPU

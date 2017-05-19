@@ -109,12 +109,10 @@ namespace Plugin.BluetoothLE
 #endif
 
 
-        public IObservable<bool> WhenScanningStatusChanged()
-        {
-            return this.scanStatusChanged
+        public IObservable<bool> WhenScanningStatusChanged() =>
+            this.scanStatusChanged
                 .AsObservable()
                 .StartWith(this.IsScanning);
-        }
 
 
         public IObservable<IScanResult> Scan(ScanConfig config)
