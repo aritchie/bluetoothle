@@ -18,15 +18,14 @@ namespace Plugin.BluetoothLE
 #endif
 
         static IAdapterScanner scanner;
-
-        /// <summary>
-        /// Only supported on UWP - will be null on other platforms
-        /// </summary>
         public static IAdapterScanner AdapterScanner
         {
             get
             {
-#if WINDOWS_UWP || MAC
+#if BAIT
+                if (current == null)
+                    throw new ArgumentException("[Plugin.BluetoothLE] No platform plugin found.  Did you install the nuget package in your app project as well?");
+#else
                 scanner = scanner ?? new AdapterScanner();
 #endif
                 return scanner;

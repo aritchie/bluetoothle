@@ -37,6 +37,7 @@
     <Compile Include="..\Plugin.BluetoothLE.Shared\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AbstractAdapter.cs" />
     <Compile Include="AbstractDevice.cs" />
     <Compile Include="AbstractGattCharacteristic.cs" />
     <Compile Include="AbstractGattService.cs" />

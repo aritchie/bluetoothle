@@ -9,6 +9,9 @@ namespace Plugin.BluetoothLE
 {
     public class AdapterScanner : IAdapterScanner
     {
+        public bool IsSupported => true;
+
+
         public IObservable<IAdapter> FindAdapters() => Observable.Create<IAdapter>(async ob =>
         {
             var devices = await DeviceInformation.FindAllAsync(BluetoothAdapter.GetDeviceSelector());

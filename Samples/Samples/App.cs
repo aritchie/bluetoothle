@@ -20,16 +20,15 @@ namespace Samples
         public App(IContainer container)
         {
             Container = container;
-            if (CrossBleAdapter.AdapterScanner == null)
+            if (CrossBleAdapter.AdapterScanner.IsSupported)
+            {
+                this.MainPage = new NavigationPage(new AdapterListPage());
+            }
+            else
             {
                 var page = container.Resolve<MainPage>();
                 this.MainPage = new NavigationPage(page);
             }
-            else
-            {
-                this.MainPage = new NavigationPage(new AdapterListPage());
-            }
-
             Plugin.BluetoothLE.Log.Out = x => Debug.WriteLine(x);
         }
 
