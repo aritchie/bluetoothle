@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
+using Acr.UserDialogs;
 using Plugin.BluetoothLE;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -15,7 +17,9 @@ namespace Samples.ViewModels.Le
         readonly IAdapterScanner scanner;
 
 
-        public AdapterListViewModel(IAdapterScanner scanner, IViewModelManager vmManager)
+        public AdapterListViewModel(IAdapterScanner scanner,
+                                    IUserDialogs dialogs,
+                                    IViewModelManager vmManager)
         {
             this.scanner = scanner;
             this.Select = ReactiveCommand.CreateFromTask<IAdapter>(async adapter =>
@@ -31,7 +35,21 @@ namespace Samples.ViewModels.Le
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(
                         this.Adapters.Add,
-                        () => this.IsBusy = false
+                        async () =>
+                        {
+                            this.IsBusy = false;
+                            switch (this.Adapters.Count)
+                            {
+                                case 0:
+                                    dialogs.Alert("No BluetoothLE Adapters Found");
+                                    break;
+
+                                case 1:
+                                    CrossBleAdapter.Current = this.Adapters.First();
+                                    await vmManager.Push<MainViewModel>();
+                                    break;
+                            }
+                        }
                     );
             },
             this.WhenAny(x => x.IsBusy, x => !x.Value));
