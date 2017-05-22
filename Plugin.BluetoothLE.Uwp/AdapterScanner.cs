@@ -20,11 +20,13 @@ namespace Plugin.BluetoothLE
                 Log.Write($"Device Found: {dev.Name} ({dev.Kind} - {dev.Id})");
 
                 var native = await BluetoothAdapter.FromIdAsync(dev.Id);
-                var radio = await native.GetRadioAsync();
-                var adapter = new Adapter(native, radio);
-                Log.Write("Publishing adapter");
-
-                ob.OnNext(adapter);
+                if (native.IsLowEnergySupported)
+                {
+                    var radio = await native.GetRadioAsync();
+                    var adapter = new Adapter(native, radio);
+                    Log.Write("Publishing adapter");
+                    ob.OnNext(adapter);
+                }
             }
             ob.OnCompleted();
             return Disposable.Empty;
