@@ -15,7 +15,7 @@ using Plugin.BluetoothLE.Server;
 namespace Plugin.BluetoothLE
 {
     //BluetoothAdapter.IsPeripheralRoleSupported
-    public class Adapter : IAdapter
+    public class Adapter : AbstractAdapter
     {
         readonly BleContext context = new BleContext();
         readonly Subject<bool> scanStatusSubject = new Subject<bool>();
@@ -35,10 +35,10 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public string DeviceName => this.radio?.Name;
+        public override string DeviceName => this.radio?.Name;
 
 
-        public AdapterFeatures Features
+        public override AdapterFeatures Features
         {
             get
             {
@@ -60,14 +60,14 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IGattServer CreateGattServer() => new GattServer();
+        public override IGattServer CreateGattServer() => new GattServer();
 
 
         bool isScanning = false;
-        public bool IsScanning
+        public override bool IsScanning
         {
             get => this.isScanning;
-            private set
+            protected set
             {
                 if (this.isScanning == value)
                     return;
@@ -78,7 +78,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public AdapterStatus Status
+        public override AdapterStatus Status
         {
             get
             {
@@ -101,25 +101,16 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IDevice GetKnownDevice(Guid deviceId)
-        {
-            throw new NotImplementedException();
-        }
+        public override IEnumerable<IDevice> GetConnectedDevices() => this.context.GetConnectedDevices();
 
 
-
-        static readonly IList<IDevice> NullList = new List<IDevice>();
-        public IEnumerable<IDevice> GetPairedDevices() => NullList;
-        public IEnumerable<IDevice> GetConnectedDevices() => this.context.GetConnectedDevices();
-
-
-        public IObservable<bool> WhenScanningStatusChanged()
+        public override IObservable<bool> WhenScanningStatusChanged()
             => this.scanStatusSubject
                 .AsObservable()
                 .StartWith(this.IsScanning);
 
 
-        public IObservable<IScanResult> Scan(ScanConfig config)
+        public override IObservable<IScanResult> Scan(ScanConfig config)
         {
             if (this.IsScanning)
                 throw new ArgumentException("There is already an active scan");
@@ -147,7 +138,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IScanResult> scanListenOb;
-        public IObservable<IScanResult> ScanListen()
+        public override IObservable<IScanResult> ScanListen()
         {
             IDisposable adWatcher = null;
             IDisposable devWatcher = null;
@@ -203,7 +194,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<AdapterStatus> statusOb;
-        public IObservable<AdapterStatus> WhenStatusChanged()
+        public override IObservable<AdapterStatus> WhenStatusChanged()
         {
             this.statusOb = this.statusOb ?? Observable.Create<AdapterStatus>(async ob =>
             {
@@ -224,7 +215,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IDevice> deviceStatusOb;
-        public IObservable<IDevice> WhenDeviceStatusChanged()
+        public override IObservable<IDevice> WhenDeviceStatusChanged()
         {
             this.deviceStatusOb = this.deviceStatusOb ?? Observable.Create<IDevice>(ob =>
             {
@@ -244,18 +235,15 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public async void OpenSettings()
+        public override async void OpenSettings()
             => await Launcher.LaunchUriAsync(new Uri("ms-settings:bluetooth"));
 
 
-        public async void SetAdapterState(bool enable)
+        public override async void SetAdapterState(bool enable)
         {
             var state = enable ? RadioState.On : RadioState.Off;
             await this.radio.SetStateAsync(state);
         }
-
-
-        public IObservable<IDevice> WhenDeviceStateRestored() => Observable.Empty<IDevice>();
 
 
         async Task EnsureRadio()

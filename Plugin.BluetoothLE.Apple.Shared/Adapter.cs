@@ -14,7 +14,7 @@ using ObjCRuntime;
 
 namespace Plugin.BluetoothLE
 {
-    public class Adapter : IAdapter
+    public class Adapter : AbstractAdapter
     {
         readonly BleContext context;
         readonly Subject<bool> scanStatusChanged;
@@ -27,9 +27,9 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public string DeviceName => "Default Bluetooth Device";
+        public override string DeviceName => "Default Bluetooth Device";
 #if __IOS__
-        public AdapterFeatures Features
+        public override AdapterFeatures Features
         {
             get
             {
@@ -40,14 +40,14 @@ namespace Plugin.BluetoothLE
             }
         }
 #else
-        public AdapterFeatures Features => AdapterFeatures.None;
+        public override AdapterFeatures Features => AdapterFeatures.None;
 #endif
 
 
-        public IGattServer CreateGattServer() => new GattServer();
+        public override IGattServer CreateGattServer() => new GattServer();
 
 
-        public AdapterStatus Status
+        public override AdapterStatus Status
         {
             get
             {
@@ -76,7 +76,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IDevice GetKnownDevice(Guid deviceId)
+        public override IDevice GetKnownDevice(Guid deviceId)
         {
             var peripheral = this.context.Manager.RetrievePeripheralsWithIdentifiers(deviceId.ToNSUuid()).FirstOrDefault();
             var device = this.context.GetDevice(peripheral);
@@ -84,12 +84,12 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IEnumerable<IDevice> GetPairedDevices() => new IDevice[0];
-        public IEnumerable<IDevice> GetConnectedDevices() => this.context.GetConnectedDevices();
+        public override IEnumerable<IDevice> GetPairedDevices() => new IDevice[0];
+        public override IEnumerable<IDevice> GetConnectedDevices() => this.context.GetConnectedDevices();
 
 
         IObservable<AdapterStatus> statusOb;
-        public IObservable<AdapterStatus> WhenStatusChanged()
+        public override IObservable<AdapterStatus> WhenStatusChanged()
         {
             this.statusOb = this.statusOb ?? this.context
                 .StateUpdated
@@ -103,19 +103,17 @@ namespace Plugin.BluetoothLE
 
 
 #if __IOS__ || __TVOS__
-        public bool IsScanning => this.context.Manager.IsScanning;
-#else
-        public bool IsScanning { get; private set; }
+        public override bool IsScanning => this.context.Manager.IsScanning;
 #endif
 
 
-        public IObservable<bool> WhenScanningStatusChanged() =>
+        public override IObservable<bool> WhenScanningStatusChanged() =>
             this.scanStatusChanged
                 .AsObservable()
                 .StartWith(this.IsScanning);
 
 
-        public IObservable<IScanResult> Scan(ScanConfig config)
+        public override IObservable<IScanResult> Scan(ScanConfig config)
         {
             config = config ?? new ScanConfig();
 
@@ -155,7 +153,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IScanResult> scanListenOb;
-        public IObservable<IScanResult> ScanListen()
+        public override IObservable<IScanResult> ScanListen()
         {
             this.scanListenOb = this.scanListenOb ?? this.context.ScanResultReceived.AsObservable();
             return this.scanListenOb;
@@ -163,7 +161,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IDevice> deviceStatusOb;
-        public IObservable<IDevice> WhenDeviceStatusChanged()
+        public override IObservable<IDevice> WhenDeviceStatusChanged()
         {
             this.deviceStatusOb = this.deviceStatusOb ?? Observable.Merge(
                 this.context
@@ -180,16 +178,9 @@ namespace Plugin.BluetoothLE
             return this.deviceStatusOb;
         }
 
-
-        public bool EnableAdapterState(bool enabled)
-        {
-            return false;
-        }
-
-
 #if __IOS__
 
-        public void OpenSettings()
+        public override void OpenSettings()
         {
             if (UIDevice.CurrentDevice.CheckSystemVersion(10, 0))
             {
@@ -224,19 +215,9 @@ namespace Plugin.BluetoothLE
                 UIApplication.SharedApplication.OpenUrl(nsurl);
         }
 
-#else
-        public void OpenSettings()
-        {
-        }
 #endif
 
-
-        public void SetAdapterState(bool enabled)
-        {
-        }
-
-
-        public IObservable<IDevice> WhenDeviceStateRestored() =>
+        public override IObservable<IDevice> WhenDeviceStateRestored() =>
             this.context
                 .WhenWillRestoreState
                 .AsObservable();

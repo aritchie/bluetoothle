@@ -14,7 +14,7 @@ using Plugin.BluetoothLE.Server;
 
 namespace Plugin.BluetoothLE
 {
-    public class Adapter : IAdapter
+    public class Adapter : AbstractAdapter
     {
         readonly BluetoothManager manager;
         readonly BleContext context;
@@ -29,13 +29,13 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public string DeviceName => "Default Bluetooth Device";
-        public AdapterFeatures Features => AdapterFeatures.All;
-        public bool IsScanning => this.manager.Adapter.IsDiscovering;
-        public IGattServer CreateGattServer() => new GattServer();
+        public override string DeviceName => "Default Bluetooth Device";
+        public override AdapterFeatures Features => AdapterFeatures.All;
+        public override bool IsScanning => this.manager.Adapter.IsDiscovering;
+        public override IGattServer CreateGattServer() => new GattServer();
 
 
-        public IDevice GetKnownDevice(Guid deviceId)
+        public override IDevice GetKnownDevice(Guid deviceId)
         {
             var native = this.manager.Adapter.GetRemoteDevice(deviceId.ToByteArray().Skip(10).Take(6).ToArray());
             var device = this.context.Devices.GetDevice(native, TaskScheduler.Current);
@@ -43,7 +43,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IEnumerable<IDevice> GetPairedDevices() =>
+        public override IEnumerable<IDevice> GetPairedDevices() =>
             this.manager
                 .Adapter
                 .BondedDevices
@@ -52,13 +52,13 @@ namespace Plugin.BluetoothLE
                 .ToList();
 
 
-        public IEnumerable<IDevice> GetConnectedDevices() =>
+        public override IEnumerable<IDevice> GetConnectedDevices() =>
             this.manager
                 .GetConnectedDevices(ProfileType.Gatt)
                 .Select(x => this.context.Devices.GetDevice(x, TaskScheduler.Current));
 
 
-        public AdapterStatus Status
+        public override AdapterStatus Status
         {
             get
             {
@@ -95,7 +95,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<AdapterStatus> statusOb;
-        public IObservable<AdapterStatus> WhenStatusChanged()
+        public override IObservable<AdapterStatus> WhenStatusChanged()
         {
             this.statusOb = this.statusOb ?? BluetoothObservables
                 .WhenAdapterStatusChanged()
@@ -108,13 +108,13 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IObservable<bool> WhenScanningStatusChanged() =>
+        public override IObservable<bool> WhenScanningStatusChanged() =>
             this.scanStatusChanged
                 .AsObservable()
                 .StartWith(this.IsScanning);
 
 
-        public IObservable<IScanResult> Scan(ScanConfig config)
+        public override IObservable<IScanResult> Scan(ScanConfig config)
         {
             if (this.IsScanning)
                 throw new ArgumentException("There is already an active scan");
@@ -139,7 +139,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IScanResult> scanListenOb;
-        public IObservable<IScanResult> ScanListen()
+        public override IObservable<IScanResult> ScanListen()
         {
             this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
             {
@@ -159,7 +159,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IDevice> deviceStatusOb;
-        public IObservable<IDevice> WhenDeviceStatusChanged()
+        public override IObservable<IDevice> WhenDeviceStatusChanged()
         {
             this.deviceStatusOb = this.deviceStatusOb ?? Observable.Create<IDevice>(ob =>
             {
@@ -178,7 +178,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public void OpenSettings()
+        public override void OpenSettings()
         {
             var intent = new Intent(Android.Provider.Settings.ActionBluetoothSettings);
             intent.SetFlags(ActivityFlags.NewTask);
@@ -186,7 +186,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public void SetAdapterState(bool enable)
+        public override void SetAdapterState(bool enable)
         {
             if (enable && !BluetoothAdapter.DefaultAdapter.IsEnabled)
                 BluetoothAdapter.DefaultAdapter.Enable();
@@ -194,8 +194,5 @@ namespace Plugin.BluetoothLE
             else if (!enable && BluetoothAdapter.DefaultAdapter.IsEnabled)
                 BluetoothAdapter.DefaultAdapter.Disable();
         }
-
-
-        public IObservable<IDevice> WhenDeviceStateRestored() => Observable.Empty<IDevice>();
     }
 }
