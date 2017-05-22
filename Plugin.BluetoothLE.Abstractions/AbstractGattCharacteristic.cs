@@ -30,26 +30,22 @@ namespace Plugin.BluetoothLE
 
         public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();
         public abstract IObservable<CharacteristicResult> SubscribeToNotifications();
-        public virtual IObservable<CharacteristicResult> WhenNotificationReceived() => this.NotifySubject;
-
         public abstract IObservable<CharacteristicResult> Read();
-        public virtual IObservable<CharacteristicResult> WhenRead() => this.ReadSubject;
-
-        public virtual IObservable<CharacteristicResult> WhenWritten() => this.WriteSubject;
         public abstract void WriteWithoutResponse(byte[] value);
         public abstract IObservable<CharacteristicResult> Write(byte[] value);
 
+        public virtual IObservable<CharacteristicResult> WhenNotificationReceived() => this.NotifySubject;
+        public virtual IObservable<CharacteristicResult> WhenRead() => this.ReadSubject;
+        public virtual IObservable<CharacteristicResult> WhenWritten() => this.WriteSubject;
+
 
         public virtual IObservable<BleWriteSegment> BlobWrite(byte[] value, bool reliableWrite)
-        {
             // don't need to dispose of memorystream
-            return this.BlobWrite(new MemoryStream(value), reliableWrite);
-        }
+            => this.BlobWrite(new MemoryStream(value), reliableWrite);
 
 
         public virtual IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite)
-        {
-            return Observable.Create<BleWriteSegment>(async ob =>
+            => Observable.Create<BleWriteSegment>(async ob =>
             {
                 var cts = new CancellationTokenSource();
                 var trans = reliableWrite
@@ -89,6 +85,5 @@ namespace Plugin.BluetoothLE
                     trans.Dispose();
                 };
             });
-        }
     }
 }
