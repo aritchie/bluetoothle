@@ -32,11 +32,13 @@ namespace Samples.ViewModels.Le
                 });
 
             this.AppState.WhenBackgrounding().Subscribe(_ => this.scan?.Dispose());
-            this.BleAdapter.WhenScanningStatusChanged().Subscribe(on =>
-            {
-                this.IsScanning = on;
-                this.ScanText = on ? "Stop Scan" : "Scan";
-            });
+            this.BleAdapter
+                .WhenScanningStatusChanged()
+                .Subscribe(on =>
+                {
+                    this.IsScanning = on;
+                    this.ScanText = on ? "Stop Scan" : "Scan";
+                });
             this.Devices = new ObservableCollection<ScanResultViewModel>();
 
             this.SelectDevice = ReactiveCommand.Create<ScanResultViewModel>(x =>
@@ -87,6 +89,7 @@ namespace Samples.ViewModels.Le
 
                         this.scan = this.BleAdapter
                             .Scan()
+                            .ObserveOn(RxApp.MainThreadScheduler)
                             .Subscribe(this.OnScanResult);
                     }
                 },
@@ -103,11 +106,12 @@ namespace Samples.ViewModels.Le
             base.OnActivate();
             this.BleAdapter
                 .WhenStatusChanged()
-                .Subscribe(x => Device.BeginInvokeOnMainThread(() =>
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
                 {
                     this.IsSupported = x == AdapterStatus.PoweredOn;
                     this.Title = $"BLE Scanner ({x})";
-                }));
+                });
         }
 
 
@@ -124,20 +128,17 @@ namespace Samples.ViewModels.Le
 
         void OnScanResult(IScanResult result)
         {
-            Device.BeginInvokeOnMainThread(() =>
+            var dev = this.Devices.FirstOrDefault(x => x.Uuid.Equals(result.Device.Uuid));
+            if (dev != null)
             {
-                var dev = this.Devices.FirstOrDefault(x => x.Uuid.Equals(result.Device.Uuid));
-                if (dev != null)
-                {
-                    dev.TrySet(result);
-                }
-                else
-                {
-                    dev = new ScanResultViewModel();
-                    dev.TrySet(result);
-                    this.Devices.Add(dev);
-                }
-            });
+                dev.TrySet(result);
+            }
+            else
+            {
+                dev = new ScanResultViewModel();
+                dev.TrySet(result);
+                this.Devices.Add(dev);
+            }
         }
     }
 }

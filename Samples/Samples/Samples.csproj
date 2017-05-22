@@ -77,6 +77,7 @@
     <Compile Include="Tasks\BackgroundScanTask.cs" />
     <Compile Include="Tasks\LogToFileTask.cs" />
     <Compile Include="ViewModels\AbstractRootViewModel.cs" />
+    <Compile Include="ViewModels\Le\AdapterListViewModel.cs" />
     <Compile Include="ViewModels\Le\GattCharacteristicViewModel.cs" />
     <Compile Include="ViewModels\IViewModel.cs" />
     <Compile Include="ViewModels\AbstractViewModel.cs" />
@@ -94,6 +95,7 @@
       <DependentUpon>ConnectedDevicesPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\Le\ServerViewModel.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\TestCases\ITestCaseViewModel.cs" />
     <Compile Include="ViewModels\TestCases\LogItem.cs" />
     <Compile Include="ViewModels\TestCases\Test1ViewModel.cs" />

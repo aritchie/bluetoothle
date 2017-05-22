@@ -17,9 +17,14 @@ namespace Samples
             base.Load(builder);
 
             builder
-                .Register(x => CrossBleAdapter.Current)
-                .As<IAdapter>()
+                .Register(_ => CrossBleAdapter.AdapterScanner)
+                .As<IAdapterScanner>()
                 .SingleInstance();
+
+            builder
+                .Register(_ => CrossBleAdapter.Current)
+                .As<IAdapter>()
+                .InstancePerDependency();
 
             builder
                 .RegisterType<ViewModelManagerImpl>()

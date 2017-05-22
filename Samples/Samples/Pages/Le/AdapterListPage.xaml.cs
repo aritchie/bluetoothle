@@ -1,5 +1,5 @@
 ﻿using System;
-using Xamarin.Forms;
+using Acr.XamForms;
 
 
 namespace Samples.Pages.Le
