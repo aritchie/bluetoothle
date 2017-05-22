@@ -21,8 +21,7 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds)
-        {
-            return Observable.Create<IGattCharacteristic>(ob =>
+            => Observable.Create<IGattCharacteristic>(ob =>
             {
                 var characteristics = new Dictionary<Guid, IGattCharacteristic>();
                 var handler = new EventHandler<CBServiceEventArgs>((sender, args) =>
@@ -48,7 +47,6 @@ namespace Plugin.BluetoothLE
 
                 return () => this.Peripherial.DiscoveredCharacteristic -= handler;
             });
-        }
 
 
         IObservable<IGattCharacteristic> characteristicOb;
