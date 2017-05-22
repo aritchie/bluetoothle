@@ -12,7 +12,7 @@
     <ContentPage.Content>
         <StackLayout>
             <ActivityIndicator IsRunning="{Binding IsBusy}" VerticalOptions="Center" />
-            <acr:ListView ItemsSource="{Binding Adapters}">
+            <acr:ListView ItemsSource="{Binding Adapters}" ItemClickCommand="{Binding Select}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <TextCell Text="{Binding DeviceName}" />
