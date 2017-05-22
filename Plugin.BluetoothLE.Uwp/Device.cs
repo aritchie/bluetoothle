@@ -11,7 +11,7 @@ using Windows.Foundation;
 
 namespace Plugin.BluetoothLE
 {
-    public class Device : IDevice
+    public class Device : AbstractDevice
     {
         readonly BleContext context;
         readonly BluetoothLEDevice native;
@@ -29,19 +29,16 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public string Name => this.native.Name;
-        public Guid Uuid { get; }
-        public object NativeDevice => this.native;
-        public DeviceFeatures Features => DeviceFeatures.PairingRequests | DeviceFeatures.ReliableTransactions;
+        public override string Name => this.native.Name;
+        public override object NativeDevice => this.native;
+        public override DeviceFeatures Features => DeviceFeatures.PairingRequests | DeviceFeatures.ReliableTransactions;
 
 
-        public IGattReliableWriteTransaction BeginReliableWriteTransaction()
-        {
-            return new GattReliableWriteTransaction();
-        }
+        public override IGattReliableWriteTransaction BeginReliableWriteTransaction()
+            => new GattReliableWriteTransaction();
 
 
-        public IObservable<object> Connect(GattConnectionConfig config)
+        public override IObservable<object> Connect(GattConnectionConfig config)
         {
             // TODO: configurable "connection" type - RSSI check, timed read on first characteristic, device watcher
             // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
@@ -51,7 +48,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public void CancelConnection()
+        public override void CancelConnection()
         {
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
             this.status = ConnectionStatus.Disconnected;
@@ -61,7 +58,7 @@ namespace Plugin.BluetoothLE
 
 
         ConnectionStatus status = ConnectionStatus.Disconnected;
-        public ConnectionStatus Status => this.status;
+        public override ConnectionStatus Status => this.status;
         //{
         //    get
         //    {
@@ -79,7 +76,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<ConnectionStatus> statusOb;
-        public IObservable<ConnectionStatus> WhenStatusChanged()
+        public override IObservable<ConnectionStatus> WhenStatusChanged()
         {
             // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
             // TODO: shut devicewatcher off if characteristic hooked?
@@ -99,17 +96,15 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IObservable<int> WhenRssiUpdated(TimeSpan? frequency = null)
-        {
-            return this.context
+        public override IObservable<int> WhenRssiUpdated(TimeSpan? frequency = null)
+            => this.context
                 .CreateAdvertisementWatcher()
                 .Where(x => x.BluetoothAddress == this.native.BluetoothAddress)
                 .Select(x => (int)x.RawSignalStrengthInDBm);
-        }
 
 
         IObservable<IGattService> serviceOb;
-        public IObservable<IGattService> WhenServiceDiscovered()
+        public override IObservable<IGattService> WhenServiceDiscovered()
         {
             this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
                 this
@@ -137,7 +132,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<string> nameOb;
-        public IObservable<string> WhenNameUpdated()
+        public override IObservable<string> WhenNameUpdated()
         {
             this.nameOb = this.nameOb ?? Observable.Create<string>(ob =>
             {
@@ -156,39 +151,19 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public PairingStatus PairingStatus => this.native.DeviceInformation.Pairing.IsPaired
+        public override PairingStatus PairingStatus => this.native.DeviceInformation.Pairing.IsPaired
             ? PairingStatus.Paired
             : PairingStatus.NotPaired;
 
 
-        public IObservable<bool> PairingRequest(string pin = null)
-        {
-            return Observable.Create<bool>(async ob =>
+        public override IObservable<bool> PairingRequest(string pin = null)
+            => Observable.Create<bool>(async ob =>
             {
                 var result = await this.native.DeviceInformation.Pairing.PairAsync(DevicePairingProtectionLevel.None);
                 var status = result.Status == DevicePairingResultStatus.Paired;
                 ob.Respond(status);
                 return Disposable.Empty;
             });
-        }
-
-
-        public IObservable<int> RequestMtu(int size)
-        {
-            return Observable.Return(20); // TODO
-        }
-
-
-        public int GetCurrentMtuSize()
-        {
-            return 20;
-        }
-
-
-        public IObservable<int> WhenMtuChanged()
-        {
-            return Observable.Return(this.GetCurrentMtuSize());
-        }
 
 
         static readonly Regex macRegex = new Regex("(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})");
