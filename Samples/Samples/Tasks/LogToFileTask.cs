@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Plugin.BluetoothLE;
 using Autofac;
 using Samples.Models;
@@ -26,6 +27,7 @@ namespace Samples.Tasks
             {
                 if (this.settings.IsLoggingEnabled)
                 {
+                    Debug.WriteLine(log);
                     this.data.Insert(new BleRecord
                     {
                         Description = log,

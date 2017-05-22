@@ -26,7 +26,7 @@ namespace Samples.Tasks
             this.deviceStateOb = this.adapter
                 .WhenDeviceStatusChanged()
                 .Subscribe(dev => Device.BeginInvokeOnMainThread(() => this.notifications.Send(
-                    "BLE Device Status", 
+                    "BLE Device Status",
                     $"Device connection changed for {dev.Name} to {dev.Status}"
                 )));
         }
@@ -43,7 +43,7 @@ namespace Samples.Tasks
             this.adapter
                 .WhenDeviceStateRestored()
                 .Subscribe(dev => Device.BeginInvokeOnMainThread(() => this.notifications.Send(
-                    "BLE Restored", 
+                    "BLE Restored",
                     $"Device connection was restored {dev.Name}"
                 )));
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Acr;
 using Autofac;
 using Plugin.BluetoothLE;
@@ -19,7 +18,6 @@ namespace Samples
 
         public App(IContainer container)
         {
-            Log.Out = x => Debug.WriteLine(x);
             Container = container;
 
             this.MainPage = CrossBleAdapter.AdapterScanner.IsSupported
