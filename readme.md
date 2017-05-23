@@ -14,6 +14,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for iOS, Android, macOS
 * Windows UWP
   * Client in beta
   * Server WIP
+  * PRs only during beta please!
 
 
 ## FEATURES

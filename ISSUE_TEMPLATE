@@ -2,10 +2,10 @@
 
  - [] iOS
  - [] Android
- - [] UWP
  - [] tvOS
  - [] macOS
  - [] PCL
+ - UWP IS NOT SUPPORTED DURING THE BETA PERIOD - ONLY PRs ARE WELCOME FOR NOW
 
 ## Version of OS(s) listed above with issue
 
