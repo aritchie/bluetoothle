@@ -127,7 +127,7 @@
     <Compile Include="Server\UwpGattCharacteristic.cs" />
     <Compile Include="Server\UwpGattDescriptor.cs" />
     <Compile Include="Server\UwpGattService.cs" />
-    <EmbeddedResource Include="Properties\Acr.Ble.rd.xml" />
+    <EmbeddedResource Include="Properties\Plugin.BluetoothLE.rd.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj">
