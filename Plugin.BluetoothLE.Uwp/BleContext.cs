@@ -54,11 +54,7 @@ namespace Plugin.BluetoothLE
                 var addHandler = new TypedEventHandler<DeviceWatcher, DeviceInformation>(
                     (sender, args) => ob.OnNext(args)
                 );
-                //var remHandler = new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>(
-                //    (sender, args) => ob.OnNext(args.)
-                //);
                 deviceWatcher.Added += addHandler;
-                //deviceWatcher.Removed += remHandler;
                 //deviceWatcher.EnumerationCompleted += (s, a) =>
                 //{
                 //    s.Stop();
@@ -70,7 +66,6 @@ namespace Plugin.BluetoothLE
                 {
                     deviceWatcher.Stop();
                     deviceWatcher.Added -= addHandler;
-                    //deviceWatcher.Removed -= remHandler;
                 };
             });
 

@@ -14,14 +14,17 @@ namespace Plugin.BluetoothLE
     public class Device : AbstractDevice
     {
         readonly BleContext context;
-        readonly BluetoothLEDevice native;
         readonly Subject<ConnectionStatus> connSubject;
+        readonly string deviceId;
+        BluetoothLEDevice native;
 
 
         public Device(BleContext context, BluetoothLEDevice native)
         {
+            this.connSubject = new Subject<ConnectionStatus>();
             this.context = context;
             this.native = native;
+            this.deviceId = native.DeviceInformation.Id;
 
             var mac = this.ToMacAddress(native.BluetoothAddress);
             this.Uuid = this.GetDeviceId(mac);
@@ -39,19 +42,29 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<object> Connect(GattConnectionConfig config)
-        {
+            => Observable.FromAsync(async token =>
+            {
+                if (this.native == null)
+                    this.native = await BluetoothLEDevice.FromIdAsync(this.deviceId);
+
+                this.status = ConnectionStatus.Connected;
+                this.connSubject.OnNext(ConnectionStatus.Connected);
+                return new object();
+            });
+
             // TODO: configurable "connection" type - RSSI check, timed read on first characteristic, device watcher
             // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
-            this.connSubject.OnNext(ConnectionStatus.Connected);
-            this.status = ConnectionStatus.Connected;
-            return Observable.Return(new object());
-        }
 
 
         public override void CancelConnection()
         {
+            if (this.native == null)
+                return;
+
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
             this.status = ConnectionStatus.Disconnected;
+            this.native.Dispose();
+            this.native = null;
             // TODO: kill RSSI, devicewatcher
             // TODO: kill all characteristics
         }
@@ -74,29 +87,34 @@ namespace Plugin.BluetoothLE
         //    }
         //}
 
+        //public IObservable<IGattService> GetKnownService(Guid serviceUuid)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
 
         IObservable<ConnectionStatus> statusOb;
-        public override IObservable<ConnectionStatus> WhenStatusChanged()
-        {
-            // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
-            // TODO: shut devicewatcher off if characteristic hooked?
-            this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
-            {
-                ob.OnNext(this.Status);
-                var handler = new TypedEventHandler<BluetoothLEDevice, object>(
-                    (sender, args) => ob.OnNext(this.Status)
-                );
-                this.native.ConnectionStatusChanged += handler;
+        public override IObservable<ConnectionStatus> WhenStatusChanged() => this.connSubject;
+        //{
+        //    // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
+        //    // TODO: shut devicewatcher off if characteristic hooked?
+        //    this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
+        //    {
+        //        ob.OnNext(this.Status);
+        //        var handler = new TypedEventHandler<BluetoothLEDevice, object>(
+        //            (sender, args) => ob.OnNext(this.Status)
+        //        );
+        //        this.native.ConnectionStatusChanged += handler;
 
-                return () => this.native.ConnectionStatusChanged -= handler;
-            })
-            .Replay(1);
+        //        return () => this.native.ConnectionStatusChanged -= handler;
+        //    })
+        //    .Replay(1);
 
-            return this.statusOb;
-        }
+        //    return this.statusOb;
+        //}
 
 
-        public override IObservable<int> WhenRssiUpdated(TimeSpan? frequency = null)
+        public override IObservable<int> WhenRssiUpdated(TimeSpan? frequency)
             => this.context
                 .CreateAdvertisementWatcher()
                 .Where(x => x.BluetoothAddress == this.native.BluetoothAddress)
@@ -107,7 +125,17 @@ namespace Plugin.BluetoothLE
         public override IObservable<IGattService> WhenServiceDiscovered()
         {
             this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
-                this
+            {
+                var handler = new TypedEventHandler<BluetoothLEDevice, object>((sender, args) =>
+                {
+                    if (!this.native.Equals(sender))
+                        return;
+
+                    // TODO: rescan
+                });
+                this.native.GattServicesChanged += handler;
+
+                var sub = this
                     .WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
                     .Subscribe(async x =>
@@ -119,8 +147,14 @@ namespace Plugin.BluetoothLE
                             var service = new GattService(nservice, this);
                             ob.OnNext(service);
                         }
-                    })
-            )
+                    });
+
+                return () =>
+                {
+                    sub.Dispose();
+                    this.native.GattServicesChanged -= handler;
+                };
+            })
             .ReplayWithReset(this.WhenStatusChanged()
                 .Skip(1)
                 .Where(x => x == ConnectionStatus.Disconnected)
@@ -157,12 +191,11 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<bool> PairingRequest(string pin = null)
-            => Observable.Create<bool>(async ob =>
+            => Observable.FromAsync<bool>(async token =>
             {
                 var result = await this.native.DeviceInformation.Pairing.PairAsync(DevicePairingProtectionLevel.None);
-                var status = result.Status == DevicePairingResultStatus.Paired;
-                ob.Respond(status);
-                return Disposable.Empty;
+                var state = result.Status == DevicePairingResultStatus.Paired;
+                return state;
             });
 
 
@@ -197,11 +230,6 @@ namespace Plugin.BluetoothLE
 
             macBytes.CopyTo(deviceGuid, 10); // 12 bytes here if off the BluetoothLEDevice
             return new Guid(deviceGuid);
-        }
-
-        public IObservable<IGattService> GetKnownService(Guid serviceUuid)
-        {
-            throw new NotImplementedException();
         }
     }
 }

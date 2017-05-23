@@ -31,15 +31,10 @@ namespace Plugin.BluetoothLE
                 }
                 return Disposable.Empty;
             })
-            .Replay();
+            .Replay()
+            .RefCount();
 
             return this.characteristicOb;
-        }
-
-
-        public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds)
-        {
-            throw new NotImplementedException();
         }
     }
 }

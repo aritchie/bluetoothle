@@ -3,7 +3,6 @@ using System.IO;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel.Background;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Foundation;
@@ -56,20 +55,21 @@ namespace Plugin.BluetoothLE
                 {
                     var bytes = result.Value.ToArray();
                     this.Value = bytes;
-                    //this.ReadSubject.OnNext(bytes);
-                    //ob.Respond(bytes);
+                    var r = new CharacteristicResult(this, CharacteristicEvent.Read, bytes);
+                    this.ReadSubject.OnNext(r);
+                    ob.Respond(r);
                 }
                 return Disposable.Empty;
             });
         }
 
 
-        public override IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite)
-        {
-            var trans = new GattReliableWriteTransaction();
-
-            return base.BlobWrite(stream, reliableWrite);
-        }
+        //public override IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite)
+        //{
+        //    var trans = new GattReliableWriteTransaction();
+        //    // TODO
+        //    return base.BlobWrite(stream, reliableWrite);
+        //}
 
 
 
@@ -98,9 +98,10 @@ namespace Plugin.BluetoothLE
                 else
                 {
                     this.Value = value;
-                    //this.WriteSubject.OnNext(this.Value);
 
-                    ob.Respond(null);
+                    var r = new CharacteristicResult(this, CharacteristicEvent.Write, value);
+                    this.WriteSubject.OnNext(r);
+                    ob.Respond(r);
                 }
                 return Disposable.Empty;
             });
@@ -121,8 +122,9 @@ namespace Plugin.BluetoothLE
                     if (sender.Equals(this.Native))
                     {
                         var bytes = args.CharacteristicValue.ToArray();
-                        //ob.OnNext(bytes);
-                        //this.NotifySubject.OnNext(bytes);
+                        var result = new CharacteristicResult(this, CharacteristicEvent.Notification, bytes);
+                        ob.OnNext(result);
+                        this.NotifySubject.OnNext(result);
                     }
                 });
                 this.Native.ValueChanged += handler;
@@ -135,8 +137,9 @@ namespace Plugin.BluetoothLE
 
                 return () =>
                 {
-                    this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None).GetResults();
                     this.Native.ValueChanged -= handler;
+                    // TODO: this needs to be dispatched to the main thread.  it is erroring right now and thereby not breaking the connection
+                    this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
                 };
             });
             return this.notificationOb;
