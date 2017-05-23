@@ -1,7 +1,9 @@
 # CHANGE LOG
 
-## 3.0.1
+## 3.1
+* [feature] UWP client beta (server support has not been tested)
 * [feature] Adapter scanner now has an empty implementation for platforms where it is not supported
+
 
 ## 3.0
 * [feature] GATT Server is now built into this library

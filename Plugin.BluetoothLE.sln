@@ -51,9 +51,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E72A2C1E-F
 		docs\ios.md = docs\ios.md
 		ISSUE_TEMPLATE = ISSUE_TEMPLATE
 		readme.md = readme.md
-		..\bleserver\docs\server_advertising.md = ..\bleserver\docs\server_advertising.md
-		..\bleserver\docs\server_characteristics.md = ..\bleserver\docs\server_characteristics.md
-		..\bleserver\docs\server_services.md = ..\bleserver\docs\server_services.md
+		docs\server_advertising.md = docs\server_advertising.md
+		docs\server_characteristics.md = docs\server_characteristics.md
+		docs\server_services.md = docs\server_services.md
 		docs\services.md = docs\services.md
 		docs\setup.md = docs\setup.md
 	EndProjectSection
