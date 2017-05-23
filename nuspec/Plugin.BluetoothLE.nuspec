@@ -3,7 +3,7 @@
     <metadata>
         <id>Plugin.BluetoothLE</id>
         <version>3.1.0</version>
-        <title>ACR Bluetooth LE Reactive Plugin for Xamarin</title>
+        <title>ACR Bluetooth LE Reactive Plugin for Xamarin and UWP</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
 Cross Platform Reactive Bluetooth LE Plugin for Xamarin
@@ -43,7 +43,7 @@ macOS
         <file src="..\Plugin.BluetoothLE.tvOS\bin\Release\Plugin.BluetoothLE.*" target="lib\Xamarin.tvOS10" />
 
         <!-- uwp -->
-        <!--<file src="..\Plugin.BluetoothLE.Uwp\bin\Release\Plugin.BluetoothLE.*" target="lib\uap10.0" />-->
+        <file src="..\Plugin.BluetoothLE.Uwp\bin\Release\Plugin.BluetoothLE.*" target="lib\uap10.0" />
 
     </files>
 </package>
