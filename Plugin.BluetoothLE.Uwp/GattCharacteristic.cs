@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Foundation;
+using Windows.UI.Core;
 using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattCharacteristic;
 
 
@@ -44,22 +45,21 @@ namespace Plugin.BluetoothLE
         {
             this.AssertRead();
 
-            return Observable.Create<CharacteristicResult>(async ob =>
+            return Observable.FromAsync(async ct =>
             {
-                var result = await this.Native.ReadValueAsync(BluetoothCacheMode.Uncached);
+                var result = await this.Native
+                    .ReadValueAsync(BluetoothCacheMode.Uncached)
+                    .AsTask(ct);
+
                 if (result.Status != GattCommunicationStatus.Success)
-                {
-                    ob.OnError(new Exception("Error reading characteristics - " + result.Status));
-                }
-                else
-                {
-                    var bytes = result.Value.ToArray();
-                    this.Value = bytes;
-                    var r = new CharacteristicResult(this, CharacteristicEvent.Read, bytes);
-                    this.ReadSubject.OnNext(r);
-                    ob.Respond(r);
-                }
-                return Disposable.Empty;
+                    throw new Exception("Error reading characteristics - " + result.Status);
+
+                var bytes = result.Value.ToArray();
+                this.Value = bytes;
+                var r = new CharacteristicResult(this, CharacteristicEvent.Read, bytes);
+                this.ReadSubject.OnNext(r);
+
+                return r;
             });
         }
 
@@ -87,23 +87,19 @@ namespace Plugin.BluetoothLE
             // TODO: reliable write
             this.AssertWrite(false);
 
-            return Observable.Create<CharacteristicResult>(async ob =>
+            return Observable.FromAsync(async ct =>
             {
-                var result = await this.Native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse);
+                var result = await this.Native
+                    .WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse)
+                    .AsTask(ct);
 
                 if (result != GattCommunicationStatus.Success)
-                {
-                    ob.OnError(new Exception("Error writing characteristic"));
-                }
-                else
-                {
-                    this.Value = value;
+                    throw new Exception("Error writing characteristic");
 
-                    var r = new CharacteristicResult(this, CharacteristicEvent.Write, value);
-                    this.WriteSubject.OnNext(r);
-                    ob.Respond(r);
-                }
-                return Disposable.Empty;
+                this.Value = value;
+                var r = new CharacteristicResult(this, CharacteristicEvent.Write, value);
+                this.WriteSubject.OnNext(r);
+                return r;
             });
         }
 
@@ -129,17 +125,34 @@ namespace Plugin.BluetoothLE
                 });
                 this.Native.ValueChanged += handler;
 
-                var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
-                if (status != GattCommunicationStatus.Success)
-                {
-                    ob.OnError(new Exception("Could not subscribe to notifications"));
-                }
+                await CoreWindow.GetForCurrentThread().Dispatcher.RunAsync(
+                    CoreDispatcherPriority.Normal,
+                    async () =>
+                    {
+                        var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                        if (status != GattCommunicationStatus.Success)
+                        {
+                            ob.OnError(new Exception("Could not subscribe to notifications"));
+                        }
+                    }
+                );
 
-                return () =>
+                return async () =>
                 {
                     this.Native.ValueChanged -= handler;
-                    // TODO: this needs to be dispatched to the main thread.  it is erroring right now and thereby not breaking the connection
-                    this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
+                    await CoreWindow.GetForCurrentThread().Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    {
+                        try
+                        {
+                            await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
+                        }
+                        catch (Exception e)
+                        {
+                            //System.Console.WriteLine(e);
+                            System.Diagnostics.Debug.WriteLine(e.ToString());
+                        }
+                    });
+
                 };
             });
             return this.notificationOb;

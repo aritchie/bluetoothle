@@ -4,9 +4,12 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
+using Windows.UI.Core;
 
 
 namespace Plugin.BluetoothLE
@@ -47,6 +50,7 @@ namespace Plugin.BluetoothLE
                 if (this.native == null)
                     this.native = await BluetoothLEDevice.FromIdAsync(this.deviceId);
 
+                //this.native = await BluetoothLEDevice.FromBluetoothAddressAsync(0L);
                 this.status = ConnectionStatus.Connected;
                 this.connSubject.OnNext(ConnectionStatus.Connected);
                 return new object();
@@ -56,17 +60,46 @@ namespace Plugin.BluetoothLE
             // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
 
 
-        public override void CancelConnection()
+        public override async void CancelConnection()
         {
             if (this.native == null)
                 return;
 
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
             this.status = ConnectionStatus.Disconnected;
+
+            var ns = await this.native.GetGattServicesAsync(BluetoothCacheMode.Cached);
+            foreach (var nservice in ns.Services)
+            {
+                var nch = await nservice.GetCharacteristicsAsync(BluetoothCacheMode.Cached);
+                var tcs = new TaskCompletionSource<object>();
+                await CoreWindow.GetForCurrentThread().Dispatcher.RunAsync(
+                    CoreDispatcherPriority.High,
+                    async () =>
+                    {
+                        foreach (var characteristic in nch.Characteristics)
+                        {
+                            if (!characteristic.HasNotify())
+                                return;
+
+                            try
+                            {
+                                await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
+                            }
+                            catch (Exception e)
+                            {
+                                //System.Console.WriteLine(e);
+                                System.Diagnostics.Debug.WriteLine(e.ToString());
+                            }
+                        }
+                        tcs.TrySetResult(null);
+                    }
+                );
+                await tcs.Task;
+                nservice.Dispose();
+            }
             this.native.Dispose();
             this.native = null;
-            // TODO: kill RSSI, devicewatcher
-            // TODO: kill all characteristics
         }
 
 
@@ -75,22 +108,29 @@ namespace Plugin.BluetoothLE
         //{
         //    get
         //    {
-                // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
-                //switch (this.native.ConnectionStatus)
-                //{
-                //    case BluetoothConnectionStatus.Connected:
-                //        return ConnectionStatus.Connected;
+        // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
+        //switch (this.native.ConnectionStatus)
+        //{
+        //    case BluetoothConnectionStatus.Connected:
+        //        return ConnectionStatus.Connected;
 
-                //    default:
-                //        return ConnectionStatus.Disconnected;
-                //}
+        //    default:
+        //        return ConnectionStatus.Disconnected;
+        //}
         //    }
         //}
 
-        //public IObservable<IGattService> GetKnownService(Guid serviceUuid)
-        //{
-        //    throw new NotImplementedException();
-        //}
+
+        public override IObservable<IGattService> GetKnownService(Guid serviceUuid)
+            => Observable.FromAsync(async ct =>
+            {
+                var result = await this.native.GetGattServicesForUuidAsync(serviceUuid, BluetoothCacheMode.Cached);
+                if (result.Status != GattCommunicationStatus.Success)
+                    throw new ArgumentException("Could not find GATT service - " + result.Status);
+
+                var wrap = new GattService(result.Services.First(), this);
+                return wrap;
+            });
 
 
         IObservable<ConnectionStatus> statusOb;
@@ -128,17 +168,14 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new TypedEventHandler<BluetoothLEDevice, object>((sender, args) =>
                 {
-                    if (!this.native.Equals(sender))
-                        return;
-
-                    // TODO: rescan
+                    //if (this.native.Equals(sender))
                 });
                 this.native.GattServicesChanged += handler;
 
                 var sub = this
                     .WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(async x =>
+                    .Select(_ => Observable.FromAsync(async ct =>
                     {
                         var result = await this.native.GetGattServicesAsync(BluetoothCacheMode.Uncached);
 
@@ -147,7 +184,9 @@ namespace Plugin.BluetoothLE
                             var service = new GattService(nservice, this);
                             ob.OnNext(service);
                         }
-                    });
+                    }))
+                    .Merge()
+                    .Subscribe();
 
                 return () =>
                 {
@@ -191,7 +230,7 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<bool> PairingRequest(string pin = null)
-            => Observable.FromAsync<bool>(async token =>
+            => Observable.FromAsync(async token =>
             {
                 var result = await this.native.DeviceInformation.Pairing.PairAsync(DevicePairingProtectionLevel.None);
                 var state = result.Status == DevicePairingResultStatus.Paired;

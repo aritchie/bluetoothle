@@ -114,6 +114,7 @@
     <Compile Include="Adapter.cs" />
     <Compile Include="BleContext.cs" />
     <Compile Include="DeviceInfoArgs.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="GattCharacteristic.cs" />
     <Compile Include="GattDescriptor.cs" />
     <Compile Include="GattReliableWriteTransaction.cs" />
