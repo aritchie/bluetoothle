@@ -149,39 +149,29 @@ namespace Plugin.BluetoothLE
                     if (!scan)
                     {
                         adWatcher?.Dispose();
-                        devWatcher?.Dispose();
                     }
                     else
                     {
                         this.context.Clear();
 
+                        // TODO: this will only capture fully advertised devices
                         adWatcher = this.context
                             .CreateAdvertisementWatcher()
-                            .Subscribe(args =>
+                            .Subscribe(async args => // CAREFUL
                             {
                                 var device = this.context.GetDevice(args.BluetoothAddress);
                                 if (device == null)
                                 {
-                                    Debug.WriteLine("Device not found yet - " + args.BluetoothAddress);
-                                    // causes Element Not Found exception
-                                    //var native = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
-                                    //device = this.context.GetDevice(native);
-                                    return;
+                                    var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
+                                    if (btDevice != null)
+                                        device = this.context.AddDevice(args.BluetoothAddress, btDevice);
                                 }
-                                var adData = new AdvertisementData(args);
-                                var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
-                                ob.OnNext(scanResult);
-                            });
-
-                        devWatcher = this.context
-                            .CreateDeviceWatcher()
-                            .Subscribe(async args =>
-                            {
-                                Log.Write($"[DeviceInfo] Info: {args.Id} / {args.Name}");
-                                var native = await BluetoothLEDevice.FromIdAsync(args.Id);
-
-                                Log.Write($"[DeviceInfo] BLE Device: {native.BluetoothAddress} / {native.DeviceId} / {native.Name}");
-                                this.context.GetDevice(native); // set discovered device for adscanner to see
+                                if (device != null)
+                                {
+                                    var adData = new AdvertisementData(args);
+                                    var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
+                                    ob.OnNext(scanResult);
+                                }
                             });
                     }
                 })

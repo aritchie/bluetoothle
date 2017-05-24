@@ -18,7 +18,6 @@ namespace Plugin.BluetoothLE
     {
         readonly BleContext context;
         readonly Subject<ConnectionStatus> connSubject;
-        readonly string deviceId;
         BluetoothLEDevice native;
 
 
@@ -27,7 +26,6 @@ namespace Plugin.BluetoothLE
             this.connSubject = new Subject<ConnectionStatus>();
             this.context = context;
             this.native = native;
-            this.deviceId = native.DeviceInformation.Id;
 
             var mac = this.ToMacAddress(native.BluetoothAddress);
             this.Uuid = this.GetDeviceId(mac);
@@ -47,8 +45,8 @@ namespace Plugin.BluetoothLE
         public override IObservable<object> Connect(GattConnectionConfig config)
             => Observable.FromAsync(async token =>
             {
-                if (this.native == null)
-                    this.native = await BluetoothLEDevice.FromIdAsync(this.deviceId);
+                //if (this.native == null)
+                    //this.native = await BluetoothLEDevice.FromIdAsync(this.deviceId);
 
                 //this.native = await BluetoothLEDevice.FromBluetoothAddressAsync(0L);
                 this.status = ConnectionStatus.Connected;

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reactive.Linq;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
-using Windows.Devices.Enumeration;
 using Windows.Foundation;
 
 
@@ -14,15 +13,14 @@ namespace Plugin.BluetoothLE
     public class BleContext
     {
         readonly ConcurrentDictionary<ulong, IDevice> devices = new ConcurrentDictionary<ulong, IDevice>();
-        const string AqsFilter = "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
-        static readonly string[] requestProperites = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
 
 
-        public IDevice GetDevice(BluetoothLEDevice native)
-            => this.devices.GetOrAdd(
-                native.BluetoothAddress,
-                x => new Device(this, native)
-            );
+        public IDevice AddDevice(ulong bluetoothAddress, BluetoothLEDevice native)
+        {
+            var dev = new Device(this, native);
+            this.devices.TryAdd(bluetoothAddress, dev);
+            return dev;
+        }
 
 
         public IDevice GetDevice(ulong bluetoothAddress)
@@ -47,30 +45,7 @@ namespace Plugin.BluetoothLE
         public IList<IDevice> GetDiscoveredDevices() => this.devices.Values.ToList();
 
 
-        public IObservable<DeviceInformation> CreateDeviceWatcher()
-            => Observable.Create<DeviceInformation>(ob =>
-            {
-                var deviceWatcher = DeviceInformation.CreateWatcher(AqsFilter, requestProperites, DeviceInformationKind.AssociationEndpoint);
-                var addHandler = new TypedEventHandler<DeviceWatcher, DeviceInformation>(
-                    (sender, args) => ob.OnNext(args)
-                );
-                deviceWatcher.Added += addHandler;
-                //deviceWatcher.EnumerationCompleted += (s, a) =>
-                //{
-                //    s.Stop();
-                //    s.Start();
-                //};
-                deviceWatcher.Start();
-
-                return () =>
-                {
-                    deviceWatcher.Stop();
-                    deviceWatcher.Added -= addHandler;
-                };
-            });
-
-
-        public IObservable<BluetoothLEAdvertisementReceivedEventArgs> CreateAdvertisementWatcher()
+       public IObservable<BluetoothLEAdvertisementReceivedEventArgs> CreateAdvertisementWatcher()
             => Observable.Create<BluetoothLEAdvertisementReceivedEventArgs>(ob =>
             {
                 var adWatcher = new BluetoothLEAdvertisementWatcher
