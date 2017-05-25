@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text.RegularExpressions;
@@ -9,7 +8,6 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
-using Windows.UI.Core;
 
 
 namespace Plugin.BluetoothLE
@@ -43,19 +41,19 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<object> Connect(GattConnectionConfig config)
-            => Observable.FromAsync(async token =>
+            => Observable.FromAsync(token =>
             {
                 //if (this.native == null)
-                    //this.native = await BluetoothLEDevice.FromIdAsync(this.deviceId);
+                //this.native = await BluetoothLEDevice.FromIdAsync(this.deviceId);
 
                 //this.native = await BluetoothLEDevice.FromBluetoothAddressAsync(0L);
                 this.status = ConnectionStatus.Connected;
                 this.connSubject.OnNext(ConnectionStatus.Connected);
-                return new object();
+                return Task.FromResult(new object());
             });
 
-            // TODO: configurable "connection" type - RSSI check, timed read on first characteristic, device watcher
-            // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
+        // TODO: configurable "connection" type - RSSI check, timed read on first characteristic, device watcher
+        // TODO: monitor devicewatcher - if removed d/c, if added AND paired - connected
 
 
         public override async void CancelConnection()
@@ -65,39 +63,7 @@ namespace Plugin.BluetoothLE
 
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
             this.status = ConnectionStatus.Disconnected;
-
-            var ns = await this.native.GetGattServicesAsync(BluetoothCacheMode.Cached);
-            foreach (var nservice in ns.Services)
-            {
-                var nch = await nservice.GetCharacteristicsAsync(BluetoothCacheMode.Cached);
-                var tcs = new TaskCompletionSource<object>();
-                await CoreWindow.GetForCurrentThread().Dispatcher.RunAsync(
-                    CoreDispatcherPriority.High,
-                    async () =>
-                    {
-                        foreach (var characteristic in nch.Characteristics)
-                        {
-                            if (!characteristic.HasNotify())
-                                return;
-
-                            try
-                            {
-                                await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
-                            }
-                            catch (Exception e)
-                            {
-                                //System.Console.WriteLine(e);
-                                System.Diagnostics.Debug.WriteLine(e.ToString());
-                            }
-                        }
-                        tcs.TrySetResult(null);
-                    }
-                );
-                await tcs.Task;
-                nservice.Dispose();
-            }
-            this.native.Dispose();
-            this.native = null;
+            await this.context.Disconnect(this.native);
         }
 
 

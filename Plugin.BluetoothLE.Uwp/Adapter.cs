@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -17,17 +16,13 @@ namespace Plugin.BluetoothLE
     //BluetoothAdapter.IsPeripheralRoleSupported
     public class Adapter : AbstractAdapter
     {
-        readonly BleContext context = new BleContext();
         readonly Subject<bool> scanStatusSubject = new Subject<bool>();
+        readonly BleContext context = new BleContext();
         BluetoothAdapter native;
         Radio radio;
 
 
-        public Adapter()
-        {
-        }
-
-
+        public Adapter() {}
         public Adapter(BluetoothAdapter native, Radio radio)
         {
             this.native = native;
@@ -154,7 +149,6 @@ namespace Plugin.BluetoothLE
                     {
                         this.context.Clear();
 
-                        // TODO: this will only capture fully advertised devices
                         adWatcher = this.context
                             .CreateAdvertisementWatcher()
                             .Subscribe(async args => // CAREFUL
@@ -246,6 +240,7 @@ namespace Plugin.BluetoothLE
                 throw new ArgumentException("No bluetooth adapter found");
 
             this.radio = await this.native.GetRadioAsync();
+
         }
     }
 }
