@@ -5,12 +5,19 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Acr.UserDialogs" Version="6.5.0" />
+        <PackageReference Include="reactiveui" Version="7.5.0-alpha0027" />
+        <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="Xamarin.Forms" Version="2.3.5.239-pre3" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj" />
         <ProjectReference Include="..\..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Update="NETStandard.Library" Version="1.6.1" />
     </ItemGroup>
 
 </Project>

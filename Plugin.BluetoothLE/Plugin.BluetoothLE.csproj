@@ -21,6 +21,10 @@
         <ProjectReference Include="..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Update="NETStandard.Library" Version="1.6.1" />
+    </ItemGroup>
+
     <Import Project="..\Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems" Label="Shared" />
 
 </Project>
