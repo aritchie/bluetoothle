@@ -6,6 +6,7 @@
 
     <ItemGroup>
         <PackageReference Include="Acr.UserDialogs" Version="6.5.0" />
+        <PackageReference Include="Autofac" Version="4.6.0" />
         <PackageReference Include="reactiveui" Version="7.5.0-alpha0027" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="Xamarin.Forms" Version="2.3.5.239-pre3" />
@@ -18,6 +19,10 @@
 
     <ItemGroup>
       <PackageReference Update="NETStandard.Library" Version="1.6.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Properties\" />
     </ItemGroup>
 
 </Project>

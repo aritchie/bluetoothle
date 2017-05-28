@@ -1,10 +1,7 @@
 ﻿using System;
 using Plugin.BluetoothLE;
-using Acr.Notifications;
-using Acr.Settings;
 using Acr.UserDialogs;
 using Autofac;
-using Samples.Services;
 using Samples.Services.Impl;
 
 
@@ -31,15 +28,15 @@ namespace Samples
                 .AsImplementedInterfaces()
                 .SingleInstance();
 
-            builder
-                .Register(x => Settings.Current.Bind<AppSettingsImpl>())
-                .As<IAppSettings>()
-                .SingleInstance();
+            //builder
+            //    .Register(x => Settings.Current.Bind<AppSettingsImpl>())
+            //    .As<IAppSettings>()
+            //    .SingleInstance();
 
-            builder
-                .Register(x => CrossNotifications.Current)
-                .As<INotifications>()
-                .SingleInstance();
+            //builder
+            //    .Register(x => CrossNotifications.Current)
+            //    .As<INotifications>()
+            //    .SingleInstance();
 
             builder
                 .RegisterType<AppStateImpl>()

@@ -4,8 +4,11 @@ using Acr;
 
 namespace Samples.ViewModels {
 
-    public interface IViewModel : INotifyPropertyChanged, IViewModelLifecycle
+    public interface IViewModel : INotifyPropertyChanged
     {
         void Init(object args = null);
+
+        void OnActivate();
+        void OnDeactivate();
     }
 }

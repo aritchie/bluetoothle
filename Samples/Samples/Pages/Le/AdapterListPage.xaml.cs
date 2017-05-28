@@ -1,12 +1,11 @@
 ﻿using System;
-using Acr.XamForms;
 using Autofac;
 using Samples.ViewModels.Le;
 
 
 namespace Samples.Pages.Le
 {
-    public partial class AdapterListPage : ContentPage
+    public partial class AdapterListPage : Samples.Pages.ContentPage
     {
         public AdapterListPage()
         {

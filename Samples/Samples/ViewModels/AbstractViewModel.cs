@@ -20,11 +20,5 @@ namespace Samples.ViewModels
         public virtual void OnDeactivate()
         {
         }
-
-
-        public virtual bool OnBack()
-        {
-            return true;
-        }
     }
 }

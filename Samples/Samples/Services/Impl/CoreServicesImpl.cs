@@ -10,19 +10,19 @@ namespace Samples.Services.Impl
         public CoreServicesImpl(IUserDialogs dialogs,
                                 IAppState state,
                                 IViewModelManager vmManager,
-                                IAppSettings appSettings,
+                                //IAppSettings appSettings,
                                 IAdapter adapter)
         {
             this.Dialogs = dialogs;
             this.AppState = state;
             this.VmManager = vmManager;
-            this.AppSettings = appSettings;
+            //this.AppSettings = appSettings;
             this.BleAdapter = adapter;
         }
 
 
         public IAppState AppState { get; }
-        public IAppSettings AppSettings { get; }
+        //public IAppSettings AppSettings { get; }
         public IUserDialogs Dialogs { get; }
         public IViewModelManager VmManager { get; }
         public IAdapter BleAdapter { get; }

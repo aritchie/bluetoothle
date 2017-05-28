@@ -63,7 +63,7 @@ namespace Samples.ViewModels.Le
         }
 
 
-        public ObservableList<IAdapter> Adapters { get; } = new ObservableList<IAdapter>();
+        public ObservableCollection<IAdapter> Adapters { get; } = new ObservableCollection<IAdapter>();
         public ICommand Select { get; }
         public ICommand Scan { get; }
         [Reactive] public bool IsBusy { get; private set; }
