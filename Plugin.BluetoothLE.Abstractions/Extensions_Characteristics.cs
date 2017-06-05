@@ -33,23 +33,26 @@ namespace Plugin.BluetoothLE
 
 
         public static IObservable<CharacteristicResult> ReadInterval(this IGattCharacteristic character, TimeSpan timeSpan)
-        {
-            return Observable.Create<CharacteristicResult>(ob =>
+            => Observable.Create<CharacteristicResult>(ob =>
                 Observable
                     .Interval(timeSpan)
                     .Subscribe(async _ =>
                     {
+                        // BAD
                         var read = await character.Read();
                         ob.OnNext(read);
-                    })
-            );
-        }
+                    }));
 
 
         public static IObservable<CharacteristicResult> WhenReadOrNotify(this IGattCharacteristic character, TimeSpan readInterval)
         {
             if (character.CanNotify())
-                return character.SubscribeToNotifications();
+                return character
+                    .SetNotificationValue(CharacteristicConfigDescriptorValue.Notify)
+                    .Where(x => x)
+                    .Select(x => character.WhenNotificationReceived())
+                    .Take(1)
+                    .Switch();
 
             if (character.CanRead())
                 return character.ReadInterval(readInterval);
@@ -58,39 +61,21 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public static bool CanWriteWithResponse(this IGattCharacteristic ch)
-        {
-            return ch.Properties.HasFlag(CharacteristicProperties.Write);
-        }
-
-
-
-        public static bool CanWriteWithoutResponse(this IGattCharacteristic ch)
-        {
-            return ch.Properties.HasFlag(CharacteristicProperties.WriteNoResponse);
-        }
-
-
+        public static bool CanRead(this IGattCharacteristic ch) => ch.Properties.HasFlag(CharacteristicProperties.Read);
+        public static bool CanWriteWithResponse(this IGattCharacteristic ch) => ch.Properties.HasFlag(CharacteristicProperties.Write);
+        public static bool CanWriteWithoutResponse(this IGattCharacteristic ch) => ch.Properties.HasFlag(CharacteristicProperties.WriteNoResponse);
         public static bool CanWrite(this IGattCharacteristic ch)
-        {
-            return ch.Properties.HasFlag(CharacteristicProperties.WriteNoResponse) ||
-                   ch.Properties.HasFlag(CharacteristicProperties.Write);
-        }
+            => ch.Properties.HasFlag(CharacteristicProperties.WriteNoResponse) || ch.Properties.HasFlag(CharacteristicProperties.Write);
 
 
-        public static bool CanRead(this IGattCharacteristic ch)
-        {
-            return ch.Properties.HasFlag(CharacteristicProperties.Read);
-        }
 
 
-        public static bool CanNotify(this IGattCharacteristic ch)
-        {
-            return ch.Properties.HasFlag(CharacteristicProperties.Notify) ||
-                   ch.Properties.HasFlag(CharacteristicProperties.NotifyEncryptionRequired) ||
-                   ch.Properties.HasFlag(CharacteristicProperties.Indicate) ||
-                   ch.Properties.HasFlag(CharacteristicProperties.IndicateEncryptionRequired);
-        }
+
+        public static bool CanNotify(this IGattCharacteristic ch) =>
+            ch.Properties.HasFlag(CharacteristicProperties.Notify) ||
+            ch.Properties.HasFlag(CharacteristicProperties.NotifyEncryptionRequired) ||
+            ch.Properties.HasFlag(CharacteristicProperties.Indicate) ||
+            ch.Properties.HasFlag(CharacteristicProperties.IndicateEncryptionRequired);
 
 
         public static void AssertWrite(this IGattCharacteristic characteristic, bool withResponse)

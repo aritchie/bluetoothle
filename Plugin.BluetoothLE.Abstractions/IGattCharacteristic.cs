@@ -20,7 +20,7 @@ namespace Plugin.BluetoothLE
         /// <summary>
         /// This will (un)subscribe to notifications
         /// </summary>
-        IObservable<CharacteristicResult> SubscribeToNotifications();
+        IObservable<bool> SetNotificationValue(CharacteristicConfigDescriptorValue value);
 
         /// <summary>
         /// This will only monitor any notifications to the characteristic if it is hooked.  It will not (un)subscribe them.  Use SubscribeToNotifications
