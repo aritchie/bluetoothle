@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard1.0</TargetFramework>
-        <RootNamespace>Plugin.Notifications</RootNamespace>
+        <RootNamespace>Plugin.BluetoothLE</RootNamespace>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 
