@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
-using System.Threading;
 using CoreBluetooth;
 using Foundation;
 
@@ -37,8 +36,6 @@ namespace Plugin.BluetoothLE
 
             return Observable.Create<CharacteristicResult>(ob =>
             {
-                var cancelSrc = new CancellationTokenSource();
-
                 var data = NSData.FromArray(value);
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
@@ -104,11 +101,19 @@ namespace Plugin.BluetoothLE
         }
 
 
-        IObservable<CharacteristicResult> notifyOb;
-        public override IObservable<CharacteristicResult> SubscribeToNotifications()
+        public override IObservable<bool> SetNotificationValue(CharacteristicConfigDescriptorValue value)
         {
             this.AssertNotify();
 
+            var enable = value != CharacteristicConfigDescriptorValue.None;
+            this.Peripheral.SetNotifyValue(enable, this.NativeCharacteristic);
+            return Observable.Return(true);
+        }
+
+
+        IObservable<CharacteristicResult> notifyOb;
+        public override IObservable<CharacteristicResult> WhenNotificationReceived()
+        {
             this.notifyOb = this.notifyOb ?? Observable.Create<CharacteristicResult>(ob =>
             {
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
@@ -132,11 +137,7 @@ namespace Plugin.BluetoothLE
                 this.Peripheral.UpdatedCharacterteristicValue += handler;
                 this.Peripheral.SetNotifyValue(true, this.NativeCharacteristic);
 
-                return () =>
-                {
-                    this.Peripheral.SetNotifyValue(false, this.NativeCharacteristic); // this is null
-                    this.Peripheral.UpdatedCharacterteristicValue -= handler;
-                };
+                return () => this.Peripheral.UpdatedCharacterteristicValue -= handler;
             })
             .Publish()
             .RefCount();
@@ -188,7 +189,6 @@ namespace Plugin.BluetoothLE
             this.WriteSubject.OnNext(result);
             ob?.Respond(result);
         }
-
 
 
         bool Equals(CBCharacteristic ch)
