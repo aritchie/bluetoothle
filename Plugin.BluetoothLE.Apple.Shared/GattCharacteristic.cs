@@ -127,15 +127,12 @@ namespace Plugin.BluetoothLE
                         else
                         {
                             this.Value = this.NativeCharacteristic.Value.ToArray();
-
                             var result = new CharacteristicResult(this, CharacteristicEvent.Notification, this.Value);
                             ob.OnNext(result);
-                            this.NotifySubject.OnNext(result);
                         }
                     }
                 });
                 this.Peripheral.UpdatedCharacterteristicValue += handler;
-                this.Peripheral.SetNotifyValue(true, this.NativeCharacteristic);
 
                 return () => this.Peripheral.UpdatedCharacterteristicValue -= handler;
             })

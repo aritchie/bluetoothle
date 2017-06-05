@@ -56,20 +56,59 @@ namespace Plugin.BluetoothLE
                 var bytes = result.Value.ToArray();
                 this.Value = bytes;
                 var r = new CharacteristicResult(this, CharacteristicEvent.Read, bytes);
-                this.ReadSubject.OnNext(r);
 
                 return r;
             });
         }
 
 
-        //public override IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite)
-        //{
-        //    var trans = new GattReliableWriteTransaction();
-        //    // TODO
-        //    return base.BlobWrite(stream, reliableWrite);
-        //}
+        public override IObservable<bool> SetNotificationValue(CharacteristicConfigDescriptorValue value)
+        {
+            this.AssertNotify();
 
+            return Observable.Create<bool>(ob =>
+            {
+                CoreWindow
+                    .GetForCurrentThread()
+                    .Dispatcher
+                    .RunAsync(
+                        CoreDispatcherPriority.Normal,
+                        async () =>
+                        {
+                            var desc = GetConfigValue(value);
+                            var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(desc);
+
+                            ob.Respond(status == GattCommunicationStatus.Success);
+                        }
+                    );
+
+                return Disposable.Empty;
+            });
+        }
+
+        
+        IObservable<CharacteristicResult> notificationOb;
+        public override IObservable<CharacteristicResult> WhenNotificationReceived()
+        {
+            this.notificationOb = this.notificationOb ?? Observable.Create<CharacteristicResult>(ob =>
+            {
+                //var trigger = new GattCharacteristicNotificationTrigger(this.native);
+
+                var handler = new TypedEventHandler<Native, GattValueChangedEventArgs>((sender, args) =>
+                {
+                    if (sender.Equals(this.Native))
+                    {
+                        var bytes = args.CharacteristicValue.ToArray();
+                        var result = new CharacteristicResult(this, CharacteristicEvent.Notification, bytes);
+                        ob.OnNext(result);
+                    }
+                });
+                this.Native.ValueChanged += handler;
+
+                return () => this.Native.ValueChanged -= handler;
+            });
+            return this.notificationOb;
+        }
 
 
         public override async void WriteWithoutResponse(byte[] value)
@@ -77,7 +116,6 @@ namespace Plugin.BluetoothLE
             this.AssertWrite(false);
             await this.Native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithoutResponse);
             this.Value = value;
-            this.WriteSubject.OnNext(new CharacteristicResult(this, CharacteristicEvent.Write, this.Value));
         }
 
 
@@ -97,64 +135,27 @@ namespace Plugin.BluetoothLE
 
                 this.Value = value;
                 var r = new CharacteristicResult(this, CharacteristicEvent.Write, value);
-                this.WriteSubject.OnNext(r);
                 return r;
             });
         }
 
 
-        IObservable<CharacteristicResult> notificationOb;
-        public override IObservable<CharacteristicResult> SubscribeToNotifications()
+        static GattClientCharacteristicConfigurationDescriptorValue GetConfigValue(CharacteristicConfigDescriptorValue value)
         {
-            this.AssertNotify();
-
-            this.notificationOb = this.notificationOb ?? Observable.Create<CharacteristicResult>(async ob =>
+            switch (value)
             {
-                //var trigger = new GattCharacteristicNotificationTrigger(this.native);
+                case CharacteristicConfigDescriptorValue.Indicate:
+                    return GattClientCharacteristicConfigurationDescriptorValue.Indicate;
 
-                var handler = new TypedEventHandler<Native, GattValueChangedEventArgs>((sender, args) =>
-                {
-                    if (sender.Equals(this.Native))
-                    {
-                        var bytes = args.CharacteristicValue.ToArray();
-                        var result = new CharacteristicResult(this, CharacteristicEvent.Notification, bytes);
-                        ob.OnNext(result);
-                        this.NotifySubject.OnNext(result);
-                    }
-                });
-                this.Native.ValueChanged += handler;
+                case CharacteristicConfigDescriptorValue.Notify:
+                    return GattClientCharacteristicConfigurationDescriptorValue.Notify;
 
-                await CoreWindow.GetForCurrentThread().Dispatcher.RunAsync(
-                    CoreDispatcherPriority.Normal,
-                    async () =>
-                    {
-                        var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
-                        if (status != GattCommunicationStatus.Success)
-                        {
-                            ob.OnError(new Exception("Could not subscribe to notifications"));
-                        }
-                    }
-                );
+                case CharacteristicConfigDescriptorValue.None:
+                    return GattClientCharacteristicConfigurationDescriptorValue.None;
 
-                return async () =>
-                {
-                    this.Native.ValueChanged -= handler;
-                    await CoreWindow.GetForCurrentThread().Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                    {
-                        try
-                        {
-                            await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
-                        }
-                        catch (Exception e)
-                        {
-                            //System.Console.WriteLine(e);
-                            System.Diagnostics.Debug.WriteLine(e.ToString());
-                        }
-                    });
-
-                };
-            });
-            return this.notificationOb;
-        }
+                default:
+                    throw new ArgumentException("Invalid characteristic config descriptor value");
+            }
+        }       
     }
 }

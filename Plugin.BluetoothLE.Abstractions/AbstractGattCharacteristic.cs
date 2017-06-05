@@ -17,7 +17,6 @@ namespace Plugin.BluetoothLE
         }
 
 
-        protected Subject<CharacteristicResult> NotifySubject { get; } = new Subject<CharacteristicResult>();
         protected Subject<CharacteristicResult> ReadSubject { get; } = new Subject<CharacteristicResult>();
         protected Subject<CharacteristicResult> WriteSubject { get; } = new Subject<CharacteristicResult>();
 
@@ -34,7 +33,7 @@ namespace Plugin.BluetoothLE
         public abstract void WriteWithoutResponse(byte[] value);
         public abstract IObservable<CharacteristicResult> Write(byte[] value);
 
-        public virtual IObservable<CharacteristicResult> WhenNotificationReceived() => this.NotifySubject;
+        public abstract IObservable<CharacteristicResult> WhenNotificationReceived();
         public virtual IObservable<CharacteristicResult> WhenRead() => this.ReadSubject;
         public virtual IObservable<CharacteristicResult> WhenWritten() => this.WriteSubject;
 
