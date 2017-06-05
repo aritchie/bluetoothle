@@ -17,7 +17,7 @@ namespace Plugin.BluetoothLE
     public class Adapter : AbstractAdapter
     {
         readonly Subject<bool> scanStatusSubject = new Subject<bool>();
-        readonly BleContext context = new BleContext();
+        readonly AdapterContext context = new AdapterContext();
         BluetoothAdapter native;
         Radio radio;
 
