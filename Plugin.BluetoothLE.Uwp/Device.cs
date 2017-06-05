@@ -14,12 +14,12 @@ namespace Plugin.BluetoothLE
 {
     public class Device : AbstractDevice
     {
-        readonly BleContext context;
+        readonly AdapterContext context;
         readonly Subject<ConnectionStatus> connSubject;
         BluetoothLEDevice native;
 
 
-        public Device(BleContext context, BluetoothLEDevice native)
+        public Device(AdapterContext context, BluetoothLEDevice native)
         {
             this.connSubject = new Subject<ConnectionStatus>();
             this.context = context;
@@ -36,17 +36,12 @@ namespace Plugin.BluetoothLE
         public override DeviceFeatures Features => DeviceFeatures.PairingRequests | DeviceFeatures.ReliableTransactions;
 
 
-        public override IGattReliableWriteTransaction BeginReliableWriteTransaction()
-            => new GattReliableWriteTransaction();
+        public override IGattReliableWriteTransaction BeginReliableWriteTransaction() => new GattReliableWriteTransaction();
 
 
         public override IObservable<object> Connect(GattConnectionConfig config)
             => Observable.FromAsync(token =>
             {
-                //if (this.native == null)
-                //this.native = await BluetoothLEDevice.FromIdAsync(this.deviceId);
-
-                //this.native = await BluetoothLEDevice.FromBluetoothAddressAsync(0L);
                 this.status = ConnectionStatus.Connected;
                 this.connSubject.OnNext(ConnectionStatus.Connected);
                 return Task.FromResult(new object());
