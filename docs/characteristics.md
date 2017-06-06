@@ -24,22 +24,14 @@ await Characteristic.Write(bytes);
 Characteristic.WriteWithoutResponse(bytes);
 ```
 
-**Register for notifications on a characteristic**
-```csharp
-// once you have your characteristic instance from the service discovery
-// this will enable the subscriptions to notifications as well as actually hook to the event
-var sub = characteristic.SubscribeToNotifications().Subscribe(result => { result.Data... });
 
-sub.Dispose(); // to unsubscribe
-```
-
-**Monitor Characteristic Notifications**
+**Notifications**
 ```csharp
-// once you have your characteristic instance from the service discovery
-// this will only monitor notifications if they have been hooked by SubscribeToNotifications();
+var success = characteristic.SetNotificationValue(CharacteristicConfigDescriptorValue.Notify); // or Indicate
 var sub = characteristic.WhenNotificationReceived().Subscribe(result => { result.Data... });
 
-sub.Dispose(); // to unsubscribe
+// don't forget to turn them off when you're done
+characteristic.SetNotificationValue(CharacteristicConfigDescriptorValue.None);
 ```
 
 **Monitor Reads/Writes**
@@ -81,6 +73,9 @@ characteristic.BlobWrite(bytes).Subscribe(x => {});
 ## Extensions
 
 ```csharp
+
+// register and subscribe to notifications
+characteristic.RegisterAndNotify().Subscribe(result => {});
 
 // read a characteristic on a given interval.  This is a substitute for SubscribeToNotifications()
 characteristic.ReadInterval(TimeSpan).Subscribe(result => { result.Data... });

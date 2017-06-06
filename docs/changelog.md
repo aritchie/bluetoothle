@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## 4.0
+* [feature] .net standard support
+* [feature][breaking] characteristics must now have their notifications enabled/disabled using characteristic.SetNotificationValue(..);
+
 ## 3.1
 * [feature] UWP client beta (server support has not been tested)
 * [feature] Adapter scanner now has an empty implementation for platforms where it is not supported

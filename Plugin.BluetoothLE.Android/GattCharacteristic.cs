@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Linq;
 using System.Threading;
 using System.Reactive.Linq;
@@ -11,7 +10,6 @@ using Plugin.BluetoothLE.Internals;
 using Observable = System.Reactive.Linq.Observable;
 
 
-
 namespace Plugin.BluetoothLE
 {
     public class GattCharacteristic : AbstractGattCharacteristic
@@ -21,11 +19,8 @@ namespace Plugin.BluetoothLE
         readonly GattContext context;
 
 
-        public GattCharacteristic(IGattService service,
-                                  GattContext context,
-                                  BluetoothGattCharacteristic native) : base(service,
-                                                                             native.Uuid.ToGuid(),
-                                                                             (CharacteristicProperties)(int)native.Properties)
+        public GattCharacteristic(IGattService service, GattContext context, BluetoothGattCharacteristic native)
+            : base(service, native.Uuid.ToGuid(), (CharacteristicProperties)(int)native.Properties)
         {
             this.context = context;
             this.native = native;
@@ -36,7 +31,6 @@ namespace Plugin.BluetoothLE
         {
             this.AssertWrite(false);
 
-            // TODO: this needs to be synchonrized
             this.RawWriteNoResponse(null, value);
         }
 
@@ -170,26 +164,25 @@ namespace Plugin.BluetoothLE
             return this.notifyOb;
         }
 
-        
+
         public override IObservable<bool> SetNotificationValue(CharacteristicConfigDescriptorValue value)
             => Observable.FromAsync(async ct =>
             {
                 var enable = value != CharacteristicConfigDescriptorValue.None;
-                
                 var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
                 if (descriptor == null)
                     throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
-    
+
                 var wrap = new GattDescriptor(this, this.context, descriptor);
                 var success = this.context.Gatt.SetCharacteristicNotification(this.native, enable);
-                await Task.Delay(250);
-    
+                await Task.Delay(250, ct);
+
                 if (success)
                 {
                     await wrap.Write(GetDescriptionConfigBytes(value));
-                    this.IsNotifying = true;
+                    this.IsNotifying = enable;
                 }
-                return success;                
+                return success;
             });
 
 
@@ -199,17 +192,17 @@ namespace Plugin.BluetoothLE
             {
                 case CharacteristicConfigDescriptorValue.Indicate:
                     return BluetoothGattDescriptor.EnableIndicationValue.ToArray();
-                    
+
                 case CharacteristicConfigDescriptorValue.Notify:
                     return BluetoothGattDescriptor.EnableNotificationValue.ToArray();
-                    
+
                 case CharacteristicConfigDescriptorValue.None:
                 default:
                     return BluetoothGattDescriptor.DisableNotificationValue.ToArray();
             }
         }
-       
-        
+
+
         IObservable<IGattDescriptor> descriptorOb;
         public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
         {
@@ -227,7 +220,7 @@ namespace Plugin.BluetoothLE
 
             return this.descriptorOb;
         }
-        
+
 
         public override bool Equals(object obj)
         {

@@ -2,22 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="936ba718-d18e-4467-b50e-672a741bb05f" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/.idea.Plugin.BluetoothLE/.idea/contentModel.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/.idea.Plugin.BluetoothLE/.idea/modules.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/.idea.Plugin.BluetoothLE/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/.idea.Plugin.BluetoothLE/riderModule.iml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/ITrace.cs" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/BleContext.cs" afterPath="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/AdapterContext.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/Extensions_Characteristics.cs" afterPath="$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/Extensions_Characteristics.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/IGattCharacteristic.cs" afterPath="$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/IGattCharacteristic.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/Plugin.BluetoothLE.Abstractions.csproj" afterPath="$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/Plugin.BluetoothLE.Abstractions.csproj" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Android/GattCharacteristic.cs" afterPath="$PROJECT_DIR$/Plugin.BluetoothLE.Android/GattCharacteristic.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Apple.Shared/Device.cs" afterPath="$PROJECT_DIR$/Plugin.BluetoothLE.Apple.Shared/Device.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Apple.Shared/GattCharacteristic.cs" afterPath="$PROJECT_DIR$/Plugin.BluetoothLE.Apple.Shared/GattCharacteristic.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/Adapter.cs" afterPath="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/Adapter.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/Device.cs" afterPath="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/Device.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/GattCharacteristic.cs" afterPath="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/GattCharacteristic.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/Plugin.BluetoothLE.Uwp.csproj" afterPath="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/Plugin.BluetoothLE.Uwp.csproj" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/.idea.Plugin.BluetoothLE/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/.idea.Plugin.BluetoothLE/.idea/workspace.xml" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -37,13 +22,13 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/AdapterContext.cs" />
-        <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/GattCharacteristic.cs" />
-        <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/Device.cs" />
         <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/DeviceContext.cs" />
-        <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Android/GattCharacteristic.cs" />
-        <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/AbstractGattCharacteristic.cs" />
         <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Android/Device.cs" />
         <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Apple.Shared/Device.cs" />
+        <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/Device.cs" />
+        <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/AbstractGattCharacteristic.cs" />
+        <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Android/GattCharacteristic.cs" />
+        <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/GattCharacteristic.cs" />
         <option value="$PROJECT_DIR$/Plugin.BluetoothLE.Apple.Shared/GattCharacteristic.cs" />
       </list>
     </option>
@@ -101,34 +86,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="Plugin.BluetoothLE.Uwp" />
-              <option name="myItemType" value="com.jetbrains.resharper.projectView.solutionExplorer.SolutionExplorerNodeRider" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" />
-              <option name="myItemType" value="com.jetbrains.resharper.projectView.solutionExplorer.SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Plugin.BluetoothLE (15 projects)" />
-              <option name="myItemType" value="com.jetbrains.resharper.projectView.solutionExplorer.SolutionExplorerNodeRider" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Plugin.BluetoothLE.Apple.Shared" />
-              <option name="myItemType" value="com.jetbrains.resharper.projectView.solutionExplorer.SolutionExplorerNodeRider" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" />
-              <option name="myItemType" value="com.jetbrains.resharper.projectView.solutionExplorer.SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Plugin.BluetoothLE (15 projects)" />
-              <option name="myItemType" value="com.jetbrains.resharper.projectView.solutionExplorer.SolutionExplorerNodeRider" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Plugin.BluetoothLE.Android" />
               <option name="myItemType" value="com.jetbrains.resharper.projectView.solutionExplorer.SolutionExplorerNodeRider" />
             </PATH_ELEMENT>
           </PATH>
@@ -277,12 +234,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1496606715955</updated>
-      <workItem from="1496606717171" duration="4278000" />
+      <workItem from="1496606717171" duration="8198000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="4278000" />
+    <option name="totallyTimeSpent" value="8198000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -308,7 +265,7 @@
       <window_info id="NuGet" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32959244" sideWeight="0.49866667" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Change Signature" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Build" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Build" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32959244" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -384,32 +341,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/GattCharacteristic.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1131">
-          <caret line="109" column="0" lean-forward="false" selection-start-line="109" selection-start-column="0" selection-end-line="109" selection-end-column="0" />
-          <folding>
-            <marker date="1496623676352" expanded="false" signature="6:327" ph="..." />
-            <marker date="1496623676352" expanded="true" signature="358:7268" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="425:7266" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="590:644" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="816:1412" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="926:1340" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="1134:1285" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="1479:2127" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="1573:2115" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="2280:2964" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="2518:2886" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="3038:3230" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="3310:3946" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="3446:3934" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="4077:4738" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="4114:4728" ph="{...}" />
-            <marker date="1496623676352" expanded="true" signature="4748:7260" ph="/* IObservable&lt;CharacteristicResult&gt; notificationOb; ... */" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/GattService.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="116">
@@ -422,41 +353,6 @@
             <marker date="1495464393324" expanded="true" signature="613:1227" ph="{...}" />
             <marker date="1495464393324" expanded="true" signature="735:1126" ph="{...}" />
             <marker date="1495464393324" expanded="true" signature="921:1071" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/Device.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4089">
-          <caret line="168" column="11" lean-forward="false" selection-start-line="168" selection-start-column="11" selection-end-line="168" selection-end-column="11" />
-          <folding>
-            <marker date="1496624730863" expanded="true" signature="6:311" ph="..." />
-            <marker date="1496624730863" expanded="true" signature="342:10628" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="385:10626" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="596:925" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="1420:1629" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="1641:1834" ph="/* TODO: configurable &quot;connection&quot; type - RSSI check, timed read on first characteristic, device watcher ... */" />
-            <marker date="1496624730863" expanded="true" signature="1890:2153" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="2304:2531" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="2417:2479" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="2542:3544" ph="/* IObservable&lt;CharacteristicResult&gt; notificationOb; ... */" />
-            <marker date="1496624730863" expanded="true" signature="3556:4422" ph="/* return async () =&gt; ... */" />
-            <marker date="1496624730863" expanded="true" signature="4562:4977" ph="/* { ... */" />
-            <marker date="1496624730863" expanded="true" signature="5111:5529" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="5685:6406" ph="/* { ... */" />
-            <marker date="1496624730863" expanded="true" signature="6822:8250" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="6917:8021" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="7028:7118" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="7384:7776" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="7579:7754" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="7871:8006" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="8350:8867" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="8433:8775" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="9174:9430" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="9629:9971" ph="{...}" />
-            <marker date="1496624730863" expanded="true" signature="9701:9859" ph="/* tempMac is now 'E7A1F7842F17' ... */" />
-            <marker date="1496624730863" expanded="true" signature="10024:10620" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -496,24 +392,6 @@
             <marker date="1496625856268" expanded="true" signature="2807:3272" ph="{...}" />
             <marker date="1496625856268" expanded="true" signature="2857:3075" ph="{...}" />
             <marker date="1496625856268" expanded="true" signature="3120:3250" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/AbstractGattCharacteristic.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="518">
-          <caret line="42" column="55" lean-forward="false" selection-start-line="42" selection-start-column="35" selection-end-line="42" selection-end-column="55" />
-          <folding>
-            <marker date="1496625831207" expanded="false" signature="6:114" ph="..." />
-            <marker date="1496625831207" expanded="true" signature="145:3778" ph="{...}" />
-            <marker date="1496625831207" expanded="true" signature="222:3776" ph="{...}" />
-            <marker date="1496625831207" expanded="true" signature="343:471" ph="{...}" />
-            <marker date="1496625831207" expanded="true" signature="2198:3768" ph="{...}" />
-            <marker date="1496625831207" expanded="true" signature="2478:3582" ph="{...}" />
-            <marker date="1496625831207" expanded="true" signature="2853:3522" ph="{...}" />
-            <marker date="1496625831207" expanded="true" signature="3074:3279" ph="{...}" />
-            <marker date="1496625831207" expanded="true" signature="3646:3753" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -594,132 +472,48 @@
         <state relative-caret-position="1044">
           <caret line="61" column="0" lean-forward="false" selection-start-line="61" selection-start-column="0" selection-end-line="61" selection-end-column="0" />
           <folding>
-            <marker date="1496625237509" expanded="false" signature="6:194" ph="..." />
-            <marker date="1496625237509" expanded="true" signature="225:11381" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="268:11379" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="478:576" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="965:1612" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="991:1602" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="1052:1588" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="1695:3191" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="1876:3179" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="2036:2110" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="2131:3024" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="2731:3004" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="3054:3164" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="3241:3376" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="3476:3931" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="3559:3839" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="4055:4860" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="4152:4766" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="4643:4751" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="5005:6097" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="5106:6003" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="5212:5649" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="5274:5400" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="5425:5631" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="5472:5609" ph="/* var result = new CharacteristicResult(this, CharacteristicEvent.Notification, this.Value); ... */" />
-            <marker date="1496625237509" expanded="true" signature="5772:5988" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="6235:7249" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="6332:6884" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="6510:6866" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="6663:6844" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="7372:9091" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="7467:8845" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="7716:8255" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="7894:8237" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="8050:8215" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="8472:8661" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="8693:8830" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="9170:10568" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="9311:9893" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="9746:9878" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="10726:10939" ph="{...}" />
-            <marker date="1496625237509" expanded="true" signature="11067:11304" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Apple.Shared/GattCharacteristic.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1769">
-          <caret line="107" column="75" lean-forward="false" selection-start-line="107" selection-start-column="75" selection-end-line="107" selection-end-column="75" />
-          <folding>
-            <marker date="1496625496650" expanded="false" signature="6:114" ph="..." />
-            <marker date="1496625496650" expanded="true" signature="145:8370" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="212:8368" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="645:752" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="818:930" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="1010:2488" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="1123:2476" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="1281:1952" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="1357:1934" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="1427:1565" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="1594:1912" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="2032:2262" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="2283:2380" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="2555:3737" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="2662:3725" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="2768:3477" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="2844:3459" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="2914:3052" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="3081:3437" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="3845:4098" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="4109:5743" ph="/* IObservable&lt;CharacteristicResult&gt; notifyOb; ... */" />
-            <marker date="1496625496650" expanded="true" signature="5876:7060" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="5980:6963" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="6162:6723" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="6367:6705" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="6524:6683" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="7149:7535" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="7578:7924" ph="{...}" />
-            <marker date="1496625496650" expanded="true" signature="7973:8207" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Android/GattCharacteristic.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5916">
-          <caret line="282" column="0" lean-forward="false" selection-start-line="282" selection-start-column="0" selection-end-line="282" selection-end-column="0" />
-          <folding>
-            <marker date="1496624450488" expanded="false" signature="6:279" ph="..." />
-            <marker date="1496624450488" expanded="true" signature="310:10011" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="377:10009" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="1006:1096" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="1162:1321" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="1401:3391" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="1520:3379" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="1687:2534" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="1754:2516" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="2039:2205" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="2234:2494" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="2614:2997" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="3018:3182" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="3211:3364" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="3458:4847" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="3571:4835" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="3743:4458" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="3810:4440" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="3939:4104" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="4133:4418" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="4989:6341" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="5130:6247" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="5238:5903" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="5305:5885" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="5375:5542" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="5571:5863" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="6064:6232" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="6474:6952" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="6578:6855" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="6652:6800" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="7019:7677" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="7477:7639" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="7739:8261" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="8311:8554" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="8767:9198" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="9291:9495" ph="{...}" />
-            <marker date="1496624450488" expanded="true" signature="9624:10001" ph="{...}" />
+            <marker date="1496626157000" expanded="false" signature="6:194" ph="..." />
+            <marker date="1496626157000" expanded="true" signature="225:10145" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="268:10143" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="478:576" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="965:1612" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="991:1602" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="1052:1588" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="1695:3191" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="1876:3179" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="2036:2110" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="2131:3024" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="2731:3004" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="3054:3164" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="3241:3376" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="3476:3931" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="3559:3839" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="4055:4860" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="4152:4766" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="4643:4751" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="5005:6097" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="5106:6003" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="5212:5649" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="5274:5400" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="5425:5631" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="5472:5609" ph="/* var result = new CharacteristicResult(this, CharacteristicEvent.Notification, this.Value); ... */" />
+            <marker date="1496626157000" expanded="true" signature="5772:5988" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="4999:6013" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="5096:5648" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="5274:5630" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="5427:5608" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="6136:7855" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="6231:7609" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="6480:7019" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="6658:7001" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="6814:6979" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="7236:7425" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="7457:7594" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="7934:9332" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="8075:8657" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="8510:8642" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="9490:9703" ph="{...}" />
+            <marker date="1496626157000" expanded="true" signature="9831:10068" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -750,6 +544,210 @@
             <marker date="1495417829878" expanded="true" signature="5725:5900" ph="{...}" />
             <marker date="1495417829878" expanded="true" signature="6223:6438" ph="{...}" />
             <marker date="1495417829878" expanded="true" signature="6498:6781" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/IGattCharacteristic.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1496366990781" expanded="false" signature="6:30" ph="..." />
+            <marker date="1496366990781" expanded="true" signature="61:2824" ph="{...}" />
+            <marker date="1496366990781" expanded="true" signature="104:2822" ph="{...}" />
+            <marker date="1496366990781" expanded="true" signature="308:396" ph="/// The current value of the characteristic ... " />
+            <marker date="1496366990781" expanded="true" signature="436:525" ph="/// This will (un)subscribe to notifications ... " />
+            <marker date="1496366990781" expanded="true" signature="626:849" ph="/// This will only monitor any notifications to the characteristic if it is hooked.  It will not (un)subscribe th ... " />
+            <marker date="1496366990781" expanded="true" signature="929:1055" ph="/// Discovers descriptors for this characteristic ... " />
+            <marker date="1496366990781" expanded="true" signature="1130:1253" ph="/// This will fire and forget a write ... " />
+            <marker date="1496366990781" expanded="true" signature="1312:1464" ph="/// Writes the value to the remote characteristic ... " />
+            <marker date="1496366990781" expanded="true" signature="1537:1783" ph="/// Used for writing blobs ... " />
+            <marker date="1496366990781" expanded="true" signature="1882:2130" ph="/// Used for writing blobs ... " />
+            <marker date="1496366990781" expanded="true" signature="2230:2366" ph="/// Monitor write tasks ... " />
+            <marker date="1496366990781" expanded="true" signature="2433:2546" ph="/// Read characteristic remote value ... " />
+            <marker date="1496366990781" expanded="true" signature="2606:2762" ph="/// Monitors read responses.  Does not send read requests.  Use Read() for that ... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/AbstractGattDescriptor.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1492356851183" expanded="false" signature="6:45" ph="..." />
+            <marker date="1492356851183" expanded="true" signature="76:1162" ph="{...}" />
+            <marker date="1492356851183" expanded="true" signature="145:1160" ph="{...}" />
+            <marker date="1492356851183" expanded="true" signature="239:468" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/Device.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="229">
+          <caret line="63" column="0" lean-forward="false" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
+          <folding>
+            <marker date="1496626937275" expanded="true" signature="6:311" ph="..." />
+            <marker date="1496626937275" expanded="true" signature="342:8359" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="385:8357" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="596:925" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="1420:1629" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="1641:1834" ph="/* TODO: configurable &quot;connection&quot; type - RSSI check, timed read on first characteristic, device watcher ... */" />
+            <marker date="1496626937275" expanded="true" signature="1890:2153" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="2293:2708" ph="/* { ... */" />
+            <marker date="1496626937275" expanded="true" signature="2842:3260" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="3416:4137" ph="/* { ... */" />
+            <marker date="1496626937275" expanded="true" signature="4553:5981" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="4648:5752" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="4759:4849" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="5115:5507" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="5310:5485" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="5602:5737" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="6081:6598" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="6164:6506" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="6905:7161" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="7360:7702" ph="{...}" />
+            <marker date="1496626937275" expanded="true" signature="7432:7590" ph="/* tempMac is now 'E7A1F7842F17' ... */" />
+            <marker date="1496626937275" expanded="true" signature="7755:8351" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Abstractions/AbstractGattCharacteristic.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="363">
+          <caret line="35" column="85" lean-forward="false" selection-start-line="35" selection-start-column="85" selection-end-line="35" selection-end-column="85" />
+          <folding>
+            <marker date="1496628858036" expanded="true" signature="6:114" ph="..." />
+            <marker date="1496628858036" expanded="true" signature="145:3668" ph="{...}" />
+            <marker date="1496628858036" expanded="true" signature="222:3666" ph="{...}" />
+            <marker date="1496628858036" expanded="true" signature="343:471" ph="{...}" />
+            <marker date="1496628858036" expanded="true" signature="2088:3658" ph="{...}" />
+            <marker date="1496628858036" expanded="true" signature="2368:3472" ph="{...}" />
+            <marker date="1496628858036" expanded="true" signature="2743:3412" ph="{...}" />
+            <marker date="1496628858036" expanded="true" signature="2964:3169" ph="{...}" />
+            <marker date="1496628858036" expanded="true" signature="3536:3643" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Android/GattCharacteristic.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="682">
+          <caret line="206" column="24" lean-forward="false" selection-start-line="206" selection-start-column="24" selection-end-line="206" selection-end-column="24" />
+          <folding>
+            <marker date="1496628896085" expanded="true" signature="6:305" ph="..." />
+            <marker date="1496628896085" expanded="true" signature="337:10413" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="404:10411" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="1033:1123" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="1189:1348" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="1428:3480" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="1547:3468" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="1714:2623" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="1781:2605" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="2066:2232" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="2261:2583" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="2703:3086" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="3107:3271" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="3300:3453" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="3547:4997" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="3660:4985" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="3832:4608" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="3899:4590" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="4028:4193" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="4222:4568" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="5136:6314" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="5271:6220" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="5379:6044" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="5446:6026" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="5516:5683" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="5712:6004" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="6478:7290" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="7075:7228" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="7385:7979" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="7422:7969" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="8127:8605" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="8231:8508" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="8305:8453" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="8663:8906" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="9119:9550" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="9643:9847" ph="{...}" />
+            <marker date="1496628896085" expanded="true" signature="9976:10403" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Uwp/GattCharacteristic.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2019">
+          <caret line="77" column="39" lean-forward="false" selection-start-line="77" selection-start-column="39" selection-end-line="77" selection-end-column="39" />
+          <folding>
+            <marker date="1496629130367" expanded="true" signature="6:353" ph="..." />
+            <marker date="1496629130367" expanded="true" signature="384:5804" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="451:5802" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="616:670" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="842:1438" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="952:1366" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="1160:1311" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="1505:2153" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="1599:2141" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="2261:3001" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="2354:2989" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="2592:2910" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="3154:4020" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="3267:3968" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="3475:3832" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="3545:3814" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="4092:4284" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="4364:5000" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="4500:4988" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="5128:5789" ph="{...}" />
+            <marker date="1496629130367" expanded="true" signature="5165:5779" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Plugin.BluetoothLE.Apple.Shared/GattCharacteristic.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3596">
+          <caret line="128" column="44" lean-forward="false" selection-start-line="128" selection-start-column="44" selection-end-line="128" selection-end-column="44" />
+          <folding>
+            <marker date="1496629223366" expanded="false" signature="6:114" ph="..." />
+            <marker date="1496629223366" expanded="true" signature="145:8007" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="212:8005" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="645:752" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="818:930" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="1010:2488" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="1123:2476" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="1281:1952" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="1357:1934" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="1427:1565" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="1594:1912" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="2032:2262" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="2283:2380" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="2555:3737" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="2662:3725" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="2768:3477" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="2844:3459" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="2914:3052" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="3081:3437" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="3845:4098" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="4237:5371" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="4338:5277" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="4444:5099" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="4520:5081" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="4590:4728" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="4757:5059" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="5504:6688" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="5608:6591" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="5790:6351" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="5995:6333" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="6152:6311" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="6777:7163" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="7206:7552" ph="{...}" />
+            <marker date="1496629223366" expanded="true" signature="7610:7844" ph="{...}" />
           </folding>
         </state>
       </provider>

@@ -8,15 +8,27 @@ namespace Plugin.BluetoothLE
 {
     public static partial class Extensions
     {
+        /// <summary>
+        /// Registers for notifications and subscribes to them
+        /// </summary>
+        /// <param name="characteristic"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static IObservable<CharacteristicResult> RegisterAndNotify(this IGattCharacteristic characteristic, CharacteristicConfigDescriptorValue value = CharacteristicConfigDescriptorValue.Notify)
+            => characteristic
+                .SetNotificationValue(value)
+                .Where(x => x)
+                .Select(x => characteristic.WhenNotificationReceived())
+                .Switch();
+
         public static IObservable<CharacteristicResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
-        {
-            return Observable.Create<CharacteristicResult>(async ob =>
+            => Observable.Create<CharacteristicResult>(async ob =>
             {
                 var cancelSrc = new CancellationTokenSource();
                 try
                 {
                     var result = await characteristic.Read().RunAsync(cancelSrc.Token);
-                    while (!result.Data.SequenceEqual(endBytes))
+                    while (!result.Data.SequenceEqual(endBytes) && !cancelSrc.IsCancellationRequested)
                     {
                         ob.OnNext(result);
                         result = await characteristic.Read().RunAsync(cancelSrc.Token);
@@ -29,7 +41,6 @@ namespace Plugin.BluetoothLE
                 }
                 return () => cancelSrc.Cancel();
             });
-        }
 
 
         public static IObservable<CharacteristicResult> ReadInterval(this IGattCharacteristic character, TimeSpan timeSpan)
@@ -66,9 +77,6 @@ namespace Plugin.BluetoothLE
         public static bool CanWriteWithoutResponse(this IGattCharacteristic ch) => ch.Properties.HasFlag(CharacteristicProperties.WriteNoResponse);
         public static bool CanWrite(this IGattCharacteristic ch)
             => ch.Properties.HasFlag(CharacteristicProperties.WriteNoResponse) || ch.Properties.HasFlag(CharacteristicProperties.Write);
-
-
-
 
 
         public static bool CanNotify(this IGattCharacteristic ch) =>
