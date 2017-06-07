@@ -30,7 +30,7 @@ namespace Plugin.BluetoothLE
 #endif
                 return scanner;
             }
-            set { scanner = value; }
+            set => scanner = value;
         }
 
 
@@ -52,7 +52,7 @@ namespace Plugin.BluetoothLE
 #endif
                 return current;
             }
-            set { current = value; }
+            set => current = value;
         }
     }
 }

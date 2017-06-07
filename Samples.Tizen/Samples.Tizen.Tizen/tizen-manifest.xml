@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="3.0" package="Samples.Tizen.Tizen" version="1.0.0">
+	<profile name="common" />
+	<ui-application appid="org.tizen.example.Samples.Tizen.Tizen"
+					exec="Samples.Tizen.Tizen.exe"
+					type="dotnet"
+					multiple="false"
+					taskmanage="true"
+					nodisplay="false"
+					launch_mode="single">
+  <label>Samples.Tizen.Tizen</label>
+	<icon>Samples.Tizen.Tizen.png</icon>
+	</ui-application>
+</manifest>
