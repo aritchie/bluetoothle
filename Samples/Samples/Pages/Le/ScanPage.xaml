@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<acr:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<local:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:acr="clr-namespace:Acr.XamForms;assembly=Acr.XamForms"
+             xmlns:local="clr-namespace:Samples.Pages;assembly=Samples"
+             xmlns:controls="clr-namespace:Samples.Controls;assembly=Samples"
              x:Class="Samples.Pages.Le.ScanPage"
              Title="{Binding Title}">
 
@@ -13,7 +14,7 @@
 
     <ContentPage.Content>
         <StackLayout>
-			<acr:ListView ItemsSource="{Binding Devices}" RowHeight="160" ItemClickCommand="{Binding SelectDevice}">
+			<controls:ListView ItemsSource="{Binding Devices}" RowHeight="160" ItemClickCommand="{Binding SelectDevice}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
@@ -48,8 +49,8 @@
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </acr:ListView>
+            </controls:ListView>
             <ActivityIndicator IsRunning="{Binding IsScanning}" />
         </StackLayout>
     </ContentPage.Content>
-</acr:ContentPage>
+</local:ContentPage>

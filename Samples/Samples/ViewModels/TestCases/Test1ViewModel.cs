@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Windows.Input;
@@ -59,9 +58,7 @@ namespace Samples.ViewModels.TestCases
                         .Subscribe(ch =>
                         {
                             this.WriteMsg("Subscribing to characteristic", ch.Uuid.ToString());
-                            ch
-                                .SubscribeToNotifications()
-                                .Subscribe(x => this.WriteMsg(
+                            ch.RegisterAndNotify().Subscribe(x => this.WriteMsg(
                                 x.Characteristic.Uuid.ToString(),
                                 UTF8Encoding.UTF8.GetString(x.Data, 0, x.Data.Length)
                             ));

@@ -5,11 +5,38 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Acr.UserDialogs" Version="6.5.0" />
+        <PackageReference Include="Acr.UserDialogs" Version="6.5.1" />
         <PackageReference Include="Autofac" Version="4.6.0" />
         <PackageReference Include="reactiveui" Version="7.5.0-alpha0027" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="Xamarin.Forms" Version="2.3.5.239-pre3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Pages\MainPage.xaml">
+            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Pages\Le\AdapterListPage.xaml">
+            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Pages\Le\ConnectedDevicesPage.xaml">
+            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Pages\Le\DevicePage.xaml">
+            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Pages\Le\LogPage.xaml">
+            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Pages\Le\ScanPage.xaml">
+            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Pages\Le\ServerPage.xaml">
+            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Pages\TestCases\Test1Page.xaml">
+            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
@@ -23,6 +50,33 @@
 
     <ItemGroup>
       <Folder Include="Properties\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Pages\Le\AdapterListPage.xaml.cs">
+            <DependentUpon>AdapterListPage.xaml</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Le\ConnectedDevicesPage.xaml.cs">
+            <DependentUpon>ConnectedDevicesPage.xaml</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Le\DevicePage.xaml.cs">
+            <DependentUpon>DevicePage.xaml</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Le\LogPage.xaml.cs">
+            <DependentUpon>LogPage.xaml</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Le\ScanPage.xaml.cs">
+            <DependentUpon>ScanPage.xaml</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\Le\ServerPage.xaml.cs">
+            <DependentUpon>ServerPage.xaml</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\TestCases\Test1Page.xaml.cs">
+            <DependentUpon>Test1Page.xaml</DependentUpon>
+        </Compile>
+        <Compile Update="Pages\MainPage.xaml.cs">
+            <DependentUpon>MainPage.xaml</DependentUpon>
+        </Compile>
     </ItemGroup>
 
 </Project>

@@ -6,7 +6,6 @@ using System.Windows.Input;
 using Acr.UserDialogs;
 using Plugin.BluetoothLE;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
 using Samples.Services;
 
 
@@ -66,6 +65,13 @@ namespace Samples.ViewModels.Le
         public ObservableCollection<IAdapter> Adapters { get; } = new ObservableCollection<IAdapter>();
         public ICommand Select { get; }
         public ICommand Scan { get; }
-        [Reactive] public bool IsBusy { get; private set; }
+
+
+        bool busy;
+        public bool IsBusy
+        {
+            get => this.busy;
+            private set => this.RaiseAndSetIfChanged(ref this.busy, value);
+        }
     }
 }

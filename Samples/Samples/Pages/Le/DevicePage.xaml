@@ -2,8 +2,8 @@
 <TabbedPage
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-	xmlns:acr="clr-namespace:Acr.XamForms;assembly=Acr.XamForms"
 	xmlns:local="clr-namespace:Samples.Pages.Le;assembly=Samples"
+    xmlns:controls="clr-namespace:Samples.Controls;assembly=Samples"
     x:Class="Samples.Pages.Le.DevicePage"
     Title="{Binding Name}"
  	NavigationPage.BackButtonTitle="Back">
@@ -29,7 +29,7 @@
 		</ContentPage>
 
 		<ContentPage Title="Characteristics">
-           <acr:ListView
+           <controls:ListView
                      ItemsSource="{Binding GattCharacteristics}"
                      IsGroupingEnabled="true"
                      GroupDisplayBinding="{Binding Name}"
@@ -60,11 +60,11 @@
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </acr:ListView>
+            </controls:ListView>
 		</ContentPage>
 
 		<ContentPage Title="Descriptors">
-		    <acr:ListView ItemsSource="{Binding GattDescriptors}" RowHeight="150" ItemClickCommand="{Binding SelectDescriptor}">
+		    <controls:ListView ItemsSource="{Binding GattDescriptors}" RowHeight="150" ItemClickCommand="{Binding SelectDescriptor}">
 		        <ListView.ItemTemplate>
 		            <DataTemplate>
 						<ViewCell>
@@ -79,7 +79,7 @@
 						</ViewCell>
 		            </DataTemplate>
 		        </ListView.ItemTemplate>
-		    </acr:ListView>
+		    </controls:ListView>
 		</ContentPage>
 
 		<local:LogPage Title="Logs" />

@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Plugin.BluetoothLE;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
 using Samples.Services;
-using Xamarin.Forms;
 
 
 namespace Samples.ViewModels.Le
@@ -120,10 +116,38 @@ namespace Samples.ViewModels.Le
         public ICommand ToggleAdapterState { get; }
         public ICommand SelectDevice { get; }
         public ObservableCollection<ScanResultViewModel> Devices { get; }
-        [Reactive] public bool IsScanning { get; private set; }
-        [Reactive] public bool IsSupported { get; private set; }
-        [Reactive] public string ScanText { get; private set; }
-        [Reactive] public string Title { get; private set; }
+
+
+        bool scanning;
+        public bool IsScanning
+        {
+            get => this.scanning;
+            private set => this.RaiseAndSetIfChanged(ref this.scanning, value);
+        }
+
+
+        bool supported;
+        public bool IsSupported
+        {
+            get => this.supported;
+            private set => this.RaiseAndSetIfChanged(ref this.supported, value);
+        }
+
+
+        string scanText;
+        public string ScanText
+        {
+            get => this.scanText;
+            private set => this.RaiseAndSetIfChanged(ref this.scanText, value);
+        }
+
+
+        string title;
+        public string Title
+        {
+            get => this.title;
+            private set => this.RaiseAndSetIfChanged(ref this.title, value);
+        }
 
 
         void OnScanResult(IScanResult result)

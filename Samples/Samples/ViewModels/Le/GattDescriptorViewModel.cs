@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
 using Plugin.BluetoothLE;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI;
 
 
 namespace Samples.ViewModels.Le
@@ -24,9 +24,30 @@ namespace Samples.ViewModels.Le
         public IGattDescriptor Descriptor { get; }
         public string Description => this.Descriptor.Value == null ? this.Descriptor.Description : BitConverter.ToString(this.Descriptor.Value);
         public string Uuid => this.Descriptor.Uuid.ToString();
-        [Reactive] public DateTime LastValue { get; private set; }
-        [Reactive] public bool IsValueAvailable { get; private set; }
-        [Reactive] public string Value { get; private set; }
+
+
+        string value;
+        public string Value
+        {
+            get => this.value;
+            private set => this.RaiseAndSetIfChanged(ref this.value, value);
+        }
+
+
+        bool valueAvailable;
+        public bool IsValueAvailable
+        {
+            get => this.valueAvailable;
+            private set => this.RaiseAndSetIfChanged(ref this.valueAvailable, value);
+        }
+
+
+        DateTime lastValue;
+        public DateTime LastValue
+        {
+            get => this.lastValue;
+            private set => this.RaiseAndSetIfChanged(ref this.lastValue, value);
+        }
 
 
         public void Select()

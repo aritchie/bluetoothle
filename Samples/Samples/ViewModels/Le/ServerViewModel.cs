@@ -5,10 +5,11 @@ using System.Text;
 using System.Windows.Input;
 using Plugin.BluetoothLE;
 using Plugin.BluetoothLE.Server;
+using ReactiveUI;
 using Samples.Services;
 using Device = Xamarin.Forms.Device;
 using Command = Xamarin.Forms.Command;
-using ReactiveUI.Fody.Helpers;
+
 
 namespace Samples.ViewModels.Le
 {
@@ -59,11 +60,46 @@ namespace Samples.ViewModels.Le
         }
 
 
-        [Reactive] public string ServerText { get; set; } = "Start Server";
-        [Reactive] public string CharacteristicValue { get; set; }
-        [Reactive] public string DescriptorValue { get; set; }
-        [Reactive] public string Output { get; private set; }
-        [Reactive] public AdapterStatus Status { get; set; }
+        string serverText = "Start Server";
+        public string ServerText
+        {
+            get => this.serverText;
+            set => this.RaiseAndSetIfChanged(ref this.serverText, value);
+        }
+
+
+        string chValue;
+        public string CharacteristicValue
+        {
+            get => this.chValue;
+            set => this.RaiseAndSetIfChanged(ref this.chValue, value);
+        }
+
+
+        string descValue;
+        public string DescriptorValue
+        {
+            get => this.descValue;
+            set => this.RaiseAndSetIfChanged(ref this.descValue, value);
+        }
+
+
+        string output;
+        public string Output
+        {
+            get => this.output;
+            private set => this.RaiseAndSetIfChanged(ref this.output, value);
+        }
+
+
+        AdapterStatus status;
+        public AdapterStatus Status
+        {
+            get => this.status;
+            set => this.RaiseAndSetIfChanged(ref this.status, value);
+        }
+
+
         public ICommand ToggleServer { get; }
         public ICommand Clear { get; }
 
@@ -149,7 +185,7 @@ namespace Samples.ViewModels.Le
                         this.Dialogs.Alert("Error Starting GATT Server - " + ex);
                         return Observable.Return(false);
                     })
-                    .Subscribe(started => Device.BeginInvokeOnMainThread(() => 
+                    .Subscribe(started => Device.BeginInvokeOnMainThread(() =>
                     {
                         if (!started)
                         {

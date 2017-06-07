@@ -6,11 +6,11 @@ using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Acr;
 using Plugin.BluetoothLE;
 using Acr.UserDialogs;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI;
 using Xamarin.Forms;
+
 
 namespace Samples.ViewModels.Le
 {
@@ -29,10 +29,39 @@ namespace Samples.ViewModels.Le
 
 
         public IGattCharacteristic Characteristic { get; }
-        [Reactive] public string Value { get; private set; }
-        [Reactive] public bool IsNotifying { get; private set; }
-        [Reactive] public bool IsValueAvailable { get; private set; }
-        [Reactive] public DateTime LastValue { get; private set; }
+
+
+        string value;
+        public string Value
+        {
+            get => this.value;
+            private set => this.RaiseAndSetIfChanged(ref this.value, value);
+        }
+
+
+        bool notifying;
+        public bool IsNotifying
+        {
+            get => this.notifying;
+            private set => this.RaiseAndSetIfChanged(ref this.notifying, value);
+        }
+
+
+        bool valueAvailable;
+        public bool IsValueAvailable
+        {
+            get => this.valueAvailable;
+            private set => this.RaiseAndSetIfChanged(ref this.valueAvailable, value);
+        }
+
+
+        DateTime lastValue;
+        public DateTime LastValue
+        {
+            get => this.lastValue;
+            private set => this.RaiseAndSetIfChanged(ref this.lastValue, value);
+        }
+
 
         public Guid Uuid => this.Characteristic.Uuid;
         public Guid ServiceUuid => this.Characteristic.Service.Uuid;
@@ -88,7 +117,7 @@ namespace Samples.ViewModels.Le
                     {
                         var utf8 = await this.dialogs.ConfirmAsync("Display Value as UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
                         this.watcher = this.Characteristic
-                            .SubscribeToNotifications()
+                            .RegisterAndNotify()
                             .Subscribe(x => this.SetReadValue(x, utf8));
 
                         this.IsNotifying = true;
@@ -163,7 +192,7 @@ namespace Samples.ViewModels.Le
                 var utf8 = await this.dialogs.ConfirmAsync("Write value from UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
                 var result = await this.dialogs.PromptAsync("Please enter a write value", this.Description);
 
-                if (result.Ok && !result.Text.IsEmpty())
+                if (result.Ok && !String.IsNullOrWhiteSpace(result.Text))
                 {
                     try
                     {

@@ -2,7 +2,7 @@
 using Autofac;
 
 
-namespace Samples.Droid
+namespace Samples.macOS
 {
     public class PlatformModule : Module
     {

@@ -4,12 +4,12 @@
 	xmlns:le="clr-namespace:Samples.Pages.Le;assembly=Samples"
 	xmlns:testCases="clr-namespace:Samples.Pages.TestCases;assembly=Samples"
 	x:Class="Samples.Pages.MainPage"
-	Title="ACR BluetoothLE">
+	Title="BLE Plugin">
 	<TabbedPage.Children>
-        <le:ScanPage Title="Scan" />
-		<le:ConnectedDevicesPage Title="Connected" />
-        <le:ServerPage Title="Server" />
-        <testCases:Test1Page Title="Test Cases" />
+        <le:ScanPage BindingContext="{Binding Scan}"  Title="Scan" />
+		<le:ConnectedDevicesPage BindingContext="{Binding ConnectedDevices}"  Title="Connected" />
+        <le:ServerPage BindingContext="{Binding Server}"  Title="Server" />
+        <testCases:Test1Page BindingContext="{Binding TestCases}"  Title="Test Cases" />
         <!--<le:LogPage Title="Logs" />-->
 	</TabbedPage.Children>
 </TabbedPage>

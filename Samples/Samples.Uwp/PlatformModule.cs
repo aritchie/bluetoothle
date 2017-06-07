@@ -10,10 +10,10 @@ namespace Samples.Uwp
         {
             base.Load(builder);
             builder.RegisterModule(new CoreModule());
-            builder
-                .Register(x => new SampleDbConnection(Windows.Storage.ApplicationData.Current.LocalFolder.Path))
-                .AsSelf()
-                .SingleInstance();
+            //builder
+            //    .Register(x => new SampleDbConnection(Windows.Storage.ApplicationData.Current.LocalFolder.Path))
+            //    .AsSelf()
+            //    .SingleInstance();
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Samples.Pages
     {
         public MainPage()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

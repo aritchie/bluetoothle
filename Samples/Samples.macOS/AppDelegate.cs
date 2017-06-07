@@ -1,4 +1,5 @@
 ﻿using AppKit;
+using Autofac;
 using Foundation;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
@@ -16,9 +17,9 @@ namespace Samples.macOS
 		{
 			var style = NSWindowStyle.Closable | NSWindowStyle.Resizable | NSWindowStyle.Titled;
 			var rect = new CoreGraphics.CGRect(200, 1000, 1024, 768);
-			this.window = new NSWindow(rect, style, NSBackingStore.Buffered, false) 
+			this.window = new NSWindow(rect, style, NSBackingStore.Buffered, false)
 			{
-				Title = "ACR BluetoothLE",
+				Title = "BLE Plugin",
 				TitleVisibility = NSWindowTitleVisibility.Hidden
 			};
 		}
@@ -29,7 +30,12 @@ namespace Samples.macOS
 		public override void DidFinishLaunching(NSNotification notification)
 		{
 			Forms.Init();
-			this.LoadApplication(new App(null));
+
+		    var builder = new ContainerBuilder();
+		    builder.RegisterModule(new PlatformModule());
+		    var container = builder.Build();
+
+		    this.LoadApplication(new App(container));
 
 			base.DidFinishLaunching(notification);
 		}

@@ -10,10 +10,10 @@ namespace Samples.iOS
         {
             base.Load(builder);
             builder.RegisterModule(new CoreModule());
-            builder
-                .Register(x => new SampleDbConnection(Environment.GetFolderPath(Environment.SpecialFolder.Personal)))
-                .AsSelf()
-                .SingleInstance();
+            //builder
+            //    .Register(x => new SampleDbConnection(Environment.GetFolderPath(Environment.SpecialFolder.Personal)))
+            //    .AsSelf()
+            //    .SingleInstance();
         }
     }
 }

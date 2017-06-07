@@ -1,16 +1,13 @@
 ﻿using System;
-using Autofac;
-using Samples.ViewModels.Le;
 
 
 namespace Samples.Pages.Le
 {
-    public partial class ConnectedDevicesPage : Acr.XamForms.ContentPage
+    public partial class ConnectedDevicesPage : Samples.Pages.ContentPage
     {
         public ConnectedDevicesPage()
         {
-            InitializeComponent();
-            this.BindingContext = App.Container.Resolve<ConnectedDevicesViewModel>();
+            this.InitializeComponent();
         }
     }
 }

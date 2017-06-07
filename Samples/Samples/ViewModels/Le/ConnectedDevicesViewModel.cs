@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows.Input;
 using Plugin.BluetoothLE;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
 using Samples.Services;
 using Xamarin.Forms;
 
@@ -57,6 +56,18 @@ namespace Samples.ViewModels.Le
 
 
         public ICommand SelectDevice { get; }
-        [Reactive] public IList<IDevice> DeviceList { get; private set; }
+
+
+        IList<IDevice> devices;
+
+        public IList<IDevice> DeviceList
+        {
+            get => this.devices;
+            private set
+            {
+                this.devices = value;
+                this.RaisePropertyChanged();
+            }
+        }
     }
 }

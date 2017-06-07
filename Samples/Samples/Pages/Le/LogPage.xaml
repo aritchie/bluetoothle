@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<acr:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<local:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:acr="clr-namespace:Acr.XamForms;assembly=Acr.XamForms"
+    xmlns:local="clr-namespace:Samples.Pages;assembly=Samples"
+    xmlns:controls="clr-namespace:Samples.Controls;assembly=Samples"
     x:Class="Samples.Pages.Le.LogPage"
     Title="Log">
     <ContentPage.ToolbarItems>
@@ -14,10 +15,10 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <acr:ListView 
-					ItemsSource="{Binding Data}" 
-					IsPullToRefreshEnabled="true" 
-					IsRefreshing="{Binding IsRefreshing}" 
+            <controls:ListView
+					ItemsSource="{Binding Data}"
+					IsPullToRefreshEnabled="true"
+					IsRefreshing="{Binding IsRefreshing}"
 					RefreshCommand="{Binding Refresh}"
 					ItemClickCommand="{Binding Show}">
                 <ListView.ItemTemplate>
@@ -25,11 +26,11 @@
                         <TextCell Text="{Binding TimestampLocal, StringFormat='{0:hh:mm:ss tt}'}" Detail="{Binding Description}" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </acr:ListView>
+            </controls:ListView>
             <StackLayout Orientation="Horizontal" Grid.Row="1">
                 <Switch IsToggled="{Binding IsLoggingEnabled}" />
                 <Label Text="Enable Logging" />
             </StackLayout>
         </Grid>
     </ContentPage.Content>
-</acr:ContentPage>
+</local:ContentPage>

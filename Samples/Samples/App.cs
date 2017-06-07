@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Acr;
 using Autofac;
 using Plugin.BluetoothLE;
 using Samples.Pages;
 using Samples.Pages.Le;
 using Samples.Services;
+using Samples.ViewModels;
+using Samples.ViewModels.Le;
 using Xamarin.Forms;
 
 
@@ -21,22 +22,32 @@ namespace Samples
             Container = container;
 
             this.MainPage = CrossBleAdapter.AdapterScanner.IsSupported
-                ? new NavigationPage(new AdapterListPage())
-                : new NavigationPage(new MainPage());
+                ? new NavigationPage(new AdapterListPage
+                {
+                    BindingContext = container.Resolve<AdapterListViewModel>()
+                })
+                : new NavigationPage(new MainPage
+                {
+                    BindingContext = container.Resolve<MainViewModel>()
+                });
         }
 
 
         protected override void OnResume()
         {
             base.OnResume();
-            Container.Resolve<IEnumerable<IAppLifecycle>>().Each(x => x.OnForeground());
+            var apps = Container.Resolve<IEnumerable<IAppLifecycle>>();
+            foreach (var app in apps)
+                app.OnForeground();
         }
 
 
         protected override void OnSleep()
         {
             base.OnSleep();
-            Container.Resolve<IEnumerable<IAppLifecycle>>().Each(x => x.OnBackground());
+            var apps = Container.Resolve<IEnumerable<IAppLifecycle>>();
+            foreach (var app in apps)
+                app.OnBackground();
         }
     }
 }

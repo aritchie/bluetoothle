@@ -8,7 +8,6 @@ using System.Windows.Input;
 using Plugin.BluetoothLE;
 using Acr.UserDialogs;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
 using Samples.Services;
 using Xamarin.Forms;
 
@@ -208,11 +207,48 @@ namespace Samples.ViewModels.Le
         public ICommand RequestMtu { get; }
         public ICommand SelectCharacteristic { get; }
         public ICommand SelectDescriptor { get; }
-        [Reactive] public string Name { get; private set; }
-        [Reactive] public string ConnectText { get; private set; } = "Connect";
-        [Reactive] public Guid Uuid { get; private set; }
-        [Reactive] public int Rssi { get; private set; }
-        [Reactive] public ConnectionStatus Status { get; private set; } = ConnectionStatus.Disconnected;
+
+
+        string name;
+        public string Name
+        {
+            get => this.name;
+            private set => this.RaiseAndSetIfChanged(ref this.name, value);
+        }
+
+
+        string connectText = "Connect";
+        public string ConnectText
+        {
+            get => this.connectText;
+            private set => this.RaiseAndSetIfChanged(ref this.connectText, value);
+        }
+
+
+        Guid uuid;
+        public Guid Uuid
+        {
+            get => this.uuid;
+            private set => this.RaiseAndSetIfChanged(ref this.uuid, value);
+        }
+
+
+        int rssi;
+        public int Rssi
+        {
+            get => this.rssi;
+            private set => this.RaiseAndSetIfChanged(ref this.rssi, value);
+        }
+
+
+        ConnectionStatus status = ConnectionStatus.Disconnected;
+        public ConnectionStatus Status
+        {
+            get => this.status;
+            private set => this.RaiseAndSetIfChanged(ref this.status, value);
+        }
+
+
         public ObservableCollection<Group<GattCharacteristicViewModel>> GattCharacteristics { get; } = new ObservableCollection<Group<GattCharacteristicViewModel>>();
         public ObservableCollection<GattDescriptorViewModel> GattDescriptors { get; } = new ObservableCollection<GattDescriptorViewModel>();
     }
