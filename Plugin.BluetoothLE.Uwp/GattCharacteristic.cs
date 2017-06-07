@@ -86,7 +86,7 @@ namespace Plugin.BluetoothLE
             });
         }
 
-        
+
         IObservable<CharacteristicResult> notificationOb;
         public override IObservable<CharacteristicResult> WhenNotificationReceived()
         {
@@ -156,6 +156,6 @@ namespace Plugin.BluetoothLE
                 default:
                     throw new ArgumentException("Invalid characteristic config descriptor value");
             }
-        }       
+        }
     }
 }

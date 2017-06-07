@@ -20,6 +20,7 @@ namespace Samples.ViewModels.Le
         {
             this.connect = this.BleAdapter
                 .WhenDeviceStatusChanged()
+                //.ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
                 {
                     var vm = this.Devices.FirstOrDefault(dev => dev.Uuid.Equals(x.Uuid));
@@ -30,6 +31,7 @@ namespace Samples.ViewModels.Le
             this.AppState.WhenBackgrounding().Subscribe(_ => this.scan?.Dispose());
             this.BleAdapter
                 .WhenScanningStatusChanged()
+                //.ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(on =>
                 {
                     this.IsScanning = on;
@@ -68,6 +70,7 @@ namespace Samples.ViewModels.Le
                 },
                 this.BleAdapter
                     .WhenStatusChanged()
+                    //.ObserveOn(RxApp.MainThreadScheduler)
                     .Select(x => x == AdapterStatus.PoweredOff)
             );
 

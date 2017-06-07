@@ -20,7 +20,7 @@ namespace Plugin.BluetoothLE
                 .Where(x => x)
                 .Select(x => characteristic.WhenNotificationReceived())
                 .Switch()
-                .Finally(() => characteristic.SetNotificationValue(CharacteristicConfigDescriptorValue.None));
+                .Finally(() => characteristic.SetNotificationValue(CharacteristicConfigDescriptorValue.None).Subscribe());
 
 
         public static IObservable<CharacteristicResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
