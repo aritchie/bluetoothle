@@ -113,6 +113,7 @@
     <Compile Include="Adapter.cs" />
     <Compile Include="AdapterContext.cs" />
     <Compile Include="DeviceInfoArgs.cs" />
+    <Compile Include="DeviceContext.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="GattCharacteristic.cs" />
     <Compile Include="GattDescriptor.cs" />

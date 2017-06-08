@@ -5,11 +5,11 @@
 	xmlns:testCases="clr-namespace:Samples.Pages.TestCases;assembly=Samples"
 	x:Class="Samples.Pages.MainPage"
 	Title="BLE Plugin">
+
 	<TabbedPage.Children>
-        <le:ScanPage BindingContext="{Binding Scan}"  Title="Scan" />
-		<le:ConnectedDevicesPage BindingContext="{Binding ConnectedDevices}"  Title="Connected" />
-        <le:ServerPage BindingContext="{Binding Server}"  Title="Server" />
-        <testCases:Test1Page BindingContext="{Binding TestCases}"  Title="Test Cases" />
-        <!--<le:LogPage Title="Logs" />-->
+        <le:ScanPage BindingContext="{Binding Scan}" Title="Scan" />
+		<le:ConnectedDevicesPage BindingContext="{Binding ConnectedDevices}" Title="Connected" />
+        <le:ServerPage BindingContext="{Binding Server}" Title="Server" />
+        <testCases:Test1Page BindingContext="{Binding TestCases}" Title="Test Cases" />
 	</TabbedPage.Children>
 </TabbedPage>

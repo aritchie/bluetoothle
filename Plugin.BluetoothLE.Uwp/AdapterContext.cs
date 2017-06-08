@@ -3,12 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
-using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Foundation;
-using Windows.UI.Core;
 
 
 namespace Plugin.BluetoothLE
@@ -32,42 +29,6 @@ namespace Plugin.BluetoothLE
             return device;
         }
 
-
-        public async Task Disconnect(BluetoothLEDevice native)
-        {
-            this.devices.TryRemove(native.BluetoothAddress, out _);
-            var ns = await native.GetGattServicesAsync(BluetoothCacheMode.Cached);
-            foreach (var nservice in ns.Services)
-            {
-                var nch = await nservice.GetCharacteristicsAsync(BluetoothCacheMode.Cached);
-                var tcs = new TaskCompletionSource<object>();
-                await CoreWindow.GetForCurrentThread().Dispatcher.RunAsync(
-                    CoreDispatcherPriority.High,
-                    async () =>
-                    {
-                        foreach (var characteristic in nch.Characteristics)
-                        {
-                            if (!characteristic.HasNotify())
-                                return;
-
-                            try
-                            {
-                                await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
-                            }
-                            catch (Exception e)
-                            {
-                                //System.Console.WriteLine(e);
-                                System.Diagnostics.Debug.WriteLine(e.ToString());
-                            }
-                        }
-                        tcs.TrySetResult(null);
-                    }
-                );
-                await tcs.Task;
-                nservice.Dispose();
-            }
-            native.Dispose();
-        }
 
         public IEnumerable<IDevice> GetConnectedDevices() => this.devices
             .Where(x => x.Value.Status == ConnectionStatus.Connected)

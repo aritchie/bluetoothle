@@ -9,11 +9,13 @@ namespace Plugin.BluetoothLE
 {
     public class GattService : AbstractGattService
     {
+        readonly DeviceContext context;
         readonly Native native;
 
 
-        public GattService(Native native, IDevice device) : base(device, native.Uuid, false)
+        public GattService(DeviceContext context, Native native) : base(context.Device, native.Uuid, false)
         {
+            this.context = context;
             this.native = native;
         }
 
@@ -26,7 +28,7 @@ namespace Plugin.BluetoothLE
                 var result = await this.native.GetCharacteristicsAsync(BluetoothCacheMode.Uncached);
                 foreach (var characteristic in result.Characteristics)
                 {
-                    var wrap = new GattCharacteristic(characteristic, this);
+                    var wrap = new GattCharacteristic(this.context, characteristic, this);
                     ob.OnNext(wrap);
                 }
                 return Disposable.Empty;

@@ -27,10 +27,8 @@ namespace Plugin.BluetoothLE
         {
             this.native = native;
             this.radio = radio;
+            this.DeviceName = radio.Name;
         }
-
-
-        public override string DeviceName => this.radio?.Name;
 
 
         public override AdapterFeatures Features

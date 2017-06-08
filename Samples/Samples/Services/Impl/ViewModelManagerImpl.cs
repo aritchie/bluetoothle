@@ -28,15 +28,12 @@ namespace Samples.Services.Impl
 
         public Task Push<TViewModel>(object args = null) where TViewModel : class, IViewModel
         {
-			var page = this.CreatePage<TViewModel>(args);
-			return this.GetCurrentNav().PushAsync(page);
+            var page = this.CreatePage<TViewModel>(args);
+            return this.GetCurrentNav().PushAsync(page);
         }
 
 
-        public Task Pop()
-        {
-			return this.GetCurrentNav().PopAsync(true);
-        }
+        public Task Pop() => this.GetCurrentNav().PopAsync(true);
 
 
 		public Page CreatePage<TViewModel>(object args) where TViewModel : class, IViewModel

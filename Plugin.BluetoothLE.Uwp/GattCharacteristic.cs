@@ -2,6 +2,7 @@
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Foundation;
@@ -13,8 +14,13 @@ namespace Plugin.BluetoothLE
 {
     public class GattCharacteristic : AbstractGattCharacteristic
     {
-        public GattCharacteristic(Native native, IGattService service) : base(service, native.Uuid, (CharacteristicProperties)native.CharacteristicProperties)
+        readonly DeviceContext context;
+
+
+        public GattCharacteristic(DeviceContext context, Native native, IGattService service)
+            : base(service, native.Uuid, (CharacteristicProperties)native.CharacteristicProperties)
         {
+            this.context = context;
             this.Native = native;
         }
 
@@ -50,6 +56,7 @@ namespace Plugin.BluetoothLE
                     .ReadValueAsync(BluetoothCacheMode.Uncached)
                     .AsTask(ct);
 
+                this.context.Ping();
                 if (result.Status != GattCommunicationStatus.Success)
                     throw new Exception("Error reading characteristics - " + result.Status);
 
@@ -66,9 +73,10 @@ namespace Plugin.BluetoothLE
         {
             this.AssertNotify();
 
-            return Observable.Create<bool>(ob =>
+            return Observable.FromAsync(async ct =>
             {
-                CoreWindow
+                var tcs = new TaskCompletionSource<GattCommunicationStatus>();
+                await CoreWindow
                     .GetForCurrentThread()
                     .Dispatcher
                     .RunAsync(
@@ -76,13 +84,18 @@ namespace Plugin.BluetoothLE
                         async () =>
                         {
                             var desc = GetConfigValue(value);
-                            var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(desc);
-
-                            ob.Respond(status == GattCommunicationStatus.Success);
+                            var result = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(desc);
+                            tcs.TrySetResult(result);
                         }
                     );
 
-                return Disposable.Empty;
+                var status = await tcs.Task;
+                if (status == GattCommunicationStatus.Success)
+                {
+                    this.context.SetNotifyCharacteristic(this.Native, value != CharacteristicConfigDescriptorValue.None);
+                    return true;
+                }
+                return false;
             });
         }
 
@@ -130,6 +143,7 @@ namespace Plugin.BluetoothLE
                     .WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse)
                     .AsTask(ct);
 
+                this.context.Ping();
                 if (result != GattCommunicationStatus.Success)
                     throw new Exception("Error writing characteristic");
 
