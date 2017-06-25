@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
@@ -20,7 +21,7 @@ namespace Samples.ViewModels.Le
         {
             this.connect = this.BleAdapter
                 .WhenDeviceStatusChanged()
-                //.ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
                 {
                     var vm = this.Devices.FirstOrDefault(dev => dev.Uuid.Equals(x.Uuid));
@@ -31,7 +32,7 @@ namespace Samples.ViewModels.Le
             this.AppState.WhenBackgrounding().Subscribe(_ => this.scan?.Dispose());
             this.BleAdapter
                 .WhenScanningStatusChanged()
-                //.ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(on =>
                 {
                     this.IsScanning = on;
@@ -70,7 +71,7 @@ namespace Samples.ViewModels.Le
                 },
                 this.BleAdapter
                     .WhenStatusChanged()
-                    //.ObserveOn(RxApp.MainThreadScheduler)
+                    .ObserveOn(RxApp.MainThreadScheduler)
                     .Select(x => x == AdapterStatus.PoweredOff)
             );
 

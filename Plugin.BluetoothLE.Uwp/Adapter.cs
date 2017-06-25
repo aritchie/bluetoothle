@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -8,6 +9,7 @@ using Windows.Devices.Bluetooth;
 using Windows.Foundation;
 using Windows.Devices.Radios;
 using Windows.System;
+using Windows.UI.Xaml.Media;
 using Plugin.BluetoothLE.Server;
 
 
@@ -108,12 +110,16 @@ namespace Plugin.BluetoothLE
             if (this.IsScanning)
                 throw new ArgumentException("There is already an active scan");
 
-            var observer = Observable.Create<IScanResult>(async ob =>
+            var observer = Observable.Create<IScanResult>(ob =>
             {
-                await this.EnsureRadio();
+                this.IsScanning = true;
 
-                var sub = this.ScanListen().Subscribe(ob.OnNext);
-                this.IsScanning = true; // this will actually fire off the scanner
+                var sub = this
+                    .WhenRadioReady()
+                    .Where(rdo => rdo != null)
+                    .Select(_ => this.ScanListen())
+                    .Switch()
+                    .Subscribe(ob.OnNext);
 
                 return () =>
                 {
@@ -134,7 +140,6 @@ namespace Plugin.BluetoothLE
         public override IObservable<IScanResult> ScanListen()
         {
             IDisposable adWatcher = null;
-            IDisposable devWatcher = null;
 
             this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
                 this.WhenScanningStatusChanged().Subscribe(scan =>
@@ -178,21 +183,33 @@ namespace Plugin.BluetoothLE
         IObservable<AdapterStatus> statusOb;
         public override IObservable<AdapterStatus> WhenStatusChanged()
         {
-            this.statusOb = this.statusOb ?? Observable.Create<AdapterStatus>(async ob =>
+            this.statusOb = this.statusOb ?? Observable.Create<AdapterStatus>(ob =>
             {
-                ob.OnNext(this.Status);
+                Radio r = null;
                 var handler = new TypedEventHandler<Radio, object>((sender, args) =>
                     ob.OnNext(this.Status)
                 );
-                await this.EnsureRadio();
-                this.radio.StateChanged += handler;
 
-                return () => this.radio.StateChanged -= handler;
-            })
-            .Replay(1)
-            .RefCount();
+                var sub = this.WhenRadioReady().Subscribe(rdo =>
+                {
+                    r = rdo;
+                    ob.OnNext(this.Status);
+                    r.StateChanged += handler;
+                });
+
+                return () =>
+                {
+                    sub.Dispose();
+                    if (r != null)
+                        r.StateChanged -= handler;
+                };
+            });
+                ////.Publish()
+                ////.Replay(1)
+                ////.RefCount();
 
             return this.statusOb;
+            //return Observable.Return(AdapterStatus.PoweredOn);
         }
 
 
@@ -228,17 +245,17 @@ namespace Plugin.BluetoothLE
         }
 
 
-        async Task EnsureRadio()
+        IObservable<Radio> WhenRadioReady() => Observable.FromAsync(async ct =>
         {
             if (this.radio != null)
-                return;
+                return this.radio;
 
-            this.native = await BluetoothAdapter.GetDefaultAsync();
+            this.native = await BluetoothAdapter.GetDefaultAsync().AsTask(ct);
             if (this.native == null)
                 throw new ArgumentException("No bluetooth adapter found");
 
-            this.radio = await this.native.GetRadioAsync();
-
-        }
+            this.radio = await this.native.GetRadioAsync().AsTask(ct);
+            return this.radio;
+        });
     }
 }

@@ -8,7 +8,6 @@ using Plugin.BluetoothLE.Server;
 using ReactiveUI;
 using Samples.Services;
 using Device = Xamarin.Forms.Device;
-using Command = Xamarin.Forms.Command;
 
 
 namespace Samples.ViewModels.Le
@@ -23,9 +22,10 @@ namespace Samples.ViewModels.Le
         {
             this.BleAdapter
                 .WhenStatusChanged()
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => this.Status = x);
 
-            var cmd = new Command(async _ =>
+            this.ToggleServer = ReactiveCommand.CreateFromTask(async _ =>
             {
                 if (this.BleAdapter.Status != AdapterStatus.PoweredOn)
                 {
@@ -55,8 +55,7 @@ namespace Samples.ViewModels.Le
                 }
             });
 
-            this.ToggleServer = cmd;
-            this.Clear = new Command(() => this.Output = String.Empty);
+            this.Clear = ReactiveCommand.Create(() => this.Output = String.Empty);
         }
 
 

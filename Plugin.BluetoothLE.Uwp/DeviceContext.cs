@@ -15,7 +15,6 @@ namespace Plugin.BluetoothLE
     {
         readonly object syncLock;
         readonly IList<NC> subscribers;
-
         IDisposable keepAlive;
 
 
@@ -39,9 +38,7 @@ namespace Plugin.BluetoothLE
 
             this.keepAlive = Observable
                 .Interval(TimeSpan.FromSeconds(5))
-                .Subscribe(async _ =>
-                    await this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached)
-                );
+                .Subscribe(_ => this.Ping());
         }
 
 
@@ -52,12 +49,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public void Ping()
-        {
-            // TODO: reads/writes should "ping" to prevent keepalive from firing
-        }
-
-
+        public void Ping() => this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached); // fire and forget
         public void Connect() => this.StartKeepAlive();
 
 
@@ -69,6 +61,7 @@ namespace Plugin.BluetoothLE
                 CoreDispatcherPriority.High,
                 async () =>
                 {
+
                     foreach (var ch in this.subscribers)
                     {
                         try
@@ -79,12 +72,18 @@ namespace Plugin.BluetoothLE
                         {
                             System.Diagnostics.Debug.WriteLine(e.ToString());
                         }
+                        this.subscribers.Clear();
                     }
+                    var result = await this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Cached);
+                    foreach (var s in result.Services)
+                    {
+                        s.Dispose();
+                    }
+                    //this.NativeDevice.Dispose();
                     tcs.TrySetResult(null);
                 }
             );
             await tcs.Task;
-            this.subscribers.Clear();
         }
 
 

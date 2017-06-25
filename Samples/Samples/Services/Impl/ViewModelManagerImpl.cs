@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Autofac;
 using Samples.ViewModels;
@@ -20,16 +21,18 @@ namespace Samples.Services.Impl
 
         public TViewModel Create<TViewModel>(object args = null) where TViewModel : class, IViewModel
         {
+            Debug.WriteLine("Resolving " + typeof(TViewModel).FullName);
             var vm = this.scope.Resolve<TViewModel>();
             vm.Init(args);
             return vm;
         }
 
 
-        public Task Push<TViewModel>(object args = null) where TViewModel : class, IViewModel
+        public async Task Push<TViewModel>(object args = null) where TViewModel : class, IViewModel
         {
             var page = this.CreatePage<TViewModel>(args);
-            return this.GetCurrentNav().PushAsync(page);
+            var nav = this.GetCurrentNav();
+            await nav.PushAsync(page);
         }
 
 

@@ -7,6 +7,7 @@ using Acr.UserDialogs;
 using Plugin.BluetoothLE;
 using ReactiveUI;
 using Samples.Services;
+using Xamarin.Forms;
 
 
 namespace Samples.ViewModels.Le
