@@ -166,12 +166,12 @@ namespace Plugin.BluetoothLE
                                     if (btDevice != null)
                                         device = this.context.AddDevice(args.BluetoothAddress, btDevice);
                                 }
-                                if (device != null)
-                                {
+                                //if (device != null)
+                                //{
                                     var adData = new AdvertisementData(args);
                                     var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
                                     ob.OnNext(scanResult);
-                                }
+                                //}
                             });
                     }
                 })
