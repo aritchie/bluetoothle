@@ -46,11 +46,7 @@ namespace Plugin.BluetoothLE
             });
 
 
-
-        public override async void CancelConnection()
-        {
-            await this.context.Disconnect();
-        }
+        public override async void CancelConnection() => await this.context.Disconnect();
 
 
         public override ConnectionStatus Status

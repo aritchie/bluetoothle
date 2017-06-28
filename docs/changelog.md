@@ -4,8 +4,7 @@
 * [feature] .net standard support
 * [feature][breaking] characteristics must now have their notifications enabled/disabled using characteristic.SetNotificationValue(..);
 * [uwp] Connection status and general connection keep-alive improvements
-* [uwp][fix] Disconnect works
-* 
+
 ## 3.1
 * [feature] UWP client beta (server support has not been tested)
 * [feature] Adapter scanner now has an empty implementation for platforms where it is not supported

@@ -19,6 +19,9 @@ namespace Samples.ViewModels.Le
 
         public ScanViewModel(ICoreServices services) : base(services)
         {
+            this.Devices = new ObservableCollection<ScanResultViewModel>();
+            this.AppState.WhenBackgrounding().Subscribe(_ => this.scan?.Dispose());
+
             this.connect = this.BleAdapter
                 .WhenDeviceStatusChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -29,7 +32,6 @@ namespace Samples.ViewModels.Le
                         vm.IsConnected = x.Status == ConnectionStatus.Connected;
                 });
 
-            this.AppState.WhenBackgrounding().Subscribe(_ => this.scan?.Dispose());
             this.BleAdapter
                 .WhenScanningStatusChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -38,7 +40,6 @@ namespace Samples.ViewModels.Le
                     this.IsScanning = on;
                     this.ScanText = on ? "Stop Scan" : "Scan";
                 });
-            this.Devices = new ObservableCollection<ScanResultViewModel>();
 
             this.SelectDevice = ReactiveCommand.Create<ScanResultViewModel>(x =>
             {
@@ -57,6 +58,7 @@ namespace Samples.ViewModels.Le
                     this.Dialogs.Alert("Cannot open bluetooth settings");
                 }
             });
+
             this.ToggleAdapterState = ReactiveCommand.Create(
                 () =>
                 {

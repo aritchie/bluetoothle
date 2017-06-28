@@ -79,6 +79,7 @@ namespace Plugin.BluetoothLE
                     {
                         s.Dispose();
                     }
+                    GC.Collect();
                     //this.NativeDevice.Dispose();
                     tcs.TrySetResult(null);
                 }
