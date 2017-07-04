@@ -30,6 +30,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="dbus-sharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=5675b0c3093115b5, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\dbus-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.BlueZ.DBus, Version=1.0.6394.24646, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\Mono.BlueZ.DBus.dll</HintPath>
+    </Reference>
+    <Reference Include="PebbleSharp.Core.NonPortable, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\PebbleSharp.Core.NonPortable.dll</HintPath>
+    </Reference>
+    <Reference Include="PebbleSharp.Mono.BlueZ5, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\PebbleSharp.Mono.BlueZ5.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -37,6 +53,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adapter.cs" />
+    <Compile Include="AdapterScanner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -49,6 +67,16 @@
     <PackageReference Include="System.Reactive">
       <Version>3.1.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="lib\dbus-sharp.dll" />
+    <Content Include="lib\dbus-sharp.pdb" />
+    <Content Include="lib\Mono.BlueZ.DBus.dll" />
+    <Content Include="lib\Mono.BlueZ.DBus.pdb" />
+    <Content Include="lib\PebbleSharp.Core.NonPortable.dll" />
+    <Content Include="lib\PebbleSharp.Core.NonPortable.pdb" />
+    <Content Include="lib\PebbleSharp.Mono.BlueZ5.dll" />
+    <Content Include="lib\PebbleSharp.Mono.BlueZ5.pdb" />
   </ItemGroup>
   <Import Project="..\Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
