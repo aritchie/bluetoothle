@@ -10,15 +10,18 @@ namespace Plugin.BluetoothLE
             throw new NotImplementedException();
         }
 
+
         public override IObservable<IScanResult> Scan(ScanConfig config = null)
         {
             throw new NotImplementedException();
         }
 
+
         public override IObservable<IScanResult> ScanListen()
         {
             throw new NotImplementedException();
         }
+
 
         public override IObservable<AdapterStatus> WhenStatusChanged()
         {

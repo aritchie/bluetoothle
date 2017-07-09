@@ -4,7 +4,7 @@
  - [] Android
  - [] tvOS
  - [] macOS
- - [] PCL
+ - [] .NET Standard
  - UWP IS NOT SUPPORTED DURING THE BETA PERIOD - ONLY PRs ARE WELCOME FOR NOW
 
 ## Version of OS(s) listed above with issue
@@ -25,4 +25,3 @@ _If applicable, please include entire exception - type, message, stacktrace_
 * No Timeline Requests
 * Please read through the documentation and FAQs
 * Please be respectful of my time. I put a lot of effort into my libraries.  I try to support the issue requests within a day.  I'm not psychic, so please take the time to fill out the above form as complete as possible
-Contact GitHub
