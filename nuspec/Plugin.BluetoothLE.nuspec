@@ -43,6 +43,9 @@ macOS
         <!-- tvOS -->
         <file src="..\Plugin.BluetoothLE.tvOS\bin\Release\Plugin.BluetoothLE.*" target="lib\Xamarin.tvOS10" />
 
+        <!-- tizen -->
+        <file src="..\Plugin.BluetoothLE.Tizen\bin\Release\Plugin.BluetoothLE.*" target="lib\tizen" />
+
         <!-- uwp -->
         <file src="..\Plugin.BluetoothLE.Uwp\bin\Release\Plugin.BluetoothLE.*" target="lib\uap10.0" />
 

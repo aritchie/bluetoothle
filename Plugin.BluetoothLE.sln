@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Droid", "Samples\Samples.Droid\Samples.Droid.csproj", "{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.iOS", "Samples\Samples.iOS\Samples.iOS.csproj", "{3107CAB7-B392-4013-A5B0-8A4A6149ADA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples\Samples.csproj", "{AF0917DD-079A-49CB-9115-BA08340E4ED8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples\Samples.csproj", "{AF0917DD-079A-49CB-9115-BA08340E4ED8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CB45572F-4288-4D54-98BB-B2807C2A8C54}"
 	ProjectSection(SolutionItems) = preProject
@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Uwp", "samples\Samp
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Plugin.BluetoothLE.Shared", "Plugin.BluetoothLE.Shared\Plugin.BluetoothLE.Shared.shproj", "{B6CFBF05-04E5-4AE6-8516-C6527C7A2BE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE", "Plugin.BluetoothLE\Plugin.BluetoothLE.csproj", "{F44FEBBA-7EA7-4B92-BF25-EBDCC1DB1830}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.BluetoothLE", "Plugin.BluetoothLE\Plugin.BluetoothLE.csproj", "{F44FEBBA-7EA7-4B92-BF25-EBDCC1DB1830}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.iOS", "Plugin.BluetoothLE.iOS\Plugin.BluetoothLE.iOS.csproj", "{57D5FF44-345D-4229-AEFC-E3F7F260A665}"
 EndProject
@@ -33,7 +33,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Android"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Uwp", "Plugin.BluetoothLE.Uwp\Plugin.BluetoothLE.Uwp.csproj", "{74399318-B10F-47DC-9500-1F5B9E337DBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Abstractions", "Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj", "{01D11EF2-074C-4BC0-9C05-5A6A9F974E05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.BluetoothLE.Abstractions", "Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj", "{01D11EF2-074C-4BC0-9C05-5A6A9F974E05}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Mac", "Plugin.BluetoothLE.Mac\Plugin.BluetoothLE.Mac.csproj", "{8A0FC475-221D-4FE0-8308-3F703DC08F52}"
 EndProject
@@ -65,6 +65,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.MonoBlueZ", "Plugin.BluetoothLE.MonoBlueZ\Plugin.BluetoothLE.MonoBlueZ.csproj", "{08ACA868-EE1D-4928-A4C3-D7B991CE19DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.macOS", "Samples\Samples.macOS\Samples.macOS.csproj", "{6DF84C8C-CBA6-4BC1-9FB8-1600B189705A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Tizen", "Plugin.BluetoothLE.Tizen\Plugin.BluetoothLE.Tizen.csproj", "{3419599B-F27A-458E-B445-3982C328EA97}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -745,6 +747,54 @@ Global
 		{6DF84C8C-CBA6-4BC1-9FB8-1600B189705A}.Release|x64.Build.0 = Release|Any CPU
 		{6DF84C8C-CBA6-4BC1-9FB8-1600B189705A}.Release|x86.ActiveCfg = Release|Any CPU
 		{6DF84C8C-CBA6-4BC1-9FB8-1600B189705A}.Release|x86.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|Any CPU.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|Any CPU.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|ARM.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|ARM.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|iPhone.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|iPhone.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|iPhoneSimulator.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|x64.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|x64.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|x86.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Ad-Hoc|x86.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|Any CPU.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|Any CPU.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|ARM.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|ARM.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|iPhone.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|iPhone.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|iPhoneSimulator.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|x64.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|x64.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|x86.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.AppStore|x86.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|ARM.Build.0 = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|x64.Build.0 = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Debug|x86.Build.0 = Debug|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|ARM.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|ARM.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|iPhone.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|x64.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|x64.Build.0 = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|x86.ActiveCfg = Release|Any CPU
+		{3419599B-F27A-458E-B445-3982C328EA97}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
