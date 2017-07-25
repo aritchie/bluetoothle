@@ -53,8 +53,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants.cs" />
+    <Compile Include="GattCharacteristic.cs" />
+    <Compile Include="Infrastructure\AcrAgent.cs" />
     <Compile Include="Adapter.cs" />
     <Compile Include="AdapterScanner.cs" />
+    <Compile Include="Device.cs" />
+    <Compile Include="Infrastructure\AcrGattProfile.cs" />
+    <Compile Include="Infrastructure\DeviceFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

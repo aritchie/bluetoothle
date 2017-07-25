@@ -1,100 +1,56 @@
 ﻿using System;
+using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using DBus;
+using Mono.BlueZ.DBus;
+using org.freedesktop.DBus;
 
 
 namespace Plugin.BluetoothLE
 {
+    //https://github.com/brookpatten/Mono.BlueZ/blob/master/Mono.BlueZ.Console/BlendMicroBootstrap.cs
     public class AdapterScanner : IAdapterScanner
     {
-        readonly Bus systemBus;
+        public bool IsSupported => Bus.System?.IsConnected ?? false;
 
 
-        public AdapterScanner()
+        IObservable<Unit> DBusLoop() => Observable.Create<Unit>(ob =>
         {
+            var cancel = false;
+            while (!cancel)
+                Bus.System.Iterate();
 
-        }
+            return () => cancel = true;
+        });
 
-        public bool IsSupported { get; }
-        public IObservable<IAdapter> FindAdapters()
+
+        public IObservable<IAdapter> FindAdapters() => Observable.Create<IAdapter>(ob =>
         {
-            var agentPath = new ObjectPath ("/agent");
-            var gattProfilePath = new ObjectPath ("/gattprofiles");
-            var blueZPath = new ObjectPath ("/org/bluez");
+            var objectManager = Bus.System.GetObject<ObjectManager>(Constants.SERVICE, ObjectPath.Root);
+            var agentManager = Bus.System.GetObject<AgentManager1>(Constants.SERVICE, new ObjectPath("/org/bluez"));
 
-            //get a copy of the object manager so we can browse the "tree" of bluetooth items
-            var manager = GetObject<org.freedesktop.DBus.ObjectManager> (Service, ObjectPath.Root);
-            //register these events so we can tell when things are added/removed (eg: discovery)
-            manager.InterfacesAdded += (p, i) => {
-                System.Console.WriteLine (p + " Discovered");
+            objectManager.InterfacesAdded += (path, i) =>
+            {
+                ob.OnNext(new Adapter(agentManager, path));
             };
-            manager.InterfacesRemoved += (p, i) => {
-                System.Console.WriteLine (p + " Lost");
-            };
+            //manager.InterfacesRemoved += (p, i) =>
 
+            var managedObjects = objectManager.GetManagedObjects();
+            var dbusName = typeof(LEAdvertisingManager1).DBusInterfaceName();
 
-            throw new NotImplementedException();
-        }
+            foreach (var path in managedObjects.Keys)
+            {
+                if (managedObjects[path].ContainsKey(dbusName))
+                {
+                    ob.OnNext(new Adapter(agentManager, path));
+                }
+            }
+            return Disposable.Empty;
+        });
     }
 }
 /*
- Skip to content
-This repository
-Search
-Pull requests
-Issues
-Marketplace
-Gist
- @aritchie
- Sign out
- Watch 2
-  Unstar 4
- Fork 6 brookpatten/Mono.BlueZ
- Code  Issues 2  Pull requests 1  Projects 0  Wiki Insights
-Branch: master Find file Copy pathMono.BlueZ/Mono.BlueZ.Console/BlendMicroBootstrap.cs
-8f2a985  on Jan 24, 2016
-@brookpatten brookpatten got gatt working with blend micro
-1 contributor
-RawBlameHistory
-283 lines (244 sloc)  8 KB
-using System;
-using System.Threading;
-using System.Globalization;
-using System.Linq;
-using DBus;
-using Mono.BlueZ.DBus;
-using org.freedesktop.DBus;
-using System.Collections.Generic;
-using System.IO;
-
-namespace Mono.BlueZ.Console
-{
-	public class BlendMicroBootstrap
-	{
-		private Bus _system;
-		//private Bus _session;
-		public Exception _startupException{ get; private set; }
-		private ManualResetEvent _started = new ManualResetEvent(false);
-
-		public BlendMicroBootstrap()
-		{
-			// Run a message loop for DBus on a new thread.
-			var t = new Thread(DBusLoop);
-			t.IsBackground = true;
-			t.Start();
-			_started.WaitOne(60 * 1000);
-			_started.Close();
-			if (_startupException != null)
-			{
-				throw _startupException;
-			}
-			else
-			{
-				//System.Console.WriteLine ("Bus connected at " + _system.UniqueName);
-			}
-		}
-
-		public void Run()
-		{
 
 			string serviceUUID="713d0000-503e-4c75-ba94-3148f18d941e";
 			string charVendorName = "713D0001-503E-4C75-BA94-3148F18D941E";
@@ -104,57 +60,6 @@ namespace Mono.BlueZ.Console
 			string charVersion = "713D0005-503E-4C75-BA94-3148F18D941E";
 			string clientCharacteristic = "00002902-0000-1000-8000-00805f9b34fb";
 
-			System.Console.WriteLine ("Starting Blend Micro Bootstrap");
-			string Service = "org.bluez";
-			//Important!: there is a flaw in dbus-sharp such that you can only register one interface
-			//at each path, so we have to put these at 2 seperate paths, otherwise I'd probably just put them
-			//both at root
-			var agentPath = new ObjectPath ("/agent");
-			var gattProfilePath = new ObjectPath ("/gattprofiles");
-			var blueZPath = new ObjectPath ("/org/bluez");
-
-			//get a copy of the object manager so we can browse the "tree" of bluetooth items
-			var manager = GetObject<org.freedesktop.DBus.ObjectManager> (Service, ObjectPath.Root);
-			//register these events so we can tell when things are added/removed (eg: discovery)
-			manager.InterfacesAdded += (p, i) => {
-				System.Console.WriteLine (p + " Discovered");
-			};
-			manager.InterfacesRemoved += (p, i) => {
-				System.Console.WriteLine (p + " Lost");
-			};
-
-			System.Console.WriteLine ("Registring agent");
-			//get the agent manager so we can register our agent
-			var agentManager = GetObject<AgentManager1> (Service, blueZPath);
-			var agent = new DemoAgent ();
-			GattManager1 gattManager=null;
-			//register our agent and make it the default
-			_system.Register (agentPath, agent);
-			agentManager.RegisterAgent (agentPath, "KeyboardDisplay");
-			agentManager.RequestDefaultAgent (agentPath);
-
-			var devices = new List<Device1> ();
-
-			try
-			{
-				System.Console.WriteLine("Fetching objects");
-				//get the bluetooth object tree
-				var managedObjects = manager.GetManagedObjects();
-				//find our adapter
-				ObjectPath adapterPath = null;
-				foreach (var obj in managedObjects.Keys) {
-					System.Console.WriteLine("Checking "+obj);
-					if (managedObjects [obj].ContainsKey (typeof(LEAdvertisingManager1).DBusInterfaceName ())) {
-						System.Console.WriteLine ("Adapter found at" + obj+" that supports LE");
-						adapterPath = obj;
-						break;
-					}
-				}
-
-				if (adapterPath == null) {
-					System.Console.WriteLine ("Couldn't find adapter that supports LE");
-					return;
-				}
 
 				//get a dbus proxy to the adapter
 				var adapter = GetObject<Adapter1> (Service, adapterPath);
@@ -335,9 +240,4 @@ namespace Mono.BlueZ.Console
 		}
 
 	}
-
-}
-
-Contact GitHub API Training Shop Blog About
-© 2017 GitHub, Inc. Terms Privacy Security Status Help
-     */
+*/
