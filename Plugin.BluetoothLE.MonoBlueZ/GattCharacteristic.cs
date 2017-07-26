@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using DBus;
 using Mono.BlueZ.DBus;
 
 
@@ -40,28 +41,38 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
+        public override IObservable<IGattDescriptor> WhenDescriptorDiscovered() => Observable.Create<IGattDescriptor>(ob =>
         {
-            throw new NotImplementedException();
-        }
+            // TODO: refresh per connection
+            foreach (var path in this.native.Descriptors)
+            {
+                var desc = Bus.System.GetObject<GattDescriptor1>(Constants.SERVICE, path);
+                var acr = new GattDescriptor(desc, this);
+                ob.OnNext(acr);
+            }
+            return Disposable.Empty;
+        });
 
 
-        public override void WriteWithoutResponse(byte[] value)
+        public override void WriteWithoutResponse(byte[] value) => this.native.WriteValue(value);
+
+
+        public override IObservable<CharacteristicResult> Write(byte[] value) => Observable.Create<CharacteristicResult>(ob =>
         {
-            throw new NotImplementedException();
-        }
+            this.native.WriteValue(value);
+            var result = new CharacteristicResult(this, CharacteristicEvent.Write, value);
+            ob.Respond(result);
+            return Disposable.Empty;
+        });
 
 
-        public override IObservable<CharacteristicResult> Write(byte[] value)
+        public override IObservable<CharacteristicResult> Read() => Observable.Create<CharacteristicResult>(ob =>
         {
-            throw new NotImplementedException();
-        }
-
-
-        public override IObservable<CharacteristicResult> Read()
-        {
-            throw new NotImplementedException();
-        }
+            var data = this.native.ReadValue();
+            var result = new CharacteristicResult(this, CharacteristicEvent.Read, data);
+            ob.Respond(result);
+            return Disposable.Empty;
+        });
     }
 }
 /*

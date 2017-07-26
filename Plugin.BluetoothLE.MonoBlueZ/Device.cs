@@ -65,6 +65,7 @@ namespace Plugin.BluetoothLE
 
         public override IObservable<IGattService> WhenServiceDiscovered() => Observable.Create<IGattService>(ob =>
         {
+            // TODO: refresh per connection
             foreach (var path in this.native.GattServices)
             {
                 var service = Bus.System.GetObject<GattService1>(Constants.SERVICE, path);

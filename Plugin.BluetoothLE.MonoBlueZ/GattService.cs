@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using DBus;
 using Mono.BlueZ.DBus;
 
 
@@ -18,10 +20,14 @@ namespace Plugin.BluetoothLE
 
         public override IObservable<IGattCharacteristic> WhenCharacteristicDiscovered() => Observable.Create<IGattCharacteristic>(ob =>
         {
-            return () =>
+            // TODO: refresh per connection
+            foreach (var path in this.native.Characteristics)
             {
-
-            };
+                var ch = Bus.System.GetObject<GattCharacteristic1>(Constants.SERVICE, path);
+                var acr = new GattCharacteristic(ch, this, CharacteristicProperties.Read); // TODO
+                ob.OnNext(acr);
+            }
+            return Disposable.Empty;
         });
     }
 }
