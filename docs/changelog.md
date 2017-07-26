@@ -1,5 +1,10 @@
 # CHANGE LOG
 
+## 4.1
+* [feature] Linux BlueZ support via Mono.BlueZ
+* [feature] Tizen.NET support
+* [fix][android] service UUIDs in advertisement not being parsed correctly
+
 ## 4.0
 * [feature] .net standard support
 * [feature][breaking] characteristics must now have their notifications enabled/disabled using characteristic.SetNotificationValue(..);

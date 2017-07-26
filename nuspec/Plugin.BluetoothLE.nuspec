@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Plugin.BluetoothLE</id>
-        <version>4.0.0</version>
+        <version>4.1.0</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin and UWP</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -14,7 +14,7 @@ Supported Platforms
 * iOS 7+
 * tvOS
 * macOS
-* linux bluez
+* Linux (bluez)
 * Tizen
         </description>
         <authors>Allan Ritchie</authors>
@@ -59,5 +59,7 @@ Supported Platforms
         <!-- uwp -->
         <file src="..\Plugin.BluetoothLE.Uwp\bin\Release\Plugin.BluetoothLE.*" target="lib\uap10.0" />
 
+        <!-- linux -->
+        <file src="..\Plugin.BluetoothLE.MonoBlueZ\bin\Release\Plugin.BluetoothLE.*" target="lib\net45" />
     </files>
 </package>
