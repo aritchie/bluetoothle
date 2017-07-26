@@ -3,15 +3,13 @@ using DBus;
 using Mono.BlueZ.DBus;
 
 
-namespace Plugin.BluetoothLE
+namespace Plugin.BluetoothLE.Infrastructure
 {
     public class AcrAgent : Agent1
     {
         public void Release()
         {
-            throw new NotImplementedException();
         }
-
 
         public string RequestPinCode(ObjectPath device)
         {
@@ -21,43 +19,34 @@ namespace Plugin.BluetoothLE
 
         public void DisplayPinCode(ObjectPath device, string pinCode)
         {
-            throw new NotImplementedException();
         }
 
 
-        public uint RequestPasskey(ObjectPath device)
-        {
-            throw new NotImplementedException();
-        }
+        public uint RequestPasskey(ObjectPath device) => -1;
 
 
         public void DisplayPasskey(ObjectPath device, uint passkey, ushort entered)
         {
-            throw new NotImplementedException();
         }
 
 
         public void RequestConfirmation(ObjectPath device, uint passkey)
         {
-            throw new NotImplementedException();
         }
 
 
         public void RequestAuthorization(ObjectPath device)
         {
-            throw new NotImplementedException();
         }
 
 
         public void AuthorizeService(ObjectPath device, string uuid)
         {
-            throw new NotImplementedException();
         }
 
 
         public void Cancel()
         {
-            throw new NotImplementedException();
         }
     }
 }

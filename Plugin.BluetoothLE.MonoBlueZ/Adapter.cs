@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using DBus;
 using Mono.BlueZ.DBus;
+using org.freedesktop.DBus;
 
 
 namespace Plugin.BluetoothLE
@@ -13,19 +14,20 @@ namespace Plugin.BluetoothLE
         readonly Adapter1 native;
         readonly GattManager1 gattManager;
 
+        readonly ObjectManager objectManager;
         readonly AgentManager1 agentManager;
         readonly ObjectPath path;
-        readonly AcrAgent agent;
         readonly Subject<bool> scanStatusSubj;
 
-        public Adapter(AgentManager1 agentManger, ObjectPath path)
+
+        public Adapter(ObjectManager objectManager, AgentManager1 agentManger, ObjectPath path)
         {
+            this.objectManager = objectManager;
             this.native = Bus.System.GetObject<Adapter1>(Constants.SERVICE, path);
             this.gattManager = Bus.System.GetObject<GattManager1>(Constants.SERVICE, path);
 
-            //Bus.System.Register(agentPath, agent);
+            //this.gattManager.RegisterProfile();
             //agentManager.RequestDefaultAgent(Constants.AgentPath);
-            //var agentManager = GetObject<AgentManager1> (Service, blueZPath);
             //var agent = new DemoAgent ();
             //GattManager1 gattManager=null;
             //register our agent and make it the default
@@ -53,10 +55,14 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<IScanResult> Scan(ScanConfig config = null)
+        public override IObservable<IScanResult> Scan(ScanConfig config = null) => Observable.Create<IScanResult>(ob =>
         {
-            throw new NotImplementedException();
-        }
+
+            return () =>
+            {
+
+            };
+        });
 
 
         public override IObservable<IScanResult> ScanListen() => Observable.Create<IScanResult>(ob =>
@@ -65,6 +71,25 @@ namespace Plugin.BluetoothLE
             this.native.StartDiscovery();
             this.scanStatusSubj.OnNext(true);
 
+            var dbusName = typeof(Device1).DBusInterfaceName();
+
+            var sub = Observable
+                .Interval(TimeSpan.FromMilliseconds(500))
+                .Subscribe(_ =>
+                {
+                    var managedObjects = this.objectManager.GetManagedObjects();
+                    foreach (var key in managedObjects.Keys)
+                    {
+                        if (key.ToString().StartsWith(this.path.ToString()))
+                        {
+                            var obj = managedObjects[key][dbusName]; // TODO: careful
+                            if (obj != null)
+                            {
+                                Bus.System.GetObject<Device1>()
+                            }
+                        }
+                    }
+                });
             //managedObjects = objectManager.GetManagedObjects();
 
             //foreach (var obj in managedObjects.Keys) {
@@ -98,6 +123,7 @@ namespace Plugin.BluetoothLE
             {
                 this.scanStatusSubj.OnNext(false);
                 this.native.StopDiscovery();
+                sub.Dispose();
             };
         })
         .Publish()

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using Mono.BlueZ.DBus;
 
 
@@ -9,15 +11,27 @@ namespace Plugin.BluetoothLE
         readonly GattCharacteristic1 native;
 
 
-        public GattCharacteristic(IGattService service, Guid uuid, CharacteristicProperties properties) : base(service, uuid, properties)
+        public GattCharacteristic(GattCharacteristic1 native, IGattService service, CharacteristicProperties properties)
+            : base(service, Guid.Parse(native.UUID), properties)
         {
+            this.native = native;
         }
 
 
-        public override IObservable<bool> SetNotificationValue(CharacteristicConfigDescriptorValue value)
+        public override IObservable<bool> SetNotificationValue(CharacteristicConfigDescriptorValue value) => Observable.Create<bool>(ob =>
         {
-            throw new NotImplementedException();
-        }
+            switch (value)
+            {
+                case CharacteristicConfigDescriptorValue.None:
+                    this.native.StopNotify();
+                    break;
+
+                default:
+                    this.native.StartNotify();
+                    break;
+            }
+            return Disposable.Empty;
+        });
 
 
         public override IObservable<CharacteristicResult> WhenNotificationReceived()

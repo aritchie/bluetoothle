@@ -13,6 +13,7 @@ namespace Plugin.BluetoothLE
     {
         public static Guid ToGuid(this byte[] uuidBytes)
         {
+            Array.Reverse(uuidBytes);
             var id = BitConverter.ToString(uuidBytes).Replace("-", String.Empty);
             switch (id.Length)
             {

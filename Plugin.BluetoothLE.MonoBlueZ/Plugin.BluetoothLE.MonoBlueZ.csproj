@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="GattCharacteristic.cs" />
+    <Compile Include="GattService.cs" />
     <Compile Include="Infrastructure\AcrAgent.cs" />
     <Compile Include="Adapter.cs" />
     <Compile Include="AdapterScanner.cs" />
