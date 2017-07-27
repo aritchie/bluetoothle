@@ -23,8 +23,8 @@ namespace Plugin.BluetoothLE
         public Adapter(ObjectManager objectManager, AgentManager1 agentManger, ObjectPath path)
         {
             this.objectManager = objectManager;
-            this.native = Bus.System.GetObject<Adapter1>(Constants.SERVICE, path);
-            this.gattManager = Bus.System.GetObject<GattManager1>(Constants.SERVICE, path);
+            this.native = Bus.System.GetObject<Adapter1>(BlueZPath.Service, path);
+            this.gattManager = Bus.System.GetObject<GattManager1>(BlueZPath.Service, path);
 
             //this.gattManager.RegisterProfile();
             //agentManager.RequestDefaultAgent(Constants.AgentPath);
@@ -47,12 +47,7 @@ namespace Plugin.BluetoothLE
 
 
         public override bool IsScanning => this.native.Discovering;
-
-
-        public override IObservable<bool> WhenScanningStatusChanged()
-        {
-            throw new NotImplementedException();
-        }
+        public override IObservable<bool> WhenScanningStatusChanged() => this.scanStatusSubj;
 
 
         public override IObservable<IScanResult> Scan(ScanConfig config = null) => Observable.Create<IScanResult>(ob =>
@@ -70,6 +65,7 @@ namespace Plugin.BluetoothLE
             this.native.SetDiscoveryFilter(new Dictionary<string, object> {{"Transport", "le" }});
             this.native.StartDiscovery();
             this.scanStatusSubj.OnNext(true);
+            // TODO: clear device manager
 
             var dbusName = typeof(Device1).DBusInterfaceName();
 
@@ -85,40 +81,13 @@ namespace Plugin.BluetoothLE
                             var obj = managedObjects[key][dbusName]; // TODO: careful
                             if (obj != null)
                             {
-                                Bus.System.GetObject<Device1>()
+                                var dev = Bus.System.GetObject<Device1>(BlueZPath.Service, key);
+                                // TODO: add device
                             }
                         }
                     }
                 });
-            //managedObjects = objectManager.GetManagedObjects();
 
-            //foreach (var obj in managedObjects.Keys) {
-            //    if (obj.ToString ().StartsWith (adapterPath.ToString ())) {
-            //        if (managedObjects [obj].ContainsKey (typeof(Device1).DBusInterfaceName ())) {
-
-            //            var managedObject = managedObjects [obj];
-            //            if(managedObject[typeof(Device1).DBusInterfaceName()].ContainsKey("Name"))
-            //            {
-            //                var name = (string)managedObject[typeof(Device1).DBusInterfaceName()]["Name"];
-
-            //                if (name.StartsWith ("MrGibbs"))
-            //                {
-            //                    System.Console.WriteLine ("Device " + name + " at " + obj);
-            //                    var device = _system.GetObject<Device1> (Service, obj);
-
-            //                    var uuids = device.UUIDs;
-            //                    foreach(var uuid in device.UUIDs)
-            //                    {
-            //                        System.Console.WriteLine("\tUUID: "+uuid);
-            //                    }
-
-            //                    devices.Add(device);
-
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
             return () =>
             {
                 this.scanStatusSubj.OnNext(false);
@@ -130,9 +99,6 @@ namespace Plugin.BluetoothLE
         .RefCount();
 
 
-        public override IObservable<AdapterStatus> WhenStatusChanged()
-        {
-            throw new NotImplementedException();
-        }
+        public override IObservable<AdapterStatus> WhenStatusChanged() => Observable.Return(AdapterStatus.PoweredOn);
     }
 }

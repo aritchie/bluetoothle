@@ -68,7 +68,7 @@ namespace Plugin.BluetoothLE
             // TODO: refresh per connection
             foreach (var path in this.native.GattServices)
             {
-                var service = Bus.System.GetObject<GattService1>(Constants.SERVICE, path);
+                var service = Bus.System.GetObject<GattService1>(BlueZPath.Service, path);
                 var acr = new GattService(service, this);
                 ob.OnNext(acr);
             }

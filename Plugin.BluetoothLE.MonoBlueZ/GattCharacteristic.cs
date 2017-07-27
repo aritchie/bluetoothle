@@ -3,6 +3,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using DBus;
 using Mono.BlueZ.DBus;
+using org.freedesktop.DBus;
 
 
 namespace Plugin.BluetoothLE
@@ -35,10 +36,48 @@ namespace Plugin.BluetoothLE
         });
 
 
-        public override IObservable<CharacteristicResult> WhenNotificationReceived()
+        public override IObservable<CharacteristicResult> WhenNotificationReceived() => Observable.Create<CharacteristicResult>(ob =>
         {
-            throw new NotImplementedException();
-        }
+            var readCharPath = new ObjectPath("/org/bluez/hci0/dev_F6_58_7F_09_5D_E6/service000c/char000f");
+            var readChar= Bus.System.GetObject<GattCharacteristic1>(BlueZPath.Service, readCharPath);
+            var properties = Bus.System.GetObject<Properties>(BlueZPath.Service, readCharPath);
+
+            //properties.PropertiesChanged += new PropertiesChangedHandler(
+            //    new Action<string,IDictionary<string,object>,string[]>((@interface,changed,invalidated)=>{
+            //        System.Console.WriteLine("Properties Changed on "+@interface);
+            //        if(changed!=null)
+            //        {
+            //            foreach(var prop in changed.Keys)
+            //            {
+            //                if(changed[prop] is byte[])
+            //                {
+            //                    foreach(var b in ((byte[])changed[prop]))
+            //                    {
+            //                        System.Console.Write(b+",");
+            //                    }
+            //                    System.Console.WriteLine("");
+            //                }
+            //                else
+            //                {
+            //                    System.Console.WriteLine("{0}={1}",prop,changed[prop]);
+            //                }
+            //            }
+            //        }
+
+            //        if(invalidated!=null)
+            //        {
+            //            foreach(var prop in invalidated)
+            //            {
+            //                System.Console.WriteLine(prop+" Invalidated");
+            //            }
+            //        }
+            //    }));
+            return () =>
+            {
+                //agentManager.UnregisterAgent (agentPath);
+                //gattManager.UnregisterProfile (gattProfilePath);
+            };
+        });
 
 
         public override IObservable<IGattDescriptor> WhenDescriptorDiscovered() => Observable.Create<IGattDescriptor>(ob =>
@@ -46,7 +85,7 @@ namespace Plugin.BluetoothLE
             // TODO: refresh per connection
             foreach (var path in this.native.Descriptors)
             {
-                var desc = Bus.System.GetObject<GattDescriptor1>(Constants.SERVICE, path);
+                var desc = Bus.System.GetObject<GattDescriptor1>(BlueZPath.Service, path);
                 var acr = new GattDescriptor(desc, this);
                 ob.OnNext(acr);
             }
@@ -75,67 +114,3 @@ namespace Plugin.BluetoothLE
         });
     }
 }
-/*
-var readCharPath = new ObjectPath("/org/bluez/hci0/dev_F6_58_7F_09_5D_E6/service000c/char000f");
-				var  readChar= GetObject<GattCharacteristic1>(Service,readCharPath);
-				var properties = GetObject<Properties>(Service,readCharPath);
-
-				properties.PropertiesChanged += new PropertiesChangedHandler(
-					new Action<string,IDictionary<string,object>,string[]>((@interface,changed,invalidated)=>{
-						System.Console.WriteLine("Properties Changed on "+@interface);
-						if(changed!=null)
-						{
-							foreach(var prop in changed.Keys)
-							{
-								if(changed[prop] is byte[])
-								{
-									foreach(var b in ((byte[])changed[prop]))
-									{
-										System.Console.Write(b+",");
-									}
-									System.Console.WriteLine("");
-								}
-								else
-								{
-									System.Console.WriteLine("{0}={1}",prop,changed[prop]);
-								}
-							}
-						}
-
-						if(invalidated!=null)
-						{
-							foreach(var prop in invalidated)
-							{
-								System.Console.WriteLine(prop+" Invalidated");
-							}
-						}
-					}));
-
-				foreach(var device in devices)
-				{
-					System.Console.WriteLine("Connecting to "+device.Name);
-					device.Connect();
-					System.Console.WriteLine("\tConnected");
-				}
-
-				readChar.StartNotify();
-
-				System.Threading.Thread.Sleep(10000);
-
-				readChar.StopNotify();
-				System.Threading.Thread.Sleep(500);
-			}
-			finally
-			{
-				if (devices != null) {
-					foreach(var device in devices)
-					{
-						System.Console.WriteLine("Disconnecting "+device.Name);
-						device.Disconnect();
-						System.Console.WriteLine("\tDisconnected");
-					}
-				}
-				agentManager.UnregisterAgent (agentPath);
-				gattManager.UnregisterProfile (gattProfilePath);
-			}
-     */

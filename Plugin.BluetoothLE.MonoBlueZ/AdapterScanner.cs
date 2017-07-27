@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using DBus;
 using Mono.BlueZ.DBus;
@@ -15,24 +14,34 @@ namespace Plugin.BluetoothLE
         public bool IsSupported => Bus.System?.IsConnected ?? false;
 
 
-        IObservable<Unit> DBusLoop() => Observable.Create<Unit>(ob =>
-        {
-            var cancel = false;
-            while (!cancel)
-                Bus.System.Iterate();
+        static IObservable<Unit> dbusLoop;
 
-            return () => cancel = true;
-        });
+
+        public static IObservable<Unit> DBusLoop()
+        {
+            dbusLoop = dbusLoop ?? Observable.Create<Unit>(ob =>
+            {
+                var cancel = false;
+                while (!cancel)
+                    Bus.System.Iterate();
+
+                return () => cancel = true;
+            })
+            .Publish()
+            .RefCount();
+
+            return dbusLoop;
+        }
 
 
         public IObservable<IAdapter> FindAdapters() => Observable.Create<IAdapter>(ob =>
         {
-            var objectManager = Bus.System.GetObject<ObjectManager>(Constants.SERVICE, ObjectPath.Root);
-            var agentManager = Bus.System.GetObject<AgentManager1>(Constants.SERVICE, new ObjectPath("/org/bluez"));
+            var objectManager = Bus.System.GetObject<ObjectManager>(BlueZPath.Service, ObjectPath.Root);
+            var agentManager = Bus.System.GetObject<AgentManager1>(BlueZPath.Service, new ObjectPath("/org/bluez"));
 
             objectManager.InterfacesAdded += (path, i) =>
             {
-                ob.OnNext(new Adapter(agentManager, path));
+                ob.OnNext(new Adapter(objectManager, agentManager, path));
             };
             //manager.InterfacesRemoved += (p, i) =>
 
@@ -43,10 +52,10 @@ namespace Plugin.BluetoothLE
             {
                 if (managedObjects[path].ContainsKey(dbusName))
                 {
-                    ob.OnNext(new Adapter(agentManager, path));
+                    ob.OnNext(new Adapter(objectManager, agentManager, path));
                 }
             }
-            return Disposable.Empty;
+            return DBusLoop().Subscribe();
         });
     }
 }

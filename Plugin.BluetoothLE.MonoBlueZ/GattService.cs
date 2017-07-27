@@ -23,7 +23,7 @@ namespace Plugin.BluetoothLE
             // TODO: refresh per connection
             foreach (var path in this.native.Characteristics)
             {
-                var ch = Bus.System.GetObject<GattCharacteristic1>(Constants.SERVICE, path);
+                var ch = Bus.System.GetObject<GattCharacteristic1>(BlueZPath.Service, path);
                 var acr = new GattCharacteristic(ch, this, CharacteristicProperties.Read); // TODO
                 ob.OnNext(acr);
             }
