@@ -39,41 +39,27 @@ namespace Plugin.BluetoothLE
         public override IObservable<CharacteristicResult> WhenNotificationReceived() => Observable.Create<CharacteristicResult>(ob =>
         {
             var readCharPath = new ObjectPath("/org/bluez/hci0/dev_F6_58_7F_09_5D_E6/service000c/char000f");
-            var readChar= Bus.System.GetObject<GattCharacteristic1>(BlueZPath.Service, readCharPath);
+            var readChar = Bus.System.GetObject<GattCharacteristic1>(BlueZPath.Service, readCharPath);
             var properties = Bus.System.GetObject<Properties>(BlueZPath.Service, readCharPath);
 
-            //properties.PropertiesChanged += new PropertiesChangedHandler(
-            //    new Action<string,IDictionary<string,object>,string[]>((@interface,changed,invalidated)=>{
-            //        System.Console.WriteLine("Properties Changed on "+@interface);
-            //        if(changed!=null)
-            //        {
-            //            foreach(var prop in changed.Keys)
-            //            {
-            //                if(changed[prop] is byte[])
-            //                {
-            //                    foreach(var b in ((byte[])changed[prop]))
-            //                    {
-            //                        System.Console.Write(b+",");
-            //                    }
-            //                    System.Console.WriteLine("");
-            //                }
-            //                else
-            //                {
-            //                    System.Console.WriteLine("{0}={1}",prop,changed[prop]);
-            //                }
-            //            }
-            //        }
+            var handler = new PropertiesChangedHandler((@interface, changed, invalidated) =>
+            {
+                if (changed != null)
+                {
+                    foreach (var prop in changed.Keys)
+                    {
+                        if (changed[prop] is byte[])
+                        {
 
-            //        if(invalidated!=null)
-            //        {
-            //            foreach(var prop in invalidated)
-            //            {
-            //                System.Console.WriteLine(prop+" Invalidated");
-            //            }
-            //        }
-            //    }));
+                        }
+                    }
+                }
+            });
+            properties.PropertiesChanged += handler;
+
             return () =>
             {
+                properties.PropertiesChanged -= handler;
                 //agentManager.UnregisterAgent (agentPath);
                 //gattManager.UnregisterProfile (gattProfilePath);
             };
