@@ -144,10 +144,10 @@
       <Version>6.5.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>5.3.3</Version>
+      <Version>5.3.4</Version>
     </PackageReference>
     <PackageReference Include="reactiveui">
-      <Version>7.5.0-alpha0027</Version>
+      <Version>8.0.0-alpha0034</Version>
     </PackageReference>
     <PackageReference Include="System.Reactive">
       <Version>3.1.1</Version>

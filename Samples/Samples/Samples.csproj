@@ -6,10 +6,10 @@
 
     <ItemGroup>
         <PackageReference Include="Acr.UserDialogs" Version="6.5.1" />
-        <PackageReference Include="Autofac" Version="4.6.0" />
-        <PackageReference Include="reactiveui" Version="7.5.0-alpha0027" />
+        <PackageReference Include="Autofac" Version="4.6.1" />
+        <PackageReference Include="reactiveui" Version="8.0.0-alpha0034" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
-        <PackageReference Include="Xamarin.Forms" Version="2.3.5.239-pre3" />
+        <PackageReference Include="Xamarin.Forms" Version="2.3.5.256-pre6" />
     </ItemGroup>
 
     <ItemGroup>
