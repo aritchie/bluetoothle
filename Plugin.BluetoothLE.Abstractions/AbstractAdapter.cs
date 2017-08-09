@@ -8,6 +8,7 @@ namespace Plugin.BluetoothLE
 {
     public abstract class AbstractAdapter : IAdapter
     {
+        public abstract IObservable<PermissionStatus> RequestPermission(bool background);
         public abstract IObservable<bool> WhenScanningStatusChanged();
         public abstract IObservable<IScanResult> Scan(ScanConfig config = null);
         public abstract IObservable<IScanResult> ScanListen();
@@ -27,3 +28,37 @@ namespace Plugin.BluetoothLE
         public virtual IObservable<IDevice> WhenDeviceStateRestored() => Observable.Empty<IDevice>();
     }
 }
+/*
+ private readonly string[] Permissions =
+        {
+            Manifest.Permission.Bluetooth,
+            Manifest.Permission.BluetoothAdmin,
+            Manifest.Permission.BluetoothPrivileged,
+            Manifest.Permission.AccessCoarseLocation,
+            Manifest.Permission.AccessFineLocation
+        };
+
+        protected override void OnCreate (Bundle bundle)
+        {
+            base.OnCreate (bundle);
+            Xamarin.Forms.Forms.Init(this, bundle);
+
+            CheckPermissions();
+
+            var app = new App();
+            LoadApplication(app);
+        }
+
+        private void CheckPermissions()
+        {
+            bool minimumPermissionsGranted = true;
+
+            foreach (string permission in Permissions)
+            {
+                if (CheckSelfPermission(permission) != Permission.Granted) minimumPermissionsGranted = false;
+            }
+
+            // If one of the minimum permissions aren't granted, we request them from the user
+            if (!minimumPermissionsGranted) RequestPermissions(Permissions, 0);
+        }
+     */
