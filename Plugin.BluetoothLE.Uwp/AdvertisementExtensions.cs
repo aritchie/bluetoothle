@@ -11,7 +11,7 @@ namespace Plugin.BluetoothLE
     {
         public static string GetDeviceName(this BluetoothLEAdvertisement adv)
         {
-            var data = adv.GetSectionDataOrNull(AdvertisementRecordType.CompleteLocalName);
+            var data = adv.GetSectionDataOrNull(BluetoothLEAdvertisementDataTypes.CompleteLocalName);
             if (data == null)
                 return adv.LocalName;
 
@@ -22,14 +22,14 @@ namespace Plugin.BluetoothLE
 
         public static sbyte GetTxPower(this BluetoothLEAdvertisement adv)
         {
-            var data = adv.GetSectionDataOrNull(AdvertisementRecordType.TxPowerLevel);
+            var data = adv.GetSectionDataOrNull(BluetoothLEAdvertisementDataTypes.TxPowerLevel);
             return data == null ? (sbyte)0 : (sbyte) data[0];
         }
 
 
-        public static byte[] GetSectionDataOrNull(this BluetoothLEAdvertisement adv, AdvertisementRecordType recType)
+        static byte[] GetSectionDataOrNull(this BluetoothLEAdvertisement adv, byte recType)
         {
-            var section = adv.DataSections.FirstOrDefault(x => x.DataType == (byte) recType);
+            var section = adv.DataSections.FirstOrDefault(x => x.DataType == recType);
             var data = section?.Data.ToArray();
             return data;
         }

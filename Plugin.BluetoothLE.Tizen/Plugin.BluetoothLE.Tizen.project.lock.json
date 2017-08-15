@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "targets": {
     ".NETStandard,Version=v1.6": {
       "Microsoft.NETCore.Platforms/1.1.0": {
@@ -4892,7 +4892,20 @@
       "projectName": "Plugin.BluetoothLE.Tizen",
       "projectPath": "C:\\dev\\acr\\bluetoothle\\Plugin.BluetoothLE.Tizen\\Plugin.BluetoothLE.Tizen.csproj",
       "projectJsonPath": "C:\\dev\\acr\\bluetoothle\\Plugin.BluetoothLE.Tizen\\Plugin.BluetoothLE.Tizen.project.json",
+      "packagesPath": "C:\\Users\\allan\\.nuget\\packages\\",
+      "outputPath": "C:\\dev\\acr\\bluetoothle\\Plugin.BluetoothLE.Tizen\\obj\\",
       "projectStyle": "ProjectJson",
+      "configFilePaths": [
+        "C:\\Users\\allan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Users\\allan\\Dropbox\\nuget": {},
+        "https://api.nuget.org/v3/index.json": {},
+        "https://www.myget.org/F/plexxis/auth/9bec0804-d7ba-4503-8746-917cefcc170b/api/v3/index.json": {},
+        "https://www.myget.org/F/reactiveui/api/v3/index.json": {}
+      },
       "frameworks": {
         "netstandard1.6": {
           "projectReferences": {
