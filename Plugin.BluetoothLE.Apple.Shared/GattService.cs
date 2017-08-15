@@ -26,6 +26,9 @@ namespace Plugin.BluetoothLE
                 var characteristics = new Dictionary<Guid, IGattCharacteristic>();
                 var handler = new EventHandler<CBServiceEventArgs>((sender, args) =>
                 {
+                    if (this.Service.Characteristics == null)
+                        return;
+
                     if (!this.Equals(args.Service))
                         return;
 

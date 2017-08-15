@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 4.0.1
+* [fix][ios] NRE race condition in GetKnownCharacteristic 
+
 ## 4.0
 * [feature] .net standard support
 * [feature][breaking] characteristics must now have their notifications enabled/disabled using characteristic.SetNotificationValue(..);
