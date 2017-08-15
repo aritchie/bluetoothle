@@ -51,6 +51,12 @@ namespace Plugin.BluetoothLE
         /// <returns></returns>
         IEnumerable<IDevice> GetPairedDevices();
 
+        /// <summary>
+        /// Gets permission status of bluetooth functionality
+        /// </summary>
+        /// <returns></returns>
+        IObservable<PermissionStatus> RequestPermission(bool background);
+
             /// <summary>
         /// Monitor for scanning status changes
         /// </summary>
