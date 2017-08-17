@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using CoreBluetooth;
@@ -35,42 +33,24 @@ namespace Plugin.BluetoothLE
         public CBCentralManager Manager { get; }
 
 
-        public IDevice GetDevice(CBPeripheral peripheral)
-        {
-            return this.peripherals.GetOrAdd(
-                peripheral.Identifier.ToString(),
-                x => new Device(this, peripheral)
-            );
-        }
+        public IDevice GetDevice(CBPeripheral peripheral) => this.peripherals.GetOrAdd(
+            peripheral.Identifier.ToString(),
+            x => new Device(this, peripheral)
+        );
 
 
-        public IEnumerable<IDevice> GetConnectedDevices()
-        {
-//#if __IOS__
-            // TODO: RetrieveConnectedPeripherals() async version crashes with bad selector
-            // TODO: this method doesn't work
-            //return this.Manager
-            //    .RetrieveConnectedPeripherals(new CBUUID[0])
-            //    .Select(this.GetDevice);
-//#else
-            return this.peripherals
-                .Where(x => 
-                    x.Value.Status == ConnectionStatus.Connected || 
-                    x.Value.Status == ConnectionStatus.Connecting
-                )
-                .Select(x => x.Value);
-//#endif
-        }
+        public IEnumerable<IDevice> GetConnectedDevices() => this.peripherals
+            .Where(x =>
+                x.Value.Status == ConnectionStatus.Connected ||
+                x.Value.Status == ConnectionStatus.Connecting
+            )
+            .Select(x => x.Value);
 
 
-        public void Clear()    
-        {
-            IDevice _;
-            this.peripherals
-                .Where(x => x.Value.Status != ConnectionStatus.Connected)
-                .ToList()
-                .ForEach(x => this.peripherals.TryRemove(x.Key, out _));
-        }
+        public void Clear() => this.peripherals
+            .Where(x => x.Value.Status != ConnectionStatus.Connected)
+            .ToList()
+            .ForEach(x => this.peripherals.TryRemove(x.Key, out var device));
 
 
         public Subject<IDevice> WhenWillRestoreState { get; } = new Subject<IDevice>();
@@ -82,7 +62,7 @@ namespace Plugin.BluetoothLE
                 return;
 
             var peripheralArray = (NSArray)dict[CBCentralManager.RestoredStatePeripheralsKey];
-            Debug.WriteLine($"Restoring peripheral state on {peripheralArray.Count} devices");
+            Log.Write($"Restoring peripheral state on {peripheralArray.Count} devices");
 
             for (nuint i = 0; i < peripheralArray.Count; i++)
             {
@@ -96,42 +76,28 @@ namespace Plugin.BluetoothLE
 
 
         public Subject<CBPeripheral> PeripheralConnected { get; } = new Subject<CBPeripheral>();
-        public override void ConnectedPeripheral(CBCentralManager central, CBPeripheral peripheral)
-        {
-            this.PeripheralConnected.OnNext(peripheral);
-        }
+        public override void ConnectedPeripheral(CBCentralManager central, CBPeripheral peripheral) => this.PeripheralConnected.OnNext(peripheral);
 
 
         public Subject<CBPeripheral> PeripheralDisconnected { get; } = new Subject<CBPeripheral>();
-        public override void DisconnectedPeripheral(CBCentralManager central, CBPeripheral peripheral, NSError error)
-        {
-            this.PeripheralDisconnected.OnNext(peripheral);
-        }
+        public override void DisconnectedPeripheral(CBCentralManager central, CBPeripheral peripheral, NSError error) => this.PeripheralDisconnected.OnNext(peripheral);
 
 
         public Subject<ScanResult> ScanResultReceived { get; } = new Subject<ScanResult>();
         public override void DiscoveredPeripheral(CBCentralManager central, CBPeripheral peripheral, NSDictionary advertisementData, NSNumber rssi)
-        {
-            var dev = this.GetDevice(peripheral);
-            this.ScanResultReceived.OnNext(new ScanResult(
-                dev,
+            => this.ScanResultReceived.OnNext(new ScanResult(
+                this.GetDevice(peripheral),
                 rssi?.Int32Value ?? 0,
                 new AdvertisementData(advertisementData)
             ));
-        }
 
 
         public Subject<PeripheralConnectionFailed> FailedConnection { get; } = new Subject<PeripheralConnectionFailed>();
         public override void FailedToConnectPeripheral(CBCentralManager central, CBPeripheral peripheral, NSError error)
-        {
-            this.FailedConnection.OnNext(new PeripheralConnectionFailed(peripheral, error));
-        }
+            => this.FailedConnection.OnNext(new PeripheralConnectionFailed(peripheral, error));
 
 
         public Subject<object> StateUpdated { get; } = new Subject<object>();
-        public override void UpdatedState(CBCentralManager central)
-        {
-            this.StateUpdated.OnNext(null);
-        }
+        public override void UpdatedState(CBCentralManager central) => this.StateUpdated.OnNext(null);
     }
 }

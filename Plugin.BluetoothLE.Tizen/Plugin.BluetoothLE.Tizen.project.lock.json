@@ -4901,7 +4901,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Users\\allan\\Dropbox\\nuget": {},
+        "c:\\Users\\allan\\Dropbox\\nuget": {},
         "https://api.nuget.org/v3/index.json": {},
         "https://www.myget.org/F/plexxis/auth/9bec0804-d7ba-4503-8746-917cefcc170b/api/v3/index.json": {},
         "https://www.myget.org/F/reactiveui/api/v3/index.json": {}
