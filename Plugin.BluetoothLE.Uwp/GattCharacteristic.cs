@@ -76,18 +76,12 @@ namespace Plugin.BluetoothLE
             return Observable.FromAsync(async ct =>
             {
                 var tcs = new TaskCompletionSource<GattCommunicationStatus>();
-                await CoreWindow
-                    .GetForCurrentThread()
-                    .Dispatcher
-                    .RunAsync(
-                        CoreDispatcherPriority.Normal,
-                        async () =>
-                        {
-                            var desc = GetConfigValue(value);
-                            var result = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(desc);
-                            tcs.TrySetResult(result);
-                        }
-                    );
+                await Task.Run(async () =>
+                {
+                    var desc = GetConfigValue(value);
+                    var result = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(desc);
+                    tcs.TrySetResult(result);
+                });
 
                 var status = await tcs.Task;
                 if (status == GattCommunicationStatus.Success)
