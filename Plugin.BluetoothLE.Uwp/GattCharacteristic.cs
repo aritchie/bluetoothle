@@ -77,10 +77,10 @@ namespace Plugin.BluetoothLE
             {
                 var tcs = new TaskCompletionSource<GattCommunicationStatus>();
                 await Task.Run(async () =>
-                        {
-                            var desc = GetConfigValue(value);
-                            var result = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(desc);
-                            tcs.TrySetResult(result);
+                {
+                    var desc = GetConfigValue(value);
+                    var result = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(desc);
+                    tcs.TrySetResult(result);
                 });
 
                 var status = await tcs.Task;
