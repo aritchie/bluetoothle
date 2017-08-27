@@ -8,7 +8,6 @@ namespace Plugin.BluetoothLE
 {
     public abstract class AbstractAdapter : IAdapter
     {
-        public abstract IObservable<PermissionStatus> RequestPermission(bool background);
         public abstract IObservable<bool> WhenScanningStatusChanged();
         public abstract IObservable<IScanResult> Scan(ScanConfig config = null);
         public abstract IObservable<IScanResult> ScanListen();
