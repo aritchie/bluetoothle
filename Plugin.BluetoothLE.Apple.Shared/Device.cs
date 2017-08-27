@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using CoreBluetooth;
 using Foundation;
@@ -85,10 +83,10 @@ namespace Plugin.BluetoothLE
 
                     this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
                     {
-                        NotifyOnDisconnection = config.NotifyOnDisconnect,
+                        NotifyOnDisconnection = true,
 #if __IOS__ || __TVOS__
-                        NotifyOnConnection = config.NotifyOnConnect,
-                        NotifyOnNotification = config.NotifyOnNotification
+                        NotifyOnConnection = true,
+                        NotifyOnNotification = true
 #endif
                     });
                 }
@@ -190,7 +188,7 @@ namespace Plugin.BluetoothLE
         {
             this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
             {
-                //Debug.WriteLine("Hooked for services for device " + this.Uuid);
+                Log.Write("Hooked for services for device " + this.Uuid);
                 var services = new Dictionary<Guid, IGattService>();
 
                 var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
@@ -215,7 +213,7 @@ namespace Plugin.BluetoothLE
                     .Subscribe(_ =>
                     {
                         this.peripheral.DiscoverServices();
-                        Debug.WriteLine("DiscoverServices for device " + this.Uuid);
+                        Log.Write("DiscoverServices for device " + this.Uuid);
                     });
 
                 return () =>

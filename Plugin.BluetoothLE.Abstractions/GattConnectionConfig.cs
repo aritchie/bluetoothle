@@ -16,20 +16,5 @@ namespace Plugin.BluetoothLE
         /// Android only - If you have characteristics where you need faster replies, you can set this to high
         /// </summary>
         public ConnectionPriority Priority { get; set; } = ConnectionPriority.Normal;
-
-        /// <summary>
-        /// iOS only
-        /// </summary>
-        public bool NotifyOnConnect { get; set; }
-
-        /// <summary>
-        /// iOS/tvOS/macOS only
-        /// </summary>
-        public bool NotifyOnDisconnect { get; set; }
-
-        /// <summary>
-        /// iOS only
-        /// </summary>
-        public bool NotifyOnNotification { get; set; }
     }
 }
