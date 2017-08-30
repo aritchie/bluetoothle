@@ -40,7 +40,7 @@ namespace Plugin.BluetoothLE.Internals
 
         public void Marshall(Action action)
         {
-            if (AndroidConfig.WriteOnMainThread)
+            if (AndroidConfig.MainThreadSuggested)
             {
                 Application.SynchronizationContext.Post(_ => action(), null);
             }

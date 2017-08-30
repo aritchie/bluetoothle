@@ -38,7 +38,7 @@ namespace Plugin.BluetoothLE
         public override IDevice GetKnownDevice(Guid deviceId)
         {
             var native = this.manager.Adapter.GetRemoteDevice(deviceId.ToByteArray().Skip(10).Take(6).ToArray());
-            var device = this.context.Devices.GetDevice(native, TaskScheduler.Current);
+            var device = this.context.Devices.GetDevice(native);
             return device;
         }
 
@@ -48,14 +48,14 @@ namespace Plugin.BluetoothLE
                 .Adapter
                 .BondedDevices
                 .Where(x => x.Type == BluetoothDeviceType.Dual || x.Type == BluetoothDeviceType.Le) // TODO: does it know?
-                .Select(x => this.context.Devices.GetDevice(x, TaskScheduler.Current))
+                .Select(this.context.Devices.GetDevice)
                 .ToList();
 
 
         public override IEnumerable<IDevice> GetConnectedDevices() =>
             this.manager
                 .GetConnectedDevices(ProfileType.Gatt)
-                .Select(x => this.context.Devices.GetDevice(x, TaskScheduler.Current));
+                .Select(this.context.Devices.GetDevice);
 
 
         public override AdapterStatus Status
@@ -125,7 +125,7 @@ namespace Plugin.BluetoothLE
                 this.context.Devices.Clear();
 
                 var scan = this.ScanListen().Subscribe(ob.OnNext);
-                this.context.StartScan(AndroidConfig.ForcePreLollipopScanner, config);
+                this.context.StartScan(config);
                 this.scanStatusChanged.OnNext(true);
 
                 return () =>
@@ -145,7 +145,7 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<ScanEventArgs>((sender, args) =>
                 {
-                    var dev = this.context.Devices.GetDevice(args.Device, TaskScheduler.Current);
+                    var dev = this.context.Devices.GetDevice(args.Device);
                     ob.OnNext(new ScanResult(dev, args.Rssi, args.AdvertisementData));
                 });
                 this.context.Scanned += handler;
@@ -165,7 +165,7 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
                 {
-                    var dev = this.context.Devices.GetDevice(args.Gatt.Device, TaskScheduler.Current);
+                    var dev = this.context.Devices.GetDevice(args.Gatt.Device);
                     ob.OnNext(dev);
                 });
                 this.context.Callbacks.ConnectionStateChanged += handler;

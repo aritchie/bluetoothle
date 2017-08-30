@@ -122,8 +122,16 @@ namespace Plugin.BluetoothLE
                 await this.context.Semaphore.WaitAsync(cancelSrc.Token);
 
                 this.context.Marshall(() =>
-                    this.context.Gatt.ReadCharacteristic(this.native)
-                );
+                {
+                    try
+                    {
+                        this.context.Gatt.ReadCharacteristic(this.native);
+                    }
+                    catch (Exception ex)
+                    {
+                        ob.OnError(ex);
+                    }
+                });
 
                 return () => this.context.Callbacks.CharacteristicRead -= handler;
             });
@@ -260,24 +268,37 @@ namespace Plugin.BluetoothLE
         void RawWriteWithResponse(byte[] bytes)
             => this.context.Marshall(() =>
             {
-                this.native.SetValue(bytes);
-                this.native.WriteType = GattWriteType.Default;
-                this.context.Gatt.WriteCharacteristic(this.native);
+                try
+                {
+                    this.native.SetValue(bytes);
+                    this.native.WriteType = GattWriteType.Default;
+                    this.context.Gatt.WriteCharacteristic(this.native);
+                }
+                catch (Exception ex)
+                {
+                    Log.Write("[ERROR] RawWriteWithResponse failed - " + ex);
+                }
             });
 
 
         void RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
             => this.context.Marshall(() =>
             {
+                try
+                {
+                    this.native.SetValue(bytes);
+                    this.native.WriteType = GattWriteType.NoResponse;
+                    this.context.Gatt.WriteCharacteristic(this.native);
+                    this.Value = bytes;
 
-                this.native.SetValue(bytes);
-                this.native.WriteType = GattWriteType.NoResponse;
-                this.context.Gatt.WriteCharacteristic(this.native);
-                this.Value = bytes;
-
-                var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
-                this.WriteSubject.OnNext(result);
-                ob?.Respond(result);
+                    var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
+                    this.WriteSubject.OnNext(result);
+                    ob?.Respond(result);
+                }
+                catch (Exception ex)
+                {
+                    ob?.OnError(ex);
+                }
             });
     }
 }

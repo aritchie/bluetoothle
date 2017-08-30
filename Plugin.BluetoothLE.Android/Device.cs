@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
-using System.Threading.Tasks;
 using Android.App;
 using Android.Bluetooth;
 using Android.OS;
 using Plugin.BluetoothLE.Internals;
+
 
 
 namespace Plugin.BluetoothLE
@@ -17,20 +16,17 @@ namespace Plugin.BluetoothLE
     public class Device : AbstractDevice
     {
         readonly BluetoothManager manager;
-        readonly TaskScheduler scheduler;
         readonly Subject<ConnectionStatus> connSubject;
         readonly GattContext context;
 
 
         public Device(BluetoothManager manager,
                       BluetoothDevice native,
-                      GattCallbacks callbacks,
-                      TaskScheduler scheduler) : base(native.Name, ToDeviceId(native.Address))
+                      GattCallbacks callbacks) : base(native.Name, ToDeviceId(native.Address))
         {
             this.context = new GattContext(native, callbacks);
 
             this.manager = manager;
-            this.scheduler = scheduler; // this is the thread that the device was scanned on (required by some devices)
             this.connSubject = new Subject<ConnectionStatus>();
         }
 
@@ -70,7 +66,6 @@ namespace Plugin.BluetoothLE
 
             return Observable.Create<object>(ob =>
             {
-                var cancelSrc = new CancellationTokenSource();
                 var connected = this
                     .WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
@@ -78,43 +73,35 @@ namespace Plugin.BluetoothLE
 
                 if (this.Status != ConnectionStatus.Connecting)
                 {
-                    try
+                    if (AndroidConfig.MainThreadSuggested)
                     {
-                        ob.OnNext(ConnectionStatus.Connecting);
-
-                        switch (AndroidConfig.ConnectionThread)
-                        {
-                            case ConnectionThread.MainThread:
-                                Application.SynchronizationContext.Post(_ => this.context.Connect(config), null);
-                                break;
-
-                            case ConnectionThread.ScanThread:
-                                Task.Factory.StartNew(
-                                    () => this.context.Connect(config),
-                                    cancelSrc.Token,
-                                    TaskCreationOptions.None,
-                                    this.scheduler
-                                );
-                                break;
-
-                            case ConnectionThread.Default:
-                            default:
-                                this.context.Connect(config);
-                                break;
-                        }
+                        Application.SynchronizationContext.Post(_ => this.DoConnect(ob, config), null);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        ob.OnNext(ConnectionStatus.Disconnected);
-                        ob.OnError(ex);
+                        this.DoConnect(ob, config);
                     }
                 }
-                return () =>
-                {
-                    connected?.Dispose();
-                    cancelSrc.Dispose();
-                };
+                return () => connected?.Dispose();
             });
+        }
+
+
+        protected void DoConnect(IObserver<object> ob, GattConnectionConfig config)
+        {
+            try
+            {
+                this.connSubject.OnNext(ConnectionStatus.Connecting);
+                if (!this.context.Connect(config))
+                    throw new ArgumentException("Unable to connect");
+
+                ob.Respond(null);
+            }
+            catch (Exception ex)
+            {
+                this.connSubject.OnNext(ConnectionStatus.Disconnected);
+                ob.OnError(ex);
+            }
         }
 
 
