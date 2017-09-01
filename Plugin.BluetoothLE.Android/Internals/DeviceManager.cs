@@ -22,11 +22,11 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        public IDevice GetDevice(BluetoothDevice btDevice, TaskScheduler scheduler)
+        public IDevice GetDevice(BluetoothDevice btDevice)
         {
             return this.devices.GetOrAdd(
                 btDevice.Address,
-                x => new Device(this.manager, btDevice, this.callbacks, scheduler)
+                x => new Device(this.manager, btDevice, this.callbacks)
             );
         }
 

@@ -32,6 +32,7 @@
       <sourceFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.Mac" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.MonoBlueZ" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.Shared" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.Tizen" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.tvOS" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.Uwp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../readme.md" isTestSource="false" />
@@ -52,6 +53,8 @@
       <excludeFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.MonoBlueZ/obj" />
       <excludeFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.Shared/bin" />
       <excludeFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.Shared/obj" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.Tizen/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.Tizen/obj" />
       <excludeFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.Uwp/bin" />
       <excludeFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.Uwp/obj" />
       <excludeFolder url="file://$MODULE_DIR$/../../Plugin.BluetoothLE.iOS/bin" />

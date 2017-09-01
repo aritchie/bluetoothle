@@ -4,6 +4,8 @@
 * [feature] Linux BlueZ support via Mono.BlueZ
 * [feature] Tizen.NET support
 * [fix][android] service UUIDs in advertisement not being parsed correctly
+* [fix][android] cleanup internal thread delegation
+* [fix][uwp] don't marshall to main thread for most calls
 
 ## 4.0
 * [feature] .net standard support

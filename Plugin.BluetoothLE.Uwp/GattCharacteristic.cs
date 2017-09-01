@@ -2,11 +2,9 @@
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Foundation;
-using Windows.UI.Core;
 using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattCharacteristic;
 
 
@@ -75,21 +73,8 @@ namespace Plugin.BluetoothLE
 
             return Observable.FromAsync(async ct =>
             {
-                var tcs = new TaskCompletionSource<GattCommunicationStatus>();
-                await CoreWindow
-                    .GetForCurrentThread()
-                    .Dispatcher
-                    .RunAsync(
-                        CoreDispatcherPriority.Normal,
-                        async () =>
-                        {
-                            var desc = GetConfigValue(value);
-                            var result = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(desc);
-                            tcs.TrySetResult(result);
-                        }
-                    );
-
-                var status = await tcs.Task;
+                var desc = GetConfigValue(value);
+                var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(desc);
                 if (status == GattCommunicationStatus.Success)
                 {
                     this.context.SetNotifyCharacteristic(this.Native, value != CharacteristicConfigDescriptorValue.None);

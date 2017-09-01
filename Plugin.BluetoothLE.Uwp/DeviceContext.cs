@@ -56,35 +56,26 @@ namespace Plugin.BluetoothLE
         public async Task Disconnect()
         {
             this.StopKeepAlive();
-            var tcs = new TaskCompletionSource<object>();
-            await CoreWindow.GetForCurrentThread().Dispatcher.RunAsync(
-                CoreDispatcherPriority.High,
-                async () =>
-                {
 
-                    foreach (var ch in this.subscribers)
-                    {
-                        try
-                        {
-                            await ch.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
-                        }
-                        catch (Exception e)
-                        {
-                            System.Diagnostics.Debug.WriteLine(e.ToString());
-                        }
-                        this.subscribers.Clear();
-                    }
-                    var result = await this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Cached);
-                    foreach (var s in result.Services)
-                    {
-                        s.Dispose();
-                    }
-                    GC.Collect();
-                    //this.NativeDevice.Dispose();
-                    tcs.TrySetResult(null);
+            foreach (var ch in this.subscribers)
+            {
+                try
+                {
+                    await ch.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
                 }
-            );
-            await tcs.Task;
+                catch (Exception e)
+                {
+                    System.Diagnostics.Debug.WriteLine(e.ToString());
+                }
+                this.subscribers.Clear();
+            }
+            var result = await this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Cached);
+            foreach (var s in result.Services)
+            {
+                s.Dispose();
+            }
+            GC.Collect();
+            //this.NativeDevice.Dispose();
         }
 
 
