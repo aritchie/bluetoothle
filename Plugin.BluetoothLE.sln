@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Droid", "Samples\Samples.Droid\Samples.Droid.csproj", "{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}"
 EndProject
@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		build.cmd = build.cmd
 		icon.png = icon.png
 		LICENSE.md = LICENSE.md
+		NuGet.config = NuGet.config
 		nuspec\nuget.exe = nuspec\nuget.exe
 		nuspec\pack.cmd = nuspec\pack.cmd
 		nuspec\Plugin.BluetoothLE.nuspec = nuspec\Plugin.BluetoothLE.nuspec
@@ -821,5 +822,8 @@ Global
 		{08ACA868-EE1D-4928-A4C3-D7B991CE19DF} = {C4F13359-332D-4ECF-8130-3719B8D93BF3}
 		{6DF84C8C-CBA6-4BC1-9FB8-1600B189705A} = {72EFDCDB-8AB3-402D-A9F1-9DBCD4C7B80D}
 		{3419599B-F27A-458E-B445-3982C328EA97} = {C4F13359-332D-4ECF-8130-3719B8D93BF3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2B7CCBCD-E600-4996-A92B-63A24D7FC5EE}
 	EndGlobalSection
 EndGlobal

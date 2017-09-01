@@ -4896,6 +4896,7 @@
       "outputPath": "C:\\dev\\acr\\bluetoothle\\Plugin.BluetoothLE.Tizen\\obj\\",
       "projectStyle": "ProjectJson",
       "configFilePaths": [
+        "C:\\dev\\acr\\bluetoothle\\NuGet.Config",
         "C:\\Users\\allan\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -4903,6 +4904,7 @@
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "c:\\Users\\allan\\Dropbox\\nuget": {},
         "https://api.nuget.org/v3/index.json": {},
+        "https://dotnet.myget.org/F/aspnetcore-ci-release/api/v3/index.json": {},
         "https://www.myget.org/F/plexxis/auth/9bec0804-d7ba-4503-8746-917cefcc170b/api/v3/index.json": {},
         "https://www.myget.org/F/reactiveui/api/v3/index.json": {}
       },

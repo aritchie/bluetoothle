@@ -62,7 +62,7 @@
       <HintPath>..\..\packages\Autofac.4.6.1\lib\netstandard1.1\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="ReactiveUI, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\reactiveui.8.0.0-alpha0034\lib\xamarinmac20\ReactiveUI.dll</HintPath>
+      <HintPath>..\..\packages\reactiveui.8.0.0-alpha0062\lib\xamarinmac20\ReactiveUI.dll</HintPath>
     </Reference>
     <Reference Include="Splat, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Splat.2.0.0\lib\Xamarin.Mac20\Splat.dll</HintPath>
