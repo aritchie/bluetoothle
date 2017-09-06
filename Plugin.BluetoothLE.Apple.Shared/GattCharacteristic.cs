@@ -86,7 +86,7 @@ namespace Plugin.BluetoothLE
                         }
                         else
                         {
-                            this.Value = this.NativeCharacteristic.Value.ToArray();
+                            this.Value = this.NativeCharacteristic.Value?.ToArray();
                             var result = new CharacteristicResult(this, CharacteristicEvent.Read, this.Value);
                             ob.Respond(result);
                             this.ReadSubject.OnNext(result);
@@ -126,7 +126,7 @@ namespace Plugin.BluetoothLE
                         }
                         else
                         {
-                            this.Value = this.NativeCharacteristic.Value.ToArray();
+                            this.Value = this.NativeCharacteristic.Value?.ToArray();
                             var result = new CharacteristicResult(this, CharacteristicEvent.Notification, this.Value);
                             ob.OnNext(result);
                         }
@@ -201,7 +201,7 @@ namespace Plugin.BluetoothLE
 
             return true;
         }
-        
+
 
         public override bool Equals(object obj)
         {
