@@ -69,7 +69,7 @@ namespace Plugin.BluetoothLE
 
         public override IObservable<bool> EnableNotifications(bool useIndicationIfAvailable)
         {
-            var type = useIndicationIfAvailable
+            var type = useIndicationIfAvailable && this.CanIndicate()
                 ? GattClientCharacteristicConfigurationDescriptorValue.Indicate
                 : GattClientCharacteristicConfigurationDescriptorValue.Notify;
 

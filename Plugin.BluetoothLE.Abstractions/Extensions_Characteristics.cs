@@ -83,9 +83,12 @@ namespace Plugin.BluetoothLE
         public static bool CanNotify(this IGattCharacteristic ch) =>
             ch.Properties.HasFlag(CharacteristicProperties.Notify) ||
             ch.Properties.HasFlag(CharacteristicProperties.NotifyEncryptionRequired) ||
+            ch.CanIndicate();
+
+
+        public static bool CanIndicate(this IGattCharacteristic ch) =>
             ch.Properties.HasFlag(CharacteristicProperties.Indicate) ||
             ch.Properties.HasFlag(CharacteristicProperties.IndicateEncryptionRequired);
-
 
         public static void AssertWrite(this IGattCharacteristic characteristic, bool withResponse)
         {
