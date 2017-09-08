@@ -1,8 +1,8 @@
 # CHANGE LOG
 
 ## 4.1
-* [feature] Linux BlueZ support via Mono.BlueZ
-* [feature] Tizen.NET support
+* [breaking][feature] SetNotificationValue has been replaced with EnableNotifications/DisableNotifications.
+* [fix][ios] NRE when read/notification value is null
 * [fix][android] service UUIDs in advertisement not being parsed correctly
 * [fix][android] cleanup internal thread delegation
 * [fix][uwp] don't marshall to main thread for most calls

@@ -31,7 +31,7 @@ var success = characteristic.SetNotificationValue(CharacteristicConfigDescriptor
 var sub = characteristic.WhenNotificationReceived().Subscribe(result => { result.Data... });
 
 // don't forget to turn them off when you're done
-characteristic.SetNotificationValue(CharacteristicConfigDescriptorValue.None);
+characteristic.EnableNotifications(); // pass true to enable indications if supported
 ```
 
 **Monitor Reads/Writes**

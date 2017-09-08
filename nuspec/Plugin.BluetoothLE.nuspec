@@ -23,17 +23,18 @@ Supported Platforms
         <licenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</licenseUrl>
         <projectUrl>https://github.com/aritchie/bluetoothle</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <tags>ios android uwp windows tvos linux tizen mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</tags>
+        <tags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</tags>
+        <!--<tags>ios android uwp windows tvos linux tizen mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</tags>-->
         <dependencies>
             <group>
                 <dependency id="System.Reactive" version="[3.1.1, 4)" />
                 <dependency id="NETStandard.Library" version="[1.6.1, 2)" />
             </group>
-            <group targetFramework="tizen30">
+            <!--<group targetFramework="tizen30">
                 <dependency id="NETStandard.Library" version="[1.6.1, 2)" />
                 <dependency id="Tizen.Network.Bluetooth" version="[1.0.9, 2)" />
                 <dependency id="System.Reactive" version="[3.1.1, 4)" />
-            </group>
+            </group>-->
         </dependencies>
         <releaseNotes>https://github.com/aritchie/bluetoothle/blob/master/docs/changelog.md</releaseNotes>
     </metadata>
@@ -54,12 +55,12 @@ Supported Platforms
         <file src="..\Plugin.BluetoothLE.tvOS\bin\Release\Plugin.BluetoothLE.*" target="lib\Xamarin.tvOS10" />
 
         <!-- tizen -->
-        <file src="..\Plugin.BluetoothLE.Tizen\bin\Release\Plugin.BluetoothLE.*" target="lib\tizen30" />
+        <!--<file src="..\Plugin.BluetoothLE.Tizen\bin\Release\Plugin.BluetoothLE.*" target="lib\tizen30" />-->
 
         <!-- uwp -->
         <file src="..\Plugin.BluetoothLE.Uwp\bin\Release\Plugin.BluetoothLE.*" target="lib\uap10.0" />
 
         <!-- linux -->
-        <file src="..\Plugin.BluetoothLE.MonoBlueZ\bin\Release\Plugin.BluetoothLE.*" target="lib\net45" />
+        <!--<file src="..\Plugin.BluetoothLE.MonoBlueZ\bin\Release\Plugin.BluetoothLE.*" target="lib\net45" />-->
     </files>
 </package>

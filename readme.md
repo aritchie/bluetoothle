@@ -101,7 +101,8 @@ Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
     var result = await characteristic.Read(); // use result.Data to see response
     await characteristic.Write(bytes);
 
-    characteristic.SubscribeToNotifications(result => {
+    characteristic.EnableNotifications();
+    characteristic.WhenNotificationReceived().Subscribe(result => {
     	//result.Data to get at response
     });
 });

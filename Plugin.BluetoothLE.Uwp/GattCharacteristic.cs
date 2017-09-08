@@ -67,22 +67,34 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<bool> SetNotificationValue(CharacteristicConfigDescriptorValue value)
+        public override IObservable<bool> EnableNotifications(bool useIndicationIfAvailable)
         {
-            this.AssertNotify();
+            var type = useIndicationIfAvailable
+                ? GattClientCharacteristicConfigurationDescriptorValue.Indicate
+                : GattClientCharacteristicConfigurationDescriptorValue.Notify;
 
-            return Observable.FromAsync(async ct =>
+            return this
+                .SetNotify(type)
+                .Select(x => x != null);
+        }
+
+
+        public override IObservable<object> DisableNotifications() =>
+            this.SetNotify(GattClientCharacteristicConfigurationDescriptorValue.None);
+
+
+        IObservable<object> SetNotify(GattClientCharacteristicConfigurationDescriptorValue value)
+            => Observable.FromAsync(async ct =>
             {
-                var desc = GetConfigValue(value);
-                var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(desc);
+                this.AssertNotify();
+                var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(value);
                 if (status == GattCommunicationStatus.Success)
                 {
-                    this.context.SetNotifyCharacteristic(this.Native, value != CharacteristicConfigDescriptorValue.None);
-                    return true;
+                    this.context.SetNotifyCharacteristic(this.Native, value != GattClientCharacteristicConfigurationDescriptorValue.None);
+                    return new object();
                 }
-                return false;
+                return null;
             });
-        }
 
 
         IObservable<CharacteristicResult> notificationOb;
@@ -136,25 +148,6 @@ namespace Plugin.BluetoothLE
                 var r = new CharacteristicResult(this, CharacteristicEvent.Write, value);
                 return r;
             });
-        }
-
-
-        static GattClientCharacteristicConfigurationDescriptorValue GetConfigValue(CharacteristicConfigDescriptorValue value)
-        {
-            switch (value)
-            {
-                case CharacteristicConfigDescriptorValue.Indicate:
-                    return GattClientCharacteristicConfigurationDescriptorValue.Indicate;
-
-                case CharacteristicConfigDescriptorValue.Notify:
-                    return GattClientCharacteristicConfigurationDescriptorValue.Notify;
-
-                case CharacteristicConfigDescriptorValue.None:
-                    return GattClientCharacteristicConfigurationDescriptorValue.None;
-
-                default:
-                    throw new ArgumentException("Invalid characteristic config descriptor value");
-            }
         }
     }
 }

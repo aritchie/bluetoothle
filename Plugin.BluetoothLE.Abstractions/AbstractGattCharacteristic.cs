@@ -27,7 +27,8 @@ namespace Plugin.BluetoothLE
         public CharacteristicProperties Properties { get; }
         public byte[] Value { get; protected set; }
 
-        public abstract IObservable<bool> SetNotificationValue(CharacteristicConfigDescriptorValue value);
+        public abstract IObservable<bool> EnableNotifications(bool enableIndicationsIfAvailable);
+        public abstract IObservable<object> DisableNotifications();
         public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();
         public abstract IObservable<CharacteristicResult> Read();
         public abstract void WriteWithoutResponse(byte[] value);
