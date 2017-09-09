@@ -152,8 +152,8 @@ namespace Plugin.BluetoothLE
                 if (success)
                 {
                     var bytes = useIndicationsIfAvailable && this.CanIndicate()
-                        ? BluetoothGattDescriptor.EnableNotificationValue.ToArray()
-                        : BluetoothGattDescriptor.EnableIndicationValue.ToArray();
+                        ? BluetoothGattDescriptor.EnableIndicationValue.ToArray()
+                        : BluetoothGattDescriptor.EnableNotificationValue.ToArray();
 
                     await wrap.Write(bytes);
                     this.IsNotifying = true;
