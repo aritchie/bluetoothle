@@ -6,6 +6,7 @@
 * [fix][android] service UUIDs in advertisement not being parsed correctly
 * [fix][android] cleanup internal thread delegation
 * [fix][uwp] don't marshall to main thread for most calls
+* [fix][uwp] mac address length
 
 ## 4.0.1
 * [fix][ios] NRE race condition in GetKnownCharacteristic
