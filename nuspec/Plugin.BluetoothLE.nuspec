@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Plugin.BluetoothLE</id>
-        <version>4.1.0</version>
+        <version>5.0.0</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin and UWP</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -14,8 +14,6 @@ Supported Platforms
 * iOS 7+
 * tvOS
 * macOS
-* Linux (bluez)
-* Tizen
         </description>
         <authors>Allan Ritchie</authors>
         <owners>Allan Ritchie</owners>
@@ -26,10 +24,7 @@ Supported Platforms
         <tags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</tags>
         <!--<tags>ios android uwp windows tvos linux tizen mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</tags>-->
         <dependencies>
-            <group>
-                <dependency id="System.Reactive" version="[3.1.1, 4)" />
-                <dependency id="NETStandard.Library" version="[1.6.1, 2)" />
-            </group>
+            <dependency id="System.Reactive" version="[3.1.1, 4)" />
             <!--<group targetFramework="tizen30">
                 <dependency id="NETStandard.Library" version="[1.6.1, 2)" />
                 <dependency id="Tizen.Network.Bluetooth" version="[1.0.9, 2)" />

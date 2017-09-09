@@ -1,11 +1,14 @@
 # CHANGE LOG
 
-## 4.1
+## 5.0
 * [breaking][feature] SetNotificationValue has been replaced with EnableNotifications/DisableNotifications.
 * [fix][ios] NRE when read/notification value is null
 * [fix][android] service UUIDs in advertisement not being parsed correctly
 * [fix][android] cleanup internal thread delegation
 * [fix][uwp] don't marshall to main thread for most calls
+
+## 4.0.1
+* [fix][ios] NRE race condition in GetKnownCharacteristic
 
 ## 4.0
 * [feature] .net standard support
