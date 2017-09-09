@@ -191,6 +191,9 @@ namespace Plugin.BluetoothLE
             //tempMac is now 'E7A1F7842F17'
 
             //string.Join(":", BitConverter.GetBytes(BluetoothAddress).Reverse().Select(b => b.ToString("X2"))).Substring(6);
+            var leadingZeros = new string('0', 12 - tempMac.Length);
+            tempMac = leadingZeros + tempMac;
+
             var macAddress = macRegex.Replace(tempMac, REGEX_REPLACE);
             return macAddress;
         }
