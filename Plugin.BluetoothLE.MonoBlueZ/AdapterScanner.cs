@@ -41,7 +41,7 @@ namespace Plugin.BluetoothLE
 
             objectManager.InterfacesAdded += (path, i) =>
             {
-                ob.OnNext(new Adapter(objectManager, agentManager, path));
+                //ob.OnNext(new Adapter(objectManager, agentManager, path));
             };
             //manager.InterfacesRemoved += (p, i) =>
 
@@ -52,7 +52,7 @@ namespace Plugin.BluetoothLE
             {
                 if (managedObjects[path].ContainsKey(dbusName))
                 {
-                    ob.OnNext(new Adapter(objectManager, agentManager, path));
+                    //ob.OnNext(new Adapter(objectManager, agentManager, path));
                 }
             }
             return DBusLoop().Subscribe();

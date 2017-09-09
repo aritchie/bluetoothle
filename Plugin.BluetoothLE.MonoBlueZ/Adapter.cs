@@ -20,30 +20,30 @@ namespace Plugin.BluetoothLE
         readonly Subject<bool> scanStatusSubj;
 
 
-        public Adapter(ObjectManager objectManager, AgentManager1 agentManger, ObjectPath path)
-        {
-            this.objectManager = objectManager;
-            this.native = Bus.System.GetObject<Adapter1>(BlueZPath.Service, path);
-            this.gattManager = Bus.System.GetObject<GattManager1>(BlueZPath.Service, path);
+        //public Adapter(ObjectManager objectManager, AgentManager1 agentManger, ObjectPath path)
+        //{
+        //    this.objectManager = objectManager;
+        //    this.native = Bus.System.GetObject<Adapter1>(BlueZPath.Service, path);
+        //    this.gattManager = Bus.System.GetObject<GattManager1>(BlueZPath.Service, path);
 
-            //this.gattManager.RegisterProfile();
-            //agentManager.RequestDefaultAgent(Constants.AgentPath);
-            //var agent = new DemoAgent ();
-            //GattManager1 gattManager=null;
-            //register our agent and make it the default
-            //_system.Register (agentPath, agent);
-            //agentManager.RequestDefaultAgent (agentPath);
+        //    //this.gattManager.RegisterProfile();
+        //    //agentManager.RequestDefaultAgent(Constants.AgentPath);
+        //    //var agent = new DemoAgent ();
+        //    //GattManager1 gattManager=null;
+        //    //register our agent and make it the default
+        //    //_system.Register (agentPath, agent);
+        //    //agentManager.RequestDefaultAgent (agentPath);
 
 
-            //var gattProfile = new BlendGattProfile();
-            //_system.Register(gattProfilePath,gattProfile);
-            //gattManager.RegisterProfile(gattProfilePath,new string[]{charRead},new Dictionary<string,object>());
-            //System.Console.WriteLine("Registered gatt profile");
+        //    //var gattProfile = new BlendGattProfile();
+        //    //_system.Register(gattProfilePath,gattProfile);
+        //    //gattManager.RegisterProfile(gattProfilePath,new string[]{charRead},new Dictionary<string,object>());
+        //    //System.Console.WriteLine("Registered gatt profile");
 
-            this.agentManager = agentManger;
-            this.path = path;
-            this.scanStatusSubj = new Subject<bool>();
-        }
+        //    this.agentManager = agentManger;
+        //    this.path = path;
+        //    this.scanStatusSubj = new Subject<bool>();
+        //}
 
 
         public override bool IsScanning => this.native.Discovering;

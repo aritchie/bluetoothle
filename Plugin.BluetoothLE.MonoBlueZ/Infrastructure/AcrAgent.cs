@@ -22,7 +22,7 @@ namespace Plugin.BluetoothLE.Infrastructure
         }
 
 
-        public uint RequestPasskey(ObjectPath device) => -1;
+        public uint RequestPasskey(ObjectPath device) => 1;
 
 
         public void DisplayPasskey(ObjectPath device, uint passkey, ushort entered)
