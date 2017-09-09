@@ -86,7 +86,7 @@ namespace Plugin.BluetoothLE
                         }
                         else
                         {
-                            this.Value = this.NativeCharacteristic.Value.ToArray();
+                            this.Value = this.NativeCharacteristic.Value?.ToArray();
                             var result = new CharacteristicResult(this, CharacteristicEvent.Read, this.Value);
                             ob.Respond(result);
                             this.ReadSubject.OnNext(result);
@@ -101,13 +101,19 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<bool> SetNotificationValue(CharacteristicConfigDescriptorValue value)
+        public override IObservable<bool> EnableNotifications(bool enableIndicationsIfAvailable)
         {
             this.AssertNotify();
-
-            var enable = value != CharacteristicConfigDescriptorValue.None;
-            this.Peripheral.SetNotifyValue(enable, this.NativeCharacteristic);
+            this.Peripheral.SetNotifyValue(true, this.NativeCharacteristic);
             return Observable.Return(true);
+        }
+
+
+        public override IObservable<object> DisableNotifications()
+        {
+            this.AssertNotify();
+            this.Peripheral.SetNotifyValue(false, this.NativeCharacteristic);
+            return Observable.Return(new object());
         }
 
 
@@ -126,7 +132,7 @@ namespace Plugin.BluetoothLE
                         }
                         else
                         {
-                            this.Value = this.NativeCharacteristic.Value.ToArray();
+                            this.Value = this.NativeCharacteristic.Value?.ToArray();
                             var result = new CharacteristicResult(this, CharacteristicEvent.Notification, this.Value);
                             ob.OnNext(result);
                         }
@@ -201,7 +207,7 @@ namespace Plugin.BluetoothLE
 
             return true;
         }
-        
+
 
         public override bool Equals(object obj)
         {

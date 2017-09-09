@@ -9,18 +9,18 @@ namespace Plugin.BluetoothLE
     public static partial class Extensions
     {
         /// <summary>
-        /// Registers for notifications and subscribes to them
+        ///
         /// </summary>
         /// <param name="characteristic"></param>
-        /// <param name="value"></param>
+        /// <param name="useIndicationIfAvailable"></param>
         /// <returns></returns>
-        public static IObservable<CharacteristicResult> RegisterAndNotify(this IGattCharacteristic characteristic, CharacteristicConfigDescriptorValue value = CharacteristicConfigDescriptorValue.Notify)
+        public static IObservable<CharacteristicResult> RegisterAndNotify(this IGattCharacteristic characteristic, bool useIndicationIfAvailable = false)
             => characteristic
-                .SetNotificationValue(value)
+                .EnableNotifications(useIndicationIfAvailable)
                 .Where(x => x)
                 .Select(x => characteristic.WhenNotificationReceived())
                 .Switch()
-                .Finally(() => characteristic.SetNotificationValue(CharacteristicConfigDescriptorValue.None).Subscribe());
+                .Finally(() => characteristic.DisableNotifications().Subscribe());
 
 
         public static IObservable<CharacteristicResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
@@ -61,10 +61,9 @@ namespace Plugin.BluetoothLE
         {
             if (character.CanNotify())
                 return character
-                    .SetNotificationValue(CharacteristicConfigDescriptorValue.Notify)
+                    .EnableNotifications()
                     .Where(x => x)
                     .Select(x => character.WhenNotificationReceived())
-                    .Take(1)
                     .Switch();
 
             if (character.CanRead())
@@ -84,9 +83,12 @@ namespace Plugin.BluetoothLE
         public static bool CanNotify(this IGattCharacteristic ch) =>
             ch.Properties.HasFlag(CharacteristicProperties.Notify) ||
             ch.Properties.HasFlag(CharacteristicProperties.NotifyEncryptionRequired) ||
+            ch.CanIndicate();
+
+
+        public static bool CanIndicate(this IGattCharacteristic ch) =>
             ch.Properties.HasFlag(CharacteristicProperties.Indicate) ||
             ch.Properties.HasFlag(CharacteristicProperties.IndicateEncryptionRequired);
-
 
         public static void AssertWrite(this IGattCharacteristic characteristic, bool withResponse)
         {

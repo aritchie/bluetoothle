@@ -13,9 +13,7 @@ namespace Plugin.BluetoothLE
     {
         public static Guid ToGuid(this byte[] uuidBytes)
         {
-            if (uuidBytes.Length == 16)
-                return new Guid(uuidBytes);
-
+            Array.Reverse(uuidBytes);
             var id = BitConverter.ToString(uuidBytes).Replace("-", String.Empty);
             switch (id.Length)
             {
@@ -25,6 +23,9 @@ namespace Plugin.BluetoothLE
 
                 case 8:
                     id = $"{id}-0000-1000-8000-00805f9b34fb";
+                    return Guid.ParseExact(id, "d");
+
+                case 16:
                     return Guid.ParseExact(id, "d");
 
                 default:

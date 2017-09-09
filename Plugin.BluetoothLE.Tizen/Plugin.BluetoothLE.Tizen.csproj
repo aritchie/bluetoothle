@@ -7,17 +7,18 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectTypeGuids>{2F98DAC9-6F16-457B-AED7-D43CAC379341};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{BF1EE3BC-86DB-4394-ADE1-CA488DBE862F}</ProjectGuid>
+    <ProjectGuid>{3419599B-F27A-458E-B445-3982C328EA97}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Plugin.BluetoothLE</RootNamespace>
-    <AssemblyName>Plugin.BluetoothLE</AssemblyName>
+    <RootNamespace>Plugin.BluetoothLE.Tizen</RootNamespace>
+    <AssemblyName>Plugin.BluetoothLE.Tizen</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <DefaultLanguage>en-US</DefaultLanguage>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworkIdentifier>.NETStandard</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v1.3</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v1.6</TargetFrameworkVersion>
     <NuGetTargetMoniker>.NETStandard,Version=v1.3</NuGetTargetMoniker>
     <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
     <NoStdLib>true</NoStdLib>
@@ -29,7 +30,7 @@
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;__TIZEN__</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -37,12 +38,12 @@
     <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;__TIZEN__</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="project.json" />
+    <None Include="Plugin.BluetoothLE.Tizen.project.json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Plugin.BluetoothLE.Shared\AdapterScanner.cs">

@@ -10,35 +10,39 @@ namespace Plugin.BluetoothLE
     public class AdvertisementData : IAdvertisementData
     {
         readonly BluetoothLEAdvertisementReceivedEventArgs adData;
+        readonly Lazy<byte[]> manufactureData;
+        readonly Lazy<int> txPower;
 
 
         public AdvertisementData(BluetoothLEAdvertisementReceivedEventArgs args)
         {
             this.adData = args;
-            this.IsConnectable = args.AdvertisementType == BluetoothLEAdvertisementType.ConnectableDirected ||
-                                 args.AdvertisementType == BluetoothLEAdvertisementType.ConnectableUndirected;
 
             // concat companyId?
-            var list = new List<byte>();
-            args.Advertisement
-                .ManufacturerData
-                .ToList()
-                .ForEach(x => list.AddRange(x.Data.ToArray()));
-            this.ManufacturerData = list.ToArray();
+            this.manufactureData = new Lazy<byte[]>(() =>
+            {
+                var list = new List<byte>();
+                var md = args.Advertisement.ManufacturerData;
+                for (var i = 0; i < md.Count; i++)
+                    list.AddRange(md[i].Data.ToArray());
+
+                return list.ToArray();
+            });
 
             this.ServiceUuids = args.Advertisement.ServiceUuids.ToArray();
-            this.TxPower = args.Advertisement.GetTxPower();
+            this.txPower = new Lazy<int>(() => args.Advertisement.GetTxPower());
         }
 
 
         public BluetoothLEAdvertisement Native => this.adData.Advertisement;
         public ulong BluetoothAddress => this.adData.BluetoothAddress;
         public string LocalName => this.adData.Advertisement.LocalName;
-        public bool IsConnectable { get; }
+        public bool IsConnectable => this.adData.AdvertisementType == BluetoothLEAdvertisementType.ConnectableDirected ||
+                                     this.adData.AdvertisementType == BluetoothLEAdvertisementType.ConnectableUndirected;
         public IReadOnlyList<byte[]> ServiceData { get; }
-        public byte[] ManufacturerData { get;  }
+        public byte[] ManufacturerData => this.manufactureData.Value;
         public Guid[] ServiceUuids { get; }
-        public int TxPower { get; }
+        public int TxPower => this.txPower.Value;
     }
 }
 /*

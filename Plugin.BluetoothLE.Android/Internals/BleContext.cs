@@ -1,6 +1,4 @@
 using System;
-using System.Threading;
-using Android.App;
 using Android.Bluetooth;
 using Android.Bluetooth.LE;
 using Android.OS;
@@ -30,10 +28,10 @@ namespace Plugin.BluetoothLE.Internals
         public event EventHandler<ScanEventArgs> Scanned;
 
 
-        public void StartScan(bool forcePreLollipop, ScanConfig config)
+        public void StartScan(ScanConfig config)
         {
             this.Devices.Clear();
-            if (!forcePreLollipop && Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
             {
                 this.StartNewScanner(config);
             }

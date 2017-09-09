@@ -122,12 +122,63 @@ namespace Plugin.BluetoothLE
                 await this.context.Semaphore.WaitAsync(cancelSrc.Token);
 
                 this.context.Marshall(() =>
-                    this.context.Gatt.ReadCharacteristic(this.native)
-                );
+                {
+                    try
+                    {
+                        this.context.Gatt.ReadCharacteristic(this.native);
+                    }
+                    catch (Exception ex)
+                    {
+                        ob.OnError(ex);
+                    }
+                });
 
                 return () => this.context.Callbacks.CharacteristicRead -= handler;
             });
         }
+
+
+        public override IObservable<bool> EnableNotifications(bool useIndicationsIfAvailable)
+            => Observable.FromAsync(async ct =>
+            {
+                var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
+                if (descriptor == null)
+                    throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
+
+                var wrap = new GattDescriptor(this, this.context, descriptor);
+                var success = this.context.Gatt.SetCharacteristicNotification(this.native, true);
+                await Task.Delay(250, ct);
+
+                if (success)
+                {
+                    var bytes = useIndicationsIfAvailable && this.CanIndicate()
+                        ? BluetoothGattDescriptor.EnableNotificationValue.ToArray()
+                        : BluetoothGattDescriptor.EnableIndicationValue.ToArray();
+
+                    await wrap.Write(bytes);
+                    this.IsNotifying = true;
+                }
+                return success;
+            });
+
+
+        public override IObservable<object> DisableNotifications() => Observable.FromAsync<object>(async ct =>
+        {
+            var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
+            if (descriptor == null)
+                throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
+
+            var wrap = new GattDescriptor(this, this.context, descriptor);
+            var success = this.context.Gatt.SetCharacteristicNotification(this.native, false);
+            await Task.Delay(250, ct);
+
+            if (success)
+            {
+                await wrap.Write(BluetoothGattDescriptor.DisableNotificationValue.ToArray());
+                this.IsNotifying = false;
+            }
+            return null;
+        });
 
 
         IObservable<CharacteristicResult> notifyOb;
@@ -162,44 +213,6 @@ namespace Plugin.BluetoothLE
             .RefCount();
 
             return this.notifyOb;
-        }
-
-
-        public override IObservable<bool> SetNotificationValue(CharacteristicConfigDescriptorValue value)
-            => Observable.FromAsync(async ct =>
-            {
-                var enable = value != CharacteristicConfigDescriptorValue.None;
-                var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
-                if (descriptor == null)
-                    throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
-
-                var wrap = new GattDescriptor(this, this.context, descriptor);
-                var success = this.context.Gatt.SetCharacteristicNotification(this.native, enable);
-                await Task.Delay(250, ct);
-
-                if (success)
-                {
-                    await wrap.Write(GetDescriptionConfigBytes(value));
-                    this.IsNotifying = enable;
-                }
-                return success;
-            });
-
-
-        static byte[] GetDescriptionConfigBytes(CharacteristicConfigDescriptorValue value)
-        {
-            switch (value)
-            {
-                case CharacteristicConfigDescriptorValue.Indicate:
-                    return BluetoothGattDescriptor.EnableIndicationValue.ToArray();
-
-                case CharacteristicConfigDescriptorValue.Notify:
-                    return BluetoothGattDescriptor.EnableNotificationValue.ToArray();
-
-                case CharacteristicConfigDescriptorValue.None:
-                default:
-                    return BluetoothGattDescriptor.DisableNotificationValue.ToArray();
-            }
         }
 
 
@@ -260,24 +273,37 @@ namespace Plugin.BluetoothLE
         void RawWriteWithResponse(byte[] bytes)
             => this.context.Marshall(() =>
             {
-                this.native.SetValue(bytes);
-                this.native.WriteType = GattWriteType.Default;
-                this.context.Gatt.WriteCharacteristic(this.native);
+                try
+                {
+                    this.native.SetValue(bytes);
+                    this.native.WriteType = GattWriteType.Default;
+                    this.context.Gatt.WriteCharacteristic(this.native);
+                }
+                catch (Exception ex)
+                {
+                    Log.Write("[ERROR] RawWriteWithResponse failed - " + ex);
+                }
             });
 
 
         void RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
             => this.context.Marshall(() =>
             {
+                try
+                {
+                    this.native.SetValue(bytes);
+                    this.native.WriteType = GattWriteType.NoResponse;
+                    this.context.Gatt.WriteCharacteristic(this.native);
+                    this.Value = bytes;
 
-                this.native.SetValue(bytes);
-                this.native.WriteType = GattWriteType.NoResponse;
-                this.context.Gatt.WriteCharacteristic(this.native);
-                this.Value = bytes;
-
-                var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
-                this.WriteSubject.OnNext(result);
-                ob?.Respond(result);
+                    var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
+                    this.WriteSubject.OnNext(result);
+                    ob?.Respond(result);
+                }
+                catch (Exception ex)
+                {
+                    ob?.OnError(ex);
+                }
             });
     }
 }

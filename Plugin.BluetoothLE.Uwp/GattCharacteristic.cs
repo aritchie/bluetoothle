@@ -2,11 +2,9 @@
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Foundation;
-using Windows.UI.Core;
 using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattCharacteristic;
 
 
@@ -69,35 +67,34 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<bool> SetNotificationValue(CharacteristicConfigDescriptorValue value)
+        public override IObservable<bool> EnableNotifications(bool useIndicationIfAvailable)
         {
-            this.AssertNotify();
+            var type = useIndicationIfAvailable && this.CanIndicate()
+                ? GattClientCharacteristicConfigurationDescriptorValue.Indicate
+                : GattClientCharacteristicConfigurationDescriptorValue.Notify;
 
-            return Observable.FromAsync(async ct =>
+            return this
+                .SetNotify(type)
+                .Select(x => x != null);
+        }
+
+
+        public override IObservable<object> DisableNotifications() =>
+            this.SetNotify(GattClientCharacteristicConfigurationDescriptorValue.None);
+
+
+        IObservable<object> SetNotify(GattClientCharacteristicConfigurationDescriptorValue value)
+            => Observable.FromAsync(async ct =>
             {
-                var tcs = new TaskCompletionSource<GattCommunicationStatus>();
-                await CoreWindow
-                    .GetForCurrentThread()
-                    .Dispatcher
-                    .RunAsync(
-                        CoreDispatcherPriority.Normal,
-                        async () =>
-                        {
-                            var desc = GetConfigValue(value);
-                            var result = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(desc);
-                            tcs.TrySetResult(result);
-                        }
-                    );
-
-                var status = await tcs.Task;
+                this.AssertNotify();
+                var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(value);
                 if (status == GattCommunicationStatus.Success)
                 {
-                    this.context.SetNotifyCharacteristic(this.Native, value != CharacteristicConfigDescriptorValue.None);
-                    return true;
+                    this.context.SetNotifyCharacteristic(this.Native, value != GattClientCharacteristicConfigurationDescriptorValue.None);
+                    return new object();
                 }
-                return false;
+                return null;
             });
-        }
 
 
         IObservable<CharacteristicResult> notificationOb;
@@ -151,25 +148,6 @@ namespace Plugin.BluetoothLE
                 var r = new CharacteristicResult(this, CharacteristicEvent.Write, value);
                 return r;
             });
-        }
-
-
-        static GattClientCharacteristicConfigurationDescriptorValue GetConfigValue(CharacteristicConfigDescriptorValue value)
-        {
-            switch (value)
-            {
-                case CharacteristicConfigDescriptorValue.Indicate:
-                    return GattClientCharacteristicConfigurationDescriptorValue.Indicate;
-
-                case CharacteristicConfigDescriptorValue.Notify:
-                    return GattClientCharacteristicConfigurationDescriptorValue.Notify;
-
-                case CharacteristicConfigDescriptorValue.None:
-                    return GattClientCharacteristicConfigurationDescriptorValue.None;
-
-                default:
-                    throw new ArgumentException("Invalid characteristic config descriptor value");
-            }
         }
     }
 }

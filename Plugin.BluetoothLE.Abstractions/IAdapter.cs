@@ -51,7 +51,7 @@ namespace Plugin.BluetoothLE
         /// <returns></returns>
         IEnumerable<IDevice> GetPairedDevices();
 
-            /// <summary>
+        /// <summary>
         /// Monitor for scanning status changes
         /// </summary>
         /// <returns></returns>
