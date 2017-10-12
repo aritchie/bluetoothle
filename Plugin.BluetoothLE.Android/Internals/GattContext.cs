@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Bluetooth;
 
@@ -38,26 +39,42 @@ namespace Plugin.BluetoothLE.Internals
         public GattCallbacks Callbacks { get; }
 
 
-        public void Marshall(Action action)
+        public Task Marshall(Action action)
         {
-            if (AndroidConfig.MainThreadSuggested)
+            if (AndroidConfig.PerformActionsOnMainThread)
             {
-                Application.SynchronizationContext.Post(_ => action(), null);
+                var tcs = new TaskCompletionSource<object>();
+                Application.SynchronizationContext.Post(_ =>
+                {
+                    try
+                    {
+                        action();
+                        tcs.TrySetResult(null);
+                    }
+                    catch (Exception ex)
+                    {
+                        tcs.TrySetException(ex);
+                    }
+                }, null);
+                return tcs.Task;
             }
-            else
-            {
-                action();
-            }
+            action();
+            return Task.CompletedTask;
         }
 
 
-        public bool Connect(GattConnectionConfig config)
+        public async Task<bool> Connect(GattConnectionConfig config)
         {
-            var success = this.Gatt.Connect();
-            if (success && config.Priority != ConnectionPriority.Normal)
-                this.Gatt.RequestConnectionPriority(this.ToNative(config.Priority));
+            var tcs = new TaskCompletionSource<bool>();
+            await this.Marshall(() =>
+            {
+                var success = this.Gatt.Connect();
+                if (success && config.Priority != ConnectionPriority.Normal)
+                    this.Gatt.RequestConnectionPriority(this.ToNative(config.Priority));
 
-            return success;
+                tcs.TrySetResult(success);
+            });
+            return await tcs.Task;
         }
 
 

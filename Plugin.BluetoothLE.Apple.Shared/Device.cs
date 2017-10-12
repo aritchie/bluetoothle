@@ -56,12 +56,9 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<object> Connect(GattConnectionConfig config)
-        {
-            config = config ?? GattConnectionConfig.DefaultConfiguration;
-            this.SetupAutoReconnect(config);
-
-            return Observable.Create<object>(ob =>
+            => Observable.Create<object>(ob =>
             {
+                config = config ?? GattConnectionConfig.DefaultConfiguration;
                 IDisposable sub1 = null;
                 IDisposable sub2 = null;
 
@@ -97,14 +94,10 @@ namespace Plugin.BluetoothLE
                     sub2?.Dispose();
                 };
             });
-        }
 
 
         public override void CancelConnection()
-        {
-            base.CancelConnection();
-            this.context.Manager.CancelPeripheralConnection(this.peripheral);
-        }
+            => this.context.Manager.CancelPeripheralConnection(this.peripheral);
 
 
         IObservable<string> nameOb;

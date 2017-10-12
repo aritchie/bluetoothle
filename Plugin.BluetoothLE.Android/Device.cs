@@ -4,11 +4,11 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Bluetooth;
 using Android.OS;
 using Plugin.BluetoothLE.Internals;
-
 
 
 namespace Plugin.BluetoothLE
@@ -60,49 +60,22 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<object> Connect(GattConnectionConfig config)
-        {
-            config = config ?? GattConnectionConfig.DefaultConfiguration;
-            this.SetupAutoReconnect(config);
-
-            return Observable.Create<object>(ob =>
+            => Observable.FromAsync<object>(async ct =>
             {
-                var connected = this
-                    .WhenStatusChanged()
-                    .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ => ob.Respond(null));
+                config = config ?? GattConnectionConfig.DefaultConfiguration;
 
-                if (this.Status != ConnectionStatus.Connecting)
+                while (!ct.IsCancellationRequested &&
+                       config.IsPersistent &&
+                       this.Status != ConnectionStatus.Connected)
                 {
-                    if (AndroidConfig.MainThreadSuggested)
-                    {
-                        Application.SynchronizationContext.Post(_ => this.DoConnect(ob, config), null);
-                    }
-                    else
-                    {
-                        this.DoConnect(ob, config);
-                    }
+                    await this.context.Connect(config);
+                    // TODO: I want to technically let the connection "breathe" here for
+                    // 300ms to prevent - to do this properly, I need to stop all other native gatt
+                    // events from returning directly - this way, I can control the breathe time before
+                    // the user is able to start triggering read/writes
                 }
-                return () => connected?.Dispose();
+                return null;
             });
-        }
-
-
-        protected void DoConnect(IObserver<object> ob, GattConnectionConfig config)
-        {
-            try
-            {
-                this.connSubject.OnNext(ConnectionStatus.Connecting);
-                if (!this.context.Connect(config))
-                    throw new ArgumentException("Unable to connect");
-
-                ob.Respond(null);
-            }
-            catch (Exception ex)
-            {
-                this.connSubject.OnNext(ConnectionStatus.Disconnected);
-                ob.OnError(ex);
-            }
-        }
 
 
         // android does not have a find "1" service - it must discover all services.... seems shit
@@ -115,7 +88,6 @@ namespace Plugin.BluetoothLE
 
         public override void CancelConnection()
         {
-            base.CancelConnection();
             this.connSubject.OnNext(ConnectionStatus.Disconnecting);
             this.context.Close();
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
