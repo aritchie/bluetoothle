@@ -1,51 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard1.3</TargetFramework>
+        <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Acr.UserDialogs" Version="6.5.1" />
         <PackageReference Include="Autofac" Version="4.6.1" />
-        <PackageReference Include="reactiveui" Version="8.0.0-alpha0073" />
+        <PackageReference Include="reactiveui" Version="8.0.0-alpha0105" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
-        <PackageReference Include="Xamarin.Forms" Version="2.4.0.269-pre2" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Include="Pages\MainPage.xaml">
-            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-        </EmbeddedResource>
-        <EmbeddedResource Include="Pages\Le\AdapterListPage.xaml">
-            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-        </EmbeddedResource>
-        <EmbeddedResource Include="Pages\Le\ConnectedDevicesPage.xaml">
-            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-        </EmbeddedResource>
-        <EmbeddedResource Include="Pages\Le\DevicePage.xaml">
-            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-        </EmbeddedResource>
-        <EmbeddedResource Include="Pages\Le\LogPage.xaml">
-            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-        </EmbeddedResource>
-        <EmbeddedResource Include="Pages\Le\ScanPage.xaml">
-            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-        </EmbeddedResource>
-        <EmbeddedResource Include="Pages\Le\ServerPage.xaml">
-            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-        </EmbeddedResource>
-        <EmbeddedResource Include="Pages\TestCases\Test1Page.xaml">
-            <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-        </EmbeddedResource>
+        <PackageReference Include="Xamarin.Forms" Version="2.4.0.282" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj" />
         <ProjectReference Include="..\..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Update="NETStandard.Library" Version="1.6.1" />
     </ItemGroup>
 
     <ItemGroup>
