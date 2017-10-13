@@ -10,16 +10,16 @@
     <ProjectGuid>{3419599B-F27A-458E-B445-3982C328EA97}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Plugin.BluetoothLE.Tizen</RootNamespace>
-    <AssemblyName>Plugin.BluetoothLE.Tizen</AssemblyName>
+    <RootNamespace>Plugin.BluetoothLE</RootNamespace>
+    <AssemblyName>Plugin.BluetoothLE</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworkIdentifier>.NETStandard</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v1.6</TargetFrameworkVersion>
-    <NuGetTargetMoniker>.NETStandard,Version=v1.3</NuGetTargetMoniker>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <NuGetTargetMoniker>.NETStandard,Version=v2.0</NuGetTargetMoniker>
     <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
     <NoStdLib>true</NoStdLib>
     <NoWarn>$(NoWarn);1701</NoWarn>
@@ -43,9 +43,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Plugin.BluetoothLE.Tizen.project.json" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="..\Plugin.BluetoothLE.Shared\AdapterScanner.cs">
       <Link>AdapterScanner.cs</Link>
     </Compile>
@@ -63,6 +60,11 @@
       <Project>{01d11ef2-074c-4bc0-9c05-5a6a9f974e05}</Project>
       <Name>Plugin.BluetoothLE.Abstractions</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Tizen.Network.Bluetooth">
+      <Version>1.0.9</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
