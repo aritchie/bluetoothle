@@ -15,6 +15,7 @@ namespace Samples.Droid
         Label = "ACR BluetoothLE",
         Icon = "@drawable/icon",
         MainLauncher = true,
+        Theme = "@style/MainTheme",
         ScreenOrientation = ScreenOrientation.Portrait,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation
     )]
@@ -24,8 +25,8 @@ namespace Samples.Droid
         {
             base.OnCreate(bundle);
             Forms.Init(this, bundle);
-            FormsAppCompatActivity.ToolbarResource = Resource.Layout.toolbar;
-            FormsAppCompatActivity.TabLayoutResource = Resource.Layout.tabs;
+            FormsAppCompatActivity.ToolbarResource = Resource.Layout.Toolbar;
+            FormsAppCompatActivity.TabLayoutResource = Resource.Layout.Tabbar;
 
             UserDialogs.Init(() => (Activity)Forms.Context);
 
