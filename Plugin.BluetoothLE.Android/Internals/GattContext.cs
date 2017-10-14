@@ -9,9 +9,6 @@ namespace Plugin.BluetoothLE.Internals
 {
     public class GattContext
     {
-        BluetoothGatt gatt;
-
-
         public GattContext(BluetoothDevice device, GattCallbacks callbacks)
         {
             this.NativeDevice = device;
@@ -19,18 +16,19 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        public BluetoothGatt Gatt
-        {
-            get
-            {
-                this.gatt = this.gatt ?? this.NativeDevice.ConnectGatt(
-                    Application.Context,
-                    false,
-                    this.Callbacks
-                );
-                return this.gatt;
-            }
-        }
+        //BluetoothGatt gatt;
+        public BluetoothGatt Gatt { get; private set; }
+        //{
+        //    get
+        //    {
+        //        this.gatt = this.gatt ?? this.NativeDevice.ConnectGatt(
+        //            Application.Context,
+        //            false,
+        //            this.Callbacks
+        //        );
+        //        return this.gatt;
+        //    }
+        //}
 
 
 
@@ -63,26 +61,22 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        public async Task<bool> Connect(GattConnectionConfig config)
+        public Task Connect(GattConnectionConfig config) => this.Marshall(() =>
         {
-            var tcs = new TaskCompletionSource<bool>();
-            await this.Marshall(() =>
-            {
-                var success = this.Gatt.Connect();
-                if (success && config.Priority != ConnectionPriority.Normal)
-                    this.Gatt.RequestConnectionPriority(this.ToNative(config.Priority));
-
-                tcs.TrySetResult(success);
-            });
-            return await tcs.Task;
-        }
+            this.Gatt = this.NativeDevice.ConnectGatt(
+                Application.Context,
+                true,
+                this.Callbacks
+            );
+            if (config.Priority != ConnectionPriority.Normal)
+                this.Gatt.RequestConnectionPriority(this.ToNative(config.Priority));
+        });
 
 
         public void Close()
         {
-            this.gatt?.Disconnect();
-            this.gatt?.Close();
-            this.gatt = null;
+            this.Gatt?.Disconnect();
+            this.Gatt = null;
         }
 
 

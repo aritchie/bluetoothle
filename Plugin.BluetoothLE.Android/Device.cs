@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
-using System.Threading.Tasks;
-using Android.App;
 using Android.Bluetooth;
 using Android.OS;
 using Plugin.BluetoothLE.Internals;
@@ -16,7 +14,6 @@ namespace Plugin.BluetoothLE
     public class Device : AbstractDevice
     {
         readonly BluetoothManager manager;
-        readonly Subject<ConnectionStatus> connSubject;
         readonly GattContext context;
 
 
@@ -25,9 +22,7 @@ namespace Plugin.BluetoothLE
                       GattCallbacks callbacks) : base(native.Name, ToDeviceId(native.Address))
         {
             this.context = new GattContext(native, callbacks);
-
             this.manager = manager;
-            this.connSubject = new Subject<ConnectionStatus>();
         }
 
 
@@ -59,23 +54,17 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<object> Connect(GattConnectionConfig config)
-            => Observable.FromAsync<object>(async ct =>
-            {
-                config = config ?? GattConnectionConfig.DefaultConfiguration;
+        public override IObservable<object> Connect(GattConnectionConfig config) => Observable.FromAsync<object>(async ct =>
+        {
+            config = config ?? GattConnectionConfig.DefaultConfiguration;
+            var task = this.WhenStatusChanged()
+                .Where(x => x == ConnectionStatus.Connected)
+                .ToTask(ct);
 
-                while (!ct.IsCancellationRequested &&
-                       config.IsPersistent &&
-                       this.Status != ConnectionStatus.Connected)
-                {
-                    await this.context.Connect(config);
-                    // TODO: I want to technically let the connection "breathe" here for
-                    // 300ms to prevent - to do this properly, I need to stop all other native gatt
-                    // events from returning directly - this way, I can control the breathe time before
-                    // the user is able to start triggering read/writes
-                }
-                return null;
-            });
+            await this.context.Connect(config);
+            await task;
+            return null;
+        });
 
 
         // android does not have a find "1" service - it must discover all services.... seems shit
@@ -86,19 +75,13 @@ namespace Plugin.BluetoothLE
             .Select(x => x);
 
 
-        public override void CancelConnection()
-        {
-            this.connSubject.OnNext(ConnectionStatus.Disconnecting);
-            this.context.Close();
-            this.connSubject.OnNext(ConnectionStatus.Disconnected);
-        }
+        public override void CancelConnection() => this.context.Close();
 
 
-        public override IObservable<string> WhenNameUpdated() =>
-            BluetoothObservables
-                .WhenDeviceNameChanged()
-                .Where(x => x.Equals(this.context.NativeDevice))
-                .Select(x => this.Name);
+        public override IObservable<string> WhenNameUpdated() => BluetoothObservables
+            .WhenDeviceNameChanged()
+            .Where(x => x.Equals(this.context.NativeDevice))
+            .Select(x => this.Name);
 
 
         IObservable<ConnectionStatus> statusOb;
@@ -106,23 +89,18 @@ namespace Plugin.BluetoothLE
         {
             this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
             {
-                ob.OnNext(this.Status);
                 var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
                 {
+                    // if (args.Status == GattStatus.Success)
+                    // TODO: if connectionstatus == connected, pause 300ms
                     if (args.Gatt.Device.Equals(this.context.NativeDevice))
                         ob.OnNext(this.Status);
                 });
                 this.context.Callbacks.ConnectionStateChanged += handler;
-                var sub = this.connSubject
-                    .AsObservable()
-                    .Subscribe(ob.OnNext);
 
-                return () =>
-                {
-                    sub.Dispose();
-                    this.context.Callbacks.ConnectionStateChanged -= handler;
-                };
+                return () => this.context.Callbacks.ConnectionStateChanged -= handler;
             })
+            .StartWith(this.Status)
             .DistinctUntilChanged()
             .Replay(1)
             .RefCount();
@@ -148,7 +126,8 @@ namespace Plugin.BluetoothLE
                     }
                 });
                 this.context.Callbacks.ServicesDiscovered += handler;
-                var sub = this.WhenStatusChanged()
+                var sub = this
+                    .WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
                     .Subscribe(_ =>
                     {
@@ -212,46 +191,43 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<bool> PairingRequest(string pin)
+        public override IObservable<bool> PairingRequest(string pin) => Observable.Create<bool>(ob =>
         {
-            return Observable.Create<bool>(ob =>
+            IDisposable requestOb = null;
+            IDisposable istatusOb = null;
+
+            if (this.PairingStatus == PairingStatus.Paired)
             {
-                IDisposable requestOb = null;
-                IDisposable istatusOb = null;
-
-                if (this.PairingStatus == PairingStatus.Paired)
+                ob.Respond(true);
+            }
+            else
+            {
+                if (pin != null && Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
                 {
-                    ob.Respond(true);
+                    requestOb = BluetoothObservables
+                        .WhenBondRequestReceived()
+                        .Where(x => x.Equals(this.context.NativeDevice))
+                        .Subscribe(x =>
+                        {
+                            var bytes = ConvertPinToBytes(pin);
+                            x.SetPin(bytes);
+                            x.SetPairingConfirmation(true);
+                        });
                 }
-                else
-                {
-                    if (pin != null && Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
-                    {
-                        requestOb = BluetoothObservables
-                            .WhenBondRequestReceived()
-                            .Where(x => x.Equals(this.context.NativeDevice))
-                            .Subscribe(x =>
-                            {
-                                var bytes = ConvertPinToBytes(pin);
-                                x.SetPin(bytes);
-                                x.SetPairingConfirmation(true);
-                            });
-                    }
-                    istatusOb = BluetoothObservables
-                        .WhenBondStatusChanged()
-                        .Where(x => x.Equals(this.context.NativeDevice) && x.BondState != Bond.Bonding)
-                        .Subscribe(x => ob.Respond(x.BondState == Bond.Bonded)); // will complete here
+                istatusOb = BluetoothObservables
+                    .WhenBondStatusChanged()
+                    .Where(x => x.Equals(this.context.NativeDevice) && x.BondState != Bond.Bonding)
+                    .Subscribe(x => ob.Respond(x.BondState == Bond.Bonded)); // will complete here
 
-                    // execute
-                    this.context.NativeDevice.CreateBond();
-                }
-                return () =>
-                {
-                    requestOb?.Dispose();
-                    istatusOb?.Dispose();
-                };
-            });
-        }
+                // execute
+                this.context.NativeDevice.CreateBond();
+            }
+            return () =>
+            {
+                requestOb?.Dispose();
+                istatusOb?.Dispose();
+            };
+        });
 
 
         public override IGattReliableWriteTransaction BeginReliableWriteTransaction() =>
