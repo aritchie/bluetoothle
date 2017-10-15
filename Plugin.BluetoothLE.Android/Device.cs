@@ -68,7 +68,7 @@ namespace Plugin.BluetoothLE
                 .Take(1)
                 .ToTask(ct);
 
-            await this.context.Connect(config.Priority);
+            await this.context.Connect(config.Priority, false);
             await task;
             return null;
         });
@@ -380,21 +380,44 @@ namespace Plugin.BluetoothLE
             .WhenStatusChanged()
             .Skip(1) // skip the initial "Disconnected"
             .Where(x => x == ConnectionStatus.Disconnected)
-            .Select(_ => Observable.FromAsync(async ct1 =>
-            {
-                Log.Write("Starting reconnection loop");
-                while (!ct1.IsCancellationRequested && this.Status != ConnectionStatus.Connected)
-                {
-                    await Task.Delay(500, ct1); // breathe before attempting (again)
-                    await this.context.Reconnect(config.Priority);
-                }
-                var msg = ct1.IsCancellationRequested
-                    ? "Reconnection loop cancelled"
-                    : "Reconnection successful";
-
-                Log.Write(msg);
-            }))
+            .Select(_ => Observable.FromAsync(ct1 => this.Reconnect(config, ct1)))
             .Merge()
             .Subscribe();
+
+
+        async Task Reconnect(GattConnectionConfig config, CancellationToken ct)
+        {
+            Log.Write("Starting reconnection loop");
+            var attempts = 1;
+
+            while (!ct.IsCancellationRequested &&
+                   this.Status != ConnectionStatus.Connected &&
+                   attempts <= CrossBleAdapter.AndroidMaxAutoReconnectAttempts)
+            {
+                Log.Write("Reconnection Attempt " + attempts);
+
+                // breathe before attempting (again)
+                await Task.Delay(
+                    CrossBleAdapter.AndroidPauseBetweenAutoReconnectAttempts,
+                    ct
+                );
+                await this.context.Reconnect(config.Priority);
+                attempts++;
+            }
+            if (ct.IsCancellationRequested)
+            {
+                Log.Write("Reconnection loop cancelled");
+            }
+            else if (this.Status == ConnectionStatus.Connected)
+            {
+                Log.Write("Reconnection successful");
+            }
+            else
+            {
+                Log.Write("Reconnection failed - handing off to android autoReconnect");
+                this.context.Close();
+                await this.context.Connect(config.Priority, true);
+            }
+        }
     }
 }

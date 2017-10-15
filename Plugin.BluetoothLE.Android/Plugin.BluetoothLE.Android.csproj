@@ -45,7 +45,6 @@
   <ItemGroup>
     <Compile Include="Adapter.cs" />
     <Compile Include="AdvertisementData.cs" />
-    <Compile Include="AndroidConfig.cs" />
     <Compile Include="Device.cs" />
     <Compile Include="GattCharacteristic.cs" />
     <Compile Include="GattReliableWriteTransaction.cs" />

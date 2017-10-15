@@ -24,7 +24,7 @@ namespace Plugin.BluetoothLE.Internals
 
         public Task Marshall(Action action)
         {
-            if (AndroidConfig.PerformActionsOnMainThread)
+            if (CrossBleAdapter.AndroidPerformActionsOnMainThread)
             {
                 var tcs = new TaskCompletionSource<object>();
                 Application.SynchronizationContext.Post(_ =>
@@ -55,11 +55,11 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        public Task Connect(ConnectionPriority priority) => this.Marshall(() =>
+        public Task Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.Marshall(() =>
         {
             this.Gatt = this.NativeDevice.ConnectGatt(
                 Application.Context,
-                false,
+                androidAutoReconnect,
                 this.Callbacks
             );
             if (priority != ConnectionPriority.Normal)
