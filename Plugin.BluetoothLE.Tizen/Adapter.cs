@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace Plugin.BluetoothLE.Tizen
+namespace Plugin.BluetoothLE
 {
     public class Adapter : AbstractAdapter
     {
