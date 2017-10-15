@@ -16,22 +16,7 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        //BluetoothGatt gatt;
         public BluetoothGatt Gatt { get; private set; }
-        //{
-        //    get
-        //    {
-        //        this.gatt = this.gatt ?? this.NativeDevice.ConnectGatt(
-        //            Application.Context,
-        //            false,
-        //            this.Callbacks
-        //        );
-        //        return this.gatt;
-        //    }
-        //}
-
-
-
         public SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1, 1);
         public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
@@ -61,21 +46,31 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        public Task Connect(GattConnectionConfig config) => this.Marshall(() =>
+        public Task Reconnect(ConnectionPriority priority)
+        {
+            if (this.Gatt == null)
+                throw new ArgumentException("Device is not in a reconnectable state");
+
+            return this.Marshall(() => this.Gatt.Connect());
+        }
+
+
+        public Task Connect(ConnectionPriority priority) => this.Marshall(() =>
         {
             this.Gatt = this.NativeDevice.ConnectGatt(
                 Application.Context,
-                true,
+                false,
                 this.Callbacks
             );
-            if (config.Priority != ConnectionPriority.Normal)
-                this.Gatt.RequestConnectionPriority(this.ToNative(config.Priority));
+            if (priority != ConnectionPriority.Normal)
+                this.Gatt.RequestConnectionPriority(this.ToNative(priority));
         });
 
 
         public void Close()
         {
             this.Gatt?.Disconnect();
+            this.Gatt?.Close();
             this.Gatt = null;
         }
 

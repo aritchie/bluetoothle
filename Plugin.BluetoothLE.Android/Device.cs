@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using Android.Bluetooth;
 using Android.OS;
 using Plugin.BluetoothLE.Internals;
@@ -15,6 +16,7 @@ namespace Plugin.BluetoothLE
     {
         readonly BluetoothManager manager;
         readonly GattContext context;
+        IDisposable autoReconnectSub;
 
 
         public Device(BluetoothManager manager,
@@ -57,11 +59,16 @@ namespace Plugin.BluetoothLE
         public override IObservable<object> Connect(GattConnectionConfig config) => Observable.FromAsync<object>(async ct =>
         {
             config = config ?? GattConnectionConfig.DefaultConfiguration;
+
+            if (config.IsPersistent)
+                this.autoReconnectSub = this.CreateAutoReconnectSubscription(config);
+
             var task = this.WhenStatusChanged()
                 .Where(x => x == ConnectionStatus.Connected)
+                .Take(1)
                 .ToTask(ct);
 
-            await this.context.Connect(config);
+            await this.context.Connect(config.Priority);
             await task;
             return null;
         });
@@ -75,7 +82,11 @@ namespace Plugin.BluetoothLE
             .Select(x => x);
 
 
-        public override void CancelConnection() => this.context.Close();
+        public override void CancelConnection()
+        {
+            this.autoReconnectSub?.Dispose();
+            this.context.Close();
+        }
 
 
         public override IObservable<string> WhenNameUpdated() => BluetoothObservables
@@ -91,8 +102,6 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
                 {
-                    // if (args.Status == GattStatus.Success)
-                    // TODO: if connectionstatus == connected, pause 300ms
                     if (args.Gatt.Device.Equals(this.context.NativeDevice))
                         ob.OnNext(this.Status);
                 });
@@ -365,5 +374,27 @@ namespace Plugin.BluetoothLE
 
 
         public override string ToString() => $"Device: {this.Uuid}";
+
+
+        IDisposable CreateAutoReconnectSubscription(GattConnectionConfig config) => this
+            .WhenStatusChanged()
+            .Skip(1) // skip the initial "Disconnected"
+            .Where(x => x == ConnectionStatus.Disconnected)
+            .Select(_ => Observable.FromAsync(async ct1 =>
+            {
+                Log.Write("Starting reconnection loop");
+                while (!ct1.IsCancellationRequested && this.Status != ConnectionStatus.Connected)
+                {
+                    await Task.Delay(500, ct1); // breathe before attempting (again)
+                    await this.context.Reconnect(config.Priority);
+                }
+                var msg = ct1.IsCancellationRequested
+                    ? "Reconnection loop cancelled"
+                    : "Reconnection successful";
+
+                Log.Write(msg);
+            }))
+            .Merge()
+            .Subscribe();
     }
 }
