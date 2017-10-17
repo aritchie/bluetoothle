@@ -121,7 +121,7 @@ namespace Plugin.BluetoothLE
                 this.context.Callbacks.CharacteristicRead += handler;
                 await this.context.Semaphore.WaitAsync(cancelSrc.Token);
 
-                this.context.Marshall(() =>
+                await this.context.Marshall(() =>
                 {
                     try
                     {
@@ -270,7 +270,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        void RawWriteWithResponse(byte[] bytes)
+        Task RawWriteWithResponse(byte[] bytes)
             => this.context.Marshall(() =>
             {
                 try
@@ -286,7 +286,7 @@ namespace Plugin.BluetoothLE
             });
 
 
-        void RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
+        Task RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
             => this.context.Marshall(() =>
             {
                 try

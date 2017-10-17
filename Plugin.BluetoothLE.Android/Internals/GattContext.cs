@@ -69,7 +69,7 @@ namespace Plugin.BluetoothLE.Internals
 
         public void Close()
         {
-            this.Gatt?.Disconnect();
+            //this.Gatt?.Disconnect();
             this.Gatt?.Close();
             this.Gatt = null;
         }

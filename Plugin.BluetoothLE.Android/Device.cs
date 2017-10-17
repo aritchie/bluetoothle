@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,8 @@ namespace Plugin.BluetoothLE
 {
     public class Device : AbstractDevice
     {
+        readonly Subject<ConnectionStatus> connSubject;
+        readonly Subject<GattStatus> connFailSubject;
         readonly BluetoothManager manager;
         readonly GattContext context;
         IDisposable autoReconnectSub;
@@ -23,6 +26,8 @@ namespace Plugin.BluetoothLE
                       BluetoothDevice native,
                       GattCallbacks callbacks) : base(native.Name, ToDeviceId(native.Address))
         {
+            this.connSubject = new Subject<ConnectionStatus>();
+            this.connFailSubject = new Subject<GattStatus>();
             this.context = new GattContext(native, callbacks);
             this.manager = manager;
         }
@@ -56,21 +61,41 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<object> Connect(GattConnectionConfig config) => Observable.FromAsync<object>(async ct =>
+        public override IObservable<object> Connect(GattConnectionConfig config) => Observable.Create<object>(async ob =>
         {
+            var connected = false;
             config = config ?? GattConnectionConfig.DefaultConfiguration;
-
             if (config.IsPersistent)
                 this.autoReconnectSub = this.CreateAutoReconnectSubscription(config);
 
-            var task = this.WhenStatusChanged()
+            var sub1 = this.WhenStatusChanged()
                 .Where(x => x == ConnectionStatus.Connected)
-                .Take(1)
-                .ToTask(ct);
+                .Subscribe(_ =>
+                {
+                    connected = true;
+                    ob.Respond(null);
+                });
 
+            var sub2 = this.connFailSubject.Subscribe(x =>
+            {
+                this.connSubject.OnNext(ConnectionStatus.Disconnected);
+                this.context.Gatt?.Close();
+                ob.OnError(new Exception("Connection failed - " + x));
+            });
+
+            this.connSubject.OnNext(ConnectionStatus.Connecting);
             await this.context.Connect(config.Priority, false);
-            await task;
-            return null;
+
+            return () =>
+            {
+                if (!connected)
+                {
+                    this.context.Gatt?.Close();
+                    this.connSubject.OnNext(ConnectionStatus.Disconnected);
+                }
+                sub1.Dispose();
+                sub2.Dispose();
+            };
         });
 
 
@@ -84,8 +109,10 @@ namespace Plugin.BluetoothLE
 
         public override void CancelConnection()
         {
+            this.connSubject.OnNext(ConnectionStatus.Disconnecting);
             this.autoReconnectSub?.Dispose();
             this.context.Close();
+            this.connSubject.OnNext(ConnectionStatus.Disconnected);
         }
 
 
@@ -100,14 +127,25 @@ namespace Plugin.BluetoothLE
         {
             this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
             {
+                var sub = this.connSubject.Subscribe(ob.OnNext);
                 var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
                 {
-                    if (args.Gatt.Device.Equals(this.context.NativeDevice))
-                        ob.OnNext(this.Status);
+                    if (!args.Gatt.Device.Equals(this.context.NativeDevice))
+                        return;
+
+                    if (args.Status != GattStatus.Success)
+                        this.connFailSubject.OnNext(args.Status);
+
+                    // if failed, likely no reason to broadcast this
+                    ob.OnNext(this.Status);
                 });
                 this.context.Callbacks.ConnectionStateChanged += handler;
 
-                return () => this.context.Callbacks.ConnectionStateChanged -= handler;
+                return () =>
+                {
+                    sub.Dispose();
+                    this.context.Callbacks.ConnectionStateChanged -= handler;
+                };
             })
             .StartWith(this.Status)
             .DistinctUntilChanged()
@@ -160,44 +198,40 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan)
+        public override IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan) => Observable.Create<int>(ob =>
         {
             var ts = timeSpan ?? TimeSpan.FromSeconds(3);
-
-            return Observable.Create<int>(ob =>
+            IDisposable timer = null;
+            var handler = new EventHandler<GattRssiEventArgs>((sender, args) =>
             {
-                IDisposable timer = null;
-                var handler = new EventHandler<GattRssiEventArgs>((sender, args) =>
-                {
-                    if (args.Gatt.Device.Equals(this.context.NativeDevice) && args.IsSuccessful)
-                        ob.OnNext(args.Rssi);
-                });
-                this.context.Callbacks.ReadRemoteRssi += handler;
-
-                var sub = this
-                    .WhenStatusChanged()
-                    .Subscribe(x =>
-                    {
-                        if (x == ConnectionStatus.Connected)
-                        {
-                            timer = Observable
-                                .Interval(ts)
-                                .Subscribe(_ => this.context.Gatt.ReadRemoteRssi());
-                        }
-                        else
-                        {
-                            timer?.Dispose();
-                        }
-                    });
-
-                return () =>
-                {
-                    timer?.Dispose();
-                    sub.Dispose();
-                    this.context.Callbacks.ReadRemoteRssi -= handler;
-                };
+                if (args.Gatt.Device.Equals(this.context.NativeDevice) && args.IsSuccessful)
+                    ob.OnNext(args.Rssi);
             });
-        }
+            this.context.Callbacks.ReadRemoteRssi += handler;
+
+            var sub = this
+                .WhenStatusChanged()
+                .Subscribe(x =>
+                {
+                    if (x == ConnectionStatus.Connected)
+                    {
+                        timer = Observable
+                            .Interval(ts)
+                            .Subscribe(_ => this.context.Gatt.ReadRemoteRssi());
+                    }
+                    else
+                    {
+                        timer?.Dispose();
+                    }
+                });
+
+            return () =>
+            {
+                timer?.Dispose();
+                sub.Dispose();
+                this.context.Callbacks.ReadRemoteRssi -= handler;
+            };
+        });
 
 
         public override IObservable<bool> PairingRequest(string pin) => Observable.Create<bool>(ob =>
@@ -339,24 +373,6 @@ namespace Plugin.BluetoothLE
 
 
         public override int GetCurrentMtuSize() => this.currentMtu;
-
-
-        // thanks monkey robotics
-        protected static Guid ToDeviceId(string address)
-        {
-            var deviceGuid = new byte[16];
-            var mac = address.Replace(":", "");
-            var macBytes = Enumerable
-                .Range(0, mac.Length)
-                .Where(x => x % 2 == 0)
-                .Select(x => Convert.ToByte(mac.Substring(x, 2), 16))
-                .ToArray();
-
-            macBytes.CopyTo(deviceGuid, 10);
-            return new Guid(deviceGuid);
-        }
-
-
         public override int GetHashCode() => this.context.NativeDevice.GetHashCode();
 
 
@@ -375,7 +391,25 @@ namespace Plugin.BluetoothLE
 
         public override string ToString() => $"Device: {this.Uuid}";
 
+        #region Internals
 
+        // thanks monkey robotics
+        protected static Guid ToDeviceId(string address)
+        {
+            var deviceGuid = new byte[16];
+            var mac = address.Replace(":", "");
+            var macBytes = Enumerable
+                .Range(0, mac.Length)
+                .Where(x => x % 2 == 0)
+                .Select(x => Convert.ToByte(mac.Substring(x, 2), 16))
+                .ToArray();
+
+            macBytes.CopyTo(deviceGuid, 10);
+            return new Guid(deviceGuid);
+        }
+
+
+        // TODO: do I need to watch for connection errors here?
         IDisposable CreateAutoReconnectSubscription(GattConnectionConfig config) => this
             .WhenStatusChanged()
             .Skip(1) // skip the initial "Disconnected"
@@ -388,6 +422,7 @@ namespace Plugin.BluetoothLE
         async Task Reconnect(GattConnectionConfig config, CancellationToken ct)
         {
             Log.Write("Starting reconnection loop");
+            this.connSubject.OnNext(ConnectionStatus.Connecting);
             var attempts = 1;
 
             while (!ct.IsCancellationRequested &&
@@ -419,5 +454,7 @@ namespace Plugin.BluetoothLE
                 await this.context.Connect(config.Priority, true);
             }
         }
+
+        #endregion
     }
 }
