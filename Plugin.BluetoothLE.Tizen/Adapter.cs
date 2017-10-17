@@ -1,14 +1,27 @@
 ﻿using System;
+using System.Reactive.Linq;
+using Tizen.Network.Bluetooth;
 
 
 namespace Plugin.BluetoothLE
 {
     public class Adapter : AbstractAdapter
     {
-        public override IObservable<bool> WhenScanningStatusChanged()
+        public override AdapterStatus Status => BluetoothAdapter.IsBluetoothEnabled
+            ? AdapterStatus.PoweredOn
+            : AdapterStatus.PoweredOff;
+
+
+        public override IObservable<bool> WhenScanningStatusChanged() => Observable.Create<bool>(ob =>
         {
-            throw new NotImplementedException();
-        }
+            //BluetoothAdapter.DiscoveryStateChanged += (sender, args) =>
+            //{
+            //};
+            return () =>
+            {
+
+            };
+        });
 
 
         public override IObservable<IScanResult> Scan(ScanConfig config = null)
@@ -17,15 +30,28 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<IScanResult> ScanListen()
+        public override IObservable<IScanResult> ScanListen() => Observable.Create<IScanResult>(ob =>
         {
-            throw new NotImplementedException();
-        }
+            var handler = new EventHandler<AdapterLeScanResultChangedEventArgs>((sender, args) =>
+            {
+                //args.DeviceData
+            });
+            BluetoothAdapter.ScanResultChanged += handler;
+            BluetoothAdapter.StartLeScan();
+
+            return () =>
+            {
+                BluetoothAdapter.StopLeScan();
+                BluetoothAdapter.ScanResultChanged -= handler;
+            };
+        });
 
 
-        public override IObservable<AdapterStatus> WhenStatusChanged()
+        public override IObservable<AdapterStatus> WhenStatusChanged() => Observable.Create<AdapterStatus>(ob =>
         {
-            throw new NotImplementedException();
-        }
+            var handler = new EventHandler<StateChangedEventArgs>((sender, args) => ob.OnNext(this.Status));
+            BluetoothAdapter.StateChanged += handler;
+            return () => BluetoothAdapter.StateChanged -= handler;
+        });
     }
 }
