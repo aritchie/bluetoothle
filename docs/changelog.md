@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## 5.1
+* [fix][android] rewritten connect/disconnect logic
+* [fix][android][ios] rewritten reconnection logic
+
 ## 5.0
 * [breaking][feature] SetNotificationValue has been replaced with EnableNotifications/DisableNotifications.
 * [fix][ios] NRE when read/notification value is null
