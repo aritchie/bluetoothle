@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using Plugin.BluetoothLE.Internals;
 using Tizen.Network.Bluetooth;
 
 
@@ -7,21 +9,16 @@ namespace Plugin.BluetoothLE
 {
     public class Adapter : AbstractAdapter
     {
+        readonly Subject<bool> scanSubject = new Subject<bool>();
+        readonly DeviceManager deviceManager = new DeviceManager();
+
+
         public override AdapterStatus Status => BluetoothAdapter.IsBluetoothEnabled
             ? AdapterStatus.PoweredOn
             : AdapterStatus.PoweredOff;
 
 
-        public override IObservable<bool> WhenScanningStatusChanged() => Observable.Create<bool>(ob =>
-        {
-            //BluetoothAdapter.DiscoveryStateChanged += (sender, args) =>
-            //{
-            //};
-            return () =>
-            {
-
-            };
-        });
+        public override IObservable<bool> WhenScanningStatusChanged() => this.scanSubject;
 
 
         public override IObservable<IScanResult> Scan(ScanConfig config = null)
@@ -32,9 +29,12 @@ namespace Plugin.BluetoothLE
 
         public override IObservable<IScanResult> ScanListen() => Observable.Create<IScanResult>(ob =>
         {
+            this.scanSubject.OnNext(true);
+            this.deviceManager.Clear();
             var handler = new EventHandler<AdapterLeScanResultChangedEventArgs>((sender, args) =>
             {
-                //args.DeviceData
+                var device = this.deviceManager.GetDevice(args.DeviceData);
+                ob.OnNext(new ScanResult(args.DeviceData, device));
             });
             BluetoothAdapter.ScanResultChanged += handler;
             BluetoothAdapter.StartLeScan();
@@ -43,6 +43,7 @@ namespace Plugin.BluetoothLE
             {
                 BluetoothAdapter.StopLeScan();
                 BluetoothAdapter.ScanResultChanged -= handler;
+                this.scanSubject.OnNext(false);
             };
         });
 
