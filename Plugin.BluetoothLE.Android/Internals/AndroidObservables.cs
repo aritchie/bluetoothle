@@ -11,14 +11,12 @@ namespace Plugin.BluetoothLE.Internals
     {
 
         public static IObservable<Intent> WhenIntentReceived(string intentAction)
-        {
-            return Observable.Create<Intent>(ob =>
+            => Observable.Create<Intent>(ob =>
             {
                 var receiver = new ObservableBroadcastReceiver { OnEvent = ob.OnNext };
                 Application.Context.RegisterReceiver(receiver, new IntentFilter(intentAction));
                 return () => Application.Context.UnregisterReceiver(receiver);
             });
-        }
     }
 
 
