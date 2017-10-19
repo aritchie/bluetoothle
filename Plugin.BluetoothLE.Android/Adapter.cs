@@ -37,7 +37,12 @@ namespace Plugin.BluetoothLE
 
         public override IDevice GetKnownDevice(Guid deviceId)
         {
-            var native = this.manager.Adapter.GetRemoteDevice(deviceId.ToByteArray().Skip(10).Take(6).ToArray());
+            var native = this.manager.Adapter.GetRemoteDevice(deviceId
+                .ToByteArray()
+                .Skip(10)
+                .Take(6)
+                .ToArray()
+            );
             var device = this.context.Devices.GetDevice(native);
             return device;
         }
