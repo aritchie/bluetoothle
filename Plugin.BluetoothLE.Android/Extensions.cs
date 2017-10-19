@@ -29,7 +29,7 @@ namespace Plugin.BluetoothLE
                     return Guid.ParseExact(id, "d");
 
                 default:
-                    Log.Write("Invalid UUID Detect - " + id);
+                    Log.Warn("Device", "Invalid UUID Detect - " + id);
                     return Guid.Empty;
             }
         }

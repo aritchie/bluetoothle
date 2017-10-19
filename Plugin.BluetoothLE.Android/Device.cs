@@ -421,7 +421,7 @@ namespace Plugin.BluetoothLE
 
         async Task Reconnect(GattConnectionConfig config, CancellationToken ct)
         {
-            Log.Write("Starting reconnection loop");
+            Log.Debug("Reconnect", "Starting reconnection loop");
             this.connSubject.OnNext(ConnectionStatus.Connecting);
             var attempts = 1;
 
@@ -429,7 +429,7 @@ namespace Plugin.BluetoothLE
                    this.Status != ConnectionStatus.Connected &&
                    attempts <= CrossBleAdapter.AndroidMaxAutoReconnectAttempts)
             {
-                Log.Write("Reconnection Attempt " + attempts);
+                Log.Write("Reconnect", "Reconnection Attempt " + attempts);
 
                 // breathe before attempting (again)
                 await Task.Delay(
@@ -441,15 +441,15 @@ namespace Plugin.BluetoothLE
             }
             if (ct.IsCancellationRequested)
             {
-                Log.Write("Reconnection loop cancelled");
+                Log.Debug("Reconnect", "Reconnection loop cancelled");
             }
             else if (this.Status == ConnectionStatus.Connected)
             {
-                Log.Write("Reconnection successful");
+                Log.Debug("Reconnect", "Reconnection successful");
             }
             else
             {
-                Log.Write("Reconnection failed - handing off to android autoReconnect");
+                Log.Debug("Reconnect", "Reconnection failed - handing off to android autoReconnect");
                 this.context.Close();
                 await this.context.Connect(config.Priority, true);
             }

@@ -181,7 +181,7 @@ namespace Plugin.BluetoothLE
         {
             this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
             {
-                Log.Write("Hooked for services for device " + this.Uuid);
+                Log.Info("Device", "service discovery hooked for device " + this.Uuid);
                 var services = new Dictionary<Guid, IGattService>();
 
                 var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
@@ -203,10 +203,11 @@ namespace Plugin.BluetoothLE
 
                 var sub = this.WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
+                    .Delay(TimeSpan.FromMilliseconds(300))
                     .Subscribe(_ =>
                     {
                         this.peripheral.DiscoverServices();
-                        Log.Write("DiscoverServices for device " + this.Uuid);
+                        Log.Info("Device", "service discovery running for device " + this.Uuid);
                     });
 
                 return () =>

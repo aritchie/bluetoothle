@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Bluetooth;
@@ -17,7 +16,7 @@ namespace Plugin.BluetoothLE.Internals
 
 
         public BluetoothGatt Gatt { get; private set; }
-        public SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1, 1);
+        //public SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1, 1);
         public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
 

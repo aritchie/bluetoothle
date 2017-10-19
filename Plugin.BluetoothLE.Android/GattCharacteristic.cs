@@ -47,10 +47,10 @@ namespace Plugin.BluetoothLE
                 {
                     if (this.NativeEquals(args))
                     {
-                        if (cancelSrc != null)
-                            this.context.Semaphore.Release();
+                        //if (cancelSrc != null)
+                        //    this.context.Semaphore.Release();
 
-                        Log.Write("Incoming Characteristic Write Event - " + args.Characteristic.Uuid);
+                        Log.Debug("Characteristic", "write vent - " + args.Characteristic.Uuid);
 
                         if (!args.IsSuccessful)
                         {
@@ -68,22 +68,22 @@ namespace Plugin.BluetoothLE
 
                 if (this.Properties.HasFlag(CharacteristicProperties.Write))
                 {
-                    cancelSrc = new CancellationTokenSource();
+                    //cancelSrc = new CancellationTokenSource();
 
-                    Log.Write("Hooking for write response - " + this.Uuid);
+                    Log.Debug("Characteristic", "Hooking for write response - " + this.Uuid);
 
-                    await this.context.Semaphore.WaitAsync(cancelSrc.Token);
+                    //await this.context.Semaphore.WaitAsync(cancelSrc.Token);
                     this.context.Callbacks.CharacteristicWrite += handler;
                     this.RawWriteWithResponse(value);
                 }
                 else
                 {
-                    Log.Write("Write with No Response - " + this.Uuid);
+                    Log.Debug("Characteristic", "Write with No Response - " + this.Uuid);
                     this.RawWriteNoResponse(ob, value);
                 }
                 return () =>
                 {
-                    cancelSrc?.Dispose();
+                    //cancelSrc?.Dispose();
                     this.context.Callbacks.CharacteristicWrite -= handler;
                 };
             });
@@ -96,13 +96,13 @@ namespace Plugin.BluetoothLE
 
             return Observable.Create<CharacteristicResult>(async ob =>
             {
-                var cancelSrc = new CancellationTokenSource();
+                //var cancelSrc = new CancellationTokenSource();
 
                 var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
                 {
                     if (this.NativeEquals(args))
                     {
-                        this.context.Semaphore.Release();
+                        //this.context.Semaphore.Release();
 
                         if (!args.IsSuccessful)
                         {
@@ -119,7 +119,7 @@ namespace Plugin.BluetoothLE
                     }
                 });
                 this.context.Callbacks.CharacteristicRead += handler;
-                await this.context.Semaphore.WaitAsync(cancelSrc.Token);
+                //await this.context.Semaphore.WaitAsync(cancelSrc.Token);
 
                 await this.context.Marshall(() =>
                 {
@@ -281,7 +281,7 @@ namespace Plugin.BluetoothLE
                 }
                 catch (Exception ex)
                 {
-                    Log.Write("[ERROR] RawWriteWithResponse failed - " + ex);
+                    Log.Error("Characteristic", "RawWriteWithResponse failed - " + ex);
                 }
             });
 

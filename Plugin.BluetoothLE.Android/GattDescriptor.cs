@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive.Linq;
-using System.Threading;
 using Android.Bluetooth;
 using Plugin.BluetoothLE.Internals;
 
@@ -26,13 +25,13 @@ namespace Plugin.BluetoothLE
         {
             return Observable.Create<DescriptorResult>(async ob =>
             {
-                var cancelSrc = new CancellationTokenSource();
+                //var cancelSrc = new CancellationTokenSource();
 
                 var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
                 {
                     if (this.NativeEquals(args))
                     {
-                        this.context.Semaphore.Release();
+                        //this.context.Semaphore.Release();
 
                         if (!args.IsSuccessful)
                         {
@@ -49,9 +48,9 @@ namespace Plugin.BluetoothLE
                     }
                 });
 
-                await this.context.Semaphore.WaitAsync(cancelSrc.Token);
+                //await this.context.Semaphore.WaitAsync(cancelSrc.Token);
                 this.context.Callbacks.DescriptorWrite += handler;
-                this.context.Marshall(() =>
+                await this.context.Marshall(() =>
                 {
                     this.native.SetValue(data);
                     this.context.Gatt.WriteDescriptor(this.native);
@@ -59,7 +58,7 @@ namespace Plugin.BluetoothLE
 
                 return () =>
                 {
-                    cancelSrc.Dispose();
+                    //cancelSrc.Dispose();
                     this.context.Callbacks.DescriptorWrite -= handler;
                 };
             });
@@ -71,13 +70,13 @@ namespace Plugin.BluetoothLE
             //this.native.Permissions == GattDescriptorPermission.Read
             return Observable.Create<DescriptorResult>(async ob =>
             {
-                var cancelSrc = new CancellationTokenSource();
+                //var cancelSrc = new CancellationTokenSource();
 
                 var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
                 {
                     if (args.Descriptor.Equals(this.native))
                     {
-                        this.context.Semaphore.Release();
+                        //this.context.Semaphore.Release();
 
                         if (!args.IsSuccessful)
                         {
@@ -94,14 +93,14 @@ namespace Plugin.BluetoothLE
                     }
                 });
 
-                await this.context.Semaphore.WaitAsync(cancelSrc.Token);
+                //await this.context.Semaphore.WaitAsync(cancelSrc.Token);
                 this.context.Callbacks.DescriptorRead += handler;
-                this.context.Marshall(() =>
+                await this.context.Marshall(() =>
                     this.context.Gatt.ReadDescriptor(this.native)
                 );
                 return () =>
                 {
-                    cancelSrc.Dispose();
+                    //cancelSrc.Dispose();
                     this.context.Callbacks.DescriptorRead -= handler;
                 };
             });
