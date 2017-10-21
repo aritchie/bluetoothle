@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading.Tasks;
 using Android.App;
 using Android.Bluetooth;
 using Android.Content;
@@ -17,14 +16,14 @@ namespace Plugin.BluetoothLE
     public class Adapter : AbstractAdapter
     {
         readonly BluetoothManager manager;
-        readonly BleContext context;
+        readonly AdapterContext context;
         readonly Subject<bool> scanStatusChanged;
 
 
         public Adapter()
         {
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Application.BluetoothService);
-            this.context = new BleContext(this.manager);
+            this.context = new AdapterContext(this.manager);
             this.scanStatusChanged = new Subject<bool>();
         }
 
@@ -166,18 +165,12 @@ namespace Plugin.BluetoothLE
         IObservable<IDevice> deviceStatusOb;
         public override IObservable<IDevice> WhenDeviceStatusChanged()
         {
-            this.deviceStatusOb = this.deviceStatusOb ?? Observable.Create<IDevice>(ob =>
-            {
-                var handler = new EventHandler<ConnectionStateEventArgs>((sender, args) =>
-                {
-                    var dev = this.context.Devices.GetDevice(args.Gatt.Device);
-                    ob.OnNext(dev);
-                });
-                this.context.Callbacks.ConnectionStateChanged += handler;
-                return () => this.context.Callbacks.ConnectionStateChanged -= handler;
-            })
-            .Publish()
-            .RefCount();
+            this.deviceStatusOb = this.deviceStatusOb ?? this.context
+                .Callbacks
+                .ConnectionStateChanged
+                .Select(args => this.context.Devices.GetDevice(args.Gatt.Device))
+                .Publish()
+                .RefCount();
 
             return this.deviceStatusOb;
         }

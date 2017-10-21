@@ -7,7 +7,7 @@ using ScanMode = Android.Bluetooth.LE.ScanMode;
 
 namespace Plugin.BluetoothLE.Internals
 {
-    public class BleContext
+    public class AdapterContext
     {
         public GattCallbacks Callbacks { get; } = new GattCallbacks();
 
@@ -17,7 +17,7 @@ namespace Plugin.BluetoothLE.Internals
         PreLollipopScanCallback oldCallback;
 
 
-        public BleContext(BluetoothManager manager)
+        public AdapterContext(BluetoothManager manager)
         {
             this.manager = manager;
             this.Devices = new DeviceManager(manager, this.Callbacks);

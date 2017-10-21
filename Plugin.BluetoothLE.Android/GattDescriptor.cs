@@ -9,11 +9,11 @@ namespace Plugin.BluetoothLE
     public class GattDescriptor : AbstractGattDescriptor
     {
         readonly BluetoothGattDescriptor native;
-        readonly GattContext context;
+        readonly DeviceContext context;
 
 
         public GattDescriptor(IGattCharacteristic characteristic,
-                              GattContext context,
+                              DeviceContext context,
                               BluetoothGattDescriptor native) : base(characteristic, native.Uuid.ToGuid())
         {
             this.context = context;
@@ -21,18 +21,15 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<DescriptorResult> Write(byte[] data)
-        {
-            return Observable.Create<DescriptorResult>(async ob =>
+        public override IObservable<DescriptorResult> Write(byte[] data) => Observable
+            .Create<DescriptorResult>(async ob =>
             {
-                //var cancelSrc = new CancellationTokenSource();
-
-                var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
-                {
-                    if (this.NativeEquals(args))
+                var sub = this.context
+                    .Callbacks
+                    .DescriptorWrite
+                    .Where(this.NativeEquals)
+                    .Subscribe(args =>
                     {
-                        //this.context.Semaphore.Release();
-
                         if (!args.IsSuccessful)
                         {
                             ob.OnError(new ArgumentException($"Failed to write descriptor value - {this.Uuid} - {args.Status}"));
@@ -45,39 +42,28 @@ namespace Plugin.BluetoothLE
                             ob.Respond(result);
                             this.WriteSubject.OnNext(result);
                         }
-                    }
-                });
+                    });
 
-                //await this.context.Semaphore.WaitAsync(cancelSrc.Token);
-                this.context.Callbacks.DescriptorWrite += handler;
                 await this.context.Marshall(() =>
                 {
                     this.native.SetValue(data);
                     this.context.Gatt.WriteDescriptor(this.native);
                 });
 
-                return () =>
-                {
-                    //cancelSrc.Dispose();
-                    this.context.Callbacks.DescriptorWrite -= handler;
-                };
+                return sub;
             });
-        }
+            //.Synchronize(this.context.SyncLock);
 
 
-        public override IObservable<DescriptorResult> Read()
-        {
-            //this.native.Permissions == GattDescriptorPermission.Read
-            return Observable.Create<DescriptorResult>(async ob =>
+        public override IObservable<DescriptorResult> Read() => Observable
+            .Create<DescriptorResult>(async ob =>
             {
-                //var cancelSrc = new CancellationTokenSource();
-
-                var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
-                {
-                    if (args.Descriptor.Equals(this.native))
+                var sub = this.context
+                    .Callbacks
+                    .DescriptorRead
+                    .Where(this.NativeEquals)
+                    .Subscribe(args =>
                     {
-                        //this.context.Semaphore.Release();
-
                         if (!args.IsSuccessful)
                         {
                             ob.OnError(new ArgumentException($"Failed to read descriptor value {this.Uuid} - {args.Status}"));
@@ -90,21 +76,14 @@ namespace Plugin.BluetoothLE
                             ob.Respond(result);
                             this.ReadSubject.OnNext(result);
                         }
-                    }
-                });
+                    });
 
-                //await this.context.Semaphore.WaitAsync(cancelSrc.Token);
-                this.context.Callbacks.DescriptorRead += handler;
                 await this.context.Marshall(() =>
                     this.context.Gatt.ReadDescriptor(this.native)
                 );
-                return () =>
-                {
-                    //cancelSrc.Dispose();
-                    this.context.Callbacks.DescriptorRead -= handler;
-                };
-            });
-        }
+                return sub;
+            })
+            .Synchronize(this.context.SyncLock);
 
 
         bool NativeEquals(GattDescriptorEventArgs args)

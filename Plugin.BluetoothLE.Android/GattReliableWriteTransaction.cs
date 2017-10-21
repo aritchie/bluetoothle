@@ -7,10 +7,10 @@ namespace Plugin.BluetoothLE
 {
     public class GattReliableWriteTransaction : AbstractGattReliableWriteTransaction
     {
-        readonly GattContext context;
+        readonly DeviceContext context;
 
 
-        public GattReliableWriteTransaction(GattContext context)
+        public GattReliableWriteTransaction(DeviceContext context)
         {
             this.context = context;
             this.context.Gatt.BeginReliableWrite();
@@ -31,25 +31,26 @@ namespace Plugin.BluetoothLE
 
             return Observable.Create<object>(ob =>
             {
-                var handler = new EventHandler<GattEventArgs>((sender, args) =>
-                {
-                    if (args.IsSuccessful)
+                var sub = this.context
+                    .Callbacks
+                    .ReliableWriteCompleted
+                    .Subscribe(args =>
                     {
-                        this.Status = TransactionStatus.Committed;
-                        ob.Respond(null);
-                    }
-                    else
-                    {
-                        this.Status = TransactionStatus.Aborted; // TODO: or errored?
-                        ob.OnError(new GattReliableWriteTransactionException("Error committing transaction"));
-                    }
-                });
-
-                this.context.Callbacks.ReliableWriteCompleted += handler;
+                        if (args.IsSuccessful)
+                        {
+                            this.Status = TransactionStatus.Committed;
+                            ob.Respond(null);
+                        }
+                        else
+                        {
+                            this.Status = TransactionStatus.Aborted; // TODO: or errored?
+                            ob.OnError(new GattReliableWriteTransactionException("Error committing transaction"));
+                        }
+                    });
                 this.context.Gatt.ExecuteReliableWrite();
                 this.Status = TransactionStatus.Committing;
 
-                return () => this.context.Callbacks.ReliableWriteCompleted -= handler;
+                return sub;
             });
         }
 

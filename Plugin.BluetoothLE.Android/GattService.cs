@@ -10,12 +10,12 @@ namespace Plugin.BluetoothLE
 {
     public class GattService : AbstractGattService
     {
-        readonly GattContext context;
+        readonly DeviceContext context;
         readonly BluetoothGattService native;
 
 
         public GattService(IDevice device,
-                           GattContext context,
+                           DeviceContext context,
                            BluetoothGattService native) : base(device,
                                                                native.Uuid.ToGuid(),
                                                                native.Type == GattServiceType.Primary)

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Bluetooth;
@@ -6,9 +8,9 @@ using Android.Bluetooth;
 
 namespace Plugin.BluetoothLE.Internals
 {
-    public class GattContext
+    public class DeviceContext
     {
-        public GattContext(BluetoothDevice device, GattCallbacks callbacks)
+        public DeviceContext(BluetoothDevice device, GattCallbacks callbacks)
         {
             this.NativeDevice = device;
             this.Callbacks = callbacks;
@@ -16,36 +18,39 @@ namespace Plugin.BluetoothLE.Internals
 
 
         public BluetoothGatt Gatt { get; private set; }
+        public object SyncLock { get; } = new object();
         //public SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1, 1);
         public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
 
 
-        public Task Marshall(Action action)
+        public IObservable<object> Marshall(Action action) => Observable.Create<object>(ob =>
         {
             if (CrossBleAdapter.AndroidPerformActionsOnMainThread)
             {
-                var tcs = new TaskCompletionSource<object>();
                 Application.SynchronizationContext.Post(_ =>
                 {
                     try
                     {
                         action();
-                        tcs.TrySetResult(null);
+                        ob.Respond(null);
                     }
                     catch (Exception ex)
                     {
-                        tcs.TrySetException(ex);
+                        ob.OnError(ex);
                     }
                 }, null);
-                return tcs.Task;
             }
-            action();
-            return Task.CompletedTask;
-        }
+            else
+            {
+                action();
+                ob.Respond(null);
+            }
+            return Disposable.Empty;
+        });
 
 
-        public Task Reconnect(ConnectionPriority priority)
+        public IObservable<object> Reconnect(ConnectionPriority priority)
         {
             if (this.Gatt == null)
                 throw new ArgumentException("Device is not in a reconnectable state");
@@ -54,7 +59,7 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        public Task Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.Marshall(() =>
+        public IObservable<object> Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.Marshall(() =>
         {
             this.Gatt = this.NativeDevice.ConnectGatt(
                 Application.Context,
