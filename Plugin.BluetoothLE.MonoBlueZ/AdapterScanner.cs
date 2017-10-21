@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Reactive;
 using System.Reactive.Linq;
-using DBus;
-using Mono.BlueZ.DBus;
-using org.freedesktop.DBus;
+using System.Runtime.Serialization;
+using Tmds.DBus;
 
 
 namespace Plugin.BluetoothLE
@@ -60,6 +59,202 @@ namespace Plugin.BluetoothLE
     }
 }
 /*
+ *
+using System;
+
+using DBus;
+using org.freedesktop.DBus;
+
+namespace Mono.BlueZ.DBus
+{
+	/// <summary>
+	/// constants and utility functions to quickly locate bluez paths
+	/// inside dbus
+	/// </summary>
+	public static class BlueZPath
+	{
+		public const string Service = "org.bluez";
+		public const string RootString = "/org/bluez";
+		public static readonly ObjectPath Root = new ObjectPath(RootString);
+
+		public static string AdapterString (string name)
+		{
+			return string.Format ("{0}/{1}", RootString, name);
+		}
+
+		public static ObjectPath Adapter (string name)
+		{
+			if (string.IsNullOrWhiteSpace (name))
+			{
+				throw new ArgumentNullException ("name");
+			}
+			name = name.ToLower ();
+			if (!name.StartsWith ("hci"))
+			{
+				throw new ArgumentException ("Adapter name must start with hci");
+			}
+			return new ObjectPath (AdapterString(name));
+		}
+
+		/// <summary>
+		/// Takes a device addess of format XX:XX:XX:XX:XX:XX
+		/// returns component of device path eg dev_XX_XX_XX_XX_XX_XX
+		/// </summary>
+		/// <returns>The component.</returns>
+		/// <param name="deviceAddress">Device address.</param>
+		public static string DeviceComponent (string deviceAddress)
+		{
+			//there's obviously more we could do to validate this, but we're just going to
+			//unwisely assume some level of competance on the caller
+			if (string.IsNullOrWhiteSpace (deviceAddress)
+			    || deviceAddress.Length != 17
+			    || deviceAddress[2]!=':'
+			    || deviceAddress[5]!=':'
+			    || deviceAddress[8]!=':'
+			    || deviceAddress[11]!=':'
+			    || deviceAddress[14]!=':')
+			{
+				throw new FormatException ("device address is of an invalid format");
+			}
+			return string.Format("dev_{0}",deviceAddress.ToUpper ().Replace (":", "_"));
+		}
+
+		public static string DeviceString (string adapterName, string deviceAddress)
+		{
+			return string.Format ("{0}/{1}", AdapterString (adapterName), DeviceComponent (deviceAddress));
+		}
+
+		public static ObjectPath Device (string adapterName, string deviceAddress)
+		{
+			return new ObjectPath (DeviceString (adapterName, deviceAddress));
+		}
+
+		public static string GattServiceString (string adapter, string deviceAddress, string serviceId)
+		{
+			return string.Format ("{0}/service{1}", DeviceString (adapter, deviceAddress),serviceId);
+		}
+
+		public static ObjectPath GattService (string adapter, string deviceAddress, string serviceId, string charId)
+		{
+			return new ObjectPath (GattServiceString (adapter, deviceAddress, serviceId));
+		}
+
+		public static string GattCharacteristicString (string adapter, string deviceAddress, string serviceId, string charId)
+		{
+			return string.Format ("{0}/char{1}", GattServiceString (adapter, deviceAddress,serviceId),charId);
+		}
+
+		public static ObjectPath GattCharacteristic (string adapter, string deviceAddress, string serviceId, string charId)
+		{
+			return new ObjectPath (GattCharacteristicString (adapter, deviceAddress, serviceId, charId));
+		}
+	}
+} *
+ *
+ * using System;
+using System.Threading;
+
+using DBus;
+
+namespace Mono.BlueZ.DBus
+{
+	public class DBusConnection:IDisposable
+	{
+		private Bus _system;
+		public Exception _startupException{ get; private set; }
+		private ManualResetEvent _started = new ManualResetEvent(false);
+		private Thread _dbusLoop;
+		private bool _run=false;
+		private bool _isStarted=false;
+
+		public DBusConnection ()
+		{
+			Startup ();
+		}
+
+		public Bus System
+		{
+			get
+			{
+				if (_isStarted)
+				{
+					return _system;
+				}
+				else
+				{
+					throw new InvalidOperationException ("Not connected to DBus");
+				}
+			}
+		}
+
+		private void Startup()
+		{
+			// Run a message loop for DBus on a new thread.
+			_run = true;
+			_dbusLoop = new Thread(DBusLoop);
+			_dbusLoop.IsBackground = true;
+			_dbusLoop.Start();
+			_started.WaitOne(60 * 1000);
+			_started.Close();
+			if (_startupException != null)
+			{
+				throw _startupException;
+			}
+			else
+			{
+				_isStarted = true;
+			}
+		}
+
+		private void DBusLoop()
+		{
+			try
+			{
+				_system=Bus.System;
+			}
+			catch (Exception ex)
+			{
+				_startupException = ex;
+				return;
+			}
+			finally
+			{
+				_started.Set();
+			}
+
+			while (_run)
+			{
+				_system.Iterate();
+			}
+		}
+
+		private void Shutdown()
+		{
+			_run = false;
+			try
+			{
+				_dbusLoop.Join(1000);
+			}
+			catch
+			{
+				try
+				{
+					_dbusLoop.Abort ();
+				}
+				catch
+				{
+				}
+			}
+		}
+
+		public void Dispose()
+		{
+			if (_isStarted) {
+				Shutdown ();
+			}
+		}
+	}
+}
 	string serviceUUID="713d0000-503e-4c75-ba94-3148f18d941e";
 	string charVendorName = "713D0001-503E-4C75-BA94-3148F18D941E";
 	string charRead = "713D0002-503E-4C75-BA94-3148F18D941E";//rx
