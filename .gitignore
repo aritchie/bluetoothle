@@ -210,3 +210,4 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/Plugin.BluetoothLE.Android.Tests/Plugin.BluetoothLE.Android.Tests.csproj.bak
