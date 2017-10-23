@@ -83,6 +83,7 @@ namespace Plugin.BluetoothLE
             });
 
             this.connSubject.OnNext(ConnectionStatus.Connecting);
+            // TODO: use a variant of Reconnect loop here
             await this.context.Connect(config.Priority, false);
 
             return () =>
@@ -409,6 +410,7 @@ namespace Plugin.BluetoothLE
             .Subscribe();
 
 
+        // TODO: trap errors here
         async Task Reconnect(GattConnectionConfig config, CancellationToken ct)
         {
             Log.Debug("Reconnect", "Starting reconnection loop");
