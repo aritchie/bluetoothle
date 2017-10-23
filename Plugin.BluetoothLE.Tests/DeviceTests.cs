@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Plugin.BluetoothLE.Tests
 {
-    public class CharacteristicTests
+    public class DeviceTests
     {
         [Fact]
         public async Task EqualityTest()
@@ -15,7 +15,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task MultipleCharacteristicNotifications()
+        public async Task Reconnect()
         {
 
         }
