@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CoreBluetooth;
 using Foundation;
 
@@ -12,6 +14,7 @@ namespace Plugin.BluetoothLE
     {
         readonly BleContext context;
         readonly CBPeripheral peripheral;
+        IDisposable autoReconnect;
 
 
         public Device(BleContext context, CBPeripheral peripheral) : base(peripheral.Name, peripheral.Identifier.ToGuid())
@@ -58,6 +61,9 @@ namespace Plugin.BluetoothLE
         public override IObservable<object> Connect(GattConnectionConfig config)
             => Observable.Create<object>(ob =>
             {
+                if (config.IsPersistent)
+                    this.autoReconnect = this.SetupAutoReconnect();
+
                 config = config ?? GattConnectionConfig.DefaultConfiguration;
                 IDisposable sub1 = null;
                 IDisposable sub2 = null;
@@ -78,14 +84,7 @@ namespace Plugin.BluetoothLE
                         .Where(x => x.Peripheral.Equals(this.peripheral))
                         .Subscribe(x => ob.OnError(new Exception(x.Error.ToString())));
 
-                    this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
-                    {
-                        NotifyOnDisconnection = true,
-#if __IOS__ || __TVOS__
-                        NotifyOnConnection = true,
-                        NotifyOnNotification = true
-#endif
-                    });
+                    this.DoConnection();
                 }
 
                 return () =>
@@ -97,7 +96,10 @@ namespace Plugin.BluetoothLE
 
 
         public override void CancelConnection()
-            => this.context.Manager.CancelPeripheralConnection(this.peripheral);
+        {
+            this.autoReconnect?.Dispose();
+            this.context.Manager.CancelPeripheralConnection(this.peripheral);
+        }
 
 
         IObservable<string> nameOb;
@@ -161,8 +163,7 @@ namespace Plugin.BluetoothLE
                         var service = new GattService(this, native);
                         if (service.Uuid.Equals(serviceUuid))
                         {
-                            ob.OnNext(service);
-                            ob.OnCompleted();
+                            ob.Respond(service);
                             break;
                         }
                     }
@@ -300,5 +301,22 @@ namespace Plugin.BluetoothLE
 
 
         public override string ToString() => this.Uuid.ToString();
+
+
+        IDisposable SetupAutoReconnect() => this
+            .WhenStatusChanged()
+            .Skip(1) // skip the initial "Disconnected"
+            .Where(x => x == ConnectionStatus.Disconnected)
+            .Subscribe(_ => this.DoConnection());
+
+
+        void DoConnection() => this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
+        {
+            NotifyOnDisconnection = true,
+#if __IOS__ || __TVOS__
+            NotifyOnConnection = true,
+            NotifyOnNotification = true
+#endif
+        });
     }
 }
