@@ -4,6 +4,7 @@
 * [fix][android] rewritten connect/disconnect logic
 * [fix][android][ios] rewritten reconnection logic
 * [fix][android] kill more gatt133 errors by forcing synchronized communication (hidden to consumer)
+* [feature][android] Ability to use Android AutoConnect option on connect
 
 ## 5.0
 * [breaking][feature] SetNotificationValue has been replaced with EnableNotifications/DisableNotifications.
