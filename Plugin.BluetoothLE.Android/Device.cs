@@ -64,14 +64,15 @@ namespace Plugin.BluetoothLE
         {
             var connected = false;
             config = config ?? GattConnectionConfig.DefaultConfiguration;
-            if (config.IsPersistent)
-                this.autoReconnectSub = this.CreateAutoReconnectSubscription(config);
 
             var sub1 = this.WhenStatusChanged()
                 .Where(x => x == ConnectionStatus.Connected)
                 .Subscribe(_ =>
                 {
                     connected = true;
+                    if (config.IsPersistent)
+                        this.autoReconnectSub = this.CreateAutoReconnectSubscription(config);
+
                     ob.Respond(null);
                 });
 

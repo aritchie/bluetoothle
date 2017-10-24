@@ -61,8 +61,6 @@ namespace Plugin.BluetoothLE
         public override IObservable<object> Connect(GattConnectionConfig config)
             => Observable.Create<object>(ob =>
             {
-                if (config.IsPersistent)
-                    this.autoReconnect = this.SetupAutoReconnect();
 
                 config = config ?? GattConnectionConfig.DefaultConfiguration;
                 IDisposable sub1 = null;
@@ -77,7 +75,13 @@ namespace Plugin.BluetoothLE
                     sub1 = this.context
                         .PeripheralConnected
                         .Where(x => x.Equals(this.peripheral))
-                        .Subscribe(x => ob.Respond(null));
+                        .Subscribe(x =>
+                        {
+                            if (config.IsPersistent)
+                                this.autoReconnect = this.SetupAutoReconnect();
+
+                            ob.Respond(null);
+                        });
 
                     sub2 = this.context
                         .FailedConnection
