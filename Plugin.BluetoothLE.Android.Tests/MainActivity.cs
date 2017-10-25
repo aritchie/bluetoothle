@@ -2,6 +2,7 @@
 using System.Reflection;
 using Android.App;
 using Android.OS;
+using Plugin.BluetoothLE.Tests;
 using Xunit.Runners.UI;
 using Xunit.Sdk;
 
