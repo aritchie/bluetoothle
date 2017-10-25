@@ -309,7 +309,6 @@ namespace Plugin.BluetoothLE
 
         IDisposable SetupAutoReconnect() => this
             .WhenStatusChanged()
-            .Skip(1) // skip the initial "Disconnected"
             .Where(x => x == ConnectionStatus.Disconnected)
             .Subscribe(_ => this.DoConnection());
 
