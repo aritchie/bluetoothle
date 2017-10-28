@@ -87,8 +87,14 @@
     <Folder Include="Tests\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Acr.UserDialogs">
+      <Version>6.5.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.Design">
+      <Version>26.0.2</Version>
+    </PackageReference>
     <PackageReference Include="xunit.runner.devices">
-      <Version>2.2.0</Version>
+      <Version>2.3.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

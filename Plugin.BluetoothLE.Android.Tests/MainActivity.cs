@@ -19,7 +19,7 @@ namespace Plugin.BluetoothLE.Android.Tests
         protected override void OnCreate(Bundle bundle)
         {
             this.AddExecutionAssembly(typeof(ExtensibilityPointFactory).Assembly);
-            this.AddTestAssembly(typeof(AdapterTests).Assembly);
+            this.AddTestAssembly(typeof(SpecificTests).Assembly);
             this.AddTestAssembly(Assembly.GetExecutingAssembly());
 
             this.AutoStart = true;

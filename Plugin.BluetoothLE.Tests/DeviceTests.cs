@@ -1,23 +1,23 @@
-﻿using System;
-using System.Threading.Tasks;
-using Xunit;
+﻿//using System;
+//using System.Threading.Tasks;
+//using Xunit;
 
 
-namespace Plugin.BluetoothLE.Tests
-{
-    public class DeviceTests
-    {
-        [Fact]
-        public async Task EqualityTest()
-        {
+//namespace Plugin.BluetoothLE.Tests
+//{
+//    public class DeviceTests
+//    {
+//        [Fact]
+//        public async Task EqualityTest()
+//        {
 
-        }
+//        }
 
 
-        [Fact]
-        public async Task Reconnect()
-        {
+//        [Fact]
+//        public async Task Reconnect()
+//        {
 
-        }
-    }
-}
+//        }
+//    }
+//}

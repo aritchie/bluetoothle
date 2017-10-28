@@ -1,26 +1,26 @@
-﻿using System;
-using System.Threading.Tasks;
-using Xunit;
+﻿//using System;
+//using System.Threading.Tasks;
+//using Xunit;
 
 
-namespace Plugin.BluetoothLE.Tests
-{
-    public class AdapterTests
-    {
+//namespace Plugin.BluetoothLE.Tests
+//{
+//    public class AdapterTests
+//    {
 
-        [Fact]
-        public async Task Scan()
-        {
-            //CrossBleAdapter.Current.Scan();
-        }
-
-
-        [Fact]
-        public async Task FindByAdvertisementServiceUUID()
-        {
-        }
+//        [Fact]
+//        public async Task Scan()
+//        {
+//            //CrossBleAdapter.Current.Scan();
+//        }
 
 
+//        [Fact]
+//        public async Task FindByAdvertisementServiceUUID()
+//        {
+//        }
 
-    }
-}
+
+
+//    }
+//}
