@@ -1,5 +1,4 @@
 using System;
-using System.Reactive.Linq;
 using Plugin.BluetoothLE.Internals;
 
 
@@ -25,34 +24,31 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<object> Commit()
+        public override IObservable<object> Commit() => this.context.LockObservable<object>(async ob =>
         {
             this.AssertAction();
 
-            return Observable.Create<object>(ob =>
-            {
-                var sub = this.context
-                    .Callbacks
-                    .ReliableWriteCompleted
-                    .Subscribe(args =>
+            var sub = this.context
+                .Callbacks
+                .ReliableWriteCompleted
+                .Subscribe(args =>
+                {
+                    if (args.IsSuccessful)
                     {
-                        if (args.IsSuccessful)
-                        {
-                            this.Status = TransactionStatus.Committed;
-                            ob.Respond(null);
-                        }
-                        else
-                        {
-                            this.Status = TransactionStatus.Aborted; // TODO: or errored?
-                            ob.OnError(new GattReliableWriteTransactionException("Error committing transaction"));
-                        }
-                    });
-                this.context.Gatt.ExecuteReliableWrite();
-                this.Status = TransactionStatus.Committing;
+                        this.Status = TransactionStatus.Committed;
+                        ob.Respond(null);
+                    }
+                    else
+                    {
+                        this.Status = TransactionStatus.Aborted; // TODO: or errored?
+                        ob.OnError(new GattReliableWriteTransactionException("Error committing transaction"));
+                    }
+                });
+            this.context.Gatt.ExecuteReliableWrite();
+            this.Status = TransactionStatus.Committing;
 
-                return sub;
-            });
-        }
+            return sub;
+        });
 
 
         public override void Abort()
