@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using Foundation;
-using Plugin.BluetoothLE.Tests;
 using UIKit;
 using Xunit.Runner;
-using Xunit.Sdk;
 
 
 namespace Plugin.BluetoothLE.iOS.Tests
@@ -14,11 +12,11 @@ namespace Plugin.BluetoothLE.iOS.Tests
     {
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
-            this.AddExecutionAssembly(typeof(ExtensibilityPointFactory).Assembly);
-            this.AddTestAssembly(typeof(SpecificTests).Assembly);
+            //this.AddExecutionAssembly(typeof(ExtensibilityPointFactory).Assembly);
+            this.AddTestAssembly(typeof(BluetoothLE.Tests.Tests).Assembly);
             this.AddTestAssembly(Assembly.GetExecutingAssembly());
 
-            this.AutoStart = true;
+            this.AutoStart = false;
             this.TerminateAfterExecution = false;
 
             return base.FinishedLaunching(app, options);

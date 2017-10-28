@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Reflection;
+using Acr.UserDialogs;
+using Android;
 using Android.App;
+using Android.Content.PM;
 using Android.OS;
 using Plugin.BluetoothLE.Tests;
 using Xunit.Runners.UI;
-using Xunit.Sdk;
 
 
 namespace Plugin.BluetoothLE.Android.Tests
@@ -18,15 +20,27 @@ namespace Plugin.BluetoothLE.Android.Tests
     {
         protected override void OnCreate(Bundle bundle)
         {
-            this.AddExecutionAssembly(typeof(ExtensibilityPointFactory).Assembly);
-            this.AddTestAssembly(typeof(SpecificTests).Assembly);
+            this.RequestPermissions(new[]
+            {
+                Manifest.Permission.AccessCoarseLocation,
+                Manifest.Permission.BluetoothPrivileged
+            }, 0);
+
+            UserDialogs.Init(this);
+            //this.AddExecutionAssembly(typeof(ExtensibilityPointFactory).Assembly);
+            this.AddTestAssembly(typeof(BluetoothLE.Tests.Tests).Assembly);
             this.AddTestAssembly(Assembly.GetExecutingAssembly());
 
-            this.AutoStart = true;
+            this.AutoStart = false;
             this.TerminateAfterExecution = false;
             //this.Writer =
 
             base.OnCreate(bundle);
+        }
+
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
+        {
         }
     }
 }
