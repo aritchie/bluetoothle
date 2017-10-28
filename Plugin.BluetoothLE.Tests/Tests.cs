@@ -73,7 +73,6 @@ namespace Plugin.BluetoothLE.Tests
             this.output.WriteLine("Finished characteristic find");
             characteristics.Count.Should().Be(3);
 
-
             characteristics
                 .ToObservable()
                 .Select(x => x.RegisterAndNotify(true))
@@ -103,7 +102,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         //[Fact]
-        //public async Task GetKwownServiceThenAnother()
+        //public async Task GetKnownServiceThenAnother_NoLockup()
         //{
         //    var device = await this.FindTestDevice();
         //    var s1 = await device.GetKnownService(new Guid(""));
@@ -114,11 +113,12 @@ namespace Plugin.BluetoothLE.Tests
         [Fact]
         public async Task Reconnect()
         {
+            var autoConnect = await UserDialogs.Instance.ConfirmAsync(new ConfirmConfig().SetMessage("Use autoConnect?").UseYesNo());
             var connected = 0;
             var disconnected = 0;
 
-            var device = await this.FindTestDevice();
-            device
+            await this.FindTestDevice();
+            this.device
                 .WhenStatusChanged()
                 .Subscribe(x =>
                 {
@@ -134,7 +134,11 @@ namespace Plugin.BluetoothLE.Tests
                     }
                 });
 
-            await device.Connect();
+            await device.Connect(new GattConnectionConfig
+            {
+                AndroidAutoConnect = autoConnect,
+                IsPersistent = true
+            });
             await UserDialogs.Instance.AlertAsync("No turn device off - wait a 3 seconds then turn it back on - press OK if light goes green or you believe connection has failed");
             connected.Should().Be(2, "No reconnection count");
             disconnected.Should().Be(2, "No disconnect");

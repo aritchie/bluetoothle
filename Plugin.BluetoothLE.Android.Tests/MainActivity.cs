@@ -20,6 +20,8 @@ namespace Plugin.BluetoothLE.Android.Tests
     {
         protected override void OnCreate(Bundle bundle)
         {
+            GattConnectionConfig.DefaultConfiguration.AndroidAutoConnect = false;
+
             this.RequestPermissions(new[]
             {
                 Manifest.Permission.AccessCoarseLocation,
