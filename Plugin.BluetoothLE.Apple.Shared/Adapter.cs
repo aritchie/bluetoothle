@@ -123,7 +123,7 @@ namespace Plugin.BluetoothLE
             if (this.IsScanning)
                 throw new ArgumentException("There is already an existing scan");
 
-            if (config.ScanType == BleScanType.Background && config.ServiceUuid == null)
+            if (config.ScanType == BleScanType.Background && (config.ServiceUuids == null || config.ServiceUuids.Count == 0))
                 throw new ArgumentException("Background scan type set but not ServiceUUID");
 
             return Observable.Create<IScanResult>(ob =>
@@ -131,14 +131,14 @@ namespace Plugin.BluetoothLE
                 this.context.Clear();
                 var scan = this.ScanListen().Subscribe(ob.OnNext);
 
-                if (config.ServiceUuid == null)
+                if (config.ServiceUuids == null || config.ServiceUuids.Count == 0)
                 {
                     this.context.Manager.ScanForPeripherals(null, new PeripheralScanningOptions { AllowDuplicatesKey = true });
                 }
                 else
                 {
-                    var uuid = config.ServiceUuid.Value.ToCBUuid();
-                    this.context.Manager.ScanForPeripherals(uuid);
+                    var uuids = config.ServiceUuids.Select(o => o.ToCBUuid()).ToArray();
+                    this.context.Manager.ScanForPeripherals(uuids);
                 }
                 this.ToggleScanStatus(true);
 

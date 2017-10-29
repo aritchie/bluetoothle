@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 
 namespace Plugin.BluetoothLE
 {
@@ -12,9 +12,9 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
-        /// Filters scan to devices that advertise specified service UUID
+        /// Filters scan to devices that advertise specified service UUIDs
         /// iOS - you must set this to initiate a background scan
         /// </summary>
-        public Guid? ServiceUuid { get; set; }
+        public List<Guid> ServiceUuids { get; set; }
     }
 }

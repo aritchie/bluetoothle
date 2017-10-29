@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Android.Bluetooth;
 using Android.Bluetooth.LE;
 using Android.OS;
@@ -59,13 +60,24 @@ namespace Plugin.BluetoothLE.Internals
         {
             this.newCallback = new LollipopScanCallback(args => this.Scanned?.Invoke(this, args));
             var scanMode = this.ToNative(config.ScanType);
-            var filterBuilder = new ScanFilter.Builder();
-            if (config.ServiceUuid != null)
-                filterBuilder.SetServiceUuid(config.ServiceUuid.Value.ToParcelUuid());
+            var filterBuilderList = new List<ScanFilter>();
+            if (config.ServiceUuids != null && config.ServiceUuids.Count >0)
+            {
+                foreach (var uuid in config.ServiceUuids)
+                {
+                    var filterBuilder = new ScanFilter.Builder();
+                    filterBuilder.SetServiceUuid(uuid.ToParcelUuid());
+                    filterBuilderList.Add(filterBuilder.Build());
+                }
+            }else{
+                var filterBuilder = new ScanFilter.Builder();
+                filterBuilderList.Add(filterBuilder.Build());
+            }
+                
 
             //new ScanFilter.Builder().SetDeviceAddress().Set
             this.manager.Adapter.BluetoothLeScanner.StartScan(
-                new [] { filterBuilder.Build() },
+                filterBuilderList,
                 new ScanSettings
                     .Builder()
                     .SetScanMode(scanMode)
