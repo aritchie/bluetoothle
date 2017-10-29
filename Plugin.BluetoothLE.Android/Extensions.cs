@@ -14,7 +14,10 @@ namespace Plugin.BluetoothLE
         public static Guid ToGuid(this byte[] uuidBytes)
         {
             Array.Reverse(uuidBytes);
-            var id = BitConverter.ToString(uuidBytes).Replace("-", String.Empty);
+            var id = BitConverter
+                .ToString(uuidBytes)
+                .Replace("-", String.Empty);
+
             switch (id.Length)
             {
                 case 4:
@@ -26,10 +29,11 @@ namespace Plugin.BluetoothLE
                     return Guid.ParseExact(id, "d");
 
                 case 16:
+                case 32:
                     return Guid.ParseExact(id, "d");
 
                 default:
-                    Log.Write("Invalid UUID Detect - " + id);
+                    Log.Warn("Device", "Invalid UUID Detected - " + id);
                     return Guid.Empty;
             }
         }

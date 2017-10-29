@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive.Linq;
-using System.Threading;
 using Android.Bluetooth;
 using Plugin.BluetoothLE.Internals;
 
@@ -10,11 +9,11 @@ namespace Plugin.BluetoothLE
     public class GattDescriptor : AbstractGattDescriptor
     {
         readonly BluetoothGattDescriptor native;
-        readonly GattContext context;
+        readonly DeviceContext context;
 
 
         public GattDescriptor(IGattCharacteristic characteristic,
-                              GattContext context,
+                              DeviceContext context,
                               BluetoothGattDescriptor native) : base(characteristic, native.Uuid.ToGuid())
         {
             this.context = context;
@@ -22,90 +21,81 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<DescriptorResult> Write(byte[] data)
+        public override IObservable<DescriptorResult> Write(byte[] data) => this.context.LockObservable<DescriptorResult>(async ob =>
         {
-            return Observable.Create<DescriptorResult>(async ob =>
-            {
-                var cancelSrc = new CancellationTokenSource();
-
-                var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
+            var sub = this.context
+                .Callbacks
+                .DescriptorWrite
+                .Where(this.NativeEquals)
+                .Subscribe(args =>
                 {
-                    if (this.NativeEquals(args))
+                    if (!args.IsSuccessful)
                     {
-                        this.context.Semaphore.Release();
+                        ob.OnError(new ArgumentException($"Failed to write descriptor value - {this.Uuid} - {args.Status}"));
+                    }
+                    else
+                    {
+                        this.Value = data;
 
-                        if (!args.IsSuccessful)
-                        {
-                            ob.OnError(new ArgumentException($"Failed to write descriptor value - {this.Uuid} - {args.Status}"));
-                        }
-                        else
-                        {
-                            this.Value = data;
-
-                            var result = new DescriptorResult(this, DescriptorEvent.Write, data);
-                            ob.Respond(result);
-                            this.WriteSubject.OnNext(result);
-                        }
+                        var result = new DescriptorResult(this, DescriptorEvent.Write, data);
+                        ob.Respond(result);
+                        this.WriteSubject.OnNext(result);
                     }
                 });
 
-                await this.context.Semaphore.WaitAsync(cancelSrc.Token);
-                this.context.Callbacks.DescriptorWrite += handler;
-                this.context.Marshall(() =>
-                {
-                    this.native.SetValue(data);
-                    this.context.Gatt.WriteDescriptor(this.native);
-                });
-
-                return () =>
-                {
-                    cancelSrc.Dispose();
-                    this.context.Callbacks.DescriptorWrite -= handler;
-                };
-            });
-        }
-
-
-        public override IObservable<DescriptorResult> Read()
-        {
-            //this.native.Permissions == GattDescriptorPermission.Read
-            return Observable.Create<DescriptorResult>(async ob =>
+            await this.context.Marshall(() =>
             {
-                var cancelSrc = new CancellationTokenSource();
+                this.native.SetValue(data);
+                this.context.Gatt.WriteDescriptor(this.native);
+            });
 
-                var handler = new EventHandler<GattDescriptorEventArgs>((sender, args) =>
+            return sub;
+        });
+
+
+        public override IObservable<DescriptorResult> Read() => this.context.LockObservable<DescriptorResult>(async ob =>
+        {
+            var sub = this.context
+                .Callbacks
+                .DescriptorRead
+                .Where(this.NativeEquals)
+                .Subscribe(args =>
                 {
-                    if (args.Descriptor.Equals(this.native))
+                    if (!args.IsSuccessful)
                     {
-                        this.context.Semaphore.Release();
+                        ob.OnError(new ArgumentException($"Failed to read descriptor value {this.Uuid} - {args.Status}"));
+                    }
+                    else
+                    {
+                        this.Value = this.native.GetValue();
 
-                        if (!args.IsSuccessful)
-                        {
-                            ob.OnError(new ArgumentException($"Failed to read descriptor value {this.Uuid} - {args.Status}"));
-                        }
-                        else
-                        {
-                            this.Value = this.native.GetValue();
-
-                            var result = new DescriptorResult(this, DescriptorEvent.Write, this.Value);
-                            ob.Respond(result);
-                            this.ReadSubject.OnNext(result);
-                        }
+                        var result = new DescriptorResult(this, DescriptorEvent.Write, this.Value);
+                        ob.Respond(result);
+                        this.ReadSubject.OnNext(result);
                     }
                 });
 
-                await this.context.Semaphore.WaitAsync(cancelSrc.Token);
-                this.context.Callbacks.DescriptorRead += handler;
-                this.context.Marshall(() =>
-                    this.context.Gatt.ReadDescriptor(this.native)
-                );
-                return () =>
-                {
-                    cancelSrc.Dispose();
-                    this.context.Callbacks.DescriptorRead -= handler;
-                };
-            });
+            await this.context.Marshall(() => this.context.Gatt.ReadDescriptor(this.native));
+
+            return sub;
+        });
+
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as GattDescriptor;
+            if (other == null)
+                return false;
+
+            if (!Object.ReferenceEquals(this, other))
+                return false;
+
+            return true;
         }
+
+
+        public override int GetHashCode() => this.native.GetHashCode();
+        public override string ToString() => $"Descriptor: {this.Uuid}";
 
 
         bool NativeEquals(GattDescriptorEventArgs args)
@@ -127,23 +117,5 @@ namespace Plugin.BluetoothLE
 
             return true;
         }
-
-
-        public override bool Equals(object obj)
-        {
-            var other = obj as GattDescriptor;
-            if (other == null)
-                return false;
-
-            if (!Object.ReferenceEquals(this, other))
-                return false;
-
-            return true;
-        }
-
-
-        public override int GetHashCode() => this.native.GetHashCode();
-        public override string ToString() => $"Descriptor: {this.Uuid}";
     }
 }
-

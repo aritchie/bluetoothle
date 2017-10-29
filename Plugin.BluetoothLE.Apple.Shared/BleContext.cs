@@ -62,7 +62,7 @@ namespace Plugin.BluetoothLE
                 return;
 
             var peripheralArray = (NSArray)dict[CBCentralManager.RestoredStatePeripheralsKey];
-            Log.Write($"Restoring peripheral state on {peripheralArray.Count} devices");
+            Log.Info("Adapter", $"Restoring peripheral state on {peripheralArray.Count} devices");
 
             for (nuint i = 0; i < peripheralArray.Count; i++)
             {

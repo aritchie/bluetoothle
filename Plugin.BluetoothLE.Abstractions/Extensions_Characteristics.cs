@@ -80,6 +80,9 @@ namespace Plugin.BluetoothLE
             => ch.Properties.HasFlag(CharacteristicProperties.WriteNoResponse) || ch.Properties.HasFlag(CharacteristicProperties.Write);
 
 
+        public static bool CanNotifyOrIndicate(this IGattCharacteristic ch) => ch.CanNotify() || ch.CanIndicate();
+
+
         public static bool CanNotify(this IGattCharacteristic ch) =>
             ch.Properties.HasFlag(CharacteristicProperties.Notify) ||
             ch.Properties.HasFlag(CharacteristicProperties.NotifyEncryptionRequired) ||

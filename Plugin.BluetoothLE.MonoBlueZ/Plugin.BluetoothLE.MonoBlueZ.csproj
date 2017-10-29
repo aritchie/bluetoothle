@@ -41,12 +41,18 @@
     <Compile Include="GattCharacteristic.cs" />
     <Compile Include="GattDescriptor.cs" />
     <Compile Include="GattService.cs" />
-    <Compile Include="Infrastructure\AcrAgent.cs" />
     <Compile Include="Adapter.cs" />
     <Compile Include="AdapterScanner.cs" />
     <Compile Include="Device.cs" />
-    <Compile Include="Infrastructure\AcrGattProfile.cs" />
-    <Compile Include="Infrastructure\DeviceFactory.cs" />
+    <Compile Include="Infrastructure\IAdapter1.cs" />
+    <Compile Include="Infrastructure\IAgentManager1.cs" />
+    <Compile Include="Infrastructure\IAlert1.cs" />
+    <Compile Include="Infrastructure\IDevice1.cs" />
+    <Compile Include="Infrastructure\IGattCharacteristic1.cs" />
+    <Compile Include="Infrastructure\IGattDescriptor1.cs" />
+    <Compile Include="Infrastructure\IGattManager1.cs" />
+    <Compile Include="Infrastructure\IGattService1.cs" />
+    <Compile Include="Infrastructure\ILEAdvertisingManager1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

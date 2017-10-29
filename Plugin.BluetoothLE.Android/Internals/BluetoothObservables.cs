@@ -7,50 +7,30 @@ namespace Plugin.BluetoothLE.Internals
     public static class BluetoothObservables
     {
         public static IObservable<object> WhenAdapterStatusChanged()
-        {
-            return AndroidObservables.WhenIntentReceived(BluetoothAdapter.ActionStateChanged);
-        }
-
+            => AndroidObservables.WhenIntentReceived(BluetoothAdapter.ActionStateChanged);
 
         public static IObservable<object> WhenAdapterDiscoveryStarted()
-        {
-            return AndroidObservables.WhenIntentReceived(BluetoothAdapter.ActionDiscoveryStarted);
-        }
-
+            => AndroidObservables.WhenIntentReceived(BluetoothAdapter.ActionDiscoveryStarted);
 
         public static IObservable<object> WhenAdapterDiscoveryFinished()
-        {
-            return AndroidObservables.WhenIntentReceived(BluetoothAdapter.ActionDiscoveryFinished);
-        }
-
+            => AndroidObservables.WhenIntentReceived(BluetoothAdapter.ActionDiscoveryFinished);
 
         public static IObservable<BluetoothDevice> WhenBondRequestReceived()
-        {
-            return WhenDeviceEventReceived(BluetoothDevice.ActionPairingRequest);
-        }
-
+            => WhenDeviceEventReceived(BluetoothDevice.ActionPairingRequest);
 
         public static IObservable<BluetoothDevice> WhenBondStatusChanged()
-        {
-            return WhenDeviceEventReceived(BluetoothDevice.ActionBondStateChanged);
-        }
-
+            => WhenDeviceEventReceived(BluetoothDevice.ActionBondStateChanged);
 
         public static IObservable<BluetoothDevice> WhenDeviceNameChanged()
-        {
-            return WhenDeviceEventReceived(BluetoothDevice.ActionNameChanged);
-        }
-
+            => WhenDeviceEventReceived(BluetoothDevice.ActionNameChanged);
 
         public static IObservable<BluetoothDevice> WhenDeviceEventReceived(string action)
-        {
-            return AndroidObservables
+            => AndroidObservables
                 .WhenIntentReceived(action)
                 .Select(intent =>
                 {
                     var device = (BluetoothDevice)intent.GetParcelableExtra(BluetoothDevice.ExtraDevice);
                     return device;
                 });
-        }
     }
 }

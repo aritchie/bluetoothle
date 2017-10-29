@@ -10,12 +10,12 @@ namespace Plugin.BluetoothLE
 {
     public class GattService : AbstractGattService
     {
-        readonly GattContext context;
+        readonly DeviceContext context;
         readonly BluetoothGattService native;
 
 
         public GattService(IDevice device,
-                           GattContext context,
+                           DeviceContext context,
                            BluetoothGattService native) : base(device,
                                                                native.Uuid.ToGuid(),
                                                                native.Type == GattServiceType.Primary)
@@ -45,8 +45,7 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds)
-        {
-            return Observable.Create<IGattCharacteristic>(ob =>
+            => Observable.Create<IGattCharacteristic>(ob =>
             {
                 var cids = characteristicIds.Select(x => x.ToUuid()).ToArray();
                 foreach (var cid in cids)
@@ -59,7 +58,6 @@ namespace Plugin.BluetoothLE
 
                 return Disposable.Empty;
             });
-        }
 
 
         public override bool Equals(object obj)

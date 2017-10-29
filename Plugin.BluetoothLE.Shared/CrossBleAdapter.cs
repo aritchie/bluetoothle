@@ -1,4 +1,8 @@
 ﻿using System;
+#if ANDROID
+using Android.OS;
+using B = Android.OS.Build;
+#endif
 
 
 namespace Plugin.BluetoothLE
@@ -14,6 +18,36 @@ namespace Plugin.BluetoothLE
         {
             Current = new Adapter(configuration);
         }
+
+#elif ANDROID
+
+        /// <summary>
+        /// Specifies the number of Gatt.Connect attempts that will be run before handing off to NativeDevice.ConnectGatt(autoReconnect);
+        /// DO NOT CHANGE this if you don't know what this is!
+        /// </summary>
+        public static uint AndroidMaxAutoReconnectAttempts { get; set; } = 5;
+
+
+        /// <summary>
+        /// Number of milliseconds to pause before service discovery (helps in combating GATT133 error) when service discovery is performed immediately after connection
+        /// DO NOT CHANGE this if you don't know what this is!
+        /// </summary>
+        public static TimeSpan AndroidPauseBeforeServiceDiscovery { get; set; } = TimeSpan.FromMilliseconds(750);
+        
+
+        /// <summary>
+        /// Specifies the wait time before attempting an auto-reconnect
+        /// DO NOT CHANGE if you don't know what this is!
+        /// </summary>
+        public static TimeSpan AndroidPauseBetweenAutoReconnectAttempts { get; set; } = TimeSpan.FromSeconds(1);
+
+
+        public static bool AndroidMainThreadSuggested =>
+            B.VERSION.SdkInt < BuildVersionCodes.Kitkat ||
+            B.Manufacturer.Equals("samsung", StringComparison.CurrentCultureIgnoreCase);
+
+
+        public static bool AndroidPerformActionsOnMainThread { get; set; } = AndroidMainThreadSuggested;
 
 #endif
 

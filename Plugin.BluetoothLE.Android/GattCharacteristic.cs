@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
@@ -16,10 +15,10 @@ namespace Plugin.BluetoothLE
     {
         static readonly UUID NotifyDescriptorId = UUID.FromString("00002902-0000-1000-8000-00805f9b34fb");
         readonly BluetoothGattCharacteristic native;
-        readonly GattContext context;
+        readonly DeviceContext context;
 
 
-        public GattCharacteristic(IGattService service, GattContext context, BluetoothGattCharacteristic native)
+        public GattCharacteristic(IGattService service, DeviceContext context, BluetoothGattCharacteristic native)
             : base(service, native.Uuid.ToGuid(), (CharacteristicProperties)(int)native.Properties)
         {
             this.context = context;
@@ -30,136 +29,113 @@ namespace Plugin.BluetoothLE
         public override void WriteWithoutResponse(byte[] value)
         {
             this.AssertWrite(false);
-
-            this.RawWriteNoResponse(null, value);
+            this
+                .RawWriteNoResponse(null, value)
+                .Subscribe();
         }
 
 
-        public override IObservable<CharacteristicResult> Write(byte[] value)
+        public override IObservable<CharacteristicResult> Write(byte[] value) => this.context.LockObservable<CharacteristicResult>(async ob =>
         {
             this.AssertWrite(false);
 
-            return Observable.Create<CharacteristicResult>(async ob =>
-            {
-                CancellationTokenSource cancelSrc = null;
-
-                var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
+            Log.Debug("Characteristic", "past write gate");
+            var sub = this.context
+                .Callbacks
+                .CharacteristicWrite
+                .Where(this.NativeEquals)
+                .Subscribe(args =>
                 {
-                    if (this.NativeEquals(args))
+                    Log.Debug("Characteristic", "write vent - " + args.Characteristic.Uuid);
+
+                    if (!args.IsSuccessful)
                     {
-                        if (cancelSrc != null)
-                            this.context.Semaphore.Release();
-
-                        Log.Write("Incoming Characteristic Write Event - " + args.Characteristic.Uuid);
-
-                        if (!args.IsSuccessful)
-                        {
-                            ob.OnError(new ArgumentException($"Failed to write characteristic - {args.Status}"));
-                        }
-                        else
-                        {
-                            this.Value = value;
-                            var result = new CharacteristicResult(this, CharacteristicEvent.Write, this.Value);
-                            ob.Respond(result);
-                            this.WriteSubject.OnNext(result);
-                        }
+                        ob.OnError(new ArgumentException($"Failed to write characteristic - {args.Status}"));
+                    }
+                    else
+                    {
+                        this.Value = value;
+                        var result = new CharacteristicResult(this, CharacteristicEvent.Write, this.Value);
+                        ob.Respond(result);
+                        this.WriteSubject.OnNext(result);
                     }
                 });
 
-                if (this.Properties.HasFlag(CharacteristicProperties.Write))
-                {
-                    cancelSrc = new CancellationTokenSource();
-
-                    Log.Write("Hooking for write response - " + this.Uuid);
-
-                    await this.context.Semaphore.WaitAsync(cancelSrc.Token);
-                    this.context.Callbacks.CharacteristicWrite += handler;
-                    this.RawWriteWithResponse(value);
-                }
-                else
-                {
-                    Log.Write("Write with No Response - " + this.Uuid);
-                    this.RawWriteNoResponse(ob, value);
-                }
-                return () =>
-                {
-                    cancelSrc?.Dispose();
-                    this.context.Callbacks.CharacteristicWrite -= handler;
-                };
-            });
-        }
+            if (this.Properties.HasFlag(CharacteristicProperties.Write))
+            {
+                Log.Debug("Characteristic", "Hooking for write response - " + this.Uuid);
+                await this.RawWriteWithResponse(value);
+            }
+            else
+            {
+                Log.Debug("Characteristic", "Write with No Response - " + this.Uuid);
+                await this.RawWriteNoResponse(ob, value);
+            }
+            return sub;
+        });
 
 
-        public override IObservable<CharacteristicResult> Read()
+        public override IObservable<CharacteristicResult> Read() => this.context.LockObservable<CharacteristicResult>(async ob =>
         {
             this.AssertRead();
 
-            return Observable.Create<CharacteristicResult>(async ob =>
-            {
-                var cancelSrc = new CancellationTokenSource();
-
-                var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
+            var sub = this.context
+                .Callbacks
+                .CharacteristicRead
+                .Where(this.NativeEquals)
+                .Subscribe(args =>
                 {
-                    if (this.NativeEquals(args))
+                    if (!args.IsSuccessful)
                     {
-                        this.context.Semaphore.Release();
-
-                        if (!args.IsSuccessful)
-                        {
-                            ob.OnError(new ArgumentException($"Failed to read characteristic - {args.Status}"));
-                        }
-                        else
-                        {
-                            this.Value = args.Characteristic.GetValue();
-
-                            var result = new CharacteristicResult(this, CharacteristicEvent.Read, this.Value);
-                            ob.Respond(result);
-                            this.ReadSubject.OnNext(result);
-                        }
+                        ob.OnError(new ArgumentException($"Failed to read characteristic - {args.Status}"));
                     }
-                });
-                this.context.Callbacks.CharacteristicRead += handler;
-                await this.context.Semaphore.WaitAsync(cancelSrc.Token);
+                    else
+                    {
+                        this.Value = args.Characteristic.GetValue();
 
-                this.context.Marshall(() =>
-                {
-                    try
-                    {
-                        this.context.Gatt.ReadCharacteristic(this.native);
-                    }
-                    catch (Exception ex)
-                    {
-                        ob.OnError(ex);
+                        var result = new CharacteristicResult(this, CharacteristicEvent.Read, this.Value);
+                        ob.Respond(result);
+                        this.ReadSubject.OnNext(result);
                     }
                 });
 
-                return () => this.context.Callbacks.CharacteristicRead -= handler;
-            });
-        }
-
-
-        public override IObservable<bool> EnableNotifications(bool useIndicationsIfAvailable)
-            => Observable.FromAsync(async ct =>
+            await this.context.Marshall(() =>
             {
-                var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
-                if (descriptor == null)
-                    throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
-
-                var wrap = new GattDescriptor(this, this.context, descriptor);
-                var success = this.context.Gatt.SetCharacteristicNotification(this.native, true);
-                await Task.Delay(250, ct);
-
-                if (success)
+                try
                 {
-                    var bytes = useIndicationsIfAvailable && this.CanIndicate()
-                        ? BluetoothGattDescriptor.EnableIndicationValue.ToArray()
-                        : BluetoothGattDescriptor.EnableNotificationValue.ToArray();
-
-                    await wrap.Write(bytes);
-                    this.IsNotifying = true;
+                    this.context.Gatt.ReadCharacteristic(this.native);
                 }
-                return success;
+                catch (Exception ex)
+                {
+                    ob.OnError(ex);
+                }
             });
+
+            return sub;
+        });
+
+
+        public override IObservable<bool> EnableNotifications(bool useIndicationsIfAvailable) => Observable.FromAsync(async ct =>
+        {
+            var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
+            if (descriptor == null)
+                throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
+
+            var wrap = new GattDescriptor(this, this.context, descriptor);
+            var success = this.context.Gatt.SetCharacteristicNotification(this.native, true);
+            await Task.Delay(250, ct);
+
+            if (success)
+            {
+                var bytes = useIndicationsIfAvailable && this.CanIndicate()
+                    ? BluetoothGattDescriptor.EnableIndicationValue.ToArray()
+                    : BluetoothGattDescriptor.EnableNotificationValue.ToArray();
+
+                await wrap.Write(bytes);
+                this.IsNotifying = true;
+            }
+            return success;
+        });
 
 
         public override IObservable<object> DisableNotifications() => Observable.FromAsync<object>(async ct =>
@@ -169,7 +145,9 @@ namespace Plugin.BluetoothLE
                 throw new ArgumentException("Characteristic Client Configuration Descriptor not found");
 
             var wrap = new GattDescriptor(this, this.context, descriptor);
-            var success = this.context.Gatt.SetCharacteristicNotification(this.native, false);
+            var success = this.context
+                .Gatt
+                .SetCharacteristicNotification(this.native, false);
             await Task.Delay(250, ct);
 
             if (success)
@@ -187,10 +165,11 @@ namespace Plugin.BluetoothLE
             this.AssertNotify();
 
             this.notifyOb = this.notifyOb ?? Observable.Create<CharacteristicResult>(ob =>
-            {
-                var handler = new EventHandler<GattCharacteristicEventArgs>((sender, args) =>
-                {
-                    if (this.NativeEquals(args))
+                this.context
+                    .Callbacks
+                    .CharacteristicChanged
+                    .Where(this.NativeEquals)
+                    .Subscribe(args =>
                     {
                         if (!args.IsSuccessful)
                         {
@@ -203,12 +182,8 @@ namespace Plugin.BluetoothLE
                             var result = new CharacteristicResult(this, CharacteristicEvent.Notification, this.Value);
                             ob.OnNext(result);
                         }
-                    }
-                });
-                this.context.Callbacks.CharacteristicChanged += handler;
-
-                return () => this.context.Callbacks.CharacteristicChanged -= handler;
-            })
+                    })
+            )
             .Publish()
             .RefCount();
 
@@ -270,40 +245,31 @@ namespace Plugin.BluetoothLE
         }
 
 
-        void RawWriteWithResponse(byte[] bytes)
-            => this.context.Marshall(() =>
+        IObservable<object> RawWriteWithResponse(byte[] bytes) => this.context.Marshall(() =>
+        {
+            this.native.SetValue(bytes);
+            this.native.WriteType = GattWriteType.Default;
+            this.context.Gatt.WriteCharacteristic(this.native);
+        });
+
+
+        IObservable<object> RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes) => this.context.Marshall(() =>
+        {
+            try
             {
-                try
-                {
-                    this.native.SetValue(bytes);
-                    this.native.WriteType = GattWriteType.Default;
-                    this.context.Gatt.WriteCharacteristic(this.native);
-                }
-                catch (Exception ex)
-                {
-                    Log.Write("[ERROR] RawWriteWithResponse failed - " + ex);
-                }
-            });
+                this.native.SetValue(bytes);
+                this.native.WriteType = GattWriteType.NoResponse;
+                this.context.Gatt.WriteCharacteristic(this.native);
+                this.Value = bytes;
 
-
-        void RawWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] bytes)
-            => this.context.Marshall(() =>
+                var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
+                this.WriteSubject.OnNext(result);
+                ob?.Respond(result);
+            }
+            catch (Exception ex)
             {
-                try
-                {
-                    this.native.SetValue(bytes);
-                    this.native.WriteType = GattWriteType.NoResponse;
-                    this.context.Gatt.WriteCharacteristic(this.native);
-                    this.Value = bytes;
-
-                    var result = new CharacteristicResult(this, CharacteristicEvent.Write, bytes);
-                    this.WriteSubject.OnNext(result);
-                    ob?.Respond(result);
-                }
-                catch (Exception ex)
-                {
-                    ob?.OnError(ex);
-                }
-            });
+                ob?.OnError(ex);
+            }
+        });
     }
 }

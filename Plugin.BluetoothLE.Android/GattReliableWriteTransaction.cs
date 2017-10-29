@@ -1,5 +1,4 @@
 using System;
-using System.Reactive.Linq;
 using Plugin.BluetoothLE.Internals;
 
 
@@ -7,10 +6,10 @@ namespace Plugin.BluetoothLE
 {
     public class GattReliableWriteTransaction : AbstractGattReliableWriteTransaction
     {
-        readonly GattContext context;
+        readonly DeviceContext context;
 
 
-        public GattReliableWriteTransaction(GattContext context)
+        public GattReliableWriteTransaction(DeviceContext context)
         {
             this.context = context;
             this.context.Gatt.BeginReliableWrite();
@@ -25,13 +24,14 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<object> Commit()
+        public override IObservable<object> Commit() => this.context.LockObservable<object>(async ob =>
         {
             this.AssertAction();
 
-            return Observable.Create<object>(ob =>
-            {
-                var handler = new EventHandler<GattEventArgs>((sender, args) =>
+            var sub = this.context
+                .Callbacks
+                .ReliableWriteCompleted
+                .Subscribe(args =>
                 {
                     if (args.IsSuccessful)
                     {
@@ -44,14 +44,11 @@ namespace Plugin.BluetoothLE
                         ob.OnError(new GattReliableWriteTransactionException("Error committing transaction"));
                     }
                 });
+            this.context.Gatt.ExecuteReliableWrite();
+            this.Status = TransactionStatus.Committing;
 
-                this.context.Callbacks.ReliableWriteCompleted += handler;
-                this.context.Gatt.ExecuteReliableWrite();
-                this.Status = TransactionStatus.Committing;
-
-                return () => this.context.Callbacks.ReliableWriteCompleted -= handler;
-            });
-        }
+            return sub;
+        });
 
 
         public override void Abort()
