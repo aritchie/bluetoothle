@@ -33,6 +33,7 @@ namespace Plugin.BluetoothLE.Tests
         Scratch 5 - A495FF25-C5B1-4B44-B512-1370F02D74DE
         */
         static readonly Guid ScratchServiceUuid = Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE");
+        static readonly TimeSpan Timeout = TimeSpan.FromSeconds(5);
         readonly ITestOutputHelper output;
         IDevice device;
 
@@ -40,6 +41,7 @@ namespace Plugin.BluetoothLE.Tests
         public Tests(ITestOutputHelper output)
         {
             this.output = output;
+            CrossBleAdapter.Current.Status.Should().Be(AdapterStatus.PoweredOn, "Adapter is not ON");
         }
 
 
@@ -79,13 +81,19 @@ namespace Plugin.BluetoothLE.Tests
             await this.FindTestDevice();
 
             await this.device.Connect().Timeout(TimeSpan.FromSeconds(5));
-            this.output.WriteLine("Device connected - finding notify characteristics");
+            this.output.WriteLine("Device connected - finding known service");
 
-            var characteristics = await this.device
+            var service = await this.device
                 .GetKnownService(ScratchServiceUuid)
-                .Select(x => x.WhenCharacteristicDiscovered())
-                .Merge()
-                .Timeout(TimeSpan.FromSeconds(5))
+                .Timeout(Timeout)
+                .Take(1)
+                .ToTask();
+            this.output.WriteLine("Found known service - detecting characteristics");
+
+            var characteristics = await service
+                .WhenCharacteristicDiscovered()
+                .Take(5)
+                .Timeout(Timeout)
                 .ToList()
                 .ToTask();
 
