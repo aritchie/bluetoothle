@@ -90,7 +90,7 @@ namespace Plugin.BluetoothLE.Tests
                 .ToTask();
 
             this.output.WriteLine("Finished characteristic find");
-            characteristics.Count.Should().Be(4);
+            characteristics.Count.Should().Be(5);
 
             characteristics
                 .ToObservable()
