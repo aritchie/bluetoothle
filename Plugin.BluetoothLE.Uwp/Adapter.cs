@@ -127,10 +127,10 @@ namespace Plugin.BluetoothLE
                     sub.Dispose();
                 };
             });
-            if (config?.ServiceUuid != null)
-            {
-                observer = observer.Where(x => x.AdvertisementData?.ServiceUuids.Contains(config.ServiceUuid.Value) ?? false);
-            }
+            //if (config?.ServiceUuid != null)
+            //{
+            //    observer = observer.Where(x => x.AdvertisementData?.ServiceUuids.Contains(config.ServiceUuid.Value) ?? false);
+            //}
 
             return observer;
         }

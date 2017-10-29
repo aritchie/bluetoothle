@@ -5,6 +5,7 @@
 * [fix][android][ios] rewritten reconnection logic
 * [fix][android] kill more gatt133 errors by forcing synchronized communication (hidden to consumer)
 * [feature][android] Ability to use Android AutoConnect option on connect
+* [feature] scan for multiple UUIDs
 
 ## 5.0
 * [breaking][feature] SetNotificationValue has been replaced with EnableNotifications/DisableNotifications.

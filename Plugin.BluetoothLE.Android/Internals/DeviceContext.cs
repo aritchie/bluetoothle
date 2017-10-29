@@ -5,10 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Bluetooth;
-using Android.Bluetooth.LE;
-using Android.Content;
 using Android.OS;
-using Android.Runtime;
 
 
 namespace Plugin.BluetoothLE.Internals

@@ -138,7 +138,14 @@ namespace Plugin.BluetoothLE
                 else
                 {
                     var uuids = config.ServiceUuids.Select(o => o.ToCBUuid()).ToArray();
-                    this.context.Manager.ScanForPeripherals(uuids);
+                    if (config.ScanType == BleScanType.Background)
+                    {
+                        this.context.Manager.ScanForPeripherals(uuids);
+                    }
+                    else
+                    {
+                        this.context.Manager.ScanForPeripherals(uuids, new PeripheralScanningOptions { AllowDuplicatesKey = true });
+                    }
                 }
                 this.ToggleScanStatus(true);
 

@@ -61,7 +61,7 @@ namespace Plugin.BluetoothLE.Internals
             this.newCallback = new LollipopScanCallback(args => this.Scanned?.Invoke(this, args));
             var scanMode = this.ToNative(config.ScanType);
             var filterBuilderList = new List<ScanFilter>();
-            if (config.ServiceUuids != null && config.ServiceUuids.Count >0)
+            if (config.ServiceUuids != null && config.ServiceUuids.Count > 0)
             {
                 foreach (var uuid in config.ServiceUuids)
                 {
@@ -69,12 +69,12 @@ namespace Plugin.BluetoothLE.Internals
                     filterBuilder.SetServiceUuid(uuid.ToParcelUuid());
                     filterBuilderList.Add(filterBuilder.Build());
                 }
-            }else{
+            }
+            else
+            {
                 var filterBuilder = new ScanFilter.Builder();
                 filterBuilderList.Add(filterBuilder.Build());
             }
-                
-
             //new ScanFilter.Builder().SetDeviceAddress().Set
             this.manager.Adapter.BluetoothLeScanner.StartScan(
                 filterBuilderList,
