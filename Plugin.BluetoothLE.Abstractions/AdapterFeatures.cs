@@ -6,7 +6,7 @@ namespace Plugin.BluetoothLE
     [Flags]
     public enum AdapterFeatures
     {
-        None = 0,
+        None = -1,
         ControlAdapterState = 1,
         OpenSettings = 2,
         ViewPairedDevices = 4,
