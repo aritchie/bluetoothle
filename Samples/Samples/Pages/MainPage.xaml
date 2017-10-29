@@ -10,6 +10,5 @@
         <le:ScanPage BindingContext="{Binding Scan}" Title="Scan" />
 		<le:ConnectedDevicesPage BindingContext="{Binding ConnectedDevices}" Title="Connected" />
         <le:ServerPage BindingContext="{Binding Server}" Title="Server" />
-        <testCases:Test1Page BindingContext="{Binding TestCases}" Title="Test Cases" />
 	</TabbedPage.Children>
 </TabbedPage>

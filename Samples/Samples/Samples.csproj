@@ -40,9 +40,6 @@
         <Compile Update="Pages\Le\ServerPage.xaml.cs">
             <DependentUpon>ServerPage.xaml</DependentUpon>
         </Compile>
-        <Compile Update="Pages\TestCases\Test1Page.xaml.cs">
-            <DependentUpon>Test1Page.xaml</DependentUpon>
-        </Compile>
         <Compile Update="Pages\MainPage.xaml.cs">
             <DependentUpon>MainPage.xaml</DependentUpon>
         </Compile>

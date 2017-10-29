@@ -1,6 +1,5 @@
 ﻿using System;
 using Samples.ViewModels.Le;
-using Samples.ViewModels.TestCases;
 
 
 namespace Samples.ViewModels
@@ -10,13 +9,11 @@ namespace Samples.ViewModels
         public MainViewModel(
             ScanViewModel scanViewModel,
             ConnectedDevicesViewModel connectViewModel,
-            ServerViewModel serverViewModel,
-            TestCasesViewModel testCasesViewModel)
+            ServerViewModel serverViewModel)
         {
             this.Scan = scanViewModel;
             this.ConnectedDevices = connectViewModel;
             this.Server = serverViewModel;
-            this.TestCases = testCasesViewModel;
         }
 
 
@@ -24,6 +21,5 @@ namespace Samples.ViewModels
         public ScanViewModel Scan { get; }
         public ConnectedDevicesViewModel ConnectedDevices { get; }
         public ServerViewModel Server { get; }
-        public TestCasesViewModel TestCases { get; }
     }
 }
