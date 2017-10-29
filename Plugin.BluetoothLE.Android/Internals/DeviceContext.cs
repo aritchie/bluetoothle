@@ -5,7 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Bluetooth;
+using Android.Bluetooth.LE;
+using Android.Content;
 using Android.OS;
+using Android.Runtime;
 
 
 namespace Plugin.BluetoothLE.Internals
@@ -106,30 +109,6 @@ namespace Plugin.BluetoothLE.Internals
                     this.Callbacks
                 );
             }
-            //else if (Build.VERSION.SdkInt < BuildVersionCodes.M)
-            //{
-            //    var transport = BluetoothDevice
-            //        .Class
-            //        .GetDeclaredField("TRANSPORT_LE")
-            //        .GetInt(0);
-
-            //    BluetoothDevice
-            //        .Class
-            //        .GetDeclaredMethod(
-            //            "connectGatt",
-            //            Java.Lang.Class.FromType(typeof(Context)),
-            //            Java.Lang.Boolean.Type,
-            //            Java.Lang.Class.FromType(typeof(BluetoothGattCallback)),
-            //            Java.Lang.Integer.Type
-            //        )
-            //        .Invoke(
-            //            this.NativeDevice,
-            //            Application.Context,
-            //            androidAutoReconnect,
-            //            this.Callbacks,
-            //            transport
-            //        );
-            //}
             else
             {
                 this.Gatt = this.NativeDevice.ConnectGatt(
