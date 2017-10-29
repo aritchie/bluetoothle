@@ -8,11 +8,11 @@ namespace Plugin.BluetoothLE.Android.Tests.Tests
     public class PlatformTests
     {
         [Theory]
+        [InlineData(AdapterFeatures.None, false)]
         [InlineData(AdapterFeatures.All, true)]
         [InlineData(AdapterFeatures.AllClient, true)]
         [InlineData(AdapterFeatures.AllControls, true)]
         [InlineData(AdapterFeatures.AllServer, true)]
-        [InlineData(AdapterFeatures.None, false)]
         [InlineData(AdapterFeatures.LowPoweredScan, true)]
         [InlineData(AdapterFeatures.OpenSettings, true)]
         [InlineData(AdapterFeatures.ServerGatt, true)]

@@ -14,6 +14,25 @@ namespace Plugin.BluetoothLE.Tests
 {
     public class Tests : IDisposable
     {
+        /*
+        Service (ad-data) - A495FF20-C5B1-4B44-B512-1370F02D74DE
+
+        // start count
+        Scratch 1 - A495FF21-C5B1-4B44-B512-1370F02D74DE
+
+        // temp
+        Scratch 2 - A495FF22-C5B1-4B44-B512-1370F02D74DE
+
+        // accel X
+        Scratch 3 - A495FF23-C5B1-4B44-B512-1370F02D74DE
+
+        // accel Y
+        Scratch 4 - A495FF24-C5B1-4B44-B512-1370F02D74DE
+
+        // accel Z
+        Scratch 5 - A495FF25-C5B1-4B44-B512-1370F02D74DE
+        */
+        static readonly Guid ScratchServiceUuid = Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE");
         readonly ITestOutputHelper output;
         IDevice device;
 
@@ -63,15 +82,15 @@ namespace Plugin.BluetoothLE.Tests
             this.output.WriteLine("Device connected - finding notify characteristics");
 
             var characteristics = await this.device
-                .WhenAnyCharacteristicDiscovered()
-                .Where(x => x.CanNotifyOrIndicate())
-                .Take(3)
-                .ToList()
+                .GetKnownService(ScratchServiceUuid)
+                .Select(x => x.WhenCharacteristicDiscovered())
+                .Merge()
                 .Timeout(TimeSpan.FromSeconds(5))
+                .ToList()
                 .ToTask();
 
             this.output.WriteLine("Finished characteristic find");
-            characteristics.Count.Should().Be(3);
+            characteristics.Count.Should().Be(4);
 
             characteristics
                 .ToObservable()
@@ -172,3 +191,28 @@ namespace Plugin.BluetoothLE.Tests
         }
     }
 }
+/*
+ * this.scan = this.BleAdapter
+                        .ScanWhenAdapterReady()
+                        //.Where(x => x.AdvertisementData.ServiceUuids.Any(y => y.Equals(ScratchServiceUuid)))
+                        .Where(x => x.Device?.Name?.StartsWith("bean", StringComparison.CurrentCultureIgnoreCase) ?? false)
+                        .Take(1)
+                        .Select(x =>
+                        {
+                            this.device = x.Device;
+                            x.Device.Connect().Subscribe();
+                            return x.Device.GetKnownService(ScratchServiceUuid);
+                        })
+                        .Where(x => x != null)
+                        .Switch()
+                        .Select(x => x.WhenCharacteristicDiscovered())
+                        .Switch()
+                        .Subscribe(ch =>
+                        {
+                            this.WriteMsg("Subscribing to characteristic", ch.Uuid.ToString());
+                            ch.RegisterAndNotify().Subscribe(x => this.WriteMsg(
+                                x.Characteristic.Uuid.ToString(),
+                                UTF8Encoding.UTF8.GetString(x.Data, 0, x.Data.Length)
+                            ));
+                        });
+ */
