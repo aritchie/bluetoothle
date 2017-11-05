@@ -9,7 +9,7 @@ using GattStatus = Plugin.BluetoothLE.Server.GattStatus;
 
 namespace Plugin.BluetoothLE
 {
-    static class Extensions
+    public static class Extensions
     {
         public static Guid ToGuid(this byte[] uuidBytes)
         {
@@ -22,15 +22,15 @@ namespace Plugin.BluetoothLE
             {
                 case 4:
                     id = $"0000{id}-0000-1000-8000-00805f9b34fb";
-                    return Guid.ParseExact(id, "d");
+                    return Guid.Parse(id);
 
                 case 8:
                     id = $"{id}-0000-1000-8000-00805f9b34fb";
-                    return Guid.ParseExact(id, "d");
+                    return Guid.Parse(id);
 
                 case 16:
                 case 32:
-                    return Guid.ParseExact(id, "d");
+                    return Guid.Parse(id);
 
                 default:
                     Log.Warn("Device", "Invalid UUID Detected - " + id);
