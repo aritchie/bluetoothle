@@ -153,7 +153,7 @@
       <Version>3.1.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Forms">
-      <Version>2.4.0.18342</Version>
+      <Version>2.4.0.38779</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
