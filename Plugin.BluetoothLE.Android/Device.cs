@@ -12,6 +12,7 @@ using Plugin.BluetoothLE.Internals;
 
 namespace Plugin.BluetoothLE
 {
+    // TODO: wrap connection state events and call gatt.close() every disconnect state
     public class Device : AbstractDevice
     {
         readonly Subject<ConnectionStatus> connSubject;
@@ -437,12 +438,15 @@ namespace Plugin.BluetoothLE
                 }
                 attempts++;
             }
-            await this.DoFallbackReconnect(config, ct);
+            if (this.Status != ConnectionStatus.Connected)
+                await this.DoFallbackReconnect(config, ct);
         }
 
 
         async Task DoFallbackReconnect(GattConnectionConfig config, CancellationToken ct)
         {
+            this.context.Close(); // kill current gatt
+
             if (ct.IsCancellationRequested)
             {
                 Log.Debug("Reconnect", "Reconnection loop cancelled");
@@ -456,6 +460,7 @@ namespace Plugin.BluetoothLE
                 Log.Debug("Reconnect", "Reconnection failed - handing off to android autoReconnect");
                 try
                 {
+                    // TODO: should I redo this one as well?
                     this.context.Close();
                     await this.context.Connect(config.Priority, true);
                 }
