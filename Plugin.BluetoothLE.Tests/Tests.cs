@@ -46,7 +46,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task AdapterOnOffDetect()
+        public async Task Adapter_Status_Monitor()
         {
             var on = 0;
             var off = 0;
@@ -75,30 +75,10 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task MultipleCharacteristicSubscriptionsAfterConnect()
+        public async Task Characteristics_Concurrency_Notifications()
         {
             var list = new Dictionary<Guid, int>();
-            await this.FindTestDevice();
-
-            await this.device.Connect().Timeout(TimeSpan.FromSeconds(5));
-            this.output.WriteLine("Device connected - finding known service");
-
-            var service = await this.device
-                .GetKnownService(ScratchServiceUuid)
-                .Timeout(Timeout)
-                .Take(1)
-                .ToTask();
-            this.output.WriteLine("Found known service - detecting characteristics");
-
-            var characteristics = await service
-                .WhenCharacteristicDiscovered()
-                .Take(5)
-                .Timeout(Timeout)
-                .ToList()
-                .ToTask();
-
-            this.output.WriteLine("Finished characteristic find");
-            characteristics.Count.Should().Be(5);
+            var characteristics = await this.GetCharacteristics();
 
             characteristics
                 .ToObservable()
@@ -128,8 +108,38 @@ namespace Plugin.BluetoothLE.Tests
         }
 
 
+        [Fact]
+        public async Task Characteristics_Concurrency_Writes()
+        {
+            var cs = await this.GetCharacteristics();
+            await Task.WhenAll(
+                cs.ElementAt(0).Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromMilliseconds(5000)).ToTask(),
+                cs.ElementAt(1).Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromMilliseconds(5000)).ToTask(),
+                cs.ElementAt(2).Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromMilliseconds(5000)).ToTask(),
+                cs.ElementAt(3).Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromMilliseconds(5000)).ToTask(),
+                cs.ElementAt(4).Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromMilliseconds(5000)).ToTask()
+            );
+        }
+
+
+        [Fact]
+        public async Task Characteristics_Concurrency_Reads()
+        {
+            var cs = await this.GetCharacteristics();
+
+            var t1 = cs.ElementAt(0).Read().Timeout(TimeSpan.FromMilliseconds(5000)).Select(x => x.Data).ToTask();
+            var t2 = cs.ElementAt(1).Read().Timeout(TimeSpan.FromMilliseconds(5000)).Select(x => x.Data).ToTask();
+            var t3 = cs.ElementAt(2).Read().Timeout(TimeSpan.FromMilliseconds(5000)).Select(x => x.Data).ToTask();
+            var t4 = cs.ElementAt(3).Read().Timeout(TimeSpan.FromMilliseconds(5000)).Select(x => x.Data).ToTask();
+            var t5 = cs.ElementAt(4).Read().Timeout(TimeSpan.FromMilliseconds(5000)).Select(x => x.Data).ToTask();
+
+            await Task.WhenAll(t1, t2, t3, t4, t5);
+
+        }
+
+
         //[Fact]
-        //public async Task GetKnownServiceThenAnother_NoLockup()
+        //public async Task Device_GetKnownServices()
         //{
         //    var device = await this.FindTestDevice();
         //    var s1 = await device.GetKnownService(new Guid(""));
@@ -138,7 +148,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task Reconnect()
+        public async Task Device_Reconnect()
         {
             var autoConnect = await UserDialogs.Instance.ConfirmAsync(new ConfirmConfig().SetMessage("Use autoConnect?").UseYesNo());
             var connected = 0;
@@ -161,7 +171,7 @@ namespace Plugin.BluetoothLE.Tests
                     }
                 });
 
-            await device.Connect(new GattConnectionConfig
+            await this.device.Connect(new GattConnectionConfig
             {
                 AndroidAutoConnect = autoConnect,
                 IsPersistent = true
@@ -171,11 +181,33 @@ namespace Plugin.BluetoothLE.Tests
             disconnected.Should().Be(2, "No disconnect");
         }
 
-        //[Fact]
-        //public async Task ReconnectAndCharacteristicAction()
-        //{
 
-        //}
+        async Task<IEnumerable<IGattCharacteristic>> GetCharacteristics()
+        {
+            await this.FindTestDevice();
+
+            await this.device.Connect().Timeout(TimeSpan.FromSeconds(5));
+            this.output.WriteLine("Device connected - finding known service");
+
+            var service = await this.device
+                .GetKnownService(ScratchServiceUuid)
+                .Timeout(Timeout)
+                .Take(1)
+                .ToTask();
+            this.output.WriteLine("Found known service - detecting characteristics");
+
+            var characteristics = await service
+                .WhenCharacteristicDiscovered()
+                .Take(5)
+                .Timeout(Timeout)
+                .ToList()
+                .ToTask();
+
+            this.output.WriteLine("Finished characteristic find");
+            characteristics.Count.Should().Be(5);
+
+            return characteristics;
+        }
 
 
         async Task<IDevice> FindTestDevice()
@@ -201,26 +233,26 @@ namespace Plugin.BluetoothLE.Tests
 }
 /*
  * this.scan = this.BleAdapter
-                        .ScanWhenAdapterReady()
-                        //.Where(x => x.AdvertisementData.ServiceUuids.Any(y => y.Equals(ScratchServiceUuid)))
-                        .Where(x => x.Device?.Name?.StartsWith("bean", StringComparison.CurrentCultureIgnoreCase) ?? false)
-                        .Take(1)
-                        .Select(x =>
-                        {
-                            this.device = x.Device;
-                            x.Device.Connect().Subscribe();
-                            return x.Device.GetKnownService(ScratchServiceUuid);
-                        })
-                        .Where(x => x != null)
-                        .Switch()
-                        .Select(x => x.WhenCharacteristicDiscovered())
-                        .Switch()
-                        .Subscribe(ch =>
-                        {
-                            this.WriteMsg("Subscribing to characteristic", ch.Uuid.ToString());
-                            ch.RegisterAndNotify().Subscribe(x => this.WriteMsg(
-                                x.Characteristic.Uuid.ToString(),
-                                UTF8Encoding.UTF8.GetString(x.Data, 0, x.Data.Length)
-                            ));
-                        });
+    .ScanWhenAdapterReady()
+    //.Where(x => x.AdvertisementData.ServiceUuids.Any(y => y.Equals(ScratchServiceUuid)))
+    .Where(x => x.Device?.Name?.StartsWith("bean", StringComparison.CurrentCultureIgnoreCase) ?? false)
+    .Take(1)
+    .Select(x =>
+    {
+        this.device = x.Device;
+        x.Device.Connect().Subscribe();
+        return x.Device.GetKnownService(ScratchServiceUuid);
+    })
+    .Where(x => x != null)
+    .Switch()
+    .Select(x => x.WhenCharacteristicDiscovered())
+    .Switch()
+    .Subscribe(ch =>
+    {
+        this.WriteMsg("Subscribing to characteristic", ch.Uuid.ToString());
+        ch.RegisterAndNotify().Subscribe(x => this.WriteMsg(
+            x.Characteristic.Uuid.ToString(),
+            UTF8Encoding.UTF8.GetString(x.Data, 0, x.Data.Length)
+        ));
+    });
  */

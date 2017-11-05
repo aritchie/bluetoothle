@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## 5.1.1
+* [fix][android] more connection fixes to alleviate GATT 133
+* [fix][android] advertisement service UUIDs not parsing properly
+
 ## 5.1
 * [fix][android] rewritten connect/disconnect logic
 * [fix][android][ios] rewritten reconnection logic

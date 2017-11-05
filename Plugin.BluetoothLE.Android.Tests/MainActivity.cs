@@ -5,7 +5,6 @@ using Android;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using Plugin.BluetoothLE.Tests;
 using Xunit.Runners.UI;
 
 
