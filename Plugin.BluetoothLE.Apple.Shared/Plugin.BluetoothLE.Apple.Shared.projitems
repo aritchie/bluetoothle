@@ -12,7 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Adapter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AdvertisementData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BleAdapterConfiguration.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)BleContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AdapterContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Device.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GattCharacteristic.cs" />

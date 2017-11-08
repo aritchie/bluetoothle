@@ -12,12 +12,12 @@ namespace Plugin.BluetoothLE
 {
     public class Device : AbstractDevice
     {
-        readonly BleContext context;
+        readonly AdapterContext context;
         readonly CBPeripheral peripheral;
         IDisposable autoReconnect;
 
 
-        public Device(BleContext context, CBPeripheral peripheral) : base(peripheral.Name, peripheral.Identifier.ToGuid())
+        public Device(AdapterContext context, CBPeripheral peripheral) : base(peripheral.Name, peripheral.Identifier.ToGuid())
         {
             this.context = context;
             this.peripheral = peripheral;

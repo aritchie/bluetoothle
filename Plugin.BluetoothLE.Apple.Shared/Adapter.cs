@@ -16,13 +16,13 @@ namespace Plugin.BluetoothLE
 {
     public class Adapter : AbstractAdapter
     {
-        readonly BleContext context;
+        readonly AdapterContext context;
         readonly Subject<bool> scanStatusChanged;
 
 
         public Adapter(BleAdapterConfiguration config = null)
         {
-            this.context = new BleContext(config);
+            this.context = new AdapterContext(config);
             this.scanStatusChanged = new Subject<bool>();
         }
 

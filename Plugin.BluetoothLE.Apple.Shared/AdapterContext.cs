@@ -11,12 +11,12 @@ using Foundation;
 
 namespace Plugin.BluetoothLE
 {
-    public class BleContext : CBCentralManagerDelegate
+    public class AdapterContext : CBCentralManagerDelegate
     {
         readonly ConcurrentDictionary<string, IDevice> peripherals = new ConcurrentDictionary<string, IDevice>();
 
 
-        public BleContext(BleAdapterConfiguration config)
+        public AdapterContext(BleAdapterConfiguration config)
         {
             this.Manager = config == null
                 ? new CBCentralManager(this, DispatchQueue.CurrentQueue)
