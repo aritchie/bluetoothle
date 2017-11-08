@@ -95,6 +95,7 @@
     <SDKReference Include="TestPlatform.Universal, Version=$(UnitTestPlatformVersion)" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PlatformTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -142,13 +143,16 @@
       <Name>Plugin.BluetoothLE.Abstractions</Name>
     </ProjectReference>
     <ProjectReference Include="..\Plugin.BluetoothLE.Tests\Plugin.BluetoothLE.Tests.csproj">
-      <Project>{9c37cbdc-27b0-464c-8d61-fa59b4a01f31}</Project>
+      <Project>{7dcadb09-c341-469c-bb5a-aab7f4b2e4f1}</Project>
       <Name>Plugin.BluetoothLE.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\Plugin.BluetoothLE.Uwp\Plugin.BluetoothLE.Uwp.csproj">
       <Project>{74399318-b10f-47dc-9500-1f5b9e337dbc}</Project>
       <Name>Plugin.BluetoothLE.Uwp</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
