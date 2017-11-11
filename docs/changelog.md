@@ -1,6 +1,6 @@
 # CHANGE LOG
 
-## 5.1.1
+## 5.2
 * [fix][android] more connection fixes to alleviate GATT 133
 * [fix][android] advertisement service UUIDs not parsing properly
 
