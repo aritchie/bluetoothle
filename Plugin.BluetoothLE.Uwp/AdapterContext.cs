@@ -45,13 +45,27 @@ namespace Plugin.BluetoothLE
         public IList<IDevice> GetDiscoveredDevices() => this.devices.Values.ToList();
 
 
-       public IObservable<BluetoothLEAdvertisementReceivedEventArgs> CreateAdvertisementWatcher()
+       public IObservable<BluetoothLEAdvertisementReceivedEventArgs> CreateAdvertisementWatcher(ScanConfig config)
             => Observable.Create<BluetoothLEAdvertisementReceivedEventArgs>(ob =>
             {
-                var adWatcher = new BluetoothLEAdvertisementWatcher
+                config = config ?? new ScanConfig { ScanType = BleScanType.Balanced };
+                var adWatcher = new BluetoothLEAdvertisementWatcher();
+                if (config.ServiceUuids != null)
+                    foreach (var serviceUuid in config.ServiceUuids)
+                        adWatcher.AdvertisementFilter.Advertisement.ServiceUuids.Add(serviceUuid);
+
+                switch (config.ScanType)
                 {
-                    ScanningMode = BluetoothLEScanningMode.Active
-                };
+                    case BleScanType.Balanced:
+                        adWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+                        break;
+
+                    case BleScanType.Background:
+                    case BleScanType.LowLatency:
+                    case BleScanType.LowPowered:
+                        adWatcher.ScanningMode = BluetoothLEScanningMode.Passive;
+                        break;
+                }
                 var handler = new TypedEventHandler<BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>
                     ((sender, args) => ob.OnNext(args)
                 );

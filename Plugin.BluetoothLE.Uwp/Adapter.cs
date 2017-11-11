@@ -153,7 +153,7 @@ namespace Plugin.BluetoothLE
                         this.context.Clear();
 
                         adWatcher = this.context
-                            .CreateAdvertisementWatcher()
+                            .CreateAdvertisementWatcher(null)
                             .Subscribe(async args => // CAREFUL
                             {
                                 var device = this.context.GetDevice(args.BluetoothAddress);

@@ -99,7 +99,7 @@ namespace Plugin.BluetoothLE
 
         public override IObservable<int> WhenRssiUpdated(TimeSpan? frequency)
             => this.adapterContext
-                .CreateAdvertisementWatcher()
+                .CreateAdvertisementWatcher(null)
                 .Where(x => x.BluetoothAddress == this.context.NativeDevice.BluetoothAddress)
                 .Select(x => (int)x.RawSignalStrengthInDBm);
 
