@@ -68,38 +68,9 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        public IObservable<T> LockObservable<T>(Func<IObserver<T>, Task<IDisposable>> action) => Observable.Create<T>(async ob =>
-        {
-            var gate = false;
-            var cts = new CancellationTokenSource();
-
-            this.atGate++;
-            Log.Debug("Device", "At gate - " + this.atGate);
-
-            await this.semaphore.WaitAsync(cts.Token);
-            this.atGate--;
-            Log.Debug("Device", "Past gate - " + this.atGate);
-
-            gate = true;
-            var disp = await action(ob);
-
-            return () =>
-            {
-                disp?.Dispose();
-                cts.Cancel();
-                if (gate)
-                {
-                    Log.Debug("Device", "Released gate");
-                    this.semaphore.Release();
-                }
-            };
-        });
-
-
         public IObservable<object> Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.Marshall(() =>
         {
-            this.semaphore?.Dispose();
-            this.semaphore = new SemaphoreSlim(1, 1);
+            this.SetupSlim();
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.N || !androidAutoReconnect)
             {
@@ -119,7 +90,6 @@ namespace Plugin.BluetoothLE.Internals
         {
             try
             {
-                this.semaphore?.Dispose();
                 this.Gatt?.Close();
                 this.Gatt = null;
             }
@@ -128,6 +98,45 @@ namespace Plugin.BluetoothLE.Internals
                 Log.Warn("Device", "Unclean disconnect - " + ex);
             }
         }
+
+
+        //readonly object syncLock = new object();
+        //public IObservable<T> LockObservable<T>(Func<IObserver<T>, Task<IDisposable>> action)
+        //    => Observable
+        //        .Synchronize(this.syncLock)
+        //        .Select(_ => Observable.FromAsync(async x =>
+        //        {
+
+        //        }))
+        public IObservable<T> LockObservable<T>(Func<IObserver<T>, Task<IDisposable>> action) => Observable.Create<T>(async ob =>
+        {
+            var gate = false;
+            var cts = new CancellationTokenSource();
+            cts.Token.ThrowIfCancellationRequested();
+
+            this.atGate++;
+            Log.Debug("Device", "At gate - " + this.atGate);
+
+            await this.semaphore.WaitAsync(cts.Token);
+            this.atGate--;
+            gate = true;
+
+            Log.Debug("Device", "Past gate - " + this.atGate);
+            var disp = await action(ob);
+
+            return () =>
+            {
+                disp?.Dispose();
+                cts.Cancel();
+
+                if (gate)
+                {
+                    Log.Debug("Device", "Released gate");
+                    if (this.semaphore.CurrentCount > 0)
+                        this.semaphore.Release();
+                }
+            };
+        });
 
 
         BluetoothGatt CreateGatt(bool autoConnect)

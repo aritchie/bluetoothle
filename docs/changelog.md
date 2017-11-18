@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 5.2.1
+* [fix][android] fix race conditions around semaphore cleanup
+
 ## 5.2
 * [fix][android] more connection fixes to alleviate GATT 133
 * [fix][android] advertisement service UUIDs not parsing properly
