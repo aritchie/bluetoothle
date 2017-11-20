@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -100,41 +101,56 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        //readonly object syncLock = new object();
-        //public IObservable<T> LockObservable<T>(Func<IObserver<T>, Task<IDisposable>> action)
-        //    => Observable
-        //        .Synchronize(this.syncLock)
-        //        .Select(_ => Observable.FromAsync(async x =>
-        //        {
+        //public IObservable<T> LockAsyncObservable<T>(Func<CancellationToken, Task<T>> task) => Observable.FromAsync<T>(async ct =>
+        //{
+        //    await this.semaphore.WaitAsync(ct);
+        //    try
+        //    {
+        //        var result = await task(ct).ConfigureAwait(false);
+        //        return result;
+        //    }
+        //    finally
+        //    {
+        //        if (this.semaphore.CurrentCount > 0)
+        //            this.semaphore.Release();
+        //    }
+        //});
 
-        //        }))
+
+
         public IObservable<T> LockObservable<T>(Func<IObserver<T>, Task<IDisposable>> action) => Observable.Create<T>(async ob =>
         {
-            var gate = false;
+            IDisposable disp = null;
             var cts = new CancellationTokenSource();
             cts.Token.ThrowIfCancellationRequested();
 
-            this.atGate++;
-            Log.Debug("Device", "At gate - " + this.atGate);
+            try
+            {
+                Log.Debug("Device", "Waiting at gate");
+                //await this.semaphore.WaitAsync(cts.Token);
 
-            await this.semaphore.WaitAsync(cts.Token);
-            this.atGate--;
-            gate = true;
-
-            Log.Debug("Device", "Past gate - " + this.atGate);
-            var disp = await action(ob);
+                Log.Debug("Device", "Past gate - calling action");
+                disp = await action(ob).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (!cts.IsCancellationRequested)
+                {
+                    // this means it made it past gate and that we should releases
+                    // however, what if we made it past gate, but were stuck at the action and cancel was called?
+                    Log.Debug("Device", "Released gate");
+                    //this.semaphore.Release();
+                }
+                else
+                {
+                    Log.Write("Device", "No gate release was necessary");
+                }
+            }
 
             return () =>
             {
                 disp?.Dispose();
                 cts.Cancel();
-
-                if (gate)
-                {
-                    Log.Debug("Device", "Released gate");
-                    if (this.semaphore.CurrentCount > 0)
-                        this.semaphore.Release();
-                }
             };
         });
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Threading;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
 using FluentAssertions;
@@ -41,6 +42,7 @@ namespace Plugin.BluetoothLE.Tests
         public Tests(ITestOutputHelper output)
         {
             this.output = output;
+            Log.Out = (category, msg, lvl) => output.WriteLine($"[{category}] {msg}");
             CrossBleAdapter.Current.Status.Should().Be(AdapterStatus.PoweredOn, "Adapter is not ON");
         }
 
@@ -109,16 +111,32 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task Characteristics_Concurrency_Writes()
+        public async Task Characteristics_Write()
         {
             var cs = await this.GetCharacteristics();
-            await Task.WhenAll(
-                cs.ElementAt(0).Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromMilliseconds(5000)).ToTask(),
-                cs.ElementAt(1).Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromMilliseconds(5000)).ToTask(),
-                cs.ElementAt(2).Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromMilliseconds(5000)).ToTask(),
-                cs.ElementAt(3).Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromMilliseconds(5000)).ToTask(),
-                cs.ElementAt(4).Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromMilliseconds(5000)).ToTask()
-            );
+            await cs.First().Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(3));
+            await cs.Last().Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(3));
+        }
+
+
+        [Fact]
+        public async Task Characteristics_Concurrency_Writes()
+        {
+            var bytes = new byte[] { 0x01 };
+            var cs = await this.GetCharacteristics();
+            var results = await Observable
+                .Merge(
+                    cs.ElementAt(0).Write(bytes),
+                    cs.ElementAt(1).Write(bytes),
+                    cs.ElementAt(2).Write(bytes),
+                    cs.ElementAt(3).Write(bytes),
+                    cs.ElementAt(4).Write(bytes)
+                )
+                .Take(5)
+                .Timeout(TimeSpan.FromSeconds(5))
+                .ToList();
+
+            results.Count.Should().Be(5);
         }
 
 
@@ -126,15 +144,19 @@ namespace Plugin.BluetoothLE.Tests
         public async Task Characteristics_Concurrency_Reads()
         {
             var cs = await this.GetCharacteristics();
+            var results = await Observable
+                .Merge(
+                    cs.ElementAt(0).Read(),
+                    cs.ElementAt(1).Read(),
+                    cs.ElementAt(2).Read(),
+                    cs.ElementAt(3).Read(),
+                    cs.ElementAt(4).Read()
+                )
+                .Take(5)
+                .Timeout(TimeSpan.FromSeconds(5))
+                .ToList();
 
-            var t1 = cs.ElementAt(0).Read().Timeout(TimeSpan.FromMilliseconds(5000)).Select(x => x.Data).ToTask();
-            var t2 = cs.ElementAt(1).Read().Timeout(TimeSpan.FromMilliseconds(5000)).Select(x => x.Data).ToTask();
-            var t3 = cs.ElementAt(2).Read().Timeout(TimeSpan.FromMilliseconds(5000)).Select(x => x.Data).ToTask();
-            var t4 = cs.ElementAt(3).Read().Timeout(TimeSpan.FromMilliseconds(5000)).Select(x => x.Data).ToTask();
-            var t5 = cs.ElementAt(4).Read().Timeout(TimeSpan.FromMilliseconds(5000)).Select(x => x.Data).ToTask();
-
-            await Task.WhenAll(t1, t2, t3, t4, t5);
-
+            results.Count.Should().Be(5);
         }
 
 

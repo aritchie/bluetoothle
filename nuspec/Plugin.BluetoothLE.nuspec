@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Plugin.BluetoothLE</id>
-        <version>5.2.1</version>
+        <version>5.2.2</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin and UWP</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
@@ -35,10 +35,10 @@ Supported Platforms
     </metadata>
     <files>
         <!-- netstandard -->
-        <file src="..\Plugin.BluetoothLE\bin\Release\netstandard1.0\Plugin.BluetoothLE.*" target="lib\netstandard1.0" />
+        <file src="..\Plugin.BluetoothLE\bin\Release\netstandard2.0\Plugin.BluetoothLE.*" target="lib\netstandard2.0" />
 
         <!-- android -->
-        <file src="..\Plugin.BluetoothLE.Android\bin\Release\Plugin.BluetoothLE.*" target="lib\MonoAndroid10" />
+        <file src="..\Plugin.BluetoothLE.Android\bin\Release\Plugin.BluetoothLE.*" target="lib\MonoAndroid80" />
 
         <!-- ios -->
         <file src="..\Plugin.BluetoothLE.iOS\bin\Release\Plugin.BluetoothLE.*" target="lib\Xamarin.iOS10" />

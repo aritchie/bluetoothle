@@ -1,6 +1,8 @@
 # CHANGE LOG
 
-## 5.2.1
+## 5.2.2
+* [feature] push .NET standard 2.0
+* [feature] push to android 8 (forced nuget compile target - Android 4.3+ is still supported)
 * [fix][android] fix race conditions around semaphore cleanup
 
 ## 5.2
