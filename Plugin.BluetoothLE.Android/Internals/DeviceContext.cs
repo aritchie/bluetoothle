@@ -101,21 +101,24 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        //public IObservable<T> LockAsyncObservable<T>(Func<CancellationToken, Task<T>> task) => Observable.FromAsync<T>(async ct =>
-        //{
-        //    await this.semaphore.WaitAsync(ct);
-        //    try
-        //    {
-        //        var result = await task(ct).ConfigureAwait(false);
-        //        return result;
-        //    }
-        //    finally
-        //    {
-        //        if (this.semaphore.CurrentCount > 0)
-        //            this.semaphore.Release();
-        //    }
-        //});
-
+        readonly object syncLock = new object();
+        public IObservable<T> SyncRun<T>(IObservable<T> inner) => Observable.Create<T>(ob =>
+        {
+            Monitor.Enter(this.syncLock);
+            return inner.Subscribe(
+                ob.OnNext,
+                ex =>
+                {
+                    Monitor.Exit(this.syncLock);
+                    ob.OnError(ex);
+                },
+                () =>
+                {
+                    Monitor.Exit(this.syncLock);
+                    ob.OnCompleted();
+                }
+            );
+        });
 
 
         public IObservable<T> LockObservable<T>(Func<IObserver<T>, Task<IDisposable>> action) => Observable.Create<T>(async ob =>
