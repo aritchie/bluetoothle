@@ -105,19 +105,13 @@ namespace Plugin.BluetoothLE.Internals
         public IObservable<T> SyncRun<T>(IObservable<T> inner) => Observable.Create<T>(ob =>
         {
             Monitor.Enter(this.syncLock);
-            return inner.Subscribe(
-                ob.OnNext,
-                ex =>
-                {
-                    Monitor.Exit(this.syncLock);
-                    ob.OnError(ex);
-                },
-                () =>
-                {
-                    Monitor.Exit(this.syncLock);
-                    ob.OnCompleted();
-                }
-            );
+            return inner
+                .Finally(() => Monitor.Exit(this.syncLock))
+                .Subscribe(
+                    ob.OnNext,
+                    ob.OnError,
+                    ob.OnCompleted
+                );
         });
 
 
