@@ -2,7 +2,7 @@
 Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
-[Change Log - Sept 8, 2017](docs/changelog.md)
+[Change Log - Nov 23, 2017](docs/changelog.md)
 
 
 ## PLATFORMS
@@ -11,8 +11,6 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
 * iOS 7+
 * macOS
 * tvOS
-* Linux (BlueZ)
-* Tizen
 * Windows UWP
   * Client in beta
   * Server WIP
@@ -46,6 +44,10 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
       * Notify & Broadcast
       * Manage Subscribers
       * Status Replies
+* Android Issues
+  * We manage the GATT 133 (mostly, hopefully)
+  * Don't like the serial way you have to work with BLE, don't worry, we cover that too.  Read/Write away!
+
 
 ## SETUP
 
