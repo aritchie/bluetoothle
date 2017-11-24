@@ -27,22 +27,37 @@ namespace Plugin.BluetoothLE.Internals
 
 
         readonly AutoResetEvent reset = new AutoResetEvent(true);
+
         public IObservable<T> Lock<T>(IObservable<T> inner) => Observable.Create<T>(ob =>
         {
+            IDisposable sub = null;
+            var cancel = false;
             Log.Debug("Device", "Lock - at the gate");
-            this.reset.WaitOne();
-            Log.Debug("Device", "Lock - past the gate");
 
-            return inner.Subscribe(
-                ob.OnNext,
-                ob.OnError,
-                ob.OnCompleted
-            );
-        })
-        .Finally(() =>
-        {
-            Log.Debug("Device", "Releasing sync lock");
-            this.reset.Set();
+            this.reset.WaitOne();
+            if (cancel)
+            {
+                Log.Debug("Device", "Lock - past the gate, but was cancelled");
+            }
+            else
+            {
+                Log.Debug("Device", "Lock - past the gate");
+
+                sub = inner.Subscribe(
+                    ob.OnNext,
+                    ob.OnError,
+                    ob.OnCompleted
+                );
+            }
+
+            return () =>
+            {
+                cancel = true;
+                sub?.Dispose();
+
+                Log.Debug("Device", "Releasing sync lock");
+                this.reset.Set();
+            };
         });
 
 
