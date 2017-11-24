@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
-using System.Threading;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
 using FluentAssertions;
@@ -133,7 +132,7 @@ namespace Plugin.BluetoothLE.Tests
                     cs.ElementAt(4).Write(bytes)
                 )
                 .Take(5)
-                .Timeout(TimeSpan.FromSeconds(5))
+                //.Timeout(TimeSpan.FromSeconds(5))
                 .ToList();
 
             results.Count.Should().Be(5);
@@ -153,12 +152,31 @@ namespace Plugin.BluetoothLE.Tests
                     cs.ElementAt(4).Read()
                 )
                 .Take(5)
-                .Timeout(TimeSpan.FromSeconds(5))
+                //.Timeout(TimeSpan.FromSeconds(5))
                 .ToList();
 
             results.Count.Should().Be(5);
         }
 
+
+        [Fact]
+        public async Task Characteristics_Cancel_ReleaseLock()
+        {
+            var bytes = Enumerable.Repeat<byte>(0x01, 20).ToArray();
+            var cs = await this.GetCharacteristics();
+            try
+            {
+                await cs.ElementAt(0).Write(bytes).Timeout(TimeSpan.FromSeconds(0));
+                throw new ArgumentException("This should not have been hit");
+            }
+            catch (ArgumentException)
+            {
+                throw;
+            }
+            catch { }
+
+            await cs.ElementAt(0).Write(bytes).Timeout(TimeSpan.FromSeconds(3));
+        }
 
         //[Fact]
         //public async Task Device_GetKnownServices()
