@@ -93,6 +93,7 @@ namespace Plugin.BluetoothLE
             ch.Properties.HasFlag(CharacteristicProperties.Indicate) ||
             ch.Properties.HasFlag(CharacteristicProperties.IndicateEncryptionRequired);
 
+
         public static void AssertWrite(this IGattCharacteristic characteristic, bool withResponse)
         {
             if (!characteristic.CanWrite())
