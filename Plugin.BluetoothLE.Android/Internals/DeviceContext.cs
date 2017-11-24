@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Android.App;
+using Android.Bluetooth;
+using Android.OS;
+using Java.Lang;
+using System;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using Android.App;
-using Android.Bluetooth;
-using Android.OS;
-using Java.Lang;
 using Exception = System.Exception;
 
 
@@ -16,21 +14,36 @@ namespace Plugin.BluetoothLE.Internals
 {
     public class DeviceContext
     {
-        SemaphoreSlim semaphore;
-        int atGate;
-
-
         public DeviceContext(BluetoothDevice device, GattCallbacks callbacks)
         {
             this.NativeDevice = device;
             this.Callbacks = callbacks;
-            this.SetupSlim();
         }
 
 
         public BluetoothGatt Gatt { get; private set; }
         public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
+
+
+        readonly AutoResetEvent reset = new AutoResetEvent(true);
+        public IObservable<T> Lock<T>(IObservable<T> inner) => Observable.Create<T>(ob =>
+        {
+            Log.Debug("Device", "Lock - at the gate");
+            this.reset.WaitOne();
+            Log.Debug("Device", "Lock - past the gate");
+
+            return inner.Subscribe(
+                ob.OnNext,
+                ob.OnError,
+                ob.OnCompleted
+            );
+        })
+        .Finally(() =>
+        {
+            Log.Debug("Device", "Releasing sync lock");
+            this.reset.Set();
+        });
 
 
         public IObservable<object> Marshall(Action action) => Observable.Create<object>(ob =>
@@ -64,15 +77,12 @@ namespace Plugin.BluetoothLE.Internals
             if (this.Gatt == null)
                 throw new ArgumentException("Device is not in a reconnectable state");
 
-            this.SetupSlim();
             return this.Marshall(() => this.Gatt.Connect());
         }
 
 
         public IObservable<object> Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.Marshall(() =>
         {
-            this.SetupSlim();
-
             if (Build.VERSION.SdkInt >= BuildVersionCodes.N || !androidAutoReconnect)
             {
                 this.Gatt = this.ConnectGattCompat(androidAutoReconnect);
@@ -99,57 +109,6 @@ namespace Plugin.BluetoothLE.Internals
                 Log.Warn("Device", "Unclean disconnect - " + ex);
             }
         }
-
-
-        readonly object syncLock = new object();
-        public IObservable<T> SyncRun<T>(IObservable<T> inner) => Observable.Create<T>(ob =>
-        {
-            Monitor.Enter(this.syncLock);
-            return inner
-                .Finally(() => Monitor.Exit(this.syncLock))
-                .Subscribe(
-                    ob.OnNext,
-                    ob.OnError,
-                    ob.OnCompleted
-                );
-        });
-
-
-        public IObservable<T> LockObservable<T>(Func<IObserver<T>, Task<IDisposable>> action) => Observable.Create<T>(async ob =>
-        {
-            IDisposable disp = null;
-            var cts = new CancellationTokenSource();
-            cts.Token.ThrowIfCancellationRequested();
-
-            try
-            {
-                Log.Debug("Device", "Waiting at gate");
-                //await this.semaphore.WaitAsync(cts.Token);
-
-                Log.Debug("Device", "Past gate - calling action");
-                disp = await action(ob).ConfigureAwait(false);
-            }
-            finally
-            {
-                if (!cts.IsCancellationRequested)
-                {
-                    // this means it made it past gate and that we should releases
-                    // however, what if we made it past gate, but were stuck at the action and cancel was called?
-                    Log.Debug("Device", "Released gate");
-                    //this.semaphore.Release();
-                }
-                else
-                {
-                    Log.Write("Device", "No gate release was necessary");
-                }
-            }
-
-            return () =>
-            {
-                disp?.Dispose();
-                cts.Cancel();
-            };
-        });
 
 
         BluetoothGatt CreateGatt(bool autoConnect)
@@ -251,14 +210,6 @@ namespace Plugin.BluetoothLE.Internals
         BluetoothGatt ConnectGattCompat(bool autoConnect) => Build.VERSION.SdkInt >= BuildVersionCodes.M
             ? this.NativeDevice.ConnectGatt(Application.Context, autoConnect, this.Callbacks, BluetoothTransports.Le)
             : this.NativeDevice.ConnectGatt(Application.Context, autoConnect, this.Callbacks);
-
-
-        void SetupSlim()
-        {
-            this.atGate = 0;
-            this.semaphore?.Dispose();
-            this.semaphore = new SemaphoreSlim(1, 1);
-        }
 
 
         GattConnectionPriority ToNative(ConnectionPriority priority)

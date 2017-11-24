@@ -35,7 +35,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<CharacteristicResult> Write(byte[] value) => this.context.LockObservable<CharacteristicResult>(async ob =>
+        public override IObservable<CharacteristicResult> Write(byte[] value) => this.context.Lock(Observable.Create<CharacteristicResult>(async ob =>
         {
             this.AssertWrite(false);
 
@@ -72,10 +72,10 @@ namespace Plugin.BluetoothLE
                 await this.RawWriteNoResponse(ob, value);
             }
             return sub;
-        });
+        }));
 
 
-        public override IObservable<CharacteristicResult> Read() => this.context.LockObservable<CharacteristicResult>(async ob =>
+        public override IObservable<CharacteristicResult> Read() => this.context.Lock(Observable.Create<CharacteristicResult>(async ob =>
         {
             this.AssertRead();
 
@@ -112,9 +112,10 @@ namespace Plugin.BluetoothLE
             });
 
             return sub;
-        });
+        }));
 
 
+        // this should not be placed in a lock - let it fall to the descriptor
         public override IObservable<bool> EnableNotifications(bool useIndicationsIfAvailable) => Observable.FromAsync(async ct =>
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
@@ -138,6 +139,7 @@ namespace Plugin.BluetoothLE
         });
 
 
+        // this should not be placed in a lock - let it fall to the descriptor
         public override IObservable<object> DisableNotifications() => Observable.FromAsync<object>(async ct =>
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);

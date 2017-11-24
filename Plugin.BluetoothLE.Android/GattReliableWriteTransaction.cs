@@ -1,5 +1,6 @@
 using System;
 using Plugin.BluetoothLE.Internals;
+using System.Reactive.Linq;
 
 
 namespace Plugin.BluetoothLE
@@ -24,7 +25,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<object> Commit() => this.context.LockObservable<object>(async ob =>
+        public override IObservable<object> Commit() => this.context.Lock(Observable.Create<object>(ob =>
         {
             this.AssertAction();
 
@@ -48,7 +49,7 @@ namespace Plugin.BluetoothLE
             this.Status = TransactionStatus.Committing;
 
             return sub;
-        });
+        }));
 
 
         public override void Abort()

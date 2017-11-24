@@ -21,7 +21,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<DescriptorResult> Write(byte[] data) => this.context.LockObservable<DescriptorResult>(async ob =>
+        public override IObservable<DescriptorResult> Write(byte[] data) => this.context.Lock(Observable.Create<DescriptorResult>(async ob =>
         {
             var sub = this.context
                 .Callbacks
@@ -50,10 +50,10 @@ namespace Plugin.BluetoothLE
             });
 
             return sub;
-        });
+        }));
 
 
-        public override IObservable<DescriptorResult> Read() => this.context.LockObservable<DescriptorResult>(async ob =>
+        public override IObservable<DescriptorResult> Read() => this.context.Lock(Observable.Create<DescriptorResult>(async ob =>
         {
             var sub = this.context
                 .Callbacks
@@ -78,7 +78,7 @@ namespace Plugin.BluetoothLE
             await this.context.Marshall(() => this.context.Gatt.ReadDescriptor(this.native));
 
             return sub;
-        });
+        }));
 
 
         public override bool Equals(object obj)
