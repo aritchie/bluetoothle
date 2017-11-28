@@ -36,11 +36,14 @@ namespace Samples.Droid
 
             this.LoadApplication(new App(container));
 
-            this.RequestPermissions(new []
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
             {
-                Manifest.Permission.AccessCoarseLocation,
-                Manifest.Permission.BluetoothPrivileged
-            }, 0);
+                this.RequestPermissions(new []
+                {
+                    Manifest.Permission.AccessCoarseLocation,
+                    Manifest.Permission.BluetoothPrivileged
+                }, 0);
+            }
         }
 
 
