@@ -31,16 +31,19 @@ namespace Plugin.BluetoothLE.Internals
         public IObservable<T> Lock<T>(IObservable<T> inner) => Observable.Create<T>(ob =>
         {
             IDisposable sub = null;
+            var pastGate = false;
             var cancel = false;
             Log.Debug("Device", "Lock - at the gate");
 
             this.reset.WaitOne();
+
             if (cancel)
             {
                 Log.Debug("Device", "Lock - past the gate, but was cancelled");
             }
             else
             {
+                pastGate = true;
                 Log.Debug("Device", "Lock - past the gate");
 
                 sub = inner.Subscribe(
@@ -56,7 +59,8 @@ namespace Plugin.BluetoothLE.Internals
                 sub?.Dispose();
 
                 Log.Debug("Device", "Releasing sync lock");
-                this.reset.Set();
+                if (pastGate)
+                    this.reset.Set();
             };
         });
 
