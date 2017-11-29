@@ -47,7 +47,7 @@ namespace Plugin.BluetoothLE.Internals
         {
             if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
             {
-                this.manager.Adapter.BluetoothLeScanner.StopScan(this.newCallback);
+                this.manager.Adapter.BluetoothLeScanner?.StopScan(this.newCallback);
             }
             else
             {
