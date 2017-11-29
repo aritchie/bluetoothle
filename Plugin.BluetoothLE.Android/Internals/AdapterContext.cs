@@ -38,7 +38,7 @@ namespace Plugin.BluetoothLE.Internals
             }
             else
             {
-                this.StartPreLollipopScan();
+                this.StartPreLollipopScan(config.ServiceUuids);
             }
         }
 
@@ -108,10 +108,11 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        // TODO: scanfilter?
-        protected virtual void StartPreLollipopScan()
+        protected virtual void StartPreLollipopScan(List<Guid> serviceUuids)
         {
-            this.oldCallback = new PreLollipopScanCallback(args => this.Scanned?.Invoke(this, args));
+            this.oldCallback = new PreLollipopScanCallback(args => this.Scanned?.Invoke(this, args)){
+                ServiceUuids = serviceUuids
+            };
             this.manager.Adapter.StartLeScan(this.oldCallback);
         }
     }
