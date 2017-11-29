@@ -97,7 +97,6 @@
     <None Include="app.config" />
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
-    <Compile Include="PlatformModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <ITunesArtwork Include="iTunesArtwork" />
     <None Include="packages.config" />

@@ -124,7 +124,6 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="PlatformModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj">

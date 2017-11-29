@@ -14,21 +14,24 @@ namespace Samples
 {
     public class App : Application
     {
-        public static IContainer Container { get; private set; }
+        //public static IContainer Container { get; private set; }
+        readonly IContainer container;
 
 
-        public App(IContainer container)
+        public App()
         {
-            Container = container;
+            var builder = new ContainerBuilder();
+            builder.RegisterModule(new CoreModule());
+            this.container = builder.Build();
 
             this.MainPage = CrossBleAdapter.AdapterScanner.IsSupported
                 ? new NavigationPage(new AdapterListPage
                 {
-                    BindingContext = container.Resolve<AdapterListViewModel>()
+                    BindingContext = this.container.Resolve<AdapterListViewModel>()
                 })
                 : new NavigationPage(new MainPage
                 {
-                    BindingContext = container.Resolve<MainViewModel>()
+                    BindingContext = this.container.Resolve<MainViewModel>()
                 });
         }
 
@@ -36,7 +39,7 @@ namespace Samples
         protected override void OnResume()
         {
             base.OnResume();
-            var apps = Container.Resolve<IEnumerable<IAppLifecycle>>();
+            var apps = this.container.Resolve<IEnumerable<IAppLifecycle>>();
             foreach (var app in apps)
                 app.OnForeground();
         }
@@ -45,7 +48,7 @@ namespace Samples
         protected override void OnSleep()
         {
             base.OnSleep();
-            var apps = Container.Resolve<IEnumerable<IAppLifecycle>>();
+            var apps = this.container.Resolve<IEnumerable<IAppLifecycle>>();
             foreach (var app in apps)
                 app.OnBackground();
         }

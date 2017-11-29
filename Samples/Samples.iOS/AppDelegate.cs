@@ -16,11 +16,7 @@ namespace Samples.iOS
         {
             Forms.Init();
             CrossBleAdapter.Init(BleAdapterConfiguration.DefaultBackgroudingConfig);
-
-            var builder = new ContainerBuilder();
-            builder.RegisterModule(new PlatformModule());
-            var container = builder.Build();
-            this.LoadApplication(new App(container));
+            this.LoadApplication(new App());
 
             //UIApplication.SharedApplication.IdleTimerDisabled = false;
             return base.FinishedLaunching(app, options);
