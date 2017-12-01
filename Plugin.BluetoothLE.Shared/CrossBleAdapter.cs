@@ -33,13 +33,16 @@ namespace Plugin.BluetoothLE
         /// DO NOT CHANGE this if you don't know what this is!
         /// </summary>
         public static TimeSpan AndroidPauseBeforeServiceDiscovery { get; set; } = TimeSpan.FromMilliseconds(750);
-        
+
 
         /// <summary>
         /// Specifies the wait time before attempting an auto-reconnect
         /// DO NOT CHANGE if you don't know what this is!
         /// </summary>
         public static TimeSpan AndroidPauseBetweenAutoReconnectAttempts { get; set; } = TimeSpan.FromSeconds(1);
+
+
+        public static bool AndroidUseNewScanner { get; set; } = B.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
 
 
         public static bool AndroidMainThreadSuggested =>

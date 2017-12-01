@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Foundation;
 using Windows.Devices.Radios;
 using Windows.System;
-using Windows.UI.Xaml.Media;
 using Plugin.BluetoothLE.Server;
 
 
 namespace Plugin.BluetoothLE
 {
-    //BluetoothAdapter.IsPeripheralRoleSupported
     public class Adapter : AbstractAdapter
     {
         readonly Subject<bool> scanStatusSubject = new Subject<bool>();
@@ -117,7 +112,7 @@ namespace Plugin.BluetoothLE
                 var sub = this
                     .WhenRadioReady()
                     .Where(rdo => rdo != null)
-                    .Select(_ => this.ScanListen())
+                    .Select(_ => this.DoScan(config))
                     .Switch()
                     .Subscribe(ob.OnNext);
 
@@ -136,48 +131,29 @@ namespace Plugin.BluetoothLE
         }
 
 
-        IObservable<IScanResult> scanListenOb;
-        public override IObservable<IScanResult> ScanListen()
+        protected virtual IObservable<IScanResult> DoScan(ScanConfig config) => Observable.Create<IScanResult>(ob =>
         {
-            IDisposable adWatcher = null;
+            this.context.Clear();
 
-            this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
-                this.WhenScanningStatusChanged().Subscribe(scan =>
+            return this.context
+                .CreateAdvertisementWatcher(config)
+                .Subscribe(async args => // CAREFUL
                 {
-                    if (!scan)
+                    var device = this.context.GetDevice(args.BluetoothAddress);
+                    if (device == null)
                     {
-                        adWatcher?.Dispose();
+                        var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
+                        if (btDevice != null)
+                            device = this.context.AddDevice(args.BluetoothAddress, btDevice);
                     }
-                    else
+                    if (device != null)
                     {
-                        this.context.Clear();
-
-                        adWatcher = this.context
-                            .CreateAdvertisementWatcher(null)
-                            .Subscribe(async args => // CAREFUL
-                            {
-                                var device = this.context.GetDevice(args.BluetoothAddress);
-                                if (device == null)
-                                {
-                                    var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
-                                    if (btDevice != null)
-                                        device = this.context.AddDevice(args.BluetoothAddress, btDevice);
-                                }
-                                if (device != null)
-                                {
-                                    var adData = new AdvertisementData(args);
-                                    var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
-                                    ob.OnNext(scanResult);
-                                }
-                            });
+                        var adData = new AdvertisementData(args);
+                        var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
+                        ob.OnNext(scanResult);
                     }
-                })
-            )
-            .Publish()
-            .RefCount();
-
-            return this.scanListenOb;
-        }
+                });
+        });
 
 
         IObservable<AdapterStatus> statusOb;
@@ -189,7 +165,6 @@ namespace Plugin.BluetoothLE
                 var handler = new TypedEventHandler<Radio, object>((sender, args) =>
                     ob.OnNext(this.Status)
                 );
-
                 var sub = this.WhenRadioReady().Subscribe(rdo =>
                 {
                     r = rdo;
@@ -203,13 +178,12 @@ namespace Plugin.BluetoothLE
                     if (r != null)
                         r.StateChanged -= handler;
                 };
-            });
-                ////.Publish()
-                ////.Replay(1)
-                ////.RefCount();
+            })
+            .Publish()
+            .Replay(1)
+            .RefCount();
 
             return this.statusOb;
-            //return Observable.Return(AdapterStatus.PoweredOn);
         }
 
 

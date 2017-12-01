@@ -129,7 +129,10 @@ namespace Plugin.BluetoothLE
             return Observable.Create<IScanResult>(ob =>
             {
                 this.context.Clear();
-                var scan = this.ScanListen().Subscribe(ob.OnNext);
+                var scan = this.context
+                    .ScanResultReceived
+                    .AsObservable()
+                    .Subscribe(ob.OnNext);
 
                 if (config.ServiceUuids == null || config.ServiceUuids.Count == 0)
                 {
@@ -156,14 +159,6 @@ namespace Plugin.BluetoothLE
                     this.ToggleScanStatus(false);
                 };
             });
-        }
-
-
-        IObservable<IScanResult> scanListenOb;
-        public override IObservable<IScanResult> ScanListen()
-        {
-            this.scanListenOb = this.scanListenOb ?? this.context.ScanResultReceived.AsObservable();
-            return this.scanListenOb;
         }
 
 

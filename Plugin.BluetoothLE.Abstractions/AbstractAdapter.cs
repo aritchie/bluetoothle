@@ -10,7 +10,6 @@ namespace Plugin.BluetoothLE
     {
         public abstract IObservable<bool> WhenScanningStatusChanged();
         public abstract IObservable<IScanResult> Scan(ScanConfig config = null);
-        public abstract IObservable<IScanResult> ScanListen();
         public abstract IObservable<AdapterStatus> WhenStatusChanged();
 
         public virtual string DeviceName { get; protected set; }

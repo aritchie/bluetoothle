@@ -59,16 +59,10 @@ namespace Plugin.BluetoothLE
 
         /// <summary>
         /// Start scanning for BluetoothLE devices
-        /// WARNING: only one scan can be active at a time.  Use ScanListen to listen in on existing scans.  Use IsScanning to check for active scanning
+        /// WARNING: only one scan can be active at a time.  Use IsScanning to check for active scanning
         /// </summary>
         /// <returns></returns>
         IObservable<IScanResult> Scan(ScanConfig config = null);
-
-        /// <summary>
-        /// Allows you to listen in on current scans in progress (usualful for background tasks like logging and decoupled components)
-        /// </summary>
-        /// <returns></returns>
-        IObservable<IScanResult> ScanListen();
 
         /// <summary>
         /// Monitor for status changes with adapter (on/off/permissions)

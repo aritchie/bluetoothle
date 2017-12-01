@@ -21,13 +21,7 @@ namespace Plugin.BluetoothLE
         public override IObservable<bool> WhenScanningStatusChanged() => this.scanSubject;
 
 
-        public override IObservable<IScanResult> Scan(ScanConfig config = null)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public override IObservable<IScanResult> ScanListen() => Observable.Create<IScanResult>(ob =>
+        public override IObservable<IScanResult> Scan(ScanConfig config = null) => Observable.Create<IScanResult>(ob =>
         {
             this.scanSubject.OnNext(true);
             this.deviceManager.Clear();

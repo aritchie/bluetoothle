@@ -6,7 +6,6 @@ namespace Plugin.BluetoothLE
 {
     public static partial class Extensions
     {
-        public static IObservable<IScanResult> ScanOrListen(this IAdapter adapter) => adapter.IsScanning ? adapter.ScanListen() : adapter.Scan();
         public static bool CanOpenSettings(this IAdapter adapter) => adapter.Features.HasFlag(AdapterFeatures.OpenSettings);
         public static bool CanViewPairedDevices(this IAdapter adapter) => adapter.Features.HasFlag(AdapterFeatures.ViewPairedDevices);
         public static bool CanControlAdapterState(this IAdapter adapter) => adapter.Features.HasFlag(AdapterFeatures.ControlAdapterState);
