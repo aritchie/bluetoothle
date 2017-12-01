@@ -73,22 +73,42 @@ namespace Plugin.BluetoothLE.Internals
         });
 
 
-
         protected virtual IObservable<ScanResult> PreLollipopScan(ScanConfig config) => Observable.Create<ScanResult>(ob =>
         {
-
             var cb = new PreLollipopScanCallback((native, rssi, sr) =>
             {
                 var ad = new AdvertisementData(sr);
-                // TODO: filter here
-                var scanResult = this.ToScanResult(native, rssi, ad);
-                ob.OnNext(scanResult);
+                if (this.IsFiltered(ad, config))
+                {
+                    var scanResult = this.ToScanResult(native, rssi, ad);
+                    ob.OnNext(scanResult);
+                }
             });
             this.manager.Adapter.StartLeScan(cb);
 
             return () => this.manager.Adapter.StopLeScan(cb);
         });
 
+
+        protected bool IsFiltered(AdvertisementData ad, ScanConfig config)
+        {
+            if (config.ServiceUuids == null ||
+                !config.ServiceUuids.Any() ||
+                ad.ServiceUuids == null ||
+                !ad.ServiceUuids.Any())
+                return true;
+
+            foreach (var adUuid in ad.ServiceUuids)
+            {
+                foreach (var uuid in config.ServiceUuids)
+                {
+                    if (uuid.Equals(adUuid))
+                        return true;
+                }
+            }
+
+            return false;
+        }
 
         protected ScanResult ToScanResult(BluetoothDevice native, int rssi, IAdvertisementData ad)
         {
