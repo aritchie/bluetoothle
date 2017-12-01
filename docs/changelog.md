@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+## 5.3
+
+* [feature][android] Advertisement service UUID filtering for Pre-Lollipop
+* [fix][android] Fix issue with stopping scan when bluetooth adapter becomes disabled
+* [fix][android] More improvements to race conditions
+* [BREAKING] Adapter.ScanListen has been removed
+
 ## 5.2.2
 * [feature] push .NET standard 2.0
 * [feature] push to android 8 (forced nuget compile target - Android 4.3+ is still supported)

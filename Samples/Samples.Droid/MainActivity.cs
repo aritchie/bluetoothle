@@ -30,12 +30,7 @@ namespace Samples.Droid
 
             UserDialogs.Init(() => (Activity)Forms.Context);
 
-            var builder = new ContainerBuilder();
-            builder.RegisterModule(new PlatformModule());
-            var container = builder.Build();
-
-            this.LoadApplication(new App(container));
-
+            this.LoadApplication(new App());
             this.RequestPermissions(new []
             {
                 Manifest.Permission.AccessCoarseLocation,

@@ -31,4 +31,24 @@ CrossBleAdapter.MainThreadSuggested { get; }
 
 // defaults to MainThreadSuggested.  Background actions most android devices seem to throw an exception if not connected on the main thread
 CrossBleAdapter.PerformActionsOnMainThread = true; 
+
+
+CrossBleAdapter.AndroidMaxAutoReconnectAttempts { get; set; } = 5;
+
+
+/// <summary>
+/// Number of milliseconds to pause before service discovery (helps in combating GATT133 error) when service discovery is performed immediately after connection
+/// DO NOT CHANGE this if you don't know what this is!
+/// </summary>
+CrossBleAdapter.AndroidPauseBeforeServiceDiscovery { get; set; } = TimeSpan.FromMilliseconds(750);
+
+
+        /// <summary>
+        /// Specifies the wait time before attempting an auto-reconnect
+        /// DO NOT CHANGE if you don't know what this is!
+        /// </summary>
+CrossBleAdapter.AndroidPauseBetweenAutoReconnectAttempts { get; set; } = TimeSpan.FromSeconds(1);
+
+
+CrossBleAdapter.AndroidUseNewScanner { get; set; } = B.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
 ```
