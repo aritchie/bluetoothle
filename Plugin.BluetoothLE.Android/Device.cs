@@ -85,7 +85,7 @@ namespace Plugin.BluetoothLE
             });
 
             this.connSubject.OnNext(ConnectionStatus.Connecting);
-            await this.context.Connect(config.Priority, config.AndroidAutoConnect);
+            await this.context.Connect(config.Priority, config.AutoConnect);
 
             return () =>
             {

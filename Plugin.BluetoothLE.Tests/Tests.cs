@@ -213,7 +213,7 @@ namespace Plugin.BluetoothLE.Tests
 
             await this.device.Connect(new GattConnectionConfig
             {
-                AndroidAutoConnect = autoConnect,
+                AutoConnect = autoConnect,
                 IsPersistent = true
             });
             await UserDialogs.Instance.AlertAsync("No turn device off - wait a 3 seconds then turn it back on - press OK if light goes green or you believe connection has failed");
