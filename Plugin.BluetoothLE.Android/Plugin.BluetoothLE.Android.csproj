@@ -60,7 +60,6 @@
     <Compile Include="Internals\GattEventArgs.cs" />
     <Compile Include="Internals\GattRssiEventArgs.cs" />
     <Compile Include="Internals\MtuChangedEventArgs.cs" />
-    <Compile Include="Internals\ScanEventArgs.cs" />
     <Compile Include="Internals\LollipopScanCallback.cs" />
     <Compile Include="Internals\PreLollipopScanCallback.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

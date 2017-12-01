@@ -124,41 +124,7 @@ namespace Plugin.BluetoothLE
                 throw new ArgumentException("There is already an active scan");
 
             config = config ?? new ScanConfig();
-            return Observable.Create<IScanResult>(ob =>
-            {
-                this.context.Devices.Clear();
-
-                var scan = this.ScanListen().Subscribe(ob.OnNext);
-                this.context.StartScan(config);
-                this.scanStatusChanged.OnNext(true);
-
-                return () =>
-                {
-                    this.context.StopScan();
-                    scan.Dispose();
-                    this.scanStatusChanged.OnNext(false);
-                };
-            });
-        }
-
-
-        IObservable<IScanResult> scanListenOb;
-        public override IObservable<IScanResult> ScanListen()
-        {
-            this.scanListenOb = this.scanListenOb ?? Observable.Create<IScanResult>(ob =>
-            {
-                var handler = new EventHandler<ScanEventArgs>((sender, args) =>
-                {
-                    var dev = this.context.Devices.GetDevice(args.Device);
-                    ob.OnNext(new ScanResult(dev, args.Rssi, args.AdvertisementData));
-                });
-                this.context.Scanned += handler;
-                return () => this.context.Scanned -= handler;
-            })
-            .Publish()
-            .RefCount();
-
-            return this.scanListenOb;
+            return this.context.Scan(config);
         }
 
 
