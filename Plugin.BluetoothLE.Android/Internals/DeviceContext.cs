@@ -27,22 +27,41 @@ namespace Plugin.BluetoothLE.Internals
 
 
         readonly AutoResetEvent reset = new AutoResetEvent(true);
+
         public IObservable<T> Lock<T>(IObservable<T> inner) => Observable.Create<T>(ob =>
         {
+            IDisposable sub = null;
+            var pastGate = false;
+            var cancel = false;
             Log.Debug("Device", "Lock - at the gate");
-            this.reset.WaitOne();
-            Log.Debug("Device", "Lock - past the gate");
 
-            return inner.Subscribe(
-                ob.OnNext,
-                ob.OnError,
-                ob.OnCompleted
-            );
-        })
-        .Finally(() =>
-        {
-            Log.Debug("Device", "Releasing sync lock");
-            this.reset.Set();
+            this.reset.WaitOne();
+
+            if (cancel)
+            {
+                Log.Debug("Device", "Lock - past the gate, but was cancelled");
+            }
+            else
+            {
+                pastGate = true;
+                Log.Debug("Device", "Lock - past the gate");
+
+                sub = inner.Subscribe(
+                    ob.OnNext,
+                    ob.OnError,
+                    ob.OnCompleted
+                );
+            }
+
+            return () =>
+            {
+                cancel = true;
+                sub?.Dispose();
+
+                Log.Debug("Device", "Releasing sync lock");
+                if (pastGate)
+                    this.reset.Set();
+            };
         });
 
 
@@ -83,16 +102,8 @@ namespace Plugin.BluetoothLE.Internals
 
         public IObservable<object> Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.Marshall(() =>
         {
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.N || !androidAutoReconnect)
-            {
-                this.Gatt = this.ConnectGattCompat(androidAutoReconnect);
-            }
-            else
-            {
-                this.Gatt = this.CreateGatt(true);
-            }
-
-            if (priority != ConnectionPriority.Normal)
+            this.CreateGatt(androidAutoReconnect);
+            if (this.Gatt != null && priority != ConnectionPriority.Normal)
                 this.Gatt.RequestConnectionPriority(this.ToNative(priority));
         });
 
@@ -111,10 +122,16 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        BluetoothGatt CreateGatt(bool autoConnect)
+        void CreateGatt(bool autoConnect)
         {
             try
             {
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.N)
+                {
+                    this.Gatt = this.ConnectGattCompat(autoConnect);
+                    return;
+                }
+
                 var bmMethod = BluetoothAdapter.DefaultAdapter.Class.GetDeclaredMethod("getBluetoothManager");
                 bmMethod.Accessible = true;
                 var bluetoothManager = bmMethod.Invoke(BluetoothAdapter.DefaultAdapter);
@@ -126,27 +143,30 @@ namespace Plugin.BluetoothLE.Internals
                 if (iBluetoothGatt == null)
                 {
                     Log.Debug("Device", "Unable to find getBluetoothGatt object");
-                    return this.ConnectGattCompat(autoConnect);
+                    this.Gatt = this.ConnectGattCompat(autoConnect);
+                    return;
                 }
 
                 var bluetoothGatt = this.CreateReflectionGatt(iBluetoothGatt);
                 if (bluetoothGatt == null)
                 {
                     Log.Info("Device", "Unable to create GATT object via reflection");
-                    return this.ConnectGattCompat(autoConnect);
+                    this.Gatt = this.ConnectGattCompat(autoConnect);
+                    return;
                 }
-                var connectSuccess = this.ConnectUsingReflection(bluetoothGatt, true);
+
+                this.Gatt = bluetoothGatt;
+                var connectSuccess = this.ConnectUsingReflection(this.Gatt, true);
                 if (!connectSuccess)
                 {
                     Log.Error("Device", "Unable to connect using reflection method");
-                    bluetoothGatt.Close();
+                    this.Gatt.Close();
                 }
-                return bluetoothGatt;
             }
             catch (Exception ex)
             {
                 Log.Info("Device", "Defaulting to gatt connect compatible method - " + ex);
-                return this.ConnectGattCompat(autoConnect);
+                this.Gatt = this.ConnectGattCompat(autoConnect);
             }
         }
 
