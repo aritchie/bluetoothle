@@ -29,7 +29,7 @@ namespace Plugin.BluetoothLE.Android.Tests
 
             UserDialogs.Init(this);
             //this.AddExecutionAssembly(typeof(ExtensibilityPointFactory).Assembly);
-            this.AddTestAssembly(typeof(BluetoothLE.Tests.Tests).Assembly);
+            this.AddTestAssembly(typeof(BluetoothLE.Tests.DeviceTests).Assembly);
             this.AddTestAssembly(Assembly.GetExecutingAssembly());
 
             this.AutoStart = false;

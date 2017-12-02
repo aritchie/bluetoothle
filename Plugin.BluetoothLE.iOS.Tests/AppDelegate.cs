@@ -13,7 +13,7 @@ namespace Plugin.BluetoothLE.iOS.Tests
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             //this.AddExecutionAssembly(typeof(ExtensibilityPointFactory).Assembly);
-            this.AddTestAssembly(typeof(BluetoothLE.Tests.Tests).Assembly);
+            this.AddTestAssembly(typeof(BluetoothLE.Tests.DeviceTests).Assembly);
             this.AddTestAssembly(Assembly.GetExecutingAssembly());
 
             this.AutoStart = false;

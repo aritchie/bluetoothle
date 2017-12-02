@@ -9,7 +9,7 @@ namespace Plugin.BluetoothLE.Uwp.Tests
     {
         protected override void OnInitializeRunner()
         {
-            this.AddTestAssembly(typeof(Plugin.BluetoothLE.Tests.Tests).GetTypeInfo().Assembly);
+            this.AddTestAssembly(typeof(Plugin.BluetoothLE.Tests.DeviceTests).GetTypeInfo().Assembly);
             this.AddTestAssembly(this.GetType().GetTypeInfo().Assembly);
         }
     }
