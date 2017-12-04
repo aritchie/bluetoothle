@@ -9,11 +9,7 @@ namespace Samples.Uwp
         public MainPage()
         {
             this.InitializeComponent();
-
-            var builder = new ContainerBuilder();
-            builder.RegisterModule(new PlatformModule());
-            var container = builder.Build();
-            this.LoadApplication(new Samples.App(container));
+            this.LoadApplication(new Samples.App());
         }
     }
 }
