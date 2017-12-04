@@ -1,5 +1,4 @@
 ﻿using System;
-using Autofac;
 
 
 namespace Samples.Uwp
