@@ -4,6 +4,7 @@
 
 * [feature][android] Advertisement service UUID filtering for Pre-Lollipop
 * [fix][android] Fix issue with stopping scan when bluetooth adapter becomes disabled
+* [fix][android] Fix NRE with reconnection WhenServiceDiscovered
 * [fix][android] More improvements to race conditions
 * [BREAKING] Adapter.ScanListen has been removed
 

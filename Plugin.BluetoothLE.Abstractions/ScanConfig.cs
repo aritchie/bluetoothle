@@ -15,6 +15,6 @@ namespace Plugin.BluetoothLE
         /// Filters scan to devices that advertise specified service UUIDs
         /// iOS - you must set this to initiate a background scan
         /// </summary>
-        public List<Guid> ServiceUuids { get; set; }
+        public List<Guid> ServiceUuids { get; set; } = new List<Guid>();
     }
 }

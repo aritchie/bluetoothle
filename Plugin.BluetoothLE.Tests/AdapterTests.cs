@@ -61,9 +61,10 @@ namespace Plugin.BluetoothLE.Tests
                     }
                 })
                 .Take(1)
-                .Timeout(TimeSpan.FromSeconds(5))
+                .Timeout(TimeSpan.FromSeconds(20))
                 .ToTask();
 
+            result.Should().NotBeNull("Device not found");
             result.Device.Name.Should().Be("Bean+");
         }
     }

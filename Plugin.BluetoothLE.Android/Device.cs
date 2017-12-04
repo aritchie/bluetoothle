@@ -178,11 +178,10 @@ namespace Plugin.BluetoothLE
                 var sub2 = this
                     .WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ =>
-                    {
-                        Thread.Sleep(Convert.ToInt32(CrossBleAdapter.AndroidPauseBeforeServiceDiscovery.TotalMilliseconds)); // this helps alleviate gatt 133 error
-                        this.context.Gatt.DiscoverServices();
-                    });
+
+                    // this helps alleviate gatt 133 error
+                    .Delay(CrossBleAdapter.AndroidPauseBeforeServiceDiscovery)
+                    .Subscribe(_ => this.context.Gatt.DiscoverServices());
 
                 return () =>
                 {
@@ -445,29 +444,31 @@ namespace Plugin.BluetoothLE
 
         async Task DoFallbackReconnect(GattConnectionConfig config, CancellationToken ct)
         {
-            this.context.Close(); // kill current gatt
-
-            if (ct.IsCancellationRequested)
-            {
-                Log.Debug("Reconnect", "Reconnection loop cancelled");
-            }
-            else if (this.Status == ConnectionStatus.Connected)
+            if (this.Status == ConnectionStatus.Connected)
             {
                 Log.Debug("Reconnect", "Reconnection successful");
             }
             else
             {
-                Log.Debug("Reconnect", "Reconnection failed - handing off to android autoReconnect");
-                try
+                this.context.Close(); // kill current gatt
+
+                if (ct.IsCancellationRequested)
                 {
-                    // TODO: should I redo this one as well?
-                    this.context.Close();
-                    await this.context.Connect(config.Priority, true);
+                    Log.Debug("Reconnect", "Reconnection loop cancelled");
                 }
-                catch (Exception ex)
+                else
                 {
-                    Log.Error("Reconnect", "Reconnection failed to hand off - " + ex);
+                    Log.Debug("Reconnect", "Reconnection failed - handing off to android autoReconnect");
+                    try
+                    {
+                        await this.context.Connect(config.Priority, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Reconnect", "Reconnection failed to hand off - " + ex);
+                    }
                 }
+
             }
         }
 

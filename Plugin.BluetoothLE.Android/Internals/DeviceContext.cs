@@ -160,7 +160,7 @@ namespace Plugin.BluetoothLE.Internals
                 if (!connectSuccess)
                 {
                     Log.Error("Device", "Unable to connect using reflection method");
-                    this.Gatt.Close();
+                    this.Gatt?.Close();
                 }
             }
             catch (Exception ex)
