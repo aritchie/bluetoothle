@@ -120,6 +120,5 @@ namespace Plugin.BluetoothLE.Tests
 
             await cs.ElementAt(0).Write(bytes).Timeout(TimeSpan.FromSeconds(3));
         }
-
     }
 }

@@ -45,7 +45,7 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds)
-            => Observable.Create<IGattCharacteristic>(ob =>
+            => this.context.Lock(Observable.Create<IGattCharacteristic>(ob =>
             {
                 var cids = characteristicIds.Select(x => x.ToUuid()).ToArray();
                 foreach (var cid in cids)
@@ -57,7 +57,7 @@ namespace Plugin.BluetoothLE
                 ob.OnCompleted();
 
                 return Disposable.Empty;
-            });
+            }));
 
 
         public override bool Equals(object obj)
