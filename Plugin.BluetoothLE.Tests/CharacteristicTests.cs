@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -10,7 +11,6 @@ using Xunit.Abstractions;
 
 namespace Plugin.BluetoothLE.Tests
 {
-
     public class CharacteristicTests : AbstractTests
     {
         public CharacteristicTests(ITestOutputHelper output) : base(output)
@@ -19,7 +19,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task Characteristics_Concurrency_Notifications()
+        public async Task Concurrent_Notifications()
         {
             var list = new Dictionary<Guid, int>();
             var characteristics = await this.GetCharacteristics();
@@ -53,16 +53,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task Characteristics_Write()
-        {
-            var cs = await this.GetCharacteristics();
-            await cs.First().Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(3));
-            await cs.Last().Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(3));
-        }
-
-
-        [Fact]
-        public async Task Characteristics_Concurrency_Writes()
+        public async Task Concurrent_Writes()
         {
             var bytes = new byte[] { 0x01 };
             var cs = await this.GetCharacteristics();
@@ -83,7 +74,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task Characteristics_Concurrency_Reads()
+        public async Task Concurrent_Reads()
         {
             var cs = await this.GetCharacteristics();
             var results = await Observable
@@ -103,7 +94,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task Characteristics_Cancel_ReleaseLock()
+        public async Task Cancel_ReleaseLock()
         {
             var bytes = Enumerable.Repeat<byte>(0x01, 20).ToArray();
             var cs = await this.GetCharacteristics();
@@ -119,6 +110,35 @@ namespace Plugin.BluetoothLE.Tests
             catch { }
 
             await cs.ElementAt(0).Write(bytes).Timeout(TimeSpan.FromSeconds(3));
+        }
+
+
+        [Fact]
+        public async Task SequentialWrite()
+        {
+            var cs = await this.GetCharacteristics();
+            await cs.First().Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(3));
+            await cs.Last().Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(3));
+        }
+
+
+        [Fact]
+        public async Task SequentialRead()
+        {
+            var cs = await this.GetCharacteristics();
+            var sw = new Stopwatch();
+
+            sw.Start();
+            for (var i = 0; i < 5; i++)
+            {
+                await cs.ElementAt(0).Read();
+                await cs.ElementAt(1).Read();
+                await cs.ElementAt(2).Read();
+                await cs.ElementAt(3).Read();
+                await cs.ElementAt(4).Read();
+            }
+            sw.Stop();
+            this.Output.WriteLine($"Reads took {sw.Elapsed.TotalSeconds}s");
         }
     }
 }
