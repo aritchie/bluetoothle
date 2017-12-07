@@ -2,7 +2,7 @@
 Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
-[Change Log - Dec 4, 2017](docs/changelog.md)
+[Change Log - Dec 6, 2017](docs/changelog.md)
 
 
 ## PLATFORMS

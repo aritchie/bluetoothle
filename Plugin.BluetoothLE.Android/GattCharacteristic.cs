@@ -18,7 +18,9 @@ namespace Plugin.BluetoothLE
         readonly DeviceContext context;
 
 
-        public GattCharacteristic(IGattService service, DeviceContext context, BluetoothGattCharacteristic native)
+        public GattCharacteristic(IGattService service,
+                                  DeviceContext context,
+                                  BluetoothGattCharacteristic native)
             : base(service, native.Uuid.ToGuid(), (CharacteristicProperties)(int)native.Properties)
         {
             this.context = context;
@@ -124,7 +126,9 @@ namespace Plugin.BluetoothLE
 
             var wrap = new GattDescriptor(this, this.context, descriptor);
             var success = this.context.Gatt.SetCharacteristicNotification(this.native, true);
-            await Task.Delay(250, ct);
+
+            if (CrossBleAdapter.AndroidOperationPause != null)
+                await Task.Delay(CrossBleAdapter.AndroidOperationPause.Value, ct);
 
             if (success)
             {
@@ -150,7 +154,9 @@ namespace Plugin.BluetoothLE
             var success = this.context
                 .Gatt
                 .SetCharacteristicNotification(this.native, false);
-            await Task.Delay(250, ct);
+
+            if (CrossBleAdapter.AndroidOperationPause != null)
+                await Task.Delay(CrossBleAdapter.AndroidOperationPause.Value, ct);
 
             if (success)
             {

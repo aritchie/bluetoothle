@@ -29,10 +29,32 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
-        /// Number of milliseconds to pause before service discovery (helps in combating GATT133 error) when service discovery is performed immediately after connection
+        /// Time span to pause before service discovery (helps in combating GATT133 error) when service discovery is performed immediately after connection
         /// DO NOT CHANGE this if you don't know what this is!
         /// </summary>
         public static TimeSpan AndroidPauseBeforeServiceDiscovery { get; set; } = TimeSpan.FromMilliseconds(750);
+
+
+        static TimeSpan? androidOpPause;
+
+        /// <summary>
+        /// Time span to pause android operations
+        /// DO NOT CHANGE this if you don't know what this is!
+        /// </summary>
+        public static TimeSpan? AndroidOperationPause
+        {
+            get
+            {
+                if (androidOpPause != null)
+                    return androidOpPause;
+
+                if (Android.OS.Build.VERSION.SdkInt < Android.OS.BuildVersionCodes.N)
+                    return TimeSpan.FromMilliseconds(150);
+
+                return null;
+            }
+            set => androidOpPause = value;
+        }
 
 
         /// <summary>

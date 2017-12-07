@@ -27,7 +27,6 @@ namespace Plugin.BluetoothLE.Internals
 
 
         readonly AutoResetEvent reset = new AutoResetEvent(true);
-
         public IObservable<T> Lock<T>(IObservable<T> inner) => Observable.Create<T>(ob =>
         {
             IDisposable sub = null;
@@ -45,6 +44,9 @@ namespace Plugin.BluetoothLE.Internals
             {
                 pastGate = true;
                 Log.Debug("Device", "Lock - past the gate");
+
+                if (CrossBleAdapter.AndroidOperationPause != null)
+                    System.Threading.Thread.Sleep(CrossBleAdapter.AndroidOperationPause.Value);
 
                 sub = inner.Subscribe(
                     ob.OnNext,

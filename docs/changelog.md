@@ -1,7 +1,10 @@
 # CHANGE LOG
 
-## 5.3
+## 5.3.1
+* [fix][android] GetKnownCharacteristic now sync locks to prevent android race condition
+* [feature][android] configurable parameter to allow "breather" time between operations to prevent GATT issues
 
+## 5.3
 * [feature][android] Advertisement service UUID filtering for Pre-Lollipop
 * [fix][android] Fix issue with stopping scan when bluetooth adapter becomes disabled
 * [fix][android] Fix NRE with reconnection WhenServiceDiscovered
