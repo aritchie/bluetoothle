@@ -32,6 +32,11 @@ namespace Plugin.BluetoothLE.Android.Tests
             this.AddTestAssembly(typeof(BluetoothLE.Tests.DeviceTests).Assembly);
             this.AddTestAssembly(Assembly.GetExecutingAssembly());
 
+            //CrossBleAdapter.AndroidUseNewScanner = false;
+            CrossBleAdapter.AndroidOperationPause = TimeSpan.FromMilliseconds(100);
+            //CrossBleAdapter.AndroidMaxAutoReconnectAttempts = 2;
+            //CrossBleAdapter.AndroidPerformActionsOnMainThread = false;
+
             this.AutoStart = false;
             this.TerminateAfterExecution = false;
             //this.Writer =
