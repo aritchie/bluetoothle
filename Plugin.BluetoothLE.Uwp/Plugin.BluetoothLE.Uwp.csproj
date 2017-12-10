@@ -120,6 +120,7 @@
     <Compile Include="GattReliableWriteTransaction.cs" />
     <Compile Include="GattService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Server\Advertiser.cs" />
     <Compile Include="Server\GattServer.cs" />
     <Compile Include="Server\IUwpGattCharacteristic.cs" />
     <Compile Include="Server\IUwpGattDescriptor.cs" />
