@@ -2,8 +2,9 @@
 using Android.App;
 using Android.Bluetooth;
 using Android.Bluetooth.LE;
-using Android.OS;
+using Android.Content;
 using Plugin.BluetoothLE.Server.Internals;
+
 
 namespace Plugin.BluetoothLE.Server
 {
@@ -13,10 +14,10 @@ namespace Plugin.BluetoothLE.Server
         readonly AdvertisementCallbacks adCallbacks;
 
 
-        public Advertiser() 
+        public Advertiser()
         {
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Context.BluetoothService);
-            this.adCallbacks = new AdvertisementCallbacks();            
+            this.adCallbacks = new AdvertisementCallbacks();
         }
 
 
@@ -34,10 +35,7 @@ namespace Plugin.BluetoothLE.Server
                 data.AddManufacturerData(adData.ManufacturerData.CompanyId, adData.ManufacturerData.Data);
 
             foreach (var serviceUuid in adData.ServiceUuids)
-            {
-                var uuid = ParcelUuid.FromString(serviceUuid.ToString());
-                data.AddServiceUuid(uuid);
-            }
+                data.AddServiceUuid(serviceUuid.ToParcelUuid());
 
             this.manager
                 .Adapter
@@ -47,7 +45,7 @@ namespace Plugin.BluetoothLE.Server
                     data.Build(),
                     this.adCallbacks
                 );
-            
+
             base.Start(adData);
         }
 
