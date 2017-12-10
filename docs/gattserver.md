@@ -1,7 +1,54 @@
+# GATT Server
+
+Advertising is severally downplayed by both operating systems.  On iOS, you are limited to advertising the local name and service UUIDs
+
+* On iOS, you can only advertise a custom local name and custom service UUIDs
+* On Android, things are different
+    * You cannot control the device naming
+    * TX Power (high, medium, low, balanced)
+    * Service Data
+    * Service UUIDs
+    * Specific Manufacturer Data
+
+For now, I have chosen to support only the same feature band as iOS
+
+
+```csharp
+
+CrossBleAdapter.Current.Advertiser.Start(new AdvertisementData
+{
+    LocalName = "TestServer",
+    ServiceUUIDs = new Guid[] { /* your custom UUIDs here */ }
+});
+
+CrossBleAdapter.Current.Advertiser.Stop();
+```
+
+# Services
+
+Services are nothing more than categories in the overall perspective of BluetoothLE.  You should be aware that
+you must setup all characters & descriptors that belong to a service BEFORE starting advertising or adding a service
+to a running server!
+
+You should always know your service UUID for future client consumption!
+
+From a functionality perspective, there is not a lot you do with services
+
+## Setup
+
+```csharp
+var server = CrossBleAdapter.Current.CreateGattServer();
+
+// first parameter is your controlled GUID/UUID
+// second parameter specifies if it is the primary service
+server.CreateService(Guid.NewGuid(), true);
+
+```
+
+
 # Characteristics
 
 These are the heart and soul of BLE.  This is where data is exchanged between client & server
-
 ## General Setup
 
 After creating your server instance and a service, you can do the following:

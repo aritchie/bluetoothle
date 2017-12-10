@@ -7,12 +7,16 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
 
 ## PLATFORMS
 
-* Android 4.3+
-* iOS 7+
-* macOS
-* tvOS
-* Windows UWP
-  * Client in beta
+Platform|Version
+--------|-------
+Android|4.3+
+iOS|7+
+macOS|Latest
+tvOS|Latest
+Windows UWP|16299+
+
+UWP is still in beta!
+  * Client cannot disconnect
   * Server WIP
   * PRs only during beta please!
 
@@ -183,14 +187,15 @@ await server.Start(new AdvertisementData
 * [Characteristics](docs/characteristics.md)
 * [Descriptors](docs/descriptors.md)
 * Platform Specifics
-    * [Android](docs/android.md)
-    * [iOS](docs/ios.md)
+    * [Android](docs/platform_android.md)
+    * [iOS](docs/platform_ios.md)
+    * [UWP](docs/platform_uwp.md)
 * Extensions
-    * [Heart Rate](docs/heartrate.md)
+    * [Heart Rate](docs/extensions_heartrate.md)
+    * [Beacons](docs/extensions_beacons.md)
 * Server
-    * [Advertising](docs/server_advertising.md)
-    * [Services](docs/server_services.md)
-    * [Characteristics](docs/server_characteristics.md)
+    * [Advertising](docs/advertising.md)
+    * [GATT](docs/gattserver.md)
 
 ## FAQ
 

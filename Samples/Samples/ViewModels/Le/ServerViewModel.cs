@@ -14,7 +14,6 @@ namespace Samples.ViewModels.Le
 {
     public class ServerViewModel : AbstractRootViewModel
     {
-        IGattServer server;
         IDisposable notifyBroadcast;
 
 
@@ -36,13 +35,15 @@ namespace Samples.ViewModels.Le
                 try
                 {
                     this.BuildServer();
-                    if (this.server.IsRunning)
+                    if (this.BleAdapter.GattServer.IsRunning)
                     {
-                        this.server.Stop();
+                        this.BleAdapter.GattServer.Stop();
+                        this.BleAdapter.Advertiser.Stop();
                     }
                     else
                     {
-                        await this.server.Start(new AdvertisementData
+                        await this.BleAdapter.GattServer.Start();
+                        this.BleAdapter.Advertiser.Start(new AdvertisementData
                         {
                             LocalName = "TestServer"
                         });
@@ -105,13 +106,10 @@ namespace Samples.ViewModels.Le
 
         void BuildServer()
         {
-            if (this.server != null)
-                return;
-
             try
             {
-                this.server = this.BleAdapter.CreateGattServer();
-                var service = this.server.AddService(Guid.NewGuid(), true);
+                this.BleAdapter.GattServer.ClearServices();
+                var service = this.BleAdapter.GattServer.AddService(Guid.NewGuid(), true);
 
                 var characteristic = service.AddCharacteristic(
                     Guid.NewGuid(),
@@ -177,7 +175,8 @@ namespace Samples.ViewModels.Le
                     this.OnEvent($"Characteristic Write Received - {write}");
                 });
 
-                this.server
+                this.BleAdapter
+                    .GattServer
                     .WhenRunningChanged()
                     .Catch<bool, ArgumentException>(ex =>
                     {
@@ -198,7 +197,7 @@ namespace Samples.ViewModels.Le
 
                             this.ServerText = "Stop Server";
                             this.OnEvent("GATT Server Started");
-                            foreach (var s in this.server.Services)
+                            foreach (var s in this.BleAdapter.GattServer.Services)
                             {
                                 this.OnEvent($"Service {s.Uuid} Created");
                                 foreach (var ch in s.Characteristics)
@@ -209,7 +208,8 @@ namespace Samples.ViewModels.Le
                         }
                     }));
 
-                this.server
+                this.BleAdapter
+                    .GattServer
                     .WhenAnyCharacteristicSubscriptionChanged()
                     .Subscribe(x =>
                         this.OnEvent($"[WhenAnyCharacteristicSubscriptionChanged] UUID: {x.Characteristic.Uuid} - Device: {x.Device.Uuid} - Subscription: {x.IsSubscribing}")
@@ -231,11 +231,8 @@ namespace Samples.ViewModels.Le
         }
 
 
-        void OnEvent(string msg)
-        {
-            Device.BeginInvokeOnMainThread(() =>
-                this.Output += msg + Environment.NewLine + Environment.NewLine
-            );
-        }
+        void OnEvent(string msg) => Device.BeginInvokeOnMainThread(() =>
+            this.Output += msg + Environment.NewLine + Environment.NewLine
+        );
     }
 }

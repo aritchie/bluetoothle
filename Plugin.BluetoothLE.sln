@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2010
+VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Droid", "Samples\Samples.Droid\Samples.Droid.csproj", "{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}"
 EndProject
@@ -43,18 +43,19 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E72A2C1E-FB4B-4037-9B10-C675EF2F139C}"
 	ProjectSection(SolutionItems) = preProject
 		docs\adapter.md = docs\adapter.md
-		docs\android.md = docs\android.md
+		docs\advertising.md = docs\advertising.md
 		docs\changelog.md = docs\changelog.md
 		docs\characteristics.md = docs\characteristics.md
 		docs\descriptors.md = docs\descriptors.md
 		docs\device.md = docs\device.md
-		docs\heartrate.md = docs\heartrate.md
-		docs\ios.md = docs\ios.md
+		docs\extensions_beacons.md = docs\extensions_beacons.md
+		docs\extensions_heartrate.md = docs\extensions_heartrate.md
+		docs\gattserver.md = docs\gattserver.md
 		ISSUE_TEMPLATE = ISSUE_TEMPLATE
+		docs\platform_android.md = docs\platform_android.md
+		docs\platform_ios.md = docs\platform_ios.md
+		docs\platform_uwp.md = docs\platform_uwp.md
 		readme.md = readme.md
-		docs\server_advertising.md = docs\server_advertising.md
-		docs\server_characteristics.md = docs\server_characteristics.md
-		docs\server_services.md = docs\server_services.md
 		docs\services.md = docs\services.md
 		docs\setup.md = docs\setup.md
 	EndProjectSection
@@ -81,7 +82,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.iOS.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Uwp.Tests", "Plugin.BluetoothLE.Uwp.Tests\Plugin.BluetoothLE.Uwp.Tests.csproj", "{738E8526-76BF-4DE7-9852-1CB8DBC25BB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.BluetoothLE.Tizen", "Plugin.BluetoothLE.Tizen\Plugin.BluetoothLE.Tizen.csproj", "{9D8D41EB-0BAB-4C6F-B430-DA5E6A525C2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.BluetoothLE.Tizen", "Plugin.BluetoothLE.Tizen\Plugin.BluetoothLE.Tizen.csproj", "{9D8D41EB-0BAB-4C6F-B430-DA5E6A525C2D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Tizen", "Samples\Samples.Tizen\Samples.Tizen.csproj", "{44BCE748-F82F-466E-BD30-1E34DCFDAF86}"
 EndProject
