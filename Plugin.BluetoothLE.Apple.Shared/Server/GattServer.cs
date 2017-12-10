@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using CoreBluetooth;
-using Foundation;
 
 
 namespace Plugin.BluetoothLE.Server
@@ -18,6 +16,7 @@ namespace Plugin.BluetoothLE.Server
 
 
         public override IObservable<bool> WhenRunningChanged() => this.runningSubj;
+        public override bool IsRunning { get; }
 
 
         public override Task Start()
