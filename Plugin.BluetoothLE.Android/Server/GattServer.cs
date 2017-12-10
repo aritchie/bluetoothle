@@ -16,7 +16,6 @@ namespace Plugin.BluetoothLE.Server
     public class GattServer : AbstractGattServer
     {
         readonly BluetoothManager manager;
-        readonly AdvertisementCallbacks adCallbacks;
         readonly GattContext context;
         readonly Subject<bool> runningSubj;
         BluetoothGattServer server;
@@ -25,7 +24,6 @@ namespace Plugin.BluetoothLE.Server
         public GattServer()
         {
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Context.BluetoothService);
-            this.adCallbacks = new AdvertisementCallbacks();
             this.context = new GattContext();
             this.runningSubj = new Subject<bool>();
         }
@@ -35,41 +33,33 @@ namespace Plugin.BluetoothLE.Server
         public override bool IsRunning => this.isRunning;
 
 
-        IObservable<bool> runningOb;
-        public override IObservable<bool> WhenRunningChanged()
+        public override IObservable<bool> WhenRunningChanged() => this.runningSubj;
+
+
+        public override Task Start()
         {
-            return this.runningSubj;
-            //this.runningOb = this.runningOb ?? Observable.Create<bool>(ob =>
-            //{
-            //    this.adCallbacks.Failed = ob.OnError;
-            //    this.adCallbacks.Started = () => ob.OnNext(true);
-            //    var sub = this.runningSubj
-            //        .AsObservable()
-            //        .Subscribe(x => ob.OnNext);
+            this.server = this.manager.OpenGattServer(Application.Context, this.context.Callbacks);
+            this.context.Server = this.server;
 
-            //    return () =>
-            //    {
-            //        sub.Dispose();
-            //        this.adCallbacks.Failed = null;
-            //        this.adCallbacks.Started = null;
-            //    };
-            //})
-            //.Publish()
-            //.RefCount();
+            foreach (var service in this.Services.OfType<IDroidGattService>())
+            {
+                if (!this.context.Server.AddService(service.Native))
+                    throw new ArgumentException($"Could not add service {service.Uuid} to server");
 
-            //return this.runningOb;
-        }
+                foreach (var characteristic in service.Characteristics.OfType<IDroidGattCharacteristic>())
+                {
+                    if (!service.Native.AddCharacteristic(characteristic.Native))
+                        throw new ArgumentException($"Could not add characteristic '{characteristic.Uuid}' to service '{service.Uuid}'");
 
+                    foreach (var descriptor in characteristic.Descriptors.OfType<IDroidGattDescriptor>())
+                    {
+                        if (!characteristic.Native.AddDescriptor(descriptor.Native))
+                            throw new ArgumentException($"Could not add descriptor '{descriptor.Uuid}' to characteristic '{characteristic.Uuid}'");
+                    }
+                }
+                this.server.AddService(service.Native);
+            }
 
-        public override Task Start(AdvertisementData adData)
-        {
-            if (this.isRunning)
-                return Task.CompletedTask;
-
-            if (adData != null)
-                this.StartAdvertising(adData);
-
-            this.StartGatt();
             this.runningSubj.OnNext(true);
             this.isRunning = true;
             return Task.CompletedTask;
@@ -82,7 +72,7 @@ namespace Plugin.BluetoothLE.Server
                 return;
 
             this.isRunning = false;
-            this.manager.Adapter.BluetoothLeAdvertiser.StopAdvertising(this.adCallbacks);
+
             this.context.Server = null;
             this.server?.Close();
             this.server = null;
@@ -107,65 +97,6 @@ namespace Plugin.BluetoothLE.Server
         }
 
 
-        protected override void ClearNative()
-        {
-            this.server?.ClearServices();
-        }
-
-
-        protected virtual void StartAdvertising(AdvertisementData adData)
-        {
-            var settings = new AdvertiseSettings.Builder()
-                .SetAdvertiseMode(AdvertiseMode.Balanced)
-                .SetConnectable(true);
-
-            var data = new AdvertiseData.Builder()
-                .SetIncludeDeviceName(true)
-                .SetIncludeTxPowerLevel(true);
-
-            if (adData.ManufacturerData != null)
-                data.AddManufacturerData(adData.ManufacturerData.CompanyId, adData.ManufacturerData.Data);
-
-            foreach (var serviceUuid in adData.ServiceUuids)
-            {
-                var uuid = ParcelUuid.FromString(serviceUuid.ToString());
-                data.AddServiceUuid(uuid);
-            }
-
-            this.manager
-                .Adapter
-                .BluetoothLeAdvertiser
-                .StartAdvertising(
-                    settings.Build(),
-                    data.Build(),
-                    this.adCallbacks
-                );
-        }
-
-
-        protected virtual void StartGatt()
-        {
-            this.server = this.manager.OpenGattServer(Application.Context, this.context.Callbacks);
-            this.context.Server = this.server;
-
-            foreach (var service in this.Services.OfType<IDroidGattService>())
-            {
-                if (!this.context.Server.AddService(service.Native))
-                    throw new ArgumentException($"Could not add service {service.Uuid} to server");
-
-                foreach (var characteristic in service.Characteristics.OfType<IDroidGattCharacteristic>())
-                {
-                    if (!service.Native.AddCharacteristic(characteristic.Native))
-                        throw new ArgumentException($"Could not add characteristic '{characteristic.Uuid}' to service '{service.Uuid}'");
-
-                    foreach (var descriptor in characteristic.Descriptors.OfType<IDroidGattDescriptor>())
-                    {
-                        if (!characteristic.Native.AddDescriptor(descriptor.Native))
-                            throw new ArgumentException($"Could not add descriptor '{descriptor.Uuid}' to characteristic '{characteristic.Uuid}'");
-                    }
-                }
-                this.server.AddService(service.Native);
-            }
-        }
+        protected override void ClearNative() => this.server?.ClearServices();
     }
 }

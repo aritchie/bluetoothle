@@ -25,13 +25,15 @@ namespace Plugin.BluetoothLE
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Application.BluetoothService);
             this.context = new AdapterContext(this.manager);
             this.scanStatusChanged = new Subject<bool>();
+
+            this.Advertiser = new Advertiser();
+            this.GattServer = new GattServer();
         }
 
 
         public override string DeviceName => "Default Bluetooth Device";
         public override AdapterFeatures Features => AdapterFeatures.All;
         public override bool IsScanning => this.manager.Adapter.IsDiscovering;
-        public override IGattServer CreateGattServer() => new GattServer();
 
 
         public override IDevice GetKnownDevice(Guid deviceId)

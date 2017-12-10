@@ -12,8 +12,10 @@ namespace Plugin.BluetoothLE
         public abstract IObservable<IScanResult> Scan(ScanConfig config = null);
         public abstract IObservable<AdapterStatus> WhenStatusChanged();
 
+        public virtual IAdvertiser Advertiser { get; protected set; }
+        public virtual IGattServer GattServer { get; protected set; }
+
         public virtual string DeviceName { get; protected set; }
-        public virtual IGattServer CreateGattServer() => throw new NotImplementedException("CreateGattServer is not supported on this platform");
         public virtual AdapterFeatures Features { get; protected set; }
         public virtual AdapterStatus Status { get; protected set; }
         public virtual bool IsScanning { get; protected set; }

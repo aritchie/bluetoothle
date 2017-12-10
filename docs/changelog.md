@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## 6.0
+* [feature][breaking] GATT server & BLE advertising are now separate functions
+* [breaking] GATT server is now static per adapter instead of using CreateInstance()
+
 ## 5.3.1
 * [fix][android] GetKnownCharacteristic now sync locks to prevent android race condition
 * [feature][android] configurable parameter to allow "breather" time between operations to prevent GATT issues

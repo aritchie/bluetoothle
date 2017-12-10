@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace Plugin.BluetoothLE.Server
 {
-    public interface IGattServer : IDisposable
+    public interface IGattServer
     {
         //IBleAdapter Adapter { get; }
         IObservable<bool> WhenRunningChanged();
         bool IsRunning { get; }
-        Task Start(AdvertisementData adData);
+        Task Start();
         void Stop();
 
         IGattService AddService(Guid uuid, bool primary);

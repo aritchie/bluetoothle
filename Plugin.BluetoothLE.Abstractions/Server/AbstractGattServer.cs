@@ -20,30 +20,11 @@ namespace Plugin.BluetoothLE.Server
         }
 
 
-        ~AbstractGattServer()
-        {
-            this.Dispose(false);
-        }
-
-
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-
-        protected virtual void Dispose(bool disposing)
-        {
-            this.Stop();
-        }
-
-
         public IReadOnlyList<IGattService> Services { get; }
 
         public abstract IObservable<bool> WhenRunningChanged();
         public abstract bool IsRunning { get; }
-        public abstract Task Start(AdvertisementData adData);
+        public abstract Task Start();
         public abstract void Stop();
 
 

@@ -16,7 +16,13 @@ namespace Plugin.BluetoothLE
         /// Create a BLE server
         /// </summary>
         /// <returns></returns>
-        IGattServer CreateGattServer();
+        IGattServer GattServer { get; }
+
+        /// <summary>
+        /// Use this to advertise your device
+        /// </summary>
+        /// <value>The advertiser.</value>
+        IAdvertiser Advertiser { get; }
 
         /// <summary>
         /// This readonly property contains a flags enum stating what platform adapter features that are available

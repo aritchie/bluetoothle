@@ -12,77 +12,21 @@ namespace Plugin.BluetoothLE.Server
 {
     public class GattServer : AbstractGattServer
     {
-        readonly IList<IGattService> services;
-        readonly CBPeripheralManager manager;
-        readonly Subject<bool> runningSubj;
+        readonly CBPeripheralManager manager = new CBPeripheralManager();
+        readonly IList<IGattService> services = new List<IGattService>();
+        readonly Subject<bool> runningSubj = new Subject<bool>();
 
 
-        public GattServer()
+        public override IObservable<bool> WhenRunningChanged() => this.runningSubj;
+
+
+        public override Task Start()
         {
-            this.manager = new CBPeripheralManager();
-            this.runningSubj = new Subject<bool>();
-            this.services = new List<IGattService>();
-        }
+            //if (CBPeripheralManager.AuthorizationStatus != CBPeripheralManagerAuthorizationStatus.Authorized)
+            //    throw new ArgumentException("Permission Denied - " + CBPeripheralManager.AuthorizationStatus);
 
-
-        public override bool IsRunning => this.manager.Advertising;
-
-
-        IObservable<bool> runningOb;
-        public override IObservable<bool> WhenRunningChanged()
-        {
-            this.runningOb = this.runningOb ?? Observable.Create<bool>(ob =>
-            {
-                var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
-                {
-                    if (args.Error == null)
-                    {
-                        ob.OnNext(true);
-                    }
-                    else
-                    {
-                        ob.OnError(new ArgumentException(args.Error.LocalizedDescription));
-                    }
-                });
-                this.manager.AdvertisingStarted += handler;
-
-                var sub = this.runningSubj
-                    .AsObservable()
-                    .Subscribe(ob.OnNext);
-
-                return () =>
-                {
-                    this.manager.AdvertisingStarted -= handler;
-                    sub.Dispose();
-                };
-            })
-            .Publish()
-            .RefCount();
-
-            return this.runningOb;
-        }
-
-
-        public override Task Start(AdvertisementData adData)
-        {
-            if (this.manager.Advertising)
-                return Task.CompletedTask;
-
-            if (CBPeripheralManager.AuthorizationStatus != CBPeripheralManagerAuthorizationStatus.Authorized)
-                throw new ArgumentException("Permission Denied - " + CBPeripheralManager.AuthorizationStatus);
-
-            if (this.manager.State != CBPeripheralManagerState.PoweredOn)
-                throw new ArgumentException("Invalid State - " + this.manager.State);
-
-
-            this.manager.StartAdvertising(new StartAdvertisingOptions
-            {
-                LocalName = adData.LocalName,
-                ServicesUUID = adData
-                    .ServiceUuids
-                    .Select(x => CBUUID.FromString(x.ToString()))
-                    .ToArray()
-            });
+            //if (this.manager.State != CBPeripheralManagerState.PoweredOn)
+                //throw new ArgumentException("Invalid State - " + this.manager.State);
 
             this.services
                 .Cast<IIosGattService>()
@@ -107,17 +51,16 @@ namespace Plugin.BluetoothLE.Server
                 .ToList()
                 .ForEach(this.manager.AddService);
 
+            //this.IsRunning = true;
             return Task.CompletedTask;
         }
 
 
         public override void Stop()
         {
-            if (!this.manager.Advertising)
-                return;
-
             this.manager.RemoveAllServices();
             this.manager.StopAdvertising();
+            //this.IsRunning = false;
             this.runningSubj.OnNext(false);
         }
 

@@ -86,6 +86,7 @@
     <Compile Include="Server\GattServer.cs" />
     <Compile Include="Server\Internals\GattServerCallbacks.cs" />
     <Compile Include="Server\Internals\WriteRequestEventArgs.cs" />
+    <Compile Include="Server\Advertiser.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj">

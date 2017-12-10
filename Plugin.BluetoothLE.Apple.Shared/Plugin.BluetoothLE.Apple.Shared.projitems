@@ -27,5 +27,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Server\IIosGattCharacteristic.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Server\IIosGattDescriptor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Server\IIosGattService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\Advertiser.cs" />
   </ItemGroup>
 </Project>

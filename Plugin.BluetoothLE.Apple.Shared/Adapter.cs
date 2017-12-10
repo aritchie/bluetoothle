@@ -24,6 +24,9 @@ namespace Plugin.BluetoothLE
         {
             this.context = new AdapterContext(config);
             this.scanStatusChanged = new Subject<bool>();
+
+            this.Advertiser = new Advertiser();
+            this.GattServer = new GattServer();
         }
 
 
@@ -42,9 +45,6 @@ namespace Plugin.BluetoothLE
 #else
         public override AdapterFeatures Features => AdapterFeatures.None;
 #endif
-
-
-        public override IGattServer CreateGattServer() => new GattServer();
 
 
         public override AdapterStatus Status
