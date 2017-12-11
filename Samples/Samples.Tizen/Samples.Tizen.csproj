@@ -31,8 +31,6 @@
     <PackageReference Include="Xamarin.Forms.Platform.Tizen" Version="2.4.0.18342" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj" />
-    <ProjectReference Include="..\..\Plugin.BluetoothLE.Tizen\Plugin.BluetoothLE.Tizen.csproj" />
     <ProjectReference Include="..\Samples\Samples.csproj" />
   </ItemGroup>
 </Project>

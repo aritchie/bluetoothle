@@ -126,14 +126,6 @@
     <Compile Include="AppDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj">
-      <Project>{01D11EF2-074C-4BC0-9C05-5A6A9F974E05}</Project>
-      <Name>Plugin.BluetoothLE.Abstractions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Plugin.BluetoothLE.Mac\Plugin.BluetoothLE.Mac.csproj">
-      <Project>{8A0FC475-221D-4FE0-8308-3F703DC08F52}</Project>
-      <Name>Plugin.BluetoothLE.Mac</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Samples\Samples.csproj">
       <Project>{AF0917DD-079A-49CB-9115-BA08340E4ED8}</Project>
       <Name>Samples</Name>

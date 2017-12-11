@@ -13,12 +13,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj" />
-        <ProjectReference Include="..\..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj" />
+      <Folder Include="Properties\" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Properties\" />
+      <ProjectReference Include="..\..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj" />
     </ItemGroup>
 
     <ItemGroup>
