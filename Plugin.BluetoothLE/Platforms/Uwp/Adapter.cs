@@ -22,7 +22,7 @@ namespace Plugin.BluetoothLE
         public Adapter()
         {
             this.GattServer = new GattServer();
-            //this.Advertiser = new Advertiser();
+            this.Advertiser = new Advertiser();
         }
 
 

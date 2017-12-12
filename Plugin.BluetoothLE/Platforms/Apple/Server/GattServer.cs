@@ -1,88 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using CoreBluetooth;
-using Foundation;
 
 
 namespace Plugin.BluetoothLE.Server
 {
     public class GattServer : AbstractGattServer
     {
-        readonly IList<IGattService> services;
-        readonly CBPeripheralManager manager;
-        readonly Subject<bool> runningSubj;
-
-
-        public GattServer()
-        {
-            this.manager = new CBPeripheralManager();
-            this.runningSubj = new Subject<bool>();
-            this.services = new List<IGattService>();
-        }
+        readonly CBPeripheralManager manager = new CBPeripheralManager();
+        readonly IList<IGattService> services = new List<IGattService>();
+        readonly Subject<bool> runningSubj = new Subject<bool>();
 
 
         public override bool IsRunning => this.manager.Advertising;
 
 
-        IObservable<bool> runningOb;
-        public override IObservable<bool> WhenRunningChanged()
+        public override IObservable<bool> WhenRunningChanged() => null;
+        //{
+        //    this.runningOb = this.runningOb ?? Observable.Create<bool>(ob =>
+        //    {
+        //        var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
+        //        {
+        //            if (args.Error == null)
+        //            {
+        //                ob.OnNext(true);
+        //            }
+        //            else
+        //            {
+        //                ob.OnError(new ArgumentException(args.Error.LocalizedDescription));
+        //            }
+        //        });
+        //        this.manager.AdvertisingStarted += handler;
+
+        //        var sub = this.runningSubj
+        //            .AsObservable()
+        //            .Subscribe(ob.OnNext);
+
+        //        return () =>
+        //        {
+        //            this.manager.AdvertisingStarted -= handler;
+        //            sub.Dispose();
+        //        };
+        //    })
+        //    .Publish()
+        //    .RefCount();
+
+        //    return this.runningOb;
+        //}
+
+
+        public override Task Start()
         {
-            this.runningOb = this.runningOb ?? Observable.Create<bool>(ob =>
-            {
-                var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
-                {
-                    if (args.Error == null)
-                    {
-                        ob.OnNext(true);
-                    }
-                    else
-                    {
-                        ob.OnError(new ArgumentException(args.Error.LocalizedDescription));
-                    }
-                });
-                this.manager.AdvertisingStarted += handler;
+            //if (this.manager.Advertising)
+            //    return Task.CompletedTask;
 
-                var sub = this.runningSubj
-                    .AsObservable()
-                    .Subscribe(ob.OnNext);
+            //if (CBPeripheralManager.AuthorizationStatus != CBPeripheralManagerAuthorizationStatus.Authorized)
+            //    throw new ArgumentException("Permission Denied - " + CBPeripheralManager.AuthorizationStatus);
 
-                return () =>
-                {
-                    this.manager.AdvertisingStarted -= handler;
-                    sub.Dispose();
-                };
-            })
-            .Publish()
-            .RefCount();
-
-            return this.runningOb;
-        }
-
-
-        public override Task Start(AdvertisementData adData)
-        {
-            if (this.manager.Advertising)
-                return Task.CompletedTask;
-
-            if (CBPeripheralManager.AuthorizationStatus != CBPeripheralManagerAuthorizationStatus.Authorized)
-                throw new ArgumentException("Permission Denied - " + CBPeripheralManager.AuthorizationStatus);
-
-            if (this.manager.State != CBPeripheralManagerState.PoweredOn)
-                throw new ArgumentException("Invalid State - " + this.manager.State);
-
-
-            this.manager.StartAdvertising(new StartAdvertisingOptions
-            {
-                LocalName = adData.LocalName,
-                ServicesUUID = adData
-                    .ServiceUuids
-                    .Select(x => CBUUID.FromString(x.ToString()))
-                    .ToArray()
-            });
+            //if (this.manager.State != CBPeripheralManagerState.PoweredOn)
+            //    throw new ArgumentException("Invalid State - " + this.manager.State);
 
             this.services
                 .Cast<IIosGattService>()

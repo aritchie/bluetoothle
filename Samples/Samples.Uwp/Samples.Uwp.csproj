@@ -135,7 +135,7 @@
       <Version>6.5.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.0.1</Version>
+      <Version>6.0.4</Version>
     </PackageReference>
     <PackageReference Include="reactiveui">
       <Version>8.0.0-alpha0105</Version>
@@ -144,7 +144,7 @@
       <Version>3.1.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Forms">
-      <Version>2.4.0.38779</Version>
+      <Version>2.5.0.121934</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

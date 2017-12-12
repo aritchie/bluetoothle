@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;monoandroid10;xamarinios10;xamarinmac20;xamarintvos10;uap10.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;monoandroid70;xamarinios10;xamarinmac20;xamarintvos10;uap10.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
         <!--<TargetFrameworks>netstandard2.0;monoandroid43;xamarinios10;xamarinmac20;xamarintvos10;uap10.0;net46;tizen4;portable-net45+win8+wpa81+wp8</TargetFrameworks>-->
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>aritchie</Authors>
@@ -39,29 +39,29 @@ Supported Platforms
         <Product>Plugin.BluetoothLE - PCL</Product>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'monoandroid43' ">
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'monoandroid70' ">
         <!--<TargetFrameworkVersion>v8.0</TargetFrameworkVersion>-->
-        <DefineConstants>$(DefineConstants);MONOANDROID</DefineConstants>
+        <DefineConstants>$(DefineConstants);__ANDROID__</DefineConstants>
         <Product>Plugin.BluetoothLE - Android</Product>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'xamarinios10' ">
-        <DefineConstants>$(DefineConstants);IOS</DefineConstants>
+        <DefineConstants>$(DefineConstants);__IOS__</DefineConstants>
         <Product>Plugin.BluetoothLE - iOS</Product>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'xamarintvos10' ">
-        <DefineConstants>$(DefineConstants);TVOS</DefineConstants>
+        <DefineConstants>$(DefineConstants);__TVOS__</DefineConstants>
         <Product>Plugin.BluetoothLE - tvOS</Product>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'xamarinmac20' ">
-        <DefineConstants>$(DefineConstants);MAC</DefineConstants>
+        <DefineConstants>$(DefineConstants);__MACOS__</DefineConstants>
         <Product>Plugin.BluetoothLE - macOS</Product>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'tizen4' ">
-        <DefineConstants>$(DefineConstants);TIZEN</DefineConstants>
+        <DefineConstants>$(DefineConstants);__TIZEN__</DefineConstants>
         <Product>Plugin.BluetoothLE - Tizen</Product>
     </PropertyGroup>
 
@@ -92,7 +92,7 @@ Supported Platforms
         <PackageReference Include="Rx-Main" Version="2.2.5" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'monoandroid10' ">
+    <ItemGroup Condition=" '$(TargetFramework)' == 'monoandroid70' ">
         <Compile Include="Platforms\Android\**\*.cs" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
     </ItemGroup>
