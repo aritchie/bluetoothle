@@ -5,7 +5,7 @@ using Characteristic = Windows.Devices.Bluetooth.GenericAttributeProfile.GattCha
 
 namespace Plugin.BluetoothLE
 {
-    public static class Extensions
+    public static class UwpExtensions
     {
         public static bool HasNotify(this Characteristic ch) =>
             ch.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Indicate) ||

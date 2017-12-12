@@ -19,6 +19,8 @@ namespace Plugin.BluetoothLE.Server
         public override IObservable<bool> WhenRunningChanged() => null;
 
 
+        public override bool IsRunning => false; // TODO
+
         public override async Task Start()
         {
             foreach (var service in this.Services.OfType<IUwpGattService>())

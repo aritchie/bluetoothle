@@ -12,7 +12,7 @@ namespace Plugin.BluetoothLE
         readonly BluetoothLEAdvertisementPublisher publisher = new BluetoothLEAdvertisementPublisher();
 
 
-        public override async Task Start(AdvertisementData adData)
+        public override void Start(AdvertisementData adData)
         {
             this.publisher.Advertisement.Flags = BluetoothLEAdvertisementFlags.ClassicNotSupported;
             this.publisher.Advertisement.ManufacturerData.Clear();
