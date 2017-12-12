@@ -19,8 +19,14 @@ namespace Plugin.BluetoothLE
         Radio radio;
 
 
-        public Adapter() {}
-        public Adapter(BluetoothAdapter native, Radio radio)
+        public Adapter()
+        {
+            this.GattServer = new GattServer();
+            //this.Advertiser = new Advertiser();
+        }
+
+
+        public Adapter(BluetoothAdapter native, Radio radio) : this()
         {
             this.native = native;
             this.radio = radio;
@@ -48,9 +54,6 @@ namespace Plugin.BluetoothLE
                 return features;
             }
         }
-
-
-        public override IGattServer CreateGattServer() => new GattServer();
 
 
         bool isScanning = false;

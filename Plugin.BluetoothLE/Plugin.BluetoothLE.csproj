@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;monoandroid43;xamarinios10;xamarinmac20;xamarintvos10;uap10.0.16299</TargetFrameworks>
-        <!--<TargetFrameworks>netstandard2.0;monoandroid43;xamarinios10;xamarinmac20;xamarintvos10;uap10.0.16299;net46;tizen4</TargetFrameworks>-->
+        <TargetFrameworks>netstandard2.0;monoandroid10;xamarinios10;xamarinmac20;xamarintvos10;uap10.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+        <!--<TargetFrameworks>netstandard2.0;monoandroid43;xamarinios10;xamarinmac20;xamarintvos10;uap10.0;net46;tizen4;portable-net45+win8+wpa81+wp8</TargetFrameworks>-->
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>aritchie</Authors>
         <Company />
@@ -10,7 +10,8 @@
         <Description>Cross Platform Reactive Bluetooth LE Plugin for Xamarin
 
 Supported Platforms
-* NetStandard
+* .NET Standard 2
+* PCL 259
 * Android 4.3+
 * iOS 7+
 * tvOS
@@ -28,10 +29,18 @@ Supported Platforms
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
         <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+        <DefineConstants>$(DefineConstants);NETSTANDARD;BAIT</DefineConstants>
+        <Product>Plugin.BluetoothLE - .NET Standard 2</Product>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' ">
+        <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+        <DefineConstants>$(DefineConstants);PCL;BAIT</DefineConstants>
+        <Product>Plugin.BluetoothLE - PCL</Product>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'monoandroid43' ">
-        <TargetFrameworkVersion>v8.0</TargetFrameworkVersion>
+        <!--<TargetFrameworkVersion>v8.0</TargetFrameworkVersion>-->
         <DefineConstants>$(DefineConstants);MONOANDROID</DefineConstants>
         <Product>Plugin.BluetoothLE - Android</Product>
     </PropertyGroup>
@@ -61,7 +70,7 @@ Supported Platforms
         <Product>Plugin.BluetoothLE - BlueZ</Product>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'uap10.0.16299' ">
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
         <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
         <TargetPlatformVersion>10.0.16299.0</TargetPlatformVersion>
         <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
@@ -70,32 +79,44 @@ Supported Platforms
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Abstractions\**\*.cs" Exclude="Platforms\**\*.cs" />
+        <Compile Remove="Platforms\**\*.cs" />
         <None Include="Platforms\**\*.cs" />
-        <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="MSBuild.Sdk.Extras" Version="1.1.0" PrivateAssets="all" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'monoandroid43' ">
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+        <PackageReference Include="System.Reactive" Version="3.1.1" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' ">
+        <PackageReference Include="Rx-Main" Version="2.2.5" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'monoandroid10' ">
         <Compile Include="Platforms\Android\**\*.cs" />
+        <PackageReference Include="System.Reactive" Version="3.1.1" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'xamarinios10' OR '$(TargetFramework)' == 'xamarintvos10' OR '$(TargetFramework)' == 'xamarinmac20' ">
         <Compile Include="Platforms\Apple\**\*.cs" />
+        <PackageReference Include="System.Reactive" Version="3.1.1" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
         <Compile Include="Platforms\net46\**\*.cs" />
+        <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="Tmds.DBus" Version="0.5.0" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
         <Compile Include="Platforms\Uwp\**\*.cs" />
+        <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.0.4" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'tizen4' ">
         <Compile Include="Platforms\Tizen\**\*.cs" />
+        <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="Tizen.NET" Version="4.0.0">
             <ExcludeAssets>Runtime</ExcludeAssets>
         </PackageReference>
