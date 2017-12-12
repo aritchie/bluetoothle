@@ -1,4 +1,4 @@
-﻿#if __IOS__ || __TVOS__ || __ANDROID__ || __TIZEN__
+﻿#if __IOS__ ||__TVOS__ ||  __ANDROID__ || __TIZEN__
 using System;
 using System.Reactive.Linq;
 

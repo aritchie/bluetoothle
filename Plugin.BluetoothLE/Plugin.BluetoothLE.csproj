@@ -102,6 +102,10 @@ Supported Platforms
         <PackageReference Include="System.Reactive" Version="3.1.1" />
     </ItemGroup>
 
+    <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.Mac20' ">
+        <Compile Include="Platforms\macOS\**\*.cs" />
+    </ItemGroup>
+
     <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
         <Compile Include="Platforms\net46\**\*.cs" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />

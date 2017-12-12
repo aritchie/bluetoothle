@@ -1,5 +1,5 @@
 ﻿using System;
-#if ANDROID
+#if __ANDROID__
 using Android.OS;
 using B = Android.OS.Build;
 #endif
@@ -19,7 +19,7 @@ namespace Plugin.BluetoothLE
             Current = new Adapter(configuration);
         }
 
-#elif ANDROID
+#elif __ANDROID__
 
         /// <summary>
         /// Specifies the number of Gatt.Connect attempts that will be run before handing off to NativeDevice.ConnectGatt(autoReconnect);
@@ -49,7 +49,7 @@ namespace Plugin.BluetoothLE
                     return androidOpPause;
 
                 if (Android.OS.Build.VERSION.SdkInt < Android.OS.BuildVersionCodes.N)
-                    return TimeSpan.FromMilliseconds(150);
+                    return TimeSpan.FromMilliseconds(100);
 
                 return null;
             }
