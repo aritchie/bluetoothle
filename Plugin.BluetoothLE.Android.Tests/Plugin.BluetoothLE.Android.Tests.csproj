@@ -100,6 +100,9 @@
     <PackageReference Include="Xamarin.Android.Support.v7.MediaRouter">
       <Version>26.1.0.1</Version>
     </PackageReference>
+      <PackageReference Include="Xamarin.Android.Support.Annotations">
+          <Version>26.1.0.1</Version>
+      </PackageReference>
     <PackageReference Include="xunit.runner.devices">
       <Version>2.3.2</Version>
     </PackageReference>

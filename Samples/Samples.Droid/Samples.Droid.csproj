@@ -63,7 +63,8 @@
     <PackageReference Include="Xamarin.Forms" Version="2.5.0.121934" />
     <PackageReference Include="Xamarin.Android.Support.v4" Version="26.1.0.1" />
     <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="26.1.0.1" />
-      <PackageReference Include="Xamarin.Android.Support.Design" Version="26.1.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.Design" Version="26.1.0.1" />
+      <PackageReference Include="Xamarin.Android.Support.Annotations" Version="26.1.0.1" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Java.Interop" />
