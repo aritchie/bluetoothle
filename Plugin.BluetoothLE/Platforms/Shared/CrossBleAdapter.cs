@@ -29,6 +29,13 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
+        /// If you disable this, you need to manage serial/sequential access to ALL bluetooth operations yourself!
+        /// DO NOT CHANGE this if you don't know what this is!
+        /// </summary>
+        public static bool AndroidDisableLockingMechanism { get; set; }
+
+
+        /// <summary>
         /// Time span to pause before service discovery (helps in combating GATT133 error) when service discovery is performed immediately after connection
         /// DO NOT CHANGE this if you don't know what this is!
         /// </summary>
