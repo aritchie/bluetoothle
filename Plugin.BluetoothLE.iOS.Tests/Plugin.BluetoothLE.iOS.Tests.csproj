@@ -114,23 +114,17 @@
       <Version>6.5.1</Version>
     </PackageReference>
     <PackageReference Include="xunit.runner.devices">
-      <Version>2.3.0</Version>
+      <Version>2.3.2</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj">
-      <Project>{01d11ef2-074c-4bc0-9c05-5a6a9f974e05}</Project>
-      <Name>Plugin.BluetoothLE.Abstractions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Plugin.BluetoothLE.iOS\Plugin.BluetoothLE.iOS.csproj">
-      <Project>{57d5ff44-345d-4229-aefc-e3f7f260a665}</Project>
-      <Name>Plugin.BluetoothLE.iOS</Name>
-      <IsAppExtension>false</IsAppExtension>
-      <IsWatchApp>false</IsWatchApp>
-    </ProjectReference>
     <ProjectReference Include="..\Plugin.BluetoothLE.Tests\Plugin.BluetoothLE.Tests.csproj">
       <Project>{9c37cbdc-27b0-464c-8d61-fa59b4a01f31}</Project>
       <Name>Plugin.BluetoothLE.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj">
+      <Project>{f44febba-7ea7-4b92-bf25-ebdcc1db1830}</Project>
+      <Name>Plugin.BluetoothLE</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
