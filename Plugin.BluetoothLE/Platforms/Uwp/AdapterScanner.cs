@@ -1,5 +1,4 @@
-﻿#if WINDOWS_UWP
-using System;
+﻿using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Windows.Devices.Bluetooth;
@@ -33,4 +32,3 @@ namespace Plugin.BluetoothLE
         });
     }
 }
-#endif

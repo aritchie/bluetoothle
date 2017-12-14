@@ -84,40 +84,43 @@ Supported Platforms
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+        <Compile Include="Platforms\Shared\**\*.cs" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' ">
+        <Compile Include="Platforms\Shared\**\*.cs" />
         <PackageReference Include="Rx-Main" Version="2.2.5" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid80' ">
+        <Compile Include="Platforms\Shared\**\*.cs" />
         <Compile Include="Platforms\Android\**\*.cs" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' OR '$(TargetFramework)' == 'Xamarin.tvOS10' OR '$(TargetFramework)' == 'Xamarin.Mac20' ">
+        <Compile Include="Platforms\Shared\**\*.cs" />
         <Compile Include="Platforms\Apple\**\*.cs" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.Mac20' ">
-        <Compile Include="Platforms\macOS\**\*.cs" />
-    </ItemGroup>
-
     <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
+        <Compile Include="Platforms\Shared\**\*.cs" />
         <Compile Include="Platforms\net46\**\*.cs" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="Tmds.DBus" Version="0.5.0" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
+        <Compile Include="Platforms\Shared\**\*.cs" />
         <Compile Include="Platforms\Uwp\**\*.cs" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.0.4" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'tizen4' ">
+        <Compile Include="Platforms\Shared\**\*.cs" />
         <Compile Include="Platforms\Tizen\**\*.cs" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="Tizen.NET" Version="4.0.0">

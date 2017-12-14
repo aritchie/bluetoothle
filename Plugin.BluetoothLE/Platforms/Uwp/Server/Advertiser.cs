@@ -1,11 +1,9 @@
-﻿using Plugin.BluetoothLE.Server;
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Storage.Streams;
 
 
-namespace Plugin.BluetoothLE
+namespace Plugin.BluetoothLE.Server
 {
     public class Advertiser : AbstractAdvertiser
     {
@@ -34,7 +32,6 @@ namespace Plugin.BluetoothLE
             }
 
             this.publisher.Start();
-            await base.Start();
         }
 
 

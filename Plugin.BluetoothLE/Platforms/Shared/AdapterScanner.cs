@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if __ANDROID__ || __TIZEN__
+using System;
 using System.Reactive.Linq;
 
 
@@ -10,3 +11,4 @@ namespace Plugin.BluetoothLE
         public IObservable<IAdapter> FindAdapters() => Observable.Return(CrossBleAdapter.Current);
     }
 }
+#endif
