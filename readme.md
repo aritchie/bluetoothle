@@ -92,6 +92,13 @@ If you want to use background BLE periperhals, add the following to your Info.pl
 <string>YOUR CUSTOM MESSAGE</string>
 ```
 
+## GENERAL RULES TO FOLLOW
+
+* DO NOT reuse services, characteristics, and descriptors between connnections
+* DO try errors for all connected operations (ie. Reads/Writes) using the [Observable Catch](http://www.introtorx.com/content/v1.0.10621.0/11_AdvancedErrorHandling.html#Catch) or using a general "try await catch"
+* DO set timeouts on all connected operations using [Observable.Timeout(TimeSpan)](http://www.introtorx.com/content/v1.0.10621.0/13_TimeShiftedSequences.html#Timeout).  Timeout throws errors that you must also manage!
+
+
 ## HOW TO USE - CLIENT BASICS
 
 ```csharp
