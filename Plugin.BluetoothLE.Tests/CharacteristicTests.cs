@@ -140,5 +140,27 @@ namespace Plugin.BluetoothLE.Tests
             sw.Stop();
             this.Output.WriteLine($"Reads took {sw.Elapsed.TotalSeconds}s");
         }
+
+
+        [Fact]
+        public async Task NotificationFollowedByWrite()
+        {
+            var tcs = new TaskCompletionSource<object>();
+
+            var cs = await this.GetCharacteristics();
+            var sub = cs
+                .First()
+                .RegisterAndNotify()
+                .Subscribe(async x =>
+                {
+                    await x.Characteristic.Write(new byte[] {0x0});
+                    await x.Characteristic.Write(new byte[] { 0x0 });
+                    await x.Characteristic.Write(new byte[] { 0x0 });
+                    tcs.TrySetResult(null);
+                });
+
+            await tcs.Task;
+            sub.Dispose();
+        }
     }
 }
