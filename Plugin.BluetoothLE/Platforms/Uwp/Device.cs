@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using Windows.Devices.Bluetooth;
@@ -33,12 +34,12 @@ namespace Plugin.BluetoothLE
         public override IGattReliableWriteTransaction BeginReliableWriteTransaction() => new GattReliableWriteTransaction();
 
 
-        public override IObservable<object> Connect(GattConnectionConfig config)
-            => Observable.Create<object>(ob =>
+        public override IObservable<Unit> Connect(GattConnectionConfig config)
+            => Observable.Create<Unit>(ob =>
             {
                 var sub = this.WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ => ob.Respond(null));
+                    .Subscribe(_ => ob.Respond(Unit.Default));
 
                 this.context.Connect();
 

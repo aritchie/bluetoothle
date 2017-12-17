@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using CoreBluetooth;
 using Foundation;
 
@@ -58,8 +56,8 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<object> Connect(GattConnectionConfig config)
-            => Observable.Create<object>(ob =>
+        public override IObservable<Unit> Connect(GattConnectionConfig config)
+            => Observable.Create<Unit>(ob =>
             {
 
                 config = config ?? GattConnectionConfig.DefaultConfiguration;
@@ -68,7 +66,7 @@ namespace Plugin.BluetoothLE
 
                 if (this.Status == ConnectionStatus.Connected)
                 {
-                    ob.Respond(null);
+                    ob.Respond(Unit.Default);
                 }
                 else
                 {
@@ -80,7 +78,7 @@ namespace Plugin.BluetoothLE
                             if (config.IsPersistent)
                                 this.autoReconnect = this.SetupAutoReconnect();
 
-                            ob.Respond(null);
+                            ob.Respond(Unit.Default);
                         });
 
                     sub2 = this.context

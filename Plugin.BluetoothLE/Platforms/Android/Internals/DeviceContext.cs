@@ -4,6 +4,7 @@ using Android.OS;
 using Java.Lang;
 using System;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
@@ -74,7 +75,7 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        public IObservable<object> Marshall(Action action) => Observable.Create<object>(ob =>
+        public IObservable<Unit> Marshall(Action action) => Observable.Create<Unit>(ob =>
         {
             if (CrossBleAdapter.AndroidPerformActionsOnMainThread)
             {
@@ -83,7 +84,7 @@ namespace Plugin.BluetoothLE.Internals
                     try
                     {
                         action();
-                        ob.Respond(null);
+                        ob.Respond(Unit.Default);
                     }
                     catch (Exception ex)
                     {
@@ -94,13 +95,13 @@ namespace Plugin.BluetoothLE.Internals
             else
             {
                 action();
-                ob.Respond(null);
+                ob.Respond(Unit.Default);
             }
             return Disposable.Empty;
         });
 
 
-        public IObservable<object> Reconnect(ConnectionPriority priority)
+        public IObservable<Unit> Reconnect(ConnectionPriority priority)
         {
             if (this.Gatt == null)
                 throw new ArgumentException("Device is not in a reconnectable state");
@@ -109,7 +110,7 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
-        public IObservable<object> Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.Marshall(() =>
+        public IObservable<Unit> Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.Marshall(() =>
         {
             this.CreateGatt(androidAutoReconnect);
             if (this.Gatt != null && priority != ConnectionPriority.Normal)
@@ -135,6 +136,7 @@ namespace Plugin.BluetoothLE.Internals
         {
             try
             {
+                // somewhat a copy of android-rxbluetoothle
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.N)
                 {
                     this.Gatt = this.ConnectGattCompat(autoConnect);

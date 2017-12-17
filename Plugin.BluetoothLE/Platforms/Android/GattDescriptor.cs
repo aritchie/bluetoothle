@@ -46,7 +46,9 @@ namespace Plugin.BluetoothLE
             await this.context.Marshall(() =>
             {
                 this.native.SetValue(data);
-                this.context.Gatt.WriteDescriptor(this.native);
+                var result = this.context.Gatt.WriteDescriptor(this.native);
+                if (!result)
+                    ob.OnError(new BleException("Failed to write to descriptor"));
             });
 
             return sub;
@@ -75,7 +77,12 @@ namespace Plugin.BluetoothLE
                     }
                 });
 
-            await this.context.Marshall(() => this.context.Gatt.ReadDescriptor(this.native));
+            await this.context.Marshall(() =>
+            {
+                var result = this.context.Gatt.ReadDescriptor(this.native);
+                if (!result)
+                    ob.OnError(new BleException("Failed to read descriptor"));
+            });
 
             return sub;
         }));

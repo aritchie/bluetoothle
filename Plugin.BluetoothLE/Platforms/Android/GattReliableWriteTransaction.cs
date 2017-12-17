@@ -1,4 +1,5 @@
 using System;
+using System.Reactive;
 using Plugin.BluetoothLE.Internals;
 using System.Reactive.Linq;
 
@@ -25,7 +26,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<object> Commit() => this.context.Lock(Observable.Create<object>(ob =>
+        public override IObservable<Unit> Commit() => this.context.Lock(Observable.Create<Unit>(ob =>
         {
             this.AssertAction();
 
@@ -37,7 +38,7 @@ namespace Plugin.BluetoothLE
                     if (args.IsSuccessful)
                     {
                         this.Status = TransactionStatus.Committed;
-                        ob.Respond(null);
+                        ob.Respond(Unit.Default);
                     }
                     else
                     {
@@ -45,7 +46,9 @@ namespace Plugin.BluetoothLE
                         ob.OnError(new GattReliableWriteTransactionException("Error committing transaction"));
                     }
                 });
-            this.context.Gatt.ExecuteReliableWrite();
+            if (!this.context.Gatt.ExecuteReliableWrite())
+                throw new BleException("Failed to execute write");
+
             this.Status = TransactionStatus.Committing;
 
             return sub;

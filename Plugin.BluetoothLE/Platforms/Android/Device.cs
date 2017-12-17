@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
@@ -61,7 +62,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<object> Connect(GattConnectionConfig config) => Observable.Create<object>(async ob =>
+        public override IObservable<Unit> Connect(GattConnectionConfig config) => Observable.Create<Unit>(async ob =>
         {
             var connected = false;
             config = config ?? GattConnectionConfig.DefaultConfiguration;
@@ -74,7 +75,7 @@ namespace Plugin.BluetoothLE
                     if (config.IsPersistent)
                         this.autoReconnectSub = this.CreateAutoReconnectSubscription(config);
 
-                    ob.Respond(null);
+                    ob.Respond(Unit.Default);
                 });
 
             var sub2 = this.connFailSubject.Subscribe(x =>
@@ -181,7 +182,12 @@ namespace Plugin.BluetoothLE
 
                     // this helps alleviate gatt 133 error
                     .Delay(CrossBleAdapter.AndroidPauseBeforeServiceDiscovery)
-                    .Subscribe(_ => this.context.Gatt.DiscoverServices());
+                    .Subscribe(_ =>
+                    {
+                        var result = this.context.Gatt.DiscoverServices();
+                        if (!result)
+                            ob.OnError(new BleException("Failed to request services"));
+                    });
 
                 return () =>
                 {
@@ -267,7 +273,9 @@ namespace Plugin.BluetoothLE
                     .Subscribe(x => ob.Respond(x.BondState == Bond.Bonded)); // will complete here
 
                 // execute
-                this.context.NativeDevice.CreateBond();
+                var result = this.context.NativeDevice.CreateBond();
+                if (!result)
+                    ob.OnError(new BleException("Failed to create pairing"));
             }
             return () =>
             {

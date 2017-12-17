@@ -29,7 +29,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<object> Connect(GattConnectionConfig config) => Observable.Create<object>(ob =>
+        public override IObservable<Unit> Connect(GattConnectionConfig config) => Observable.Create<Unit>(ob =>
         {
 
             this.native.GattConnect(config.AutoConnect);

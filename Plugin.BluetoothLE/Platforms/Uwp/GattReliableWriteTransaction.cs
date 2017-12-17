@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
@@ -24,7 +25,7 @@ namespace Plugin.BluetoothLE
 
             var platform = characteristic as GattCharacteristic;
             if (platform == null)
-                throw new ArgumentException("");
+                throw new ArgumentException("Characteristic must be UWP type");
 
             // TODO: need write observable
             this.native.WriteValue(platform.Native, null);
@@ -32,11 +33,11 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<object> Commit()
+        public override IObservable<Unit> Commit()
         {
             this.AssertAction();
 
-            return Observable.Create<object>(async ob =>
+            return Observable.FromAsync(async ct =>
             {
                 this.Status = TransactionStatus.Committing;
 
@@ -44,14 +45,12 @@ namespace Plugin.BluetoothLE
                 if (result == GattCommunicationStatus.Success)
                 {
                     this.Status = TransactionStatus.Committed;
-                    ob.Respond(null);
                 }
                 else
                 {
                     this.Status = TransactionStatus.Aborted;
-                    ob.OnError(new GattReliableWriteTransactionException("Failed to write transaction"));
+                    throw new GattReliableWriteTransactionException("Failed to write transaction");
                 }
-                return Disposable.Empty;
             });
         }
 

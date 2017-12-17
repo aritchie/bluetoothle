@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
@@ -27,8 +28,8 @@ namespace Plugin.BluetoothLE
         public CharacteristicProperties Properties { get; }
         public byte[] Value { get; protected set; }
 
-        public abstract IObservable<bool> EnableNotifications(bool enableIndicationsIfAvailable);
-        public abstract IObservable<object> DisableNotifications();
+        public abstract IObservable<Unit> EnableNotifications(bool enableIndicationsIfAvailable);
+        public abstract IObservable<Unit> DisableNotifications();
         public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();
         public abstract IObservable<CharacteristicResult> Read();
         public abstract void WriteWithoutResponse(byte[] value);

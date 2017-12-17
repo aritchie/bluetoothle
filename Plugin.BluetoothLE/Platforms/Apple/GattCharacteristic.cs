@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive;
 using System.Reactive.Linq;
 using CoreBluetooth;
 using Foundation;
@@ -101,19 +102,19 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<bool> EnableNotifications(bool enableIndicationsIfAvailable)
+        public override IObservable<Unit> EnableNotifications(bool enableIndicationsIfAvailable)
         {
             this.AssertNotify();
             this.Peripheral.SetNotifyValue(true, this.NativeCharacteristic);
-            return Observable.Return(true);
+            return Observable.Return(Unit.Default);
         }
 
 
-        public override IObservable<object> DisableNotifications()
+        public override IObservable<Unit> DisableNotifications()
         {
             this.AssertNotify();
             this.Peripheral.SetNotifyValue(false, this.NativeCharacteristic);
-            return Observable.Return(new object());
+            return Observable.Return(Unit.Default);
         }
 
 

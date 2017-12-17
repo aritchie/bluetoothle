@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Reactive;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 
 
 namespace Plugin.BluetoothLE
@@ -21,7 +21,7 @@ namespace Plugin.BluetoothLE
         public abstract DeviceFeatures Features { get; }
         public abstract object NativeDevice { get; }
 
-        public abstract IObservable<object> Connect(GattConnectionConfig config);
+        public abstract IObservable<Unit> Connect(GattConnectionConfig config);
         public abstract void CancelConnection();
         public abstract IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan);
         public abstract IObservable<ConnectionStatus> WhenStatusChanged();

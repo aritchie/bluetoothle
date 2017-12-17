@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 
 
 namespace Plugin.BluetoothLE
@@ -37,7 +38,7 @@ namespace Plugin.BluetoothLE
         /// </summary>
         /// <param name="config">Connection configuration</param>
         /// <returns></returns>
-        IObservable<object> Connect(GattConnectionConfig config = null);
+        IObservable<Unit> Connect(GattConnectionConfig config = null);
 
         /// <summary>
         /// Disconnect from the device and cancel persistent connection

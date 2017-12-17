@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 
@@ -17,10 +18,13 @@ namespace Plugin.BluetoothLE
         public static IObservable<CharacteristicResult> RegisterAndNotify(this IGattCharacteristic characteristic, bool useIndicationIfAvailable = false)
             => characteristic
                 .EnableNotifications(useIndicationIfAvailable)
-                .Where(x => x)
                 .Select(x => characteristic.WhenNotificationReceived())
                 .Switch()
-                .Finally(() => characteristic.DisableNotifications().Subscribe());
+                .Finally(() => characteristic
+                    .DisableNotifications()
+                    .Catch(Observable.Empty(Unit.Default))
+                    .Subscribe()
+                );
 
 
         public static IObservable<CharacteristicResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
@@ -62,7 +66,6 @@ namespace Plugin.BluetoothLE
             if (character.CanNotify())
                 return character
                     .EnableNotifications()
-                    .Where(x => x)
                     .Select(x => character.WhenNotificationReceived())
                     .Switch();
 

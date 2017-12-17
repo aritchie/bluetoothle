@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;uap10.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;MonoAndroid70;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;uap10.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
         <!--<TargetFrameworks>netstandard2.0;monoandroid43;xamarinios10;xamarinmac20;xamarintvos10;uap10.0;net46;tizen4;portable-net45+win8+wpa81+wp8</TargetFrameworks>-->
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>aritchie</Authors>
@@ -39,7 +39,7 @@ Supported Platforms
         <Product>Plugin.BluetoothLE - PCL</Product>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'MonoAndroid80' ">
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'MonoAndroid80' OR '$(TargetFramework)' == 'MonoAndroid70' ">
         <!--<TargetFrameworkVersion>v8.0</TargetFrameworkVersion>-->
         <DefineConstants>$(DefineConstants);__ANDROID__</DefineConstants>
         <Product>Plugin.BluetoothLE - Android</Product>
@@ -93,7 +93,7 @@ Supported Platforms
         <PackageReference Include="Rx-Main" Version="2.2.5" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid80' ">
+    <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid80' OR '$(TargetFramework)' == 'MonoAndroid70' ">
         <Compile Include="Platforms\Shared\**\*.cs" />
         <Compile Include="Platforms\Android\**\*.cs" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />

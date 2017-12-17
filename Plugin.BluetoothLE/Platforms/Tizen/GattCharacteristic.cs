@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 
 
 namespace Plugin.BluetoothLE
@@ -10,13 +11,13 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<bool> EnableNotifications(bool enableIndicationsIfAvailable)
+        public override IObservable<Unit> EnableNotifications(bool enableIndicationsIfAvailable)
         {
             throw new NotImplementedException();
         }
 
 
-        public override IObservable<object> DisableNotifications()
+        public override IObservable<Unit> DisableNotifications()
         {
             throw new NotImplementedException();
         }

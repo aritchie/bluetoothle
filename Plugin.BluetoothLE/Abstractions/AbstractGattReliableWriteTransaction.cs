@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 
 
 namespace Plugin.BluetoothLE
@@ -20,7 +21,7 @@ namespace Plugin.BluetoothLE
 
         public TransactionStatus Status { get; protected set; } = TransactionStatus.Active;
         public abstract IObservable<CharacteristicResult> Write(IGattCharacteristic characteristic, byte[] value);
-        public abstract IObservable<object> Commit();
+        public abstract IObservable<Unit> Commit();
         public abstract void Abort();
 
 

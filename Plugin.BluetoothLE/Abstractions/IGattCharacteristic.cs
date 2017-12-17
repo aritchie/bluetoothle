@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reactive;
 
 
 namespace Plugin.BluetoothLE
@@ -23,13 +24,13 @@ namespace Plugin.BluetoothLE
         /// </summary>
         /// <param name="useIndicationIfAvailable">If true and indication is available, it will be used</param>
         /// <returns></returns>
-        IObservable<bool> EnableNotifications(bool useIndicationIfAvailable = false);
+        IObservable<Unit> EnableNotifications(bool useIndicationIfAvailable = false);
 
 
         /// <summary>
         /// Disable notifications
         /// </summary>
-        IObservable<object> DisableNotifications();
+        IObservable<Unit> DisableNotifications();
 
 
         /// <summary>
