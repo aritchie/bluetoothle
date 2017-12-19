@@ -49,19 +49,17 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IEnumerable<IDevice> GetPairedDevices() =>
-            this.manager
-                .Adapter
-                .BondedDevices
-                .Where(x => x.Type == BluetoothDeviceType.Dual || x.Type == BluetoothDeviceType.Le) // TODO: does it know?
-                .Select(this.context.Devices.GetDevice)
-                .ToList();
+        public override IEnumerable<IDevice> GetPairedDevices() => this.manager
+            .Adapter
+            .BondedDevices
+            .Where(x => x.Type == BluetoothDeviceType.Dual || x.Type == BluetoothDeviceType.Le) // TODO: does it know?
+            .Select(this.context.Devices.GetDevice)
+            .ToList();
 
 
-        public override IEnumerable<IDevice> GetConnectedDevices() =>
-            this.manager
-                .GetConnectedDevices(ProfileType.Gatt)
-                .Select(this.context.Devices.GetDevice);
+        public override IEnumerable<IDevice> GetConnectedDevices() => this.manager
+            .GetConnectedDevices(ProfileType.Gatt)
+            .Select(this.context.Devices.GetDevice);
 
 
         public override AdapterStatus Status
@@ -126,7 +124,10 @@ namespace Plugin.BluetoothLE
                 throw new ArgumentException("There is already an active scan");
 
             config = config ?? new ScanConfig();
-            return this.context.Scan(config);
+            this.scanStatusChanged.OnNext(true);
+            return this.context
+                .Scan(config)
+                .Finally(() => this.scanStatusChanged.OnNext(false));
         }
 
 

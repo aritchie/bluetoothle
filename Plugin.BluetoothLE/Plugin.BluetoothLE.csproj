@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;MonoAndroid70;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;uap10.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
-        <!--<TargetFrameworks>netstandard2.0;monoandroid43;xamarinios10;xamarinmac20;xamarintvos10;uap10.0;net46;tizen4;portable-net45+win8+wpa81+wp8</TargetFrameworks>-->
+        <TargetFrameworks>netstandard2.0;MonoAndroid70;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;uap10.0</TargetFrameworks>
+        <!--<TargetFrameworks>netstandard2.0;monoandroid43;xamarinios10;xamarinmac20;xamarintvos10;uap10.0;net46;tizen4</TargetFrameworks>-->
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>aritchie</Authors>
         <Company />
@@ -31,12 +31,6 @@ Supported Platforms
         <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
         <DefineConstants>$(DefineConstants);NETSTANDARD;BAIT</DefineConstants>
         <Product>Plugin.BluetoothLE - .NET Standard 2</Product>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' ">
-        <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
-        <DefineConstants>$(DefineConstants);PCL;BAIT</DefineConstants>
-        <Product>Plugin.BluetoothLE - PCL</Product>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'MonoAndroid80' OR '$(TargetFramework)' == 'MonoAndroid70' ">
@@ -86,11 +80,6 @@ Supported Platforms
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
         <Compile Include="Platforms\Shared\**\*.cs" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' ">
-        <Compile Include="Platforms\Shared\**\*.cs" />
-        <PackageReference Include="Rx-Main" Version="2.2.5" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid80' OR '$(TargetFramework)' == 'MonoAndroid70' ">

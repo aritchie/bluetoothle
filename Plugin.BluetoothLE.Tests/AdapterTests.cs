@@ -4,6 +4,7 @@ using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
 using FluentAssertions;
+using FluentAssertions.Common;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -66,6 +67,28 @@ namespace Plugin.BluetoothLE.Tests
 
             result.Should().NotBeNull("Device not found");
             result.Device.Name.Should().Be("Bean+");
+        }
+
+
+        // defect #105 - investigation
+        [Fact]
+        public async Task Scanning_FlagsAndEvents()
+        {
+            CrossBleAdapter.Current.IsScanning.Should().Be(false, "Adapter says it is scanning!");
+
+            var scanning = false;
+            CrossBleAdapter
+                .Current
+                .WhenScanningStatusChanged()
+                .Subscribe(x => scanning = x);
+
+            var sub = CrossBleAdapter.Current.Scan().Subscribe(); // don't do anything with results
+            scanning.Should().Be(true);
+            CrossBleAdapter.Current.IsScanning.Should().Be(true, "Adapter says it is NOT scanning!");
+
+            sub.Dispose();
+            scanning.Should().Be(false, "Scanning should have stopped");
+            CrossBleAdapter.Current.IsScanning.Should().Be(false, "Adapter scanning should have stopped");
         }
     }
 }
