@@ -33,7 +33,11 @@ namespace Plugin.BluetoothLE
 
         public override string DeviceName => "Default Bluetooth Device";
         public override AdapterFeatures Features => AdapterFeatures.All;
-        public override bool IsScanning => this.manager.Adapter.IsDiscovering;
+
+
+        bool isScanning = false;
+        public override bool IsScanning => this.isScanning;
+        //public override bool IsScanning => this.manager.Adapter.IsDiscovering;
 
 
         public override IDevice GetKnownDevice(Guid deviceId)
@@ -112,10 +116,9 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<bool> WhenScanningStatusChanged() =>
-            this.scanStatusChanged
-                .AsObservable()
-                .StartWith(this.IsScanning);
+        public override IObservable<bool> WhenScanningStatusChanged() => this.scanStatusChanged
+            .AsObservable()
+            .StartWith(this.IsScanning);
 
 
         public override IObservable<IScanResult> Scan(ScanConfig config)
@@ -125,9 +128,15 @@ namespace Plugin.BluetoothLE
 
             config = config ?? new ScanConfig();
             this.scanStatusChanged.OnNext(true);
+            this.isScanning = true;
+
             return this.context
                 .Scan(config)
-                .Finally(() => this.scanStatusChanged.OnNext(false));
+                .Finally(() =>
+                {
+                    this.isScanning = false;
+                    this.scanStatusChanged.OnNext(false);
+                });
         }
 
 
