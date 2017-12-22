@@ -110,6 +110,7 @@ namespace Plugin.BluetoothLE
         {
             this.AssertNotify();
             this.Peripheral.SetNotifyValue(true, this.NativeCharacteristic);
+            // TODO
             //return Observable.Return(Unit.Default);
             return null;
         }
@@ -119,6 +120,7 @@ namespace Plugin.BluetoothLE
         {
             this.AssertNotify();
             this.Peripheral.SetNotifyValue(false, this.NativeCharacteristic);
+            // TODO
             //return Observable.Return(Unit.Default);
             return null;
         }
