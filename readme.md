@@ -51,6 +51,7 @@ UWP is still in beta!
 * Android Issues
   * We manage the GATT 133 (mostly, hopefully)
   * Don't like the serial way you have to work with BLE, don't worry, we cover that too.  Read/Write away!
+  * Don't know what thread to run a method on?  Don't worry - we got that covered.... just make the read/write call and relax
 
 
 ## SETUP
