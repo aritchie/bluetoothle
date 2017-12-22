@@ -48,7 +48,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<GattResult> Write(byte[] value)
+        public override IObservable<CharacteristicGattResult> Write(byte[] value)
         {
             // TODO: reliable write
             this.AssertWrite(false);
@@ -60,11 +60,10 @@ namespace Plugin.BluetoothLE
                     .AsTask(ct);
 
                 this.context.Ping();
-                GattResult r = null;
+                CharacteristicGattResult r = null;
                 if (result != GattCommunicationStatus.Success)
                 {
-                    r = new GattResult(
-                        this,
+                    r = this.ToResult(
                         GattEvent.WriteError,
                         "Error writing characteristic - " + result
                     );
@@ -72,14 +71,15 @@ namespace Plugin.BluetoothLE
                 else
                 {
                     this.Value = value;
-                    r = new GattResult(this, GattEvent.WriteSuccess, value);
+                    r = this.ToResult(GattEvent.Write, value);
+                    //this.WriteSubject.OnNext(r);
                 }
                 return r;
             });
         }
 
 
-        public override IObservable<GattResult> Read()
+        public override IObservable<CharacteristicGattResult> Read()
         {
             this.AssertRead();
 
@@ -89,12 +89,11 @@ namespace Plugin.BluetoothLE
                     .ReadValueAsync(BluetoothCacheMode.Uncached)
                     .AsTask(ct);
 
-                GattResult r = null;
+                CharacteristicGattResult r = null;
                 this.context.Ping();
                 if (result.Status != GattCommunicationStatus.Success)
                 {
-                    r = new GattResult(
-                        this,
+                    r = this.ToResult(
                         GattEvent.ReadError,
                         "Error reading characteristics - " + result.Status
                     );
@@ -103,7 +102,7 @@ namespace Plugin.BluetoothLE
                 {
                     var bytes = result.Value.ToArray();
                     this.Value = bytes;
-                    r = new GattResult(this, GattEvent.ReadSuccess, bytes);
+                    r = this.ToResult(GattEvent.Read, bytes);
                 }
                 return r;
             });
@@ -140,30 +139,30 @@ namespace Plugin.BluetoothLE
         //    });
 
 
-        IObservable<GattResult> notificationOb;
-        public override IObservable<GattResult> RegisterForNotifications(bool useIndicationsIfAvailable)
-        {
-            this.AssertNotify();
+        //IObservable<GattResult> notificationOb;
+        //public override IObservable<GattResult> RegisterForNotifications(bool useIndicationsIfAvailable)
+        //{
+        //    this.AssertNotify();
 
-            this.notificationOb = this.notificationOb ?? Observable.Create<GattResult>(ob =>
-            {
-                //var trigger = new GattCharacteristicNotificationTrigger(this.native);
+        //    this.notificationOb = this.notificationOb ?? Observable.Create<GattResult>(ob =>
+        //    {
+        //        //var trigger = new GattCharacteristicNotificationTrigger(this.native);
 
-                var handler = new TypedEventHandler<Native, GattValueChangedEventArgs>((sender, args) =>
-                {
-                    if (sender.Equals(this.Native))
-                    {
-                        var bytes = args.CharacteristicValue.ToArray();
-                        var result = new GattResult(this, GattEvent.Notification, bytes);
-                        ob.OnNext(result);
-                    }
-                });
-                this.Native.ValueChanged += handler;
+        //        var handler = new TypedEventHandler<Native, GattValueChangedEventArgs>((sender, args) =>
+        //        {
+        //            if (sender.Equals(this.Native))
+        //            {
+        //                var bytes = args.CharacteristicValue.ToArray();
+        //                var result = new GattResult(this, GattEvent.Notification, bytes);
+        //                ob.OnNext(result);
+        //            }
+        //        });
+        //        this.Native.ValueChanged += handler;
 
-                return () => this.Native.ValueChanged -= handler;
-            });
-            return this.notificationOb;
-        }
+        //        return () => this.Native.ValueChanged -= handler;
+        //    });
+        //    return this.notificationOb;
+        //}
 
 
         public override async void WriteWithoutResponse(byte[] value)

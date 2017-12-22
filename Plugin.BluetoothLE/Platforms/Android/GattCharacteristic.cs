@@ -22,7 +22,9 @@ namespace Plugin.BluetoothLE
         public GattCharacteristic(IGattService service,
                                   DeviceContext context,
                                   BluetoothGattCharacteristic native)
-            : base(service, native.Uuid.ToGuid(), (CharacteristicProperties)(int)native.Properties)
+                            : base(service,
+                                   native.Uuid.ToGuid(),
+                                   (CharacteristicProperties)(int)native.Properties)
         {
             this.context = context;
             this.native = native;
@@ -102,23 +104,20 @@ namespace Plugin.BluetoothLE
                 .Where(this.NativeEquals)
                 .Subscribe(args =>
                 {
-                    CharacteristicGattResult result = null;
                     if (!args.IsSuccessful)
                     {
-                        result = new CharacteristicGattResult(
-                            this,
+                        ob.OnNext(this.ToResult(
                             GattEvent.ReadError,
                             $"Failed to read characteristic - {args.Status}"
-                        );
+                        ));
                     }
                     else
                     {
                         this.Value = args.Characteristic.GetValue();
-                        result = new CharacteristicGattResult(this, GattEvent.Read, this.Value);
-
+                        var result = this.ToResult(GattEvent.Read, this.Value);
+                        this.ReadSubject.OnNext(result);
+                        ob.Respond(result);
                     }
-                    this.ReadSubject.OnNext(result);
-                    ob.Respond(result);
                 });
 
             await this.context.Marshall(() =>
@@ -154,9 +153,11 @@ namespace Plugin.BluetoothLE
                 ? BluetoothGattDescriptor.EnableIndicationValue.ToArray()
                 : BluetoothGattDescriptor.EnableNotificationValue.ToArray();
 
+            // TODO
             var result = await wrap.Write(bytes);
             this.IsNotifying = true;
 
+            // TODO
             return null;
         });
 
@@ -166,7 +167,7 @@ namespace Plugin.BluetoothLE
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
             if (descriptor == null)
-                this.ToResult(GattEvent.NotificationError, "Characteristic Client Configuration Descriptor not found");
+                return this.ToResult(GattEvent.NotificationError, "Characteristic Client Configuration Descriptor not found");
 
             var wrap = new GattDescriptor(this, this.context, descriptor);
             if (!this.context.Gatt.SetCharacteristicNotification(this.native, false))
@@ -175,6 +176,7 @@ namespace Plugin.BluetoothLE
             if (CrossBleAdapter.AndroidOperationPause != null)
                 await Task.Delay(CrossBleAdapter.AndroidOperationPause.Value, ct);
 
+            // TODO
             var result = await wrap.Write(BluetoothGattDescriptor.DisableNotificationValue.ToArray());
             this.IsNotifying = false;
 
@@ -196,8 +198,7 @@ namespace Plugin.BluetoothLE
                     {
                         if (!args.IsSuccessful)
                         {
-                            ob.OnNext(new CharacteristicGattResult(
-                                this,
+                            ob.OnNext(this.ToResult(
                                 GattEvent.NotificationError,
                                 "Error subscribing to " + args.Status.ToString()
                             ));
@@ -205,8 +206,7 @@ namespace Plugin.BluetoothLE
                         else
                         {
                             this.Value = args.Characteristic.GetValue();
-                            ob.OnNext(new CharacteristicGattResult(
-                                this,
+                            ob.OnNext(this.ToResult(
                                 GattEvent.Notification,
                                 this.Value
                             ));

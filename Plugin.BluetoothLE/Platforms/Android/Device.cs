@@ -184,9 +184,8 @@ namespace Plugin.BluetoothLE
                     .Delay(CrossBleAdapter.AndroidPauseBeforeServiceDiscovery)
                     .Subscribe(_ =>
                     {
-                        var result = this.context.Gatt.DiscoverServices();
-                        if (!result)
-                            ob.OnError(new BleException("Failed to request services"));
+                        if (!this.context.Gatt.DiscoverServices())
+                            ob.OnError(new Exception("Failed to request services"));
                     });
 
                 return () =>
@@ -273,8 +272,7 @@ namespace Plugin.BluetoothLE
                     .Subscribe(x => ob.Respond(x.BondState == Bond.Bonded)); // will complete here
 
                 // execute
-                var result = this.context.NativeDevice.CreateBond();
-                if (!result)
+                if (!this.context.NativeDevice.CreateBond())
                     ob.OnError(new BleException("Failed to create pairing"));
             }
             return () =>
