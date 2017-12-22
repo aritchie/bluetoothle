@@ -7,7 +7,7 @@ namespace Plugin.BluetoothLE
 {
     public class VoidGattReliableWriteTransaction : AbstractGattReliableWriteTransaction
     {
-        public override IObservable<CharacteristicResult> Write(IGattCharacteristic characteristic, byte[] value)
+        public override IObservable<CharacteristicGattResult> Write(IGattCharacteristic characteristic, byte[] value)
             => characteristic.Write(value);
 
 

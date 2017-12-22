@@ -11,9 +11,9 @@ namespace Plugin.BluetoothLE
         string Description { get; }
         byte[] Value { get; }
 
-        IObservable<DescriptorResult> Write(byte[] data);
-        IObservable<DescriptorResult> WhenWritten();
-        IObservable<DescriptorResult> Read();
-        IObservable<DescriptorResult> WhenRead();
+        IObservable<DescriptorGattResult> Write(byte[] data);
+        IObservable<DescriptorGattResult> WhenWritten();
+        IObservable<DescriptorGattResult> Read();
+        IObservable<DescriptorGattResult> WhenRead();
     }
 }

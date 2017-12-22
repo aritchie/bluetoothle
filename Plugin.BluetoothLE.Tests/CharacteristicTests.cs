@@ -153,7 +153,7 @@ namespace Plugin.BluetoothLE.Tests
                 .RegisterAndNotify()
                 .Subscribe(async x =>
                 {
-                    await x.Characteristic.Write(new byte[] {0x0});
+                    await x.Characteristic.Write(new byte[] { 0x0 });
                     await x.Characteristic.Write(new byte[] { 0x0 });
                     await x.Characteristic.Write(new byte[] { 0x0 });
                     tcs.TrySetResult(null);

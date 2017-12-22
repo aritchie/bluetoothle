@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 
@@ -9,26 +8,41 @@ namespace Plugin.BluetoothLE
 {
     public static partial class Extensions
     {
+        public static CharacteristicGattResult ToResult(this IGattCharacteristic ch, GattEvent gattEvent, string message)
+            => new CharacteristicGattResult(ch, gattEvent, message);
+
+
+        public static CharacteristicGattResult ToResult(this IGattCharacteristic ch, GattEvent gattEvent, byte[] data)
+            => new CharacteristicGattResult(ch, gattEvent, data);
+
+
+        public static DescriptorGattResult ToResult(this IGattDescriptor desc, GattEvent gattEvent, string message)
+            => new DescriptorGattResult(desc, gattEvent, message);
+
+
+        public static DescriptorGattResult ToResult(this IGattDescriptor desc, GattEvent gattEvent, byte[] data)
+            => new DescriptorGattResult(desc, gattEvent, data);
+
+
         /// <summary>
         ///
         /// </summary>
         /// <param name="characteristic"></param>
         /// <param name="useIndicationIfAvailable"></param>
         /// <returns></returns>
-        public static IObservable<CharacteristicResult> RegisterAndNotify(this IGattCharacteristic characteristic, bool useIndicationIfAvailable = false)
+        public static IObservable<CharacteristicGattResult> RegisterAndNotify(this IGattCharacteristic characteristic, bool useIndicationIfAvailable = false)
             => characteristic
                 .EnableNotifications(useIndicationIfAvailable)
                 .Select(x => characteristic.WhenNotificationReceived())
                 .Switch()
                 .Finally(() => characteristic
                     .DisableNotifications()
-                    .Catch(Observable.Empty(Unit.Default))
                     .Subscribe()
                 );
 
 
-        public static IObservable<CharacteristicResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
-            => Observable.Create<CharacteristicResult>(async ob =>
+        public static IObservable<CharacteristicGattResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
+            => Observable.Create<CharacteristicGattResult>(async ob =>
             {
                 var cancelSrc = new CancellationTokenSource();
                 try
@@ -49,8 +63,8 @@ namespace Plugin.BluetoothLE
             });
 
 
-        public static IObservable<CharacteristicResult> ReadInterval(this IGattCharacteristic character, TimeSpan timeSpan)
-            => Observable.Create<CharacteristicResult>(ob =>
+        public static IObservable<CharacteristicGattResult> ReadInterval(this IGattCharacteristic character, TimeSpan timeSpan)
+            => Observable.Create<CharacteristicGattResult>(ob =>
                 Observable
                     .Interval(timeSpan)
                     .Subscribe(async _ =>
@@ -61,7 +75,7 @@ namespace Plugin.BluetoothLE
                     }));
 
 
-        public static IObservable<CharacteristicResult> WhenReadOrNotify(this IGattCharacteristic character, TimeSpan readInterval)
+        public static IObservable<CharacteristicGattResult> WhenReadOrNotify(this IGattCharacteristic character, TimeSpan readInterval)
         {
             if (character.CanNotify())
                 return character

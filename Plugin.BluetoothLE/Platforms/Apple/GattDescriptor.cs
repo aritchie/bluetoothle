@@ -16,16 +16,17 @@ namespace Plugin.BluetoothLE
         public CBPeripheral Peripheral => this.characteristicObj.Peripheral;
 
 
-        public GattDescriptor(GattCharacteristic characteristic, CBDescriptor native) : base(characteristic, native.UUID.ToGuid())
+        public GattDescriptor(GattCharacteristic characteristic, CBDescriptor native)
+                       : base(characteristic, native.UUID.ToGuid())
         {
             this.characteristicObj = characteristic;
             this.native = native;
         }
 
 
-        public override IObservable<DescriptorResult> Read()
+        public override IObservable<DescriptorGattResult> Read()
         {
-            return Observable.Create<DescriptorResult>(ob =>
+            return Observable.Create<DescriptorGattResult>(ob =>
             {
                 var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
                 {
@@ -33,15 +34,18 @@ namespace Plugin.BluetoothLE
                     {
                         if (args.Error != null)
                         {
-                            ob.OnError(new ArgumentException(args.Error.ToString()));
+                            ob.OnNext(this.ToResult(
+                                GattEvent.ReadError,
+                                args.Error.ToString()
+                            ));
                         }
                         else
                         {
                             this.Value = ((NSData) args.Descriptor.Value).ToArray();
 
-                            var result = new DescriptorResult(this, DescriptorEvent.Read, this.Value);
-                            ob.Respond(result);
+                            var result = this.ToResult(GattEvent.Read, this.Value);
                             this.ReadSubject.OnNext(result);
+                            ob.Respond(result);
                         }
                     }
                 });
@@ -53,9 +57,9 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<DescriptorResult> Write(byte[] data)
+        public override IObservable<DescriptorGattResult> Write(byte[] data)
         {
-            return Observable.Create<DescriptorResult>(ob =>
+            return Observable.Create<DescriptorGattResult>(ob =>
             {
                 var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
                 {
@@ -69,9 +73,9 @@ namespace Plugin.BluetoothLE
                         {
                             this.Value = data;
 
-                            var result = new DescriptorResult(this, DescriptorEvent.Write, this.Value);
-                            ob.Respond(result);
+                            var result = this.ToResult(GattEvent.Write, this.Value);
                             this.WriteSubject.OnNext(result);
+                            ob.Respond(result);
                         }
                     }
                 });

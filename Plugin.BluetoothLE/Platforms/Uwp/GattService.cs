@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattDeviceService;
 
 
@@ -18,6 +20,24 @@ namespace Plugin.BluetoothLE
             this.context = context;
             this.native = native;
         }
+
+
+        public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds)
+            => Observable.Create<IGattCharacteristic>(async ob =>
+            {
+                foreach (var uuid in characteristicIds)
+                {
+                    var result = await this.native.GetCharacteristicsForUuidAsync(uuid, BluetoothCacheMode.Cached);
+                    if (result.Status != GattCommunicationStatus.Success)
+                        throw new ArgumentException("Could not find GATT service - " + result.Status);
+
+                    var ch = new GattCharacteristic(this.context, result.Characteristics.First(), this);
+                    ob.OnNext(ch);
+                }
+                ob.OnCompleted();
+
+                return Disposable.Empty;
+            });
 
 
         IObservable<IGattCharacteristic> characteristicOb;

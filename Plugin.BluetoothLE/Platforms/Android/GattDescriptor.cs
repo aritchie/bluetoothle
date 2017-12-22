@@ -21,7 +21,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<DescriptorResult> Write(byte[] data) => this.context.Lock(Observable.Create<DescriptorResult>(async ob =>
+        public override IObservable<DescriptorGattResult> Write(byte[] data) => this.context.Lock(Observable.Create<DescriptorGattResult>(async ob =>
         {
             var sub = this.context
                 .Callbacks
@@ -31,13 +31,13 @@ namespace Plugin.BluetoothLE
                 {
                     if (!args.IsSuccessful)
                     {
-                        ob.OnError(new ArgumentException($"Failed to write descriptor value - {this.Uuid} - {args.Status}"));
+                        ob.OnNext(this.ToResult(GattEvent.WriteError, $"Failed to write descriptor value - {args.Status}"));
                     }
                     else
                     {
                         this.Value = data;
 
-                        var result = new DescriptorResult(this, DescriptorEvent.Write, data);
+                        var result = this.ToResult(GattEvent.Write, data);
                         ob.Respond(result);
                         this.WriteSubject.OnNext(result);
                     }
@@ -48,14 +48,14 @@ namespace Plugin.BluetoothLE
                 this.native.SetValue(data);
                 var result = this.context.Gatt.WriteDescriptor(this.native);
                 if (!result)
-                    ob.OnError(new BleException("Failed to write to descriptor"));
+                    ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to descriptor"));
             });
 
             return sub;
         }));
 
 
-        public override IObservable<DescriptorResult> Read() => this.context.Lock(Observable.Create<DescriptorResult>(async ob =>
+        public override IObservable<DescriptorGattResult> Read() => this.context.Lock(Observable.Create<DescriptorGattResult>(async ob =>
         {
             var sub = this.context
                 .Callbacks
@@ -65,13 +65,13 @@ namespace Plugin.BluetoothLE
                 {
                     if (!args.IsSuccessful)
                     {
-                        ob.OnError(new ArgumentException($"Failed to read descriptor value {this.Uuid} - {args.Status}"));
+                        ob.OnNext(this.ToResult(GattEvent.ReadError, $"Failed to read descriptor value - {args.Status}"));
                     }
                     else
                     {
                         this.Value = this.native.GetValue();
 
-                        var result = new DescriptorResult(this, DescriptorEvent.Write, this.Value);
+                        var result = this.ToResult(GattEvent.Write, this.Value);
                         ob.Respond(result);
                         this.ReadSubject.OnNext(result);
                     }
@@ -81,7 +81,7 @@ namespace Plugin.BluetoothLE
             {
                 var result = this.context.Gatt.ReadDescriptor(this.native);
                 if (!result)
-                    ob.OnError(new BleException("Failed to read descriptor"));
+                    ob.Respond(this.ToResult(GattEvent.ReadError, "Failed to read descriptor"));
             });
 
             return sub;

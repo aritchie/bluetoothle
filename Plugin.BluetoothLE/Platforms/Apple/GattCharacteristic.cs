@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive;
 using System.Reactive.Linq;
 using CoreBluetooth;
 using Foundation;
@@ -16,8 +15,7 @@ namespace Plugin.BluetoothLE
         public CBCharacteristic NativeCharacteristic { get; }
 
 
-        public GattCharacteristic(GattService service, CBCharacteristic native)
-                : base(service, native.UUID.ToGuid(), (CharacteristicProperties)(int)native.Properties)
+        public GattCharacteristic(GattService service, CBCharacteristic native) : base(service, native.UUID.ToGuid(), (CharacteristicProperties)(int)native.Properties)
         {
             this.serivceObj = service;
             this.NativeCharacteristic = native;
@@ -31,11 +29,11 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<CharacteristicResult> Write(byte[] value)
+        public override IObservable<CharacteristicGattResult> Write(byte[] value)
         {
             this.AssertWrite(false);
 
-            return Observable.Create<CharacteristicResult>(ob =>
+            return Observable.Create<CharacteristicGattResult>(ob =>
             {
                 var data = NSData.FromArray(value);
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
@@ -44,15 +42,18 @@ namespace Plugin.BluetoothLE
                     {
                         if (args.Error != null)
                         {
-                            ob.OnError(new ArgumentException(args.Error.ToString()));
+                            ob.Respond(this.ToResult(
+                                GattEvent.WriteError,
+                                args.Error.ToString()
+                            ));
                         }
                         else
                         {
                             this.Value = value;
 
-                            var result = new CharacteristicResult(this, CharacteristicEvent.Write, value);
-                            ob.Respond(result);
+                            var result = this.ToResult(GattEvent.Write, value);
                             this.WriteSubject.OnNext(result);
+                            ob.Respond(result);
                         }
                     }
                 });
@@ -71,11 +72,11 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<CharacteristicResult> Read()
+        public override IObservable<CharacteristicGattResult> Read()
         {
             this.AssertRead();
 
-            return Observable.Create<CharacteristicResult>(ob =>
+            return Observable.Create<CharacteristicGattResult>(ob =>
             {
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
@@ -83,14 +84,17 @@ namespace Plugin.BluetoothLE
                     {
                         if (args.Error != null)
                         {
-                            ob.OnError(new ArgumentException(args.Error.ToString()));
+                            ob.Respond(this.ToResult(
+                                GattEvent.ReadError,
+                                args.Error.ToString()
+                            ));
                         }
                         else
                         {
                             this.Value = this.NativeCharacteristic.Value?.ToArray();
-                            var result = new CharacteristicResult(this, CharacteristicEvent.Read, this.Value);
-                            ob.Respond(result);
+                            var result = this.ToResult(GattEvent.Read, this.Value);
                             this.ReadSubject.OnNext(result);
+                            ob.Respond(result);
                         }
                     }
                 });
@@ -102,26 +106,30 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<Unit> EnableNotifications(bool enableIndicationsIfAvailable)
+        public override IObservable<CharacteristicGattResult> EnableNotifications(bool enableIndicationsIfAvailable)
         {
             this.AssertNotify();
             this.Peripheral.SetNotifyValue(true, this.NativeCharacteristic);
-            return Observable.Return(Unit.Default);
+            //return Observable.Return(Unit.Default);
+            return null;
         }
 
 
-        public override IObservable<Unit> DisableNotifications()
+        public override IObservable<CharacteristicGattResult> DisableNotifications()
         {
             this.AssertNotify();
             this.Peripheral.SetNotifyValue(false, this.NativeCharacteristic);
-            return Observable.Return(Unit.Default);
+            //return Observable.Return(Unit.Default);
+            return null;
         }
 
 
-        IObservable<CharacteristicResult> notifyOb;
-        public override IObservable<CharacteristicResult> WhenNotificationReceived()
+        IObservable<CharacteristicGattResult> notifyOb;
+        public override IObservable<CharacteristicGattResult> WhenNotificationReceived()
         {
-            this.notifyOb = this.notifyOb ?? Observable.Create<CharacteristicResult>(ob =>
+            this.AssertNotify();
+
+            this.notifyOb = this.notifyOb ?? Observable.Create<CharacteristicGattResult>(ob =>
             {
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
@@ -129,18 +137,21 @@ namespace Plugin.BluetoothLE
                     {
                         if (args.Error != null)
                         {
-                            ob.OnError(new ArgumentException(args.Error.ToString()));
+                            ob.OnNext(this.ToResult(
+                                GattEvent.NotificationError,
+                                args.Error.ToString()
+                            ));
+                            ob.OnError(new ArgumentException());
                         }
                         else
                         {
                             this.Value = this.NativeCharacteristic.Value?.ToArray();
-                            var result = new CharacteristicResult(this, CharacteristicEvent.Notification, this.Value);
+                            var result = this.ToResult(GattEvent.Notification, this.Value);
                             ob.OnNext(result);
                         }
                     }
                 });
                 this.Peripheral.UpdatedCharacterteristicValue += handler;
-
                 return () => this.Peripheral.UpdatedCharacterteristicValue -= handler;
             })
             .Publish()
@@ -184,12 +195,13 @@ namespace Plugin.BluetoothLE
         }
 
 
-        void InternalWriteNoResponse(IObserver<CharacteristicResult> ob, byte[] value)
+        void InternalWriteNoResponse(IObserver<CharacteristicGattResult> ob, byte[] value)
         {
             var data = NSData.FromArray(value);
             this.Peripheral.WriteValue(data, this.NativeCharacteristic, CBCharacteristicWriteType.WithoutResponse);
             this.Value = value;
-            var result = new CharacteristicResult(this, CharacteristicEvent.Write, value);
+
+            var result = this.ToResult(GattEvent.Write, value);
             this.WriteSubject.OnNext(result);
             ob?.Respond(result);
         }

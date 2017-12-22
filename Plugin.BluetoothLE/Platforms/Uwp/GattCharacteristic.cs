@@ -15,8 +15,12 @@ namespace Plugin.BluetoothLE
         readonly DeviceContext context;
 
 
-        public GattCharacteristic(DeviceContext context, Native native, IGattService service)
-            : base(service, native.Uuid, (CharacteristicProperties)native.CharacteristicProperties)
+        public GattCharacteristic(DeviceContext context,
+                                  Native native,
+                                  IGattService service)
+                            : base(service,
+                                   native.Uuid,
+                                   (CharacteristicProperties)native.CharacteristicProperties)
         {
             this.context = context;
             this.Native = native;
@@ -44,7 +48,38 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<CharacteristicResult> Read()
+        public override IObservable<GattResult> Write(byte[] value)
+        {
+            // TODO: reliable write
+            this.AssertWrite(false);
+
+            return Observable.FromAsync(async ct =>
+            {
+                var result = await this.Native
+                    .WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse)
+                    .AsTask(ct);
+
+                this.context.Ping();
+                GattResult r = null;
+                if (result != GattCommunicationStatus.Success)
+                {
+                    r = new GattResult(
+                        this,
+                        GattEvent.WriteError,
+                        "Error writing characteristic - " + result
+                    );
+                }
+                else
+                {
+                    this.Value = value;
+                    r = new GattResult(this, GattEvent.WriteSuccess, value);
+                }
+                return r;
+            });
+        }
+
+
+        public override IObservable<GattResult> Read()
         {
             this.AssertRead();
 
@@ -54,53 +89,63 @@ namespace Plugin.BluetoothLE
                     .ReadValueAsync(BluetoothCacheMode.Uncached)
                     .AsTask(ct);
 
+                GattResult r = null;
                 this.context.Ping();
                 if (result.Status != GattCommunicationStatus.Success)
-                    throw new Exception("Error reading characteristics - " + result.Status);
-
-                var bytes = result.Value.ToArray();
-                this.Value = bytes;
-                var r = new CharacteristicResult(this, CharacteristicEvent.Read, bytes);
-
+                {
+                    r = new GattResult(
+                        this,
+                        GattEvent.ReadError,
+                        "Error reading characteristics - " + result.Status
+                    );
+                }
+                else
+                {
+                    var bytes = result.Value.ToArray();
+                    this.Value = bytes;
+                    r = new GattResult(this, GattEvent.ReadSuccess, bytes);
+                }
                 return r;
             });
         }
 
 
-        public override IObservable<bool> EnableNotifications(bool useIndicationIfAvailable)
+        //public override IObservable<bool> EnableNotifications(bool useIndicationIfAvailable)
+        //{
+        //    var type = useIndicationIfAvailable && this.CanIndicate()
+        //        ? GattClientCharacteristicConfigurationDescriptorValue.Indicate
+        //        : GattClientCharacteristicConfigurationDescriptorValue.Notify;
+
+        //    return this
+        //        .SetNotify(type)
+        //        .Select(x => x != null);
+        //}
+
+
+        //public override IObservable<object> DisableNotifications() =>
+        //    this.SetNotify(GattClientCharacteristicConfigurationDescriptorValue.None);
+
+
+        //IObservable<object> SetNotify(GattClientCharacteristicConfigurationDescriptorValue value)
+        //    => Observable.FromAsync(async ct =>
+        //    {
+        //
+        //        var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(value);
+        //        if (status == GattCommunicationStatus.Success)
+        //        {
+        //            this.context.SetNotifyCharacteristic(this.Native, value != GattClientCharacteristicConfigurationDescriptorValue.None);
+        //            return new object();
+        //        }
+        //        return null;
+        //    });
+
+
+        IObservable<GattResult> notificationOb;
+        public override IObservable<GattResult> RegisterForNotifications(bool useIndicationsIfAvailable)
         {
-            var type = useIndicationIfAvailable && this.CanIndicate()
-                ? GattClientCharacteristicConfigurationDescriptorValue.Indicate
-                : GattClientCharacteristicConfigurationDescriptorValue.Notify;
+            this.AssertNotify();
 
-            return this
-                .SetNotify(type)
-                .Select(x => x != null);
-        }
-
-
-        public override IObservable<object> DisableNotifications() =>
-            this.SetNotify(GattClientCharacteristicConfigurationDescriptorValue.None);
-
-
-        IObservable<object> SetNotify(GattClientCharacteristicConfigurationDescriptorValue value)
-            => Observable.FromAsync(async ct =>
-            {
-                this.AssertNotify();
-                var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(value);
-                if (status == GattCommunicationStatus.Success)
-                {
-                    this.context.SetNotifyCharacteristic(this.Native, value != GattClientCharacteristicConfigurationDescriptorValue.None);
-                    return new object();
-                }
-                return null;
-            });
-
-
-        IObservable<CharacteristicResult> notificationOb;
-        public override IObservable<CharacteristicResult> WhenNotificationReceived()
-        {
-            this.notificationOb = this.notificationOb ?? Observable.Create<CharacteristicResult>(ob =>
+            this.notificationOb = this.notificationOb ?? Observable.Create<GattResult>(ob =>
             {
                 //var trigger = new GattCharacteristicNotificationTrigger(this.native);
 
@@ -109,7 +154,7 @@ namespace Plugin.BluetoothLE
                     if (sender.Equals(this.Native))
                     {
                         var bytes = args.CharacteristicValue.ToArray();
-                        var result = new CharacteristicResult(this, CharacteristicEvent.Notification, bytes);
+                        var result = new GattResult(this, GattEvent.Notification, bytes);
                         ob.OnNext(result);
                     }
                 });
@@ -128,26 +173,5 @@ namespace Plugin.BluetoothLE
             this.Value = value;
         }
 
-
-        public override IObservable<CharacteristicResult> Write(byte[] value)
-        {
-            // TODO: reliable write
-            this.AssertWrite(false);
-
-            return Observable.FromAsync(async ct =>
-            {
-                var result = await this.Native
-                    .WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse)
-                    .AsTask(ct);
-
-                this.context.Ping();
-                if (result != GattCommunicationStatus.Success)
-                    throw new Exception("Error writing characteristic");
-
-                this.Value = value;
-                var r = new CharacteristicResult(this, CharacteristicEvent.Write, value);
-                return r;
-            });
-        }
     }
 }

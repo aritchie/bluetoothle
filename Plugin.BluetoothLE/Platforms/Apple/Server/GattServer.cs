@@ -54,6 +54,7 @@ namespace Plugin.BluetoothLE.Server
 
         public override Task Start()
         {
+            //CBPeripheralManager.AuthorizationStatus
             //if (this.manager.Advertising)
             //    return Task.CompletedTask;
 

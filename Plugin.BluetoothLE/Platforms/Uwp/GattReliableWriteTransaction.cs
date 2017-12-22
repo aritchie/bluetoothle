@@ -19,7 +19,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<CharacteristicResult> Write(IGattCharacteristic characteristic, byte[] value)
+        public override IObservable<GattResult> Write(IGattCharacteristic characteristic, byte[] value)
         {
             this.AssertAction();
 

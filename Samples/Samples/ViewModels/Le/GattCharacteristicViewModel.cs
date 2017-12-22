@@ -115,7 +115,11 @@ namespace Samples.ViewModels.Le
                 {
                     cfg.Add("Notify", async () =>
                     {
-                        var utf8 = await this.dialogs.ConfirmAsync("Display Value as UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
+                        var utf8 = await this.dialogs.ConfirmAsync(
+                            "Display Value as UTF8 or HEX?",
+                            okText: "UTF8",
+                            cancelText: "HEX"
+                        );
                         this.watcher = this.Characteristic
                             .RegisterAndNotify()
                             .Subscribe(x => this.SetReadValue(x, utf8));
@@ -236,7 +240,7 @@ namespace Samples.ViewModels.Le
         }
 
 
-        void SetReadValue(CharacteristicResult result, bool fromUtf8)
+        void SetReadValue(CharacteristicGattResult result, bool fromUtf8)
         {
             Device.BeginInvokeOnMainThread(() =>
             {

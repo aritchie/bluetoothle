@@ -18,7 +18,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<CharacteristicResult> Write(IGattCharacteristic characteristic, byte[] value)
+        public override IObservable<CharacteristicGattResult> Write(IGattCharacteristic characteristic, byte[] value)
         {
             // just write to the standard characteristic write
             this.AssertAction();
@@ -46,8 +46,9 @@ namespace Plugin.BluetoothLE
                         ob.OnError(new GattReliableWriteTransactionException("Error committing transaction"));
                     }
                 });
+
             if (!this.context.Gatt.ExecuteReliableWrite())
-                throw new BleException("Failed to execute write");
+                throw new GattReliableWriteTransactionException("Failed to execute write");
 
             this.Status = TransactionStatus.Committing;
 

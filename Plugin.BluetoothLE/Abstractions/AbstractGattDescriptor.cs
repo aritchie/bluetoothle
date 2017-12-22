@@ -10,23 +10,23 @@ namespace Plugin.BluetoothLE
         {
             this.Characteristic = characteristic;
             this.Uuid = uuid;
-            this.WriteSubject = new Subject<DescriptorResult>();
-            this.ReadSubject = new Subject<DescriptorResult>();
+            this.WriteSubject = new Subject<DescriptorGattResult>();
+            this.ReadSubject = new Subject<DescriptorGattResult>();
         }
 
 
-        protected Subject<DescriptorResult> WriteSubject { get; }
-        protected Subject<DescriptorResult> ReadSubject { get; }
+        protected Subject<DescriptorGattResult> WriteSubject { get; }
+        protected Subject<DescriptorGattResult> ReadSubject { get; }
 
         public IGattCharacteristic Characteristic { get; }
         public virtual string Description => Dictionaries.GetDescriptorDescription(this.Uuid);
 
         public Guid Uuid { get; }
         public byte[] Value { get; protected set; }
-        public abstract IObservable<DescriptorResult> Write(byte[] data);
-        public abstract IObservable<DescriptorResult> Read();
+        public abstract IObservable<DescriptorGattResult> Write(byte[] data);
+        public abstract IObservable<DescriptorGattResult> Read();
 
-        public virtual IObservable<DescriptorResult> WhenRead() => this.ReadSubject;
-        public virtual IObservable<DescriptorResult> WhenWritten() => this.WriteSubject;
+        public virtual IObservable<DescriptorGattResult> WhenRead() => this.ReadSubject;
+        public virtual IObservable<DescriptorGattResult> WhenWritten() => this.WriteSubject;
     }
 }
