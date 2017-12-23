@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Android.Bluetooth;
 using Java.Util;
@@ -67,16 +68,24 @@ namespace Plugin.BluetoothLE
                 Log.Debug("Characteristic", "Hooking for write response - " + this.Uuid);
                 await this.context.Marshall(() =>
                 {
-                    this.native.SetValue(value);
+
                     this.native.WriteType = GattWriteType.Default;
-                    if (!this.context.Gatt.WriteCharacteristic(this.native))
+                    if (!this.native.SetValue(value))
+                        ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to set characteristic value"));
+
+                    else if (!this.context.Gatt.WriteCharacteristic(this.native))
                         ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to characteristic"));
-                });
+                })
+                .ToTask()
+                .ConfigureAwait(false);
             }
             else
             {
                 Log.Debug("Characteristic", "Write with No Response - " + this.Uuid);
-                await this.RawWriteNoResponse(ob, value);
+                await this
+                    .RawWriteNoResponse(ob, value)
+                    .ToTask()
+                    .ConfigureAwait(false); ;
             }
             return sub;
         }));
@@ -102,13 +111,10 @@ namespace Plugin.BluetoothLE
             await this.context.Marshall(() =>
             {
                 if (!this.context.Gatt.ReadCharacteristic(this.native))
-                {
-                    ob.Respond(this.ToResult(
-                        GattEvent.ReadError,
-                        "Failed to read characteristic"
-                    ));
-                }
-            });
+                    ob.Respond(this.ToResult(GattEvent.ReadError, "Failed to read characteristic"));
+            })
+            .ToTask()
+            .ConfigureAwait(false);
 
             return sub;
         }));
@@ -132,12 +138,16 @@ namespace Plugin.BluetoothLE
                 ? BluetoothGattDescriptor.EnableIndicationValue.ToArray()
                 : BluetoothGattDescriptor.EnableNotificationValue.ToArray();
 
-            // TODO
-            var result = await wrap.Write(bytes);
-            this.IsNotifying = true;
+            var result = await wrap
+                .Write(bytes)
+                .ToTask(ct)
+                .ConfigureAwait(false);
 
-            // TODO
-            return null;
+            if (!result.Success)
+                return this.ToResult(GattEvent.NotificationError, "Failed to set notification descriptor - " + result.ErrorMessage);
+
+            this.IsNotifying = true;
+            return this.ToResult(GattEvent.Notification, "");
         });
 
 
@@ -155,11 +165,16 @@ namespace Plugin.BluetoothLE
             if (CrossBleAdapter.AndroidOperationPause != null)
                 await Task.Delay(CrossBleAdapter.AndroidOperationPause.Value, ct);
 
-            // TODO
-            var result = await wrap.Write(BluetoothGattDescriptor.DisableNotificationValue.ToArray());
-            this.IsNotifying = false;
+            var result = await wrap
+                .Write(BluetoothGattDescriptor.DisableNotificationValue.ToArray())
+                .ToTask(ct)
+                .ConfigureAwait(false);
 
-            return null;
+            if (!result.Success)
+                return this.ToResult(GattEvent.NotificationError, "Failed to set notification descriptor - " + result.ErrorMessage);
+
+            this.IsNotifying = true;
+            return this.ToResult(GattEvent.Notification, "");
         });
 
 
@@ -245,15 +260,20 @@ namespace Plugin.BluetoothLE
 
         IObservable<Unit> RawWriteNoResponse(IObserver<CharacteristicGattResult> ob, byte[] bytes) => this.context.Marshall(() =>
         {
-            this.native.SetValue(bytes);
             this.native.WriteType = GattWriteType.NoResponse;
 
             // TODO: write no response should probably throw exception
-            var result = this.context.Gatt.WriteCharacteristic(this.native)
-                ? this.ToResult(GattEvent.Write, bytes)
-                : this.ToResult(GattEvent.WriteError, "Failed to write to characteristic");
+            if (!this.native.SetValue(bytes))
+                ob?.Respond(this.ToResult(GattEvent.WriteError, "Failed to set characteristic value"));
 
-            ob?.Respond(result);
+            else
+            {
+                var result = this.context.Gatt.WriteCharacteristic(this.native)
+                    ? this.ToResult(GattEvent.Write, bytes)
+                    : this.ToResult(GattEvent.WriteError, "Failed to write to characteristic");
+
+                ob?.Respond(result);
+            }
         });
     }
 }

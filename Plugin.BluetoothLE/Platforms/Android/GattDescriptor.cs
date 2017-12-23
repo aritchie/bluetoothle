@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using Android.Bluetooth;
 using Plugin.BluetoothLE.Internals;
 
@@ -40,10 +41,14 @@ namespace Plugin.BluetoothLE
 
             await this.context.Marshall(() =>
             {
-                this.native.SetValue(data);
-                if (!this.context.Gatt.WriteDescriptor(this.native))
+                if (!this.native.SetValue(data))
+                    ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to set descriptor value"));
+
+                else if (!this.context.Gatt.WriteDescriptor(this.native))
                     ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to descriptor"));
-            });
+            })
+            .ToTask()
+            .ConfigureAwait(false);
 
             return sub;
         }));
@@ -68,7 +73,9 @@ namespace Plugin.BluetoothLE
             {
                 if (!this.context.Gatt.ReadDescriptor(this.native))
                     ob.Respond(this.ToResult(GattEvent.ReadError, "Failed to read descriptor"));
-            });
+            })
+            .ToTask()
+            .ConfigureAwait(false);
 
             return sub;
         }));
