@@ -29,11 +29,15 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>MinimumOSVersion</key>
-	<string>$minimumosversion$</string>
+	<string>11.2</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>CFBundleName</key>
+	<string>BLE Plugin Test</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>This is a test for BLE after all</string>
 </dict>
 </plist>

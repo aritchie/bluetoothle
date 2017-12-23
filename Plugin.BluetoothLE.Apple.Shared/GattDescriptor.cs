@@ -29,7 +29,7 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
                 {
-                    if (!this.Equals(args.Descriptor))
+                    if (this.Equals(args.Descriptor))
                     {
                         if (args.Error != null)
                         {
@@ -59,7 +59,7 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
                 {
-                    if (!this.Equals(args.Descriptor))
+                    if (this.Equals(args.Descriptor))
                     {
                         if (args.Error != null)
                         {
