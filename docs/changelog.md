@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## 5.3.2
+* [fix][android] fixes to locking mechanism as well as ability to disable it via CrossBleAdapter.AndroidDisableLockMechanism
+* [fix][ios] NRE in reconnection logic
+
 ## 5.3.1
 * [fix][android] GetKnownCharacteristic now sync locks to prevent android race condition
 * [feature][android] configurable parameter to allow "breather" time between operations to prevent GATT issues

@@ -35,6 +35,14 @@ namespace Plugin.BluetoothLE
         public static TimeSpan AndroidPauseBeforeServiceDiscovery { get; set; } = TimeSpan.FromMilliseconds(750);
 
 
+        /// <summary>
+        /// Disables the locking mechanism used by all read/writes within android plugin 
+        /// You must manage serial communication on your own without this - GOOD LUCK!
+        /// DO NOT CHANGE this if you don't know what this is!
+        /// </summary>
+        public static bool AndroidDisableLockMechanism { get; set; }
+
+
         static TimeSpan? androidOpPause;
 
         /// <summary>
