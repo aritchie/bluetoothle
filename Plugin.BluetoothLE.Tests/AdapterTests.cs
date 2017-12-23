@@ -72,7 +72,7 @@ namespace Plugin.BluetoothLE.Tests
 
         // defect #105 - investigation
         [Fact]
-        public async Task Scanning_FlagsAndEvents()
+        public void Scanning_FlagsAndEvents()
         {
             CrossBleAdapter.Current.IsScanning.Should().Be(false, "Adapter says it is scanning!");
 
