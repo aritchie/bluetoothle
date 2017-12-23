@@ -57,7 +57,13 @@ namespace Plugin.BluetoothLE.Internals
 
                     sub = inner.Subscribe(
                         ob.OnNext,
-                        ob.OnError,
+                        ex =>
+                        {
+                            Log.Debug("Device", "Task errored - releasing lock");
+                            pastGate = false;
+                            this.reset.Set();
+                            ob.OnError(ex);
+                        },
                         () =>
                         {
                             Log.Debug("Device", "Task completed - releasing lock");
@@ -75,7 +81,7 @@ namespace Plugin.BluetoothLE.Internals
 
                     if (pastGate)
                     {
-                        Log.Debug("Device", "Releasing lock");
+                        Log.Debug("Device", "Cleanup releasing lock");
                         this.reset.Set();
                     }
                 };
