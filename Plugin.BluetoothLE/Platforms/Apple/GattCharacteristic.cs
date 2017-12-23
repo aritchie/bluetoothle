@@ -22,6 +22,9 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override byte[] Value => this.NativeCharacteristic.Value?.ToArray();
+
+
         public override void WriteWithoutResponse(byte[] value)
         {
             this.AssertWrite(false);
@@ -38,24 +41,14 @@ namespace Plugin.BluetoothLE
                 var data = NSData.FromArray(value);
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (this.Equals(args.Characteristic))
-                    {
-                        if (args.Error != null)
-                        {
-                            ob.Respond(this.ToResult(
-                                GattEvent.WriteError,
-                                args.Error.ToString()
-                            ));
-                        }
-                        else
-                        {
-                            this.Value = value;
+                    if (!this.Equals(args.Characteristic))
+                        return;
 
-                            var result = this.ToResult(GattEvent.Write, value);
-                            this.WriteSubject.OnNext(result);
-                            ob.Respond(result);
-                        }
-                    }
+                    var result = args.Error == null
+                        ? this.ToResult(GattEvent.Write, value)
+                        : this.ToResult(GattEvent.WriteError, args.Error.ToString());
+
+                    ob.Respond(result);
                 });
 
                 if (this.Properties.HasFlag(CharacteristicProperties.Write))
@@ -80,23 +73,14 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (this.Equals(args.Characteristic))
-                    {
-                        if (args.Error != null)
-                        {
-                            ob.Respond(this.ToResult(
-                                GattEvent.ReadError,
-                                args.Error.ToString()
-                            ));
-                        }
-                        else
-                        {
-                            this.Value = this.NativeCharacteristic.Value?.ToArray();
-                            var result = this.ToResult(GattEvent.Read, this.Value);
-                            this.ReadSubject.OnNext(result);
-                            ob.Respond(result);
-                        }
-                    }
+                    if (!this.Equals(args.Characteristic))
+                        return;
+
+                    var result = args.Error == null
+                        ? this.ToResult(GattEvent.Read, this.Value)
+                        : this.ToResult(GattEvent.ReadError, args.Error.ToString());
+
+                    ob.Respond(result);
                 });
                 this.Peripheral.UpdatedCharacterteristicValue += handler;
                 this.Peripheral.ReadValue(this.NativeCharacteristic);
@@ -110,9 +94,7 @@ namespace Plugin.BluetoothLE
         {
             this.AssertNotify();
             this.Peripheral.SetNotifyValue(true, this.NativeCharacteristic);
-            // TODO
-            //return Observable.Return(Unit.Default);
-            return null;
+            return Observable.Return(this.ToResult(GattEvent.Notification, ""));
         }
 
 
@@ -120,9 +102,7 @@ namespace Plugin.BluetoothLE
         {
             this.AssertNotify();
             this.Peripheral.SetNotifyValue(false, this.NativeCharacteristic);
-            // TODO
-            //return Observable.Return(Unit.Default);
-            return null;
+            return Observable.Return(this.ToResult(GattEvent.Notification, ""));
         }
 
 
@@ -135,23 +115,14 @@ namespace Plugin.BluetoothLE
             {
                 var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
                 {
-                    if (this.Equals(args.Characteristic))
-                    {
-                        if (args.Error != null)
-                        {
-                            ob.OnNext(this.ToResult(
-                                GattEvent.NotificationError,
-                                args.Error.ToString()
-                            ));
-                            ob.OnError(new ArgumentException());
-                        }
-                        else
-                        {
-                            this.Value = this.NativeCharacteristic.Value?.ToArray();
-                            var result = this.ToResult(GattEvent.Notification, this.Value);
-                            ob.OnNext(result);
-                        }
-                    }
+                    if (!this.Equals(args.Characteristic))
+                        return;
+
+                    var result = args.Error == null
+                        ? this.ToResult(GattEvent.Notification, this.Value)
+                        : this.ToResult(GattEvent.NotificationError, args.Error.ToString());
+
+                    ob.OnNext(result);
                 });
                 this.Peripheral.UpdatedCharacterteristicValue += handler;
                 return () => this.Peripheral.UpdatedCharacterteristicValue -= handler;
@@ -201,11 +172,7 @@ namespace Plugin.BluetoothLE
         {
             var data = NSData.FromArray(value);
             this.Peripheral.WriteValue(data, this.NativeCharacteristic, CBCharacteristicWriteType.WithoutResponse);
-            this.Value = value;
-
-            var result = this.ToResult(GattEvent.Write, value);
-            this.WriteSubject.OnNext(result);
-            ob?.Respond(result);
+            ob?.Respond(this.ToResult(GattEvent.Write, value));
         }
 
 

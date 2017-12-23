@@ -3,10 +3,8 @@
 ## 6.0
 * [feature][breaking] GATT server & BLE advertising are now separate functions
 * [breaking] GATT server is now static per adapter instead of using CreateInstance()
-* [feature][android] ability to remove locking mechanism - you shouldn't do this unless you know what you're doing
 * [breaking][feature] All read/write/notification actions now contain a result object (good or bad) instead of calling OnError - why?  because no one knows how to use RX so I'll do the fun stuff for them!
 * [fix][android] Adapter.IsScanning and Adapter.WhenScanningStatusChanged() were not firing reliability
-* [fix][android] More lock fixes
 
 ## 5.3.1
 * [fix][android] GetKnownCharacteristic now sync locks to prevent android race condition

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Devices.Bluetooth;
@@ -20,44 +19,29 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<DescriptorResult> Write(byte[] data)
-        {
-            return Observable.Create<DescriptorResult>(async ob =>
-            {
-                var result = await this.native.WriteValueAsync(data.AsBuffer());
-                if (result != GattCommunicationStatus.Success)
-                {
-                    ob.OnError(new Exception("Not able to write to descriptor"));
-                }
-                else
-                {
-                    this.Value = data;
-                    //this.WriteSubject.OnNext(this.Value);
-                    ob.Respond(null);
-                }
-                return Disposable.Empty;
-            });
-        }
+        byte[] value;
+        public override byte[] Value => this.value;
 
 
-        public override IObservable<DescriptorResult> Read()
+        public override IObservable<DescriptorGattResult> Write(byte[] data) => Observable.FromAsync(async _ =>
         {
-            return Observable.Create<DescriptorResult>(async ob =>
-            {
-                var result = await this.native.ReadValueAsync(BluetoothCacheMode.Uncached);
-                if (result.Status != GattCommunicationStatus.Success)
-                {
-                    ob.OnError(new Exception("Not able to read descriptor"));
-                }
-                else
-                {
-                    var bytes = result.Value.ToArray();
-                    this.Value = bytes;
-                    //this.ReadSubject.OnNext(this.Value);
-                    //ob.Respond(bytes);
-                }
-                return Disposable.Empty;
-            });
-        }
+            var status = await this.native.WriteValueAsync(data.AsBuffer());
+            var result = status == GattCommunicationStatus.Success
+                ? this.ToResult(GattEvent.Write, data)
+                : this.ToResult(GattEvent.WriteError, status.ToString());
+
+            return result;
+        });
+
+
+        public override IObservable<DescriptorGattResult> Read() => Observable.FromAsync(async _ =>
+        {
+            var result = await this.native.ReadValueAsync(BluetoothCacheMode.Uncached);
+            if (result.Status != GattCommunicationStatus.Success)
+                return this.ToResult(GattEvent.WriteError, result.Status.ToString());
+
+            this.value = result.Value.ToArray();
+            return this.ToResult(GattEvent.Read, this.value);
+        });
     }
 }

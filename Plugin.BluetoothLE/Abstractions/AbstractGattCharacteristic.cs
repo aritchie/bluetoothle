@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 
 
@@ -17,15 +17,12 @@ namespace Plugin.BluetoothLE
         }
 
 
-        protected Subject<CharacteristicGattResult> ReadSubject { get; } = new Subject<CharacteristicGattResult>();
-        protected Subject<CharacteristicGattResult> WriteSubject { get; } = new Subject<CharacteristicGattResult>();
-
         public IGattService Service { get; }
         public virtual string Description => Dictionaries.GetCharacteristicDescription(this.Uuid);
         public bool IsNotifying { get; protected set; }
         public Guid Uuid { get; }
         public CharacteristicProperties Properties { get; }
-        public byte[] Value { get; protected set; }
+        public abstract byte[] Value { get; }
 
         public abstract IObservable<CharacteristicGattResult> EnableNotifications(bool enableIndicationsIfAvailable);
         public abstract IObservable<CharacteristicGattResult> DisableNotifications();
@@ -33,10 +30,7 @@ namespace Plugin.BluetoothLE
         public abstract IObservable<CharacteristicGattResult> Read();
         public abstract void WriteWithoutResponse(byte[] value);
         public abstract IObservable<CharacteristicGattResult> Write(byte[] value);
-
         public abstract IObservable<CharacteristicGattResult> WhenNotificationReceived();
-        public virtual IObservable<CharacteristicGattResult> WhenRead() => this.ReadSubject;
-        public virtual IObservable<CharacteristicGattResult> WhenWritten() => this.WriteSubject;
 
 
         public virtual IObservable<BleWriteSegment> BlobWrite(byte[] value, bool reliableWrite)
@@ -62,8 +56,11 @@ namespace Plugin.BluetoothLE
 
                     while (!cts.IsCancellationRequested && read > 0)
                     {
-                        await trans.Write(this, buffer).RunAsync(cts.Token);
-                        //await this.Write(buffer).RunAsync(cts.Token);
+                        await trans
+                            .Write(this, buffer)
+                            .ToTask(cts.Token)
+                            .ConfigureAwait(false);
+
                         if (this.Value != buffer)
                         {
                             trans.Abort();

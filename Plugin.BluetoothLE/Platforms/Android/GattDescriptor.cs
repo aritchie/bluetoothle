@@ -21,6 +21,8 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override byte[] Value => this.native.GetValue();
+
         public override IObservable<DescriptorGattResult> Write(byte[] data) => this.context.Lock(Observable.Create<DescriptorGattResult>(async ob =>
         {
             var sub = this.context
@@ -29,25 +31,17 @@ namespace Plugin.BluetoothLE
                 .Where(this.NativeEquals)
                 .Subscribe(args =>
                 {
-                    if (!args.IsSuccessful)
-                    {
-                        ob.OnNext(this.ToResult(GattEvent.WriteError, $"Failed to write descriptor value - {args.Status}"));
-                    }
-                    else
-                    {
-                        this.Value = data;
+                    var result = args.IsSuccessful
+                        ? this.ToResult(GattEvent.Write, data)
+                        : this.ToResult(GattEvent.WriteError, $"Failed to write descriptor value - {args.Status}");
 
-                        var result = this.ToResult(GattEvent.Write, data);
-                        ob.Respond(result);
-                        this.WriteSubject.OnNext(result);
-                    }
+                    ob.Respond(result);
                 });
 
             await this.context.Marshall(() =>
             {
                 this.native.SetValue(data);
-                var result = this.context.Gatt.WriteDescriptor(this.native);
-                if (!result)
+                if (!this.context.Gatt.WriteDescriptor(this.native))
                     ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to descriptor"));
             });
 
@@ -63,24 +57,16 @@ namespace Plugin.BluetoothLE
                 .Where(this.NativeEquals)
                 .Subscribe(args =>
                 {
-                    if (!args.IsSuccessful)
-                    {
-                        ob.OnNext(this.ToResult(GattEvent.ReadError, $"Failed to read descriptor value - {args.Status}"));
-                    }
-                    else
-                    {
-                        this.Value = this.native.GetValue();
+                    var result = args.IsSuccessful
+                        ? this.ToResult(GattEvent.Write, this.Value)
+                        : this.ToResult(GattEvent.ReadError, $"Failed to read descriptor value - {args.Status}");
 
-                        var result = this.ToResult(GattEvent.Write, this.Value);
-                        ob.Respond(result);
-                        this.ReadSubject.OnNext(result);
-                    }
+                    ob.Respond(result);
                 });
 
             await this.context.Marshall(() =>
             {
-                var result = this.context.Gatt.ReadDescriptor(this.native);
-                if (!result)
+                if (!this.context.Gatt.ReadDescriptor(this.native))
                     ob.Respond(this.ToResult(GattEvent.ReadError, "Failed to read descriptor"));
             });
 

@@ -31,6 +31,9 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override byte[] Value => this.native.GetValue();
+
+
         public override void WriteWithoutResponse(byte[] value)
         {
             this.AssertWrite(false);
@@ -52,25 +55,10 @@ namespace Plugin.BluetoothLE
                 {
                     Log.Debug("Characteristic", "write event - " + args.Characteristic.Uuid);
 
-                    CharacteristicGattResult result = null;
-                    if (!args.IsSuccessful)
-                    {
-                        result = new CharacteristicGattResult(
-                            this,
-                            GattEvent.WriteError,
-                            $"Failed to write characteristic - {args.Status}"
-                        );
-                    }
-                    else
-                    {
-                        this.Value = value;
-                        result = new CharacteristicGattResult(
-                            this,
-                            GattEvent.Write,
-                            this.Value
-                        );
-                    }
-                    this.WriteSubject.OnNext(result);
+                    var result = args.IsSuccessful
+                        ? this.ToResult(GattEvent.Write, value)
+                        : this.ToResult(GattEvent.WriteError,$"Failed to write characteristic - {args.Status}");
+
                     ob.Respond(result);
                 });
 
@@ -104,20 +92,11 @@ namespace Plugin.BluetoothLE
                 .Where(this.NativeEquals)
                 .Subscribe(args =>
                 {
-                    if (!args.IsSuccessful)
-                    {
-                        ob.OnNext(this.ToResult(
-                            GattEvent.ReadError,
-                            $"Failed to read characteristic - {args.Status}"
-                        ));
-                    }
-                    else
-                    {
-                        this.Value = args.Characteristic.GetValue();
-                        var result = this.ToResult(GattEvent.Read, this.Value);
-                        this.ReadSubject.OnNext(result);
-                        ob.Respond(result);
-                    }
+                    var result = args.IsSuccessful
+                        ? this.ToResult(GattEvent.Read, args.Characteristic.GetValue())
+                        : this.ToResult(GattEvent.ReadError, $"Failed to read characteristic - {args.Status}");
+
+                    ob.Respond(result);
                 });
 
             await this.context.Marshall(() =>
@@ -196,21 +175,11 @@ namespace Plugin.BluetoothLE
                     .Where(this.NativeEquals)
                     .Subscribe(args =>
                     {
-                        if (!args.IsSuccessful)
-                        {
-                            ob.OnNext(this.ToResult(
-                                GattEvent.NotificationError,
-                                "Error subscribing to " + args.Status.ToString()
-                            ));
-                        }
-                        else
-                        {
-                            this.Value = args.Characteristic.GetValue();
-                            ob.OnNext(this.ToResult(
-                                GattEvent.Notification,
-                                this.Value
-                            ));
-                        }
+                        var result = args.IsSuccessful
+                            ? this.ToResult(GattEvent.Notification, args.Characteristic.GetValue())
+                            : this.ToResult(GattEvent.NotificationError, "Notification error - " + args.Status.ToString());
+
+                        ob.OnNext(result);
                     })
             )
             .Publish()
@@ -278,17 +247,13 @@ namespace Plugin.BluetoothLE
         {
             this.native.SetValue(bytes);
             this.native.WriteType = GattWriteType.NoResponse;
-            if (!this.context.Gatt.WriteCharacteristic(this.native))
-            {
-                ob?.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to characteristic"));
-            }
-            else
-            {
-                this.Value = bytes;
-                var result = this.ToResult(GattEvent.Write, bytes);
-                this.WriteSubject.OnNext(result);
-                ob?.Respond(result);
-            }
+
+            // TODO: write no response should probably throw exception
+            var result = this.context.Gatt.WriteCharacteristic(this.native)
+                ? this.ToResult(GattEvent.Write, bytes)
+                : this.ToResult(GattEvent.WriteError, "Failed to write to characteristic");
+
+            ob?.Respond(result);
         });
     }
 }

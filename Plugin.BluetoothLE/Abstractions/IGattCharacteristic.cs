@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Reactive;
 
 
 namespace Plugin.BluetoothLE
@@ -12,12 +11,7 @@ namespace Plugin.BluetoothLE
         string Description { get; }
         bool IsNotifying { get; }
         CharacteristicProperties Properties { get; }
-
-        /// <summary>
-        /// The current value of the characteristic
-        /// </summary>
         byte[] Value { get; }
-
 
         /// <summary>
         /// Enable notifications (or indications if available)
@@ -63,22 +57,10 @@ namespace Plugin.BluetoothLE
         IObservable<CharacteristicGattResult> Write(byte[] value);
 
         /// <summary>
-        /// Monitor write tasks
-        /// </summary>
-        /// <returns>Bytes that were successfully written</returns>
-        IObservable<CharacteristicGattResult> WhenWritten();
-
-        /// <summary>
         /// Read characteristic remote value
         /// </summary>
         /// <returns></returns>
         IObservable<CharacteristicGattResult> Read();
-
-        /// <summary>
-        /// Monitors read responses.  Does not send read requests.  Use Read() for that
-        /// </summary>
-        /// <returns></returns>
-        IObservable<CharacteristicGattResult> WhenRead();
 
         /// <summary>
         /// Used for writing blobs

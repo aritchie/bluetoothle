@@ -24,6 +24,9 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override byte[] Value => (this.native.Value as NSData)?.ToArray();
+
+
         public override IObservable<DescriptorGattResult> Read()
         {
             return Observable.Create<DescriptorGattResult>(ob =>
@@ -31,23 +34,13 @@ namespace Plugin.BluetoothLE
                 var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
                 {
                     if (!this.Equals(args.Descriptor))
-                    {
-                        if (args.Error != null)
-                        {
-                            ob.OnNext(this.ToResult(
-                                GattEvent.ReadError,
-                                args.Error.ToString()
-                            ));
-                        }
-                        else
-                        {
-                            this.Value = ((NSData) args.Descriptor.Value).ToArray();
+                        return;
 
-                            var result = this.ToResult(GattEvent.Read, this.Value);
-                            this.ReadSubject.OnNext(result);
-                            ob.Respond(result);
-                        }
-                    }
+                    var result = args.Error == null
+                        ? this.ToResult(GattEvent.Read, this.Value)
+                        : this.ToResult(GattEvent.ReadError, args.Error.ToString());
+
+                    ob.Respond(result);
                 });
                 this.Peripheral.UpdatedValue += handler;
                 this.Peripheral.ReadValue(this.native);
@@ -64,20 +57,13 @@ namespace Plugin.BluetoothLE
                 var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
                 {
                     if (!this.Equals(args.Descriptor))
-                    {
-                        if (args.Error != null)
-                        {
-                            ob.OnError(new ArgumentException(args.Error.ToString()));
-                        }
-                        else
-                        {
-                            this.Value = data;
+                        return;
 
-                            var result = this.ToResult(GattEvent.Write, this.Value);
-                            this.WriteSubject.OnNext(result);
-                            ob.Respond(result);
-                        }
-                    }
+                    var result = args.Error == null
+                        ? this.ToResult(GattEvent.Write, this.Value)
+                        : this.ToResult(GattEvent.WriteError, args.Error.ToString());
+
+                    ob.Respond(result);
                 });
 
                 var nsdata = NSData.FromArray(data);

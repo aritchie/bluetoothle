@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Native = Windows.Devices.Bluetooth.GenericAttributeProfile.GattReliableWriteTransaction;
@@ -19,12 +18,11 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<GattResult> Write(IGattCharacteristic characteristic, byte[] value)
+        public override IObservable<CharacteristicGattResult> Write(IGattCharacteristic characteristic, byte[] value)
         {
             this.AssertAction();
 
-            var platform = characteristic as GattCharacteristic;
-            if (platform == null)
+            if (!(characteristic is GattCharacteristic platform))
                 throw new ArgumentException("Characteristic must be UWP type");
 
             // TODO: need write observable
