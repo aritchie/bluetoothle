@@ -110,11 +110,26 @@ namespace Plugin.BluetoothLE
 
 
         // android does not have a find "1" service - it must discover all services.... seems shit
-        public override IObservable<IGattService> GetKnownService(Guid serviceUuid) => this
-            .WhenServiceDiscovered()
-            .Where(x => x.Uuid.Equals(serviceUuid))
-            .Take(1)
-            .Select(x => x);
+        public override IObservable<IGattService> GetKnownService(Guid serviceUuid)
+        {
+            var uuid = serviceUuid.ToUuid();
+            var nativeService = context.Gatt.GetService(uuid);
+            // If native service is null, it may be because the underlying
+            // BT library hasn't yet discovered all the services on the device
+            if (nativeService == null)
+            {
+                return this
+                .WhenServiceDiscovered()
+                .Where(x => x.Uuid.Equals(serviceUuid))
+                .Take(1)
+                .Select(x => x);
+            }
+            else
+            {
+                var service = new GattService(this, context, nativeService);
+                return Observable.Return<IGattService>(service);
+            }
+        }
 
 
         public override IObservable<string> WhenNameUpdated() => BluetoothObservables

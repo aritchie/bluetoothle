@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Windows.Devices.Bluetooth;
@@ -38,5 +39,22 @@ namespace Plugin.BluetoothLE
 
             return this.characteristicOb;
         }
+
+        public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds)
+        {
+            return Observable.Create<IGattCharacteristic>(async ob =>
+            {
+                foreach (var cid in characteristicIds)
+                {
+                    var cs = await this.native.GetCharacteristicsForUuidAsync(cid);
+                    var characteristic = new GattCharacteristic(this.context, cs.Characteristics[0], this);
+                    ob.OnNext(characteristic);
+                }
+                ob.OnCompleted();
+
+                return Disposable.Empty;
+            });
+        }
+
     }
 }

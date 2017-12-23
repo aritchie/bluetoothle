@@ -51,7 +51,13 @@ namespace Plugin.BluetoothLE.Internals
                 sub = inner.Subscribe(
                     ob.OnNext,
                     ob.OnError,
-                    ob.OnCompleted
+                    () =>
+                    {
+                        Log.Debug("Device", "Releasing sync lock");
+                        this.reset.Set();
+                        pastGate = false;
+                        ob.OnCompleted();
+                    }
                 );
             }
 
@@ -60,9 +66,11 @@ namespace Plugin.BluetoothLE.Internals
                 cancel = true;
                 sub?.Dispose();
 
-                Log.Debug("Device", "Releasing sync lock");
                 if (pastGate)
+                {
+                    Log.Debug("Device", "Releasing sync lock");
                     this.reset.Set();
+                }
             };
         });
 
