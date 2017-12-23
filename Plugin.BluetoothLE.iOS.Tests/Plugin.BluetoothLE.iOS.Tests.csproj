@@ -113,13 +113,16 @@
     <PackageReference Include="Acr.UserDialogs">
       <Version>6.5.1</Version>
     </PackageReference>
+    <PackageReference Include="xunit">
+      <Version>2.3.1</Version>
+    </PackageReference>
     <PackageReference Include="xunit.runner.devices">
       <Version>2.3.2</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Plugin.BluetoothLE.Tests\Plugin.BluetoothLE.Tests.csproj">
-      <Project>{9c37cbdc-27b0-464c-8d61-fa59b4a01f31}</Project>
+      <Project>{7dcadb09-c341-469c-bb5a-aab7f4b2e4f1}</Project>
       <Name>Plugin.BluetoothLE.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj">
