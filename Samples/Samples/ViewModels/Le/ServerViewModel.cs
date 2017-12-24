@@ -108,72 +108,12 @@ namespace Samples.ViewModels.Le
         {
             try
             {
-                this.BleAdapter.GattServer.ClearServices();
-                var service = this.BleAdapter.GattServer.AddService(Guid.NewGuid(), true);
-
-                var characteristic = service.AddCharacteristic(
-                    Guid.NewGuid(),
-                    CharacteristicProperties.Read | CharacteristicProperties.Write | CharacteristicProperties.WriteNoResponse,
-                    GattPermissions.Read | GattPermissions.Write
-                );
-                var notifyCharacteristic = service.AddCharacteristic
-                (
-                    Guid.NewGuid(),
-                    CharacteristicProperties.Notify,
-                    GattPermissions.Read | GattPermissions.Write
-                );
-
-                //var descriptor = characteristic.AddDescriptor(Guid.NewGuid(), Encoding.UTF8.GetBytes("Test Descriptor"));
-
-                notifyCharacteristic.WhenDeviceSubscriptionChanged().Subscribe(e =>
-                {
-                    var @event = e.IsSubscribed ? "Subscribed" : "Unsubcribed";
-                    this.OnEvent($"Device {e.Device.Uuid} {@event}");
-                    this.OnEvent($"Charcteristic Subcribers: {notifyCharacteristic.SubscribedDevices.Count}");
-
-                    if (this.notifyBroadcast == null)
-                    {
-                        this.OnEvent("Starting Subscriber Thread");
-                        this.notifyBroadcast = Observable
-                            .Interval(TimeSpan.FromSeconds(1))
-                            .Where(x => notifyCharacteristic.SubscribedDevices.Count > 0)
-                            .Subscribe(_ =>
-                            {
-                                try
-                                {
-                                    var dt = DateTime.Now.ToString("g");
-                                    var bytes = Encoding.UTF8.GetBytes(dt);
-                                    notifyCharacteristic
-                                        .BroadcastObserve(bytes)
-                                        .Subscribe(x =>
-                                        {
-                                            var state = x.Success ? "Successfully" : "Failed";
-                                            var data = Encoding.UTF8.GetString(x.Data, 0, x.Data.Length);
-                                            this.OnEvent($"{state} Broadcast {data} to device {x.Device.Uuid} from characteristic {x.Characteristic}");
-                                        });
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.WriteLine("Error during broadcast: " + ex);
-                                }
-                            });
-                    }
-                });
-
-                characteristic.WhenReadReceived().Subscribe(x =>
-                {
-                    var write = this.CharacteristicValue;
-                    if (String.IsNullOrWhiteSpace(write))
-                        write = "(NOTHING)";
-
-                    x.Value = Encoding.UTF8.GetBytes(write);
-                    this.OnEvent("Characteristic Read Received");
-                });
-                characteristic.WhenWriteReceived().Subscribe(x =>
-                {
-                    var write = Encoding.UTF8.GetString(x.Value, 0, x.Value.Length);
-                    this.OnEvent($"Characteristic Write Received - {write}");
-                });
+                var service = this.BleAdapter.GattServer.AddService(Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE"), true);
+                this.BuildCharacteristics(service, Guid.Parse("A495FF21-C5B1-4B44-B512-1370F02D74DE")); // scratch #1
+                this.BuildCharacteristics(service, Guid.Parse("A495FF22-C5B1-4B44-B512-1370F02D74DE")); // scratch #2
+                this.BuildCharacteristics(service, Guid.Parse("A495FF23-C5B1-4B44-B512-1370F02D74DE")); // scratch #3
+                this.BuildCharacteristics(service, Guid.Parse("A495FF24-C5B1-4B44-B512-1370F02D74DE")); // scratch #4
+                this.BuildCharacteristics(service, Guid.Parse("A495FF25-C5B1-4B44-B512-1370F02D74DE")); // scratch #5
 
                 this.BleAdapter
                     .GattServer
@@ -228,6 +168,65 @@ namespace Samples.ViewModels.Le
             {
                 this.Dialogs.Alert("Error building gatt server - " + ex);
             }
+        }
+
+
+        void BuildCharacteristics(Plugin.BluetoothLE.Server.IGattService service, Guid characteristicId)
+        {
+            var characteristic = service.AddCharacteristic(
+                characteristicId,
+                CharacteristicProperties.Notify | CharacteristicProperties.Read | CharacteristicProperties.Write | CharacteristicProperties.WriteNoResponse,
+                GattPermissions.Read | GattPermissions.Write
+            );
+            characteristic.WhenDeviceSubscriptionChanged().Subscribe(e =>
+            {
+                var @event = e.IsSubscribed ? "Subscribed" : "Unsubcribed";
+                this.OnEvent($"Device {e.Device.Uuid} {@event}");
+                this.OnEvent($"Charcteristic Subcribers: {characteristic.SubscribedDevices.Count}");
+
+                if (this.notifyBroadcast == null)
+                {
+                    this.OnEvent("Starting Subscriber Thread");
+                    this.notifyBroadcast = Observable
+                        .Interval(TimeSpan.FromSeconds(1))
+                        .Where(x => characteristic.SubscribedDevices.Count > 0)
+                        .Subscribe(_ =>
+                        {
+                            try
+                            {
+                                var dt = DateTime.Now.ToString("g");
+                                var bytes = Encoding.UTF8.GetBytes(dt);
+                                characteristic
+                                    .BroadcastObserve(bytes)
+                                    .Subscribe(x =>
+                                    {
+                                        var state = x.Success ? "Successfully" : "Failed";
+                                        var data = Encoding.UTF8.GetString(x.Data, 0, x.Data.Length);
+                                        this.OnEvent($"{state} Broadcast {data} to device {x.Device.Uuid} from characteristic {x.Characteristic}");
+                                    });
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine("Error during broadcast: " + ex);
+                            }
+                        });
+                }
+            });
+
+            characteristic.WhenReadReceived().Subscribe(x =>
+            {
+                var write = this.CharacteristicValue;
+                if (String.IsNullOrWhiteSpace(write))
+                    write = "(NOTHING)";
+
+                x.Value = Encoding.UTF8.GetBytes(write);
+                this.OnEvent("Characteristic Read Received");
+            });
+            characteristic.WhenWriteReceived().Subscribe(x =>
+            {
+                var write = Encoding.UTF8.GetString(x.Value, 0, x.Value.Length);
+                this.OnEvent($"Characteristic Write Received - {write}");
+            });
         }
 
 
