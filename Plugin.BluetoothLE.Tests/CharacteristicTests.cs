@@ -151,13 +151,15 @@ namespace Plugin.BluetoothLE.Tests
             var sub = cs
                 .First()
                 .RegisterAndNotify()
-                .Subscribe(async x =>
+                .Select(x => Observable.FromAsync(async ct =>
                 {
-                    await x.Characteristic.Write(new byte[] { 0x0 });
-                    await x.Characteristic.Write(new byte[] { 0x0 });
-                    await x.Characteristic.Write(new byte[] { 0x0 });
+                    await x.Characteristic.Write(new byte[] {0x0});
+                    await x.Characteristic.Write(new byte[] {0x0});
+                    await x.Characteristic.Write(new byte[] {0x0});
                     tcs.TrySetResult(null);
-                });
+                }))
+                .Merge(1)
+                .Subscribe();
 
             await tcs.Task;
             sub.Dispose();
