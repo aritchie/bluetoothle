@@ -25,15 +25,22 @@ namespace Plugin.BluetoothLE
         public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds)
             => Observable.Create<IGattCharacteristic>(async ob =>
             {
+                var found = false;
+
                 foreach (var uuid in characteristicIds)
                 {
                     var result = await this.native.GetCharacteristicsForUuidAsync(uuid, BluetoothCacheMode.Cached);
-                    if (result.Status != GattCommunicationStatus.Success)
-                        throw new ArgumentException("Could not find GATT service - " + result.Status);
-
-                    var ch = new GattCharacteristic(this.context, result.Characteristics.First(), this);
-                    ob.OnNext(ch);
+                    if (result.Status == GattCommunicationStatus.Success)
+                    {
+                        found = true;
+                        var ch = new GattCharacteristic(this.context, result.Characteristics.First(), this);
+                        ob.OnNext(ch);
+                    }
                 }
+                // prevent NRE on observable
+                if (!found)
+                    ob.OnNext(null);
+
                 ob.OnCompleted();
 
                 return Disposable.Empty;
