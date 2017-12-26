@@ -33,6 +33,15 @@ namespace Samples.ViewModels.Le
                 });
 
             this.BleAdapter
+                .WhenStatusChanged()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
+                {
+                    this.IsSupported = x == AdapterStatus.PoweredOn;
+                    this.Title = $"BLE Scanner ({x})";
+                });
+
+            this.BleAdapter
                 .WhenScanningStatusChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(on =>
@@ -91,8 +100,13 @@ namespace Samples.ViewModels.Le
 
                         this.scan = this.BleAdapter
                             .Scan()
+                            .Buffer(TimeSpan.FromSeconds(1))
                             .ObserveOn(RxApp.MainThreadScheduler)
-                            .Subscribe(this.OnScanResult);
+                            .Subscribe(results =>
+                            {
+                                foreach (var result in results)
+                                    this.OnScanResult(result);
+                            });
                     }
                 },
                 this.WhenAny(
@@ -100,20 +114,6 @@ namespace Samples.ViewModels.Le
                     x => x.Value
                 )
             );
-        }
-
-
-        public override void OnActivate()
-        {
-            base.OnActivate();
-            this.BleAdapter
-                .WhenStatusChanged()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
-                {
-                    this.IsSupported = x == AdapterStatus.PoweredOn;
-                    this.Title = $"BLE Scanner ({x})";
-                });
         }
 
 

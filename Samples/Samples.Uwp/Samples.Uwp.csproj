@@ -125,6 +125,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj">
+      <Project>{f44febba-7ea7-4b92-bf25-ebdcc1db1830}</Project>
+      <Name>Plugin.BluetoothLE</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Samples\Samples.csproj">
       <Project>{af0917dd-079a-49cb-9115-ba08340e4ed8}</Project>
       <Name>Samples</Name>

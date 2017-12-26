@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Input;
 using Plugin.BluetoothLE;
 using Plugin.BluetoothLE.Server;
@@ -14,9 +16,6 @@ namespace Samples.ViewModels.Le
 {
     public class ServerViewModel : AbstractRootViewModel
     {
-        IDisposable notifyBroadcast;
-
-
         public ServerViewModel(ICoreServices services) : base(services)
         {
             this.BleAdapter
@@ -108,12 +107,26 @@ namespace Samples.ViewModels.Le
         {
             try
             {
+                var counter = 0;
                 var service = this.BleAdapter.GattServer.AddService(Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE"), true);
                 this.BuildCharacteristics(service, Guid.Parse("A495FF21-C5B1-4B44-B512-1370F02D74DE")); // scratch #1
                 this.BuildCharacteristics(service, Guid.Parse("A495FF22-C5B1-4B44-B512-1370F02D74DE")); // scratch #2
                 this.BuildCharacteristics(service, Guid.Parse("A495FF23-C5B1-4B44-B512-1370F02D74DE")); // scratch #3
                 this.BuildCharacteristics(service, Guid.Parse("A495FF24-C5B1-4B44-B512-1370F02D74DE")); // scratch #4
                 this.BuildCharacteristics(service, Guid.Parse("A495FF25-C5B1-4B44-B512-1370F02D74DE")); // scratch #5
+                Observable
+                    .Interval(TimeSpan.FromSeconds(1))
+                    .Where(x => this.BleAdapter.GattServer.IsRunning)
+                    .Select(_ => Observable.FromAsync(async ct =>
+                    {
+                        var subscribed = service.Characteristics.Where(x => x.SubscribedDevices.Count > 0);
+                        foreach (var ch in subscribed)
+                        {
+                            counter++;
+                            await ch.BroadcastObserve(Encoding.UTF8.GetBytes(counter.ToString()));
+                        }
+                    }))
+                    .Merge(4);
 
                 this.BleAdapter
                     .GattServer
@@ -125,27 +138,8 @@ namespace Samples.ViewModels.Le
                     })
                     .Subscribe(started => Device.BeginInvokeOnMainThread(() =>
                     {
-                        if (!started)
-                        {
-                            this.ServerText = "Start Server";
-                            this.OnEvent("GATT Server Stopped");
-                        }
-                        else
-                        {
-                            this.notifyBroadcast?.Dispose();
-                            this.notifyBroadcast = null;
-
-                            this.ServerText = "Stop Server";
-                            this.OnEvent("GATT Server Started");
-                            foreach (var s in this.BleAdapter.GattServer.Services)
-                            {
-                                this.OnEvent($"Service {s.Uuid} Created");
-                                foreach (var ch in s.Characteristics)
-                                {
-                                    this.OnEvent($"Characteristic {ch.Uuid} Online - Properties {ch.Properties}");
-                                }
-                            }
-                        }
+                        this.ServerText = started ? "Stop Server" : "Start Server";
+                        this.OnEvent(started ? "GATT Server Started" : "GATT Server Stopped");
                     }));
 
                 this.BleAdapter
@@ -178,40 +172,15 @@ namespace Samples.ViewModels.Le
                 CharacteristicProperties.Notify | CharacteristicProperties.Read | CharacteristicProperties.Write | CharacteristicProperties.WriteNoResponse,
                 GattPermissions.Read | GattPermissions.Write
             );
-            characteristic.WhenDeviceSubscriptionChanged().Subscribe(e =>
-            {
-                var @event = e.IsSubscribed ? "Subscribed" : "Unsubcribed";
-                this.OnEvent($"Device {e.Device.Uuid} {@event}");
-                this.OnEvent($"Charcteristic Subcribers: {characteristic.SubscribedDevices.Count}");
 
-                if (this.notifyBroadcast == null)
+            characteristic
+                .WhenDeviceSubscriptionChanged()
+                .Subscribe(e =>
                 {
-                    this.OnEvent("Starting Subscriber Thread");
-                    this.notifyBroadcast = Observable
-                        .Interval(TimeSpan.FromSeconds(1))
-                        .Where(x => characteristic.SubscribedDevices.Count > 0)
-                        .Subscribe(_ =>
-                        {
-                            try
-                            {
-                                var dt = DateTime.Now.ToString("g");
-                                var bytes = Encoding.UTF8.GetBytes(dt);
-                                characteristic
-                                    .BroadcastObserve(bytes)
-                                    .Subscribe(x =>
-                                    {
-                                        var state = x.Success ? "Successfully" : "Failed";
-                                        var data = Encoding.UTF8.GetString(x.Data, 0, x.Data.Length);
-                                        this.OnEvent($"{state} Broadcast {data} to device {x.Device.Uuid} from characteristic {x.Characteristic}");
-                                    });
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine("Error during broadcast: " + ex);
-                            }
-                        });
-                }
-            });
+                    var @event = e.IsSubscribed ? "Subscribed" : "Unsubcribed";
+                    this.OnEvent($"Device {e.Device.Uuid} {@event}");
+                    this.OnEvent($"Charcteristic Subcribers: {characteristic.SubscribedDevices.Count}");
+                });
 
             characteristic.WhenReadReceived().Subscribe(x =>
             {
