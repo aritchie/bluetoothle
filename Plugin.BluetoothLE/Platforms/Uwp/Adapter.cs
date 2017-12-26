@@ -108,7 +108,7 @@ namespace Plugin.BluetoothLE
             if (this.IsScanning)
                 throw new ArgumentException("There is already an active scan");
 
-            var observer = Observable.Create<IScanResult>(ob =>
+            return Observable.Create<IScanResult>(ob =>
             {
                 this.IsScanning = true;
 
@@ -125,12 +125,6 @@ namespace Plugin.BluetoothLE
                     sub.Dispose();
                 };
             });
-            //if (config?.ServiceUuid != null)
-            //{
-            //    observer = observer.Where(x => x.AdvertisementData?.ServiceUuids.Contains(config.ServiceUuid.Value) ?? false);
-            //}
-
-            return observer;
         }
 
 
@@ -183,6 +177,7 @@ namespace Plugin.BluetoothLE
                 };
             })
             .Publish()
+            .StartWith(this.Status)
             .Replay(1)
             .RefCount();
 
