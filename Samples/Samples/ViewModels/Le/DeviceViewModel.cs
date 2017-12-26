@@ -124,13 +124,9 @@ namespace Samples.ViewModels.Le
             this.Uuid = this.device.Uuid;
 
             this.cleanup.Add(this.device
-                .WhenNameUpdated()
-                .Subscribe(x => this.Name = this.device.Name)
-            );
-
-            this.cleanup.Add(this.device
                 .WhenStatusChanged()
-                .Subscribe (x => Device.BeginInvokeOnMainThread(() =>
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe (x =>
                 {
                     this.Status = x;
 
@@ -150,13 +146,20 @@ namespace Samples.ViewModels.Le
 
                         case ConnectionStatus.Connected:
                             this.ConnectText = "Disconnect";
-                            //this.cleanup.Add(this.device
-                            //    .WhenRssiUpdated()
-                            //    .Subscribe(rssi => this.Rssi = rssi)
-                            //);
                             break;
                     }
-                }))
+                })
+            );
+
+            this.cleanup.Add(this.device
+                .WhenNameUpdated()
+                .Subscribe(x => this.Name = this.device.Name)
+            );
+
+            this.cleanup.Add(this.device
+                .WhenRssiUpdated()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(rssi => this.Rssi = rssi)
             );
 
             this.cleanup.Add(this.device
@@ -170,17 +173,16 @@ namespace Samples.ViewModels.Le
                 .Subscribe(service =>
                 {
                     var group = new Group<GattCharacteristicViewModel>(service.Uuid.ToString());
-                    var characters = service
+                    service
                         .WhenCharacteristicDiscovered()
+                        .ObserveOn(RxApp.MainThreadScheduler)
                         .Subscribe(character =>
                         {
-                            Device.BeginInvokeOnMainThread(() =>
-                            {
-                                var vm = new GattCharacteristicViewModel(this.Dialogs, character);
-                                group.Add(vm);
-                                if (group.Count == 1)
-                                    this.GattCharacteristics.Add(group);
-                            });
+                            var vm = new GattCharacteristicViewModel(this.Dialogs, character);
+                            group.Add(vm);
+                            if (group.Count == 1)
+                                this.GattCharacteristics.Add(group);
+
                             character
                                 .WhenDescriptorDiscovered()
                                 .Subscribe(desc => Device.BeginInvokeOnMainThread(() =>
