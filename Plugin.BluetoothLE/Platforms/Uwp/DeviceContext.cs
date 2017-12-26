@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
-using Windows.UI.Core;
 using NC = Windows.Devices.Bluetooth.GenericAttributeProfile.GattCharacteristic;
 
 
@@ -72,6 +71,7 @@ namespace Plugin.BluetoothLE
             var result = await this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Cached);
             foreach (var s in result.Services)
             {
+                s.Session.MaintainConnection = false;
                 s.Dispose();
             }
             GC.Collect();
