@@ -5,6 +5,7 @@
 * [breaking] GATT server is now static per adapter instead of using CreateInstance()
 * [breaking][feature] All read/write/notification actions now contain a result object (good or bad) instead of calling OnError - why?  because no one knows how to use RX so I'll do the fun stuff for them!
 * [fix][android] Adapter.IsScanning and Adapter.WhenScanningStatusChanged() were not firing reliability
+* [fix][android] fixes to locking mechanism as well as ability to disable it via CrossBleAdapter.AndroidDisableLockMechanism
 
 ## 5.3.1
 * [fix][android] GetKnownCharacteristic now sync locks to prevent android race condition
