@@ -6,6 +6,7 @@ using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Acr;
 using Plugin.BluetoothLE;
 using Acr.UserDialogs;
 using ReactiveUI;

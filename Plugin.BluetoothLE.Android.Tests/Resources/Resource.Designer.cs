@@ -63,7 +63,6 @@ namespace Plugin.BluetoothLE.Android.Tests
 			global::AndroidHUD.Resource.Styleable.ProgressWheel_ahText = global::Plugin.BluetoothLE.Android.Tests.Resource.Styleable.ProgressWheel_ahText;
 			global::AndroidHUD.Resource.Styleable.ProgressWheel_ahTextColor = global::Plugin.BluetoothLE.Android.Tests.Resource.Styleable.ProgressWheel_ahTextColor;
 			global::AndroidHUD.Resource.Styleable.ProgressWheel_ahTextSize = global::Plugin.BluetoothLE.Android.Tests.Resource.Styleable.ProgressWheel_ahTextSize;
-			global::Splat.Resource.String.library_name = global::Plugin.BluetoothLE.Android.Tests.Resource.String.library_name;
 			global::Xamarin.Android.NUnitLite.Resource.Id.OptionHostName = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.OptionHostName;
 			global::Xamarin.Android.NUnitLite.Resource.Id.OptionPort = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.OptionPort;
 			global::Xamarin.Android.NUnitLite.Resource.Id.OptionRemoteServer = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.OptionRemoteServer;

@@ -124,11 +124,14 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
-      <PackageReference Include="xunit.runner.devices">
-          <Version>2.3.2</Version>
-      </PackageReference>
+    <PackageReference Include="Acr.UserDialogs">
+      <Version>7.0.0-beta4</Version>
+    </PackageReference>
+    <PackageReference Include="xunit.runner.devices">
+      <Version>2.3.2</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.0.4</Version>
+      <Version>6.0.5</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestAdapter">
       <Version>1.2.0</Version>

@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
+using Acr;
 using Android.Bluetooth;
 using Java.Util;
 using Plugin.BluetoothLE.Internals;

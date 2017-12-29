@@ -58,17 +58,17 @@
     <DebugSymbols>False</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Acr.UserDialogs" Version="6.5.1" />
+    <PackageReference Include="Acr.UserDialogs" Version="7.0.0-beta4" />
     <PackageReference Include="reactiveui" Version="8.0.0-alpha0105" />
     <PackageReference Include="Xamarin.Forms" Version="2.5.0.121934" />
     <PackageReference Include="Xamarin.Android.Support.v4" Version="26.1.0.1" />
     <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="26.1.0.1" />
     <PackageReference Include="Xamarin.Android.Support.Design" Version="26.1.0.1" />
-      <PackageReference Include="Xamarin.Android.Support.Annotations" Version="26.1.0.1" />
-      <PackageReference Include="Xamarin.Android.Support.Compat" Version="26.1.0.1" />
-      <PackageReference Include="Xamarin.Android.Support.v7.Palette" Version="26.1.0.1" />
-      <PackageReference Include="Xamarin.Android.Support.v7.MediaRouter" Version="26.1.0.1" />
-      <PackageReference Include="Xamarin.Android.Support.v7.CardView" Version="26.1.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.Annotations" Version="26.1.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.Compat" Version="26.1.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.v7.Palette" Version="26.1.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.v7.MediaRouter" Version="26.1.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.v7.CardView" Version="26.1.0.1" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Java.Interop" />

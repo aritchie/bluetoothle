@@ -1,6 +1,8 @@
 using System;
 using System.Reactive.Linq;
+using Acr;
 using Android.Bluetooth;
+
 
 namespace Plugin.BluetoothLE.Internals
 {

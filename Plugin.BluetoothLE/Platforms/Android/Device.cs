@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using Acr;
 using Android.Bluetooth;
 using Android.OS;
 using Plugin.BluetoothLE.Internals;
@@ -13,7 +14,6 @@ using Plugin.BluetoothLE.Internals;
 
 namespace Plugin.BluetoothLE
 {
-    // TODO: wrap connection state events and call gatt.close() every disconnect state
     public class Device : AbstractDevice
     {
         readonly Subject<ConnectionStatus> connSubject;

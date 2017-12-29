@@ -2,7 +2,7 @@ using System;
 using System.Reactive;
 using Plugin.BluetoothLE.Internals;
 using System.Reactive.Linq;
-
+using Acr;
 
 namespace Plugin.BluetoothLE
 {
