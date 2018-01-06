@@ -39,7 +39,7 @@ namespace Plugin.BluetoothLE
                         if (scanner == null)
                         {
                             scanner = adapter
-                                .Scan()
+                                .Scan(config)
                                 .Subscribe(ob.OnNext);
                         }
                         else
