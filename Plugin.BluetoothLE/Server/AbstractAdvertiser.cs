@@ -12,7 +12,6 @@ namespace Plugin.BluetoothLE.Server
         public virtual void Start(AdvertisementData adData)
         {
             this.CurrentAdvertisementData = adData;
-            throw new NotImplementedException();
         }
 
 
@@ -20,7 +19,6 @@ namespace Plugin.BluetoothLE.Server
         {
             this.CurrentAdvertisementData = null;
             this.IsStarted = false;
-            throw new NotImplementedException();
         }
     }
 }
