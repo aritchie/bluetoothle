@@ -11,11 +11,11 @@ namespace Plugin.BluetoothLE.Internals
         public static IObservable<object> WhenAdapterStatusChanged()
             => AndroidObservables.WhenIntentReceived(BluetoothAdapter.ActionStateChanged);
 
-        public static IObservable<object> WhenAdapterDiscoveryStarted()
-            => AndroidObservables.WhenIntentReceived(BluetoothAdapter.ActionDiscoveryStarted);
+        //public static IObservable<object> WhenAdapterDiscoveryStarted()
+        //    => AndroidObservables.WhenIntentReceived(BluetoothAdapter.ActionDiscoveryStarted);
 
-        public static IObservable<object> WhenAdapterDiscoveryFinished()
-            => AndroidObservables.WhenIntentReceived(BluetoothAdapter.ActionDiscoveryFinished);
+        //public static IObservable<object> WhenAdapterDiscoveryFinished()
+        //    => AndroidObservables.WhenIntentReceived(BluetoothAdapter.ActionDiscoveryFinished);
 
         public static IObservable<BluetoothDevice> WhenBondRequestReceived()
             => WhenDeviceEventReceived(BluetoothDevice.ActionPairingRequest);
