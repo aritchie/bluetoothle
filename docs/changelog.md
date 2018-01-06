@@ -2,6 +2,7 @@
 
 ## 6.0
 * [feature][breaking] GATT server & BLE advertising are now separate functions
+* [feature] ScanConfig is now available on all Adapter extension methods
 * [breaking] GATT server is now static per adapter instead of using CreateInstance()
 * [breaking][feature] All read/write/notification actions now contain a result object (good or bad) instead of calling OnError - why?  because no one knows how to use RX so I'll do the fun stuff for them!
 * [fix][android] Adapter.IsScanning and Adapter.WhenScanningStatusChanged() were not firing reliability

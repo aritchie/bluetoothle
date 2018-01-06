@@ -12,24 +12,24 @@ namespace Plugin.BluetoothLE
         public static bool CanPerformLowPoweredScans(this IAdapter adapter) => adapter.Features.HasFlag(AdapterFeatures.LowPoweredScan);
 
 
-        public static IObservable<IDevice> ScanForUniqueDevices(this IAdapter adapter) => adapter
-            .Scan()
+        public static IObservable<IDevice> ScanForUniqueDevices(this IAdapter adapter, ScanConfig config = null) => adapter
+            .Scan(config)
             .Distinct(x => x.Device.Uuid)
             .Select(x => x.Device);
 
 
-        public static IObservable<IScanResult> ScanWhenAdapterReady(this IAdapter adapter) => adapter
+        public static IObservable<IScanResult> ScanWhenAdapterReady(this IAdapter adapter, ScanConfig config = null) => adapter
             .WhenStatusChanged()
             .Where(x => x == AdapterStatus.PoweredOn)
-            .Select(x => adapter.Scan())
+            .Select(x => adapter.Scan(config))
             .Switch();
 
 
-        public static IObservable<IScanResult> ScanInterval(this IAdapter adapter, TimeSpan timeSpan)
+        public static IObservable<IScanResult> ScanInterval(this IAdapter adapter, TimeSpan timeSpan, ScanConfig config = null)
             => Observable.Create<IScanResult>(ob =>
             {
                 var scanner = adapter
-                    .Scan()
+                    .Scan(config)
                     .Subscribe(ob.OnNext);
 
                 var timer = Observable
