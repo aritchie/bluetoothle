@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
-using System.Threading;
 using System.Windows.Input;
 using Plugin.BluetoothLE;
 using Plugin.BluetoothLE.Server;
@@ -16,6 +14,9 @@ namespace Samples.ViewModels.Le
 {
     public class ServerViewModel : AbstractRootViewModel
     {
+        IGattServer server;
+
+
         public ServerViewModel(ICoreServices services) : base(services)
         {
             this.BleAdapter
@@ -31,27 +32,15 @@ namespace Samples.ViewModels.Le
                     return;
                 }
 
-                try
+                if (this.server == null)
                 {
                     this.BuildServer();
-                    if (this.BleAdapter.GattServer.IsRunning)
-                    {
-                        this.BleAdapter.GattServer.Stop();
-                        this.BleAdapter.Advertiser.Stop();
-                    }
-                    else
-                    {
-                        await this.BleAdapter.GattServer.Start();
-                        this.BleAdapter.Advertiser.Start(new AdvertisementData
-                        {
-                            LocalName = "TestServer"
-                        });
-                    }
                 }
-
-                catch (Exception ex)
+                else
                 {
-                    this.Dialogs.Alert(ex.ToString(), "ERROR");
+                    this.OnEvent("GATT Server Stopped");
+                    this.server.Dispose();
+                    this.server = null;
                 }
             });
 
@@ -107,8 +96,15 @@ namespace Samples.ViewModels.Le
         {
             try
             {
+                this.OnEvent("GATT Server Starting");
+                this.server = this.BleAdapter.CreateGattServer();
+                this.BleAdapter.Advertiser.Start(new AdvertisementData
+                {
+                    LocalName = "TestServer"
+                });
+
                 var counter = 0;
-                var service = this.BleAdapter.GattServer.AddService(Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE"), true);
+                var service = this.server.AddService(Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE"), true);
                 this.BuildCharacteristics(service, Guid.Parse("A495FF21-C5B1-4B44-B512-1370F02D74DE")); // scratch #1
                 this.BuildCharacteristics(service, Guid.Parse("A495FF22-C5B1-4B44-B512-1370F02D74DE")); // scratch #2
                 this.BuildCharacteristics(service, Guid.Parse("A495FF23-C5B1-4B44-B512-1370F02D74DE")); // scratch #3
@@ -116,7 +112,6 @@ namespace Samples.ViewModels.Le
                 this.BuildCharacteristics(service, Guid.Parse("A495FF25-C5B1-4B44-B512-1370F02D74DE")); // scratch #5
                 Observable
                     .Interval(TimeSpan.FromSeconds(1))
-                    .Where(x => this.BleAdapter.GattServer.IsRunning)
                     .Select(_ => Observable.FromAsync(async ct =>
                     {
                         var subscribed = service.Characteristics.Where(x => x.SubscribedDevices.Count > 0);
@@ -128,22 +123,7 @@ namespace Samples.ViewModels.Le
                     }))
                     .Merge(4);
 
-                this.BleAdapter
-                    .GattServer
-                    .WhenRunningChanged()
-                    .Catch<bool, ArgumentException>(ex =>
-                    {
-                        this.Dialogs.Alert("Error Starting GATT Server - " + ex);
-                        return Observable.Return(false);
-                    })
-                    .Subscribe(started => Device.BeginInvokeOnMainThread(() =>
-                    {
-                        this.ServerText = started ? "Stop Server" : "Start Server";
-                        this.OnEvent(started ? "GATT Server Started" : "GATT Server Stopped");
-                    }));
-
-                this.BleAdapter
-                    .GattServer
+                this.server
                     .WhenAnyCharacteristicSubscriptionChanged()
                     .Subscribe(x =>
                         this.OnEvent($"[WhenAnyCharacteristicSubscriptionChanged] UUID: {x.Characteristic.Uuid} - Device: {x.Device.Uuid} - Subscription: {x.IsSubscribing}")
@@ -157,6 +137,7 @@ namespace Samples.ViewModels.Le
                 //    var write = Encoding.UTF8.GetString(x.Value, 0, x.Value.Length);
                 //    this.OnEvent($"Descriptor Write Received - {write}");
                 //});
+                this.OnEvent("GATT Server Started");
             }
             catch (Exception ex)
             {

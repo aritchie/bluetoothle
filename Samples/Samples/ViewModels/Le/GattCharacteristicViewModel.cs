@@ -15,7 +15,6 @@ using Xamarin.Forms;
 
 namespace Samples.ViewModels.Le
 {
-
     public class GattCharacteristicViewModel : AbstractViewModel
     {
         readonly IUserDialogs dialogs;
@@ -78,35 +77,25 @@ namespace Samples.ViewModels.Le
                 .SetCancel();
 
             if (this.Characteristic.CanWriteWithResponse())
-            {
                 cfg.Add("Write With Response", () => this.TryWrite(true));
-            }
+
             if (this.Characteristic.CanWriteWithoutResponse())
-            {
                 cfg.Add("Write Without Response", () => this.TryWrite(false));
-            }
+
             if (this.Characteristic.CanWrite())
-            {
                 cfg.Add("Send Test BLOB", () => this.SendBlob());
-            }
 
             if (this.Characteristic.CanRead())
             {
                 cfg.Add("Read", async () =>
                 {
-                    try
-                    {
-                        var value = await this.Characteristic
-                            .Read()
-                            //.Timeout(TimeSpan.FromSeconds(3))
-                            .ToTask();
-                        var utf8 = await this.dialogs.ConfirmAsync("Display Value as UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
-                        this.SetReadValue(value, utf8);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.dialogs.Alert($"Error Reading {this.Characteristic.Uuid} - {ex}");
-                    }
+                    var value = await this.Characteristic
+                        .Read()
+                        //.Timeout(TimeSpan.FromSeconds(3))
+                        .ToTask();
+
+                    var utf8 = await this.dialogs.ConfirmAsync("Display Value as UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
+                    this.SetReadValue(value, utf8);
                 });
             }
 
@@ -190,69 +179,57 @@ namespace Samples.ViewModels.Le
         }
 
 
-        Task TryWrite(bool withResponse)
+        async Task TryWrite(bool withResponse)
         {
-            return this.Wrap(async () =>
-            {
-                var utf8 = await this.dialogs.ConfirmAsync("Write value from UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
-                var result = await this.dialogs.PromptAsync("Please enter a write value", this.Description);
+            var utf8 = await this.dialogs.ConfirmAsync("Write value from UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
+            var result = await this.dialogs.PromptAsync("Please enter a write value", this.Description);
 
-                if (result.Ok && !String.IsNullOrWhiteSpace(result.Text))
+            if (result.Ok && !String.IsNullOrWhiteSpace(result.Text))
+            {
+                try
                 {
-                    try
+                    using (this.dialogs.Loading("Writing Value..."))
                     {
-                        using (this.dialogs.Loading("Writing Value..."))
+                        var value = result.Text.Trim();
+                        var bytes = utf8 ? Encoding.UTF8.GetBytes(value) : value.FromHexString();
+                        if (withResponse)
                         {
-                            var value = result.Text.Trim();
-                            var bytes = utf8 ? Encoding.UTF8.GetBytes(value) : value.FromHexString();
-                            if (withResponse)
-                            {
-                                await this.Characteristic
-                                    .Write(bytes)
-                                    .Timeout(TimeSpan.FromSeconds(5))
-                                    .ToTask();
-                            }
-                            else
-                            {
-                                this.Characteristic.WriteWithoutResponse(bytes);
-                            }
-                            this.Value = value;
+                            await this.Characteristic
+                                .Write(bytes)
+                                .Timeout(TimeSpan.FromSeconds(5))
+                                .ToTask();
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        this.dialogs.Alert($"Error Writing {this.Characteristic.Uuid} - {ex}");
+                        else
+                        {
+                            this.Characteristic.WriteWithoutResponse(bytes);
+                        }
+
+                        this.Value = value;
                     }
                 }
-            });
-        }
-
-
-        async Task Wrap(Func<Task> action)
-        {
-            try
-            {
-                await action();
-            }
-            catch (Exception ex)
-            {
-                this.dialogs.Alert(ex.ToString());
+                catch (Exception ex)
+                {
+                    this.dialogs.Alert($"Error Writing {this.Characteristic.Uuid} - {ex}");
+                }
             }
         }
 
 
-        void SetReadValue(CharacteristicGattResult result, bool fromUtf8)
+        void SetReadValue(CharacteristicGattResult result, bool fromUtf8) => Device.BeginInvokeOnMainThread(() =>
         {
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                this.IsValueAvailable = true;
-                this.LastValue = DateTime.Now;
+            this.IsValueAvailable = true;
+            this.LastValue = DateTime.Now;
 
-                if (result.Data == null)
-                    this.Value = "EMPTY";
-                else
-                    this.Value = fromUtf8 ? Encoding.UTF8.GetString(result.Data, 0, result.Data.Length) : BitConverter.ToString(result.Data);
-            });
-        }
+            if (!result.Success)
+                this.Value = "ERROR - " + result.ErrorMessage;
+
+            else if (result.Data == null)
+                this.Value = "EMPTY";
+
+            else
+                this.Value = fromUtf8
+                    ? Encoding.UTF8.GetString(result.Data, 0, result.Data.Length)
+                    : BitConverter.ToString(result.Data);
+        });
     }
 }
