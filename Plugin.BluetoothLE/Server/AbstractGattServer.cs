@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 
 
 namespace Plugin.BluetoothLE.Server
@@ -20,12 +19,10 @@ namespace Plugin.BluetoothLE.Server
         }
 
 
-        public IReadOnlyList<IGattService> Services { get; }
+        ~AbstractGattServer() => this.Dispose(false);
 
-        public abstract IObservable<bool> WhenRunningChanged();
-        public abstract bool IsRunning { get; }
-        public abstract Task Start();
-        public abstract void Stop();
+
+        public IReadOnlyList<IGattService> Services { get; }
 
 
         IObservable<CharacteristicSubscription> chOb;
@@ -33,17 +30,13 @@ namespace Plugin.BluetoothLE.Server
         {
             this.chOb = this.chOb ?? Observable.Create<CharacteristicSubscription>(ob =>
             {
-                var cleanup = new List<IDisposable>();
-                foreach (var s in this.Services)
-                {
-                    foreach (var ch in s.Characteristics)
-                    {
-                        cleanup.Add(ch.WhenDeviceSubscriptionChanged().Subscribe(x =>
-                        {
-                            ob.OnNext(new CharacteristicSubscription(ch, x.Device, x.IsSubscribed));
-                        }));
-                    }
-                }
+                var cleanup = this.Services
+                    .SelectMany(x => x.Characteristics)
+                    .Select(x => x.WhenDeviceSubscriptionChanged().Subscribe(y =>
+                        ob.OnNext(new CharacteristicSubscription(x, y.Device, y.IsSubscribed))
+                    ))
+                    .ToList();
+
                 return () =>
                 {
                     foreach (var dispose in cleanup)
@@ -75,11 +68,11 @@ namespace Plugin.BluetoothLE.Server
         }
 
 
-        public IGattService AddService(Guid uuid, bool primary)
+        public IObservable<IGattService> AddService(Guid uuid, bool primary)
         {
             var native = this.CreateNative(uuid, primary);
             this.internalList.Add(native);
-            return native;
+            return Observable.Return(native);
         }
 
 
@@ -104,5 +97,9 @@ namespace Plugin.BluetoothLE.Server
         protected abstract IGattService CreateNative(Guid uuid, bool primary);
         protected abstract void ClearNative();
         protected abstract void RemoveNative(IGattService service);
+
+
+        public void Dispose() => this.Dispose(true);
+        protected virtual void Dispose(bool disposing) { }
     }
 }

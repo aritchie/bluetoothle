@@ -101,6 +101,9 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override IGattServer CreateGattServer() => new GattServer();
+
+
 #if __IOS__ || __TVOS__
         public override bool IsScanning => this.context.Manager.IsScanning;
 #endif

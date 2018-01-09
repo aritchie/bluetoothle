@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 
 namespace Plugin.BluetoothLE.Server
 {
-    public interface IGattServer
+    public interface IGattServer : IDisposable
     {
         //IBleAdapter Adapter { get; }
-        IObservable<bool> WhenRunningChanged();
-        bool IsRunning { get; }
-        Task Start();
-        void Stop();
 
-        IGattService AddService(Guid uuid, bool primary);
+        IObservable<IGattService> AddService(Guid uuid, bool primary);
         void RemoveService(Guid serviceUuid);
         void ClearServices();
         IReadOnlyList<IGattService> Services { get; }

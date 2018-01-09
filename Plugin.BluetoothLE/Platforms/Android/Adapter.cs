@@ -27,7 +27,6 @@ namespace Plugin.BluetoothLE
             this.scanStatusChanged = new Subject<bool>();
 
             this.Advertiser = new Advertiser();
-            this.GattServer = new GattServer();
         }
 
 
@@ -114,6 +113,9 @@ namespace Plugin.BluetoothLE
 
             return this.statusOb;
         }
+
+
+        public override IGattServer CreateGattServer() => new GattServer();
 
 
         public override IObservable<bool> WhenScanningStatusChanged() => this.scanStatusChanged

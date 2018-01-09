@@ -6,8 +6,16 @@ namespace Plugin.BluetoothLE.Server.Internals
 {
     public class GattContext
     {
-        public BluetoothGattServer Server { get; internal set; }
-        public GattServerCallbacks Callbacks { get; } = new GattServerCallbacks();
-        public object ServerReadWriteLock { get; } = new object();
+        public GattContext(BluetoothGattServer server)
+        {
+            this.Server = server;
+            this.Callbacks = new GattServerCallbacks();
+            this.ServerReadWriteLock = new object();
+        }
+
+
+        public BluetoothGattServer Server { get; }
+        public GattServerCallbacks Callbacks { get; }
+        public object ServerReadWriteLock { get; }
     }
 }

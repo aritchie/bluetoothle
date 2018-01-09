@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Plugin.BluetoothLE;
 using Plugin.BluetoothLE.Server;
@@ -14,6 +15,7 @@ namespace Samples.ViewModels.Le
 {
     public class ServerViewModel : AbstractRootViewModel
     {
+        IDisposable timer;
         IGattServer server;
 
 
@@ -34,7 +36,7 @@ namespace Samples.ViewModels.Le
 
                 if (this.server == null)
                 {
-                    this.BuildServer();
+                    await this.BuildServer();
                 }
                 else
                 {
@@ -92,7 +94,7 @@ namespace Samples.ViewModels.Le
         public ICommand Clear { get; }
 
 
-        void BuildServer()
+        async Task BuildServer()
         {
             try
             {
@@ -104,13 +106,13 @@ namespace Samples.ViewModels.Le
                 });
 
                 var counter = 0;
-                var service = this.server.AddService(Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE"), true);
+                var service = await this.server.AddService(Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE"), true);
                 this.BuildCharacteristics(service, Guid.Parse("A495FF21-C5B1-4B44-B512-1370F02D74DE")); // scratch #1
                 this.BuildCharacteristics(service, Guid.Parse("A495FF22-C5B1-4B44-B512-1370F02D74DE")); // scratch #2
                 this.BuildCharacteristics(service, Guid.Parse("A495FF23-C5B1-4B44-B512-1370F02D74DE")); // scratch #3
                 this.BuildCharacteristics(service, Guid.Parse("A495FF24-C5B1-4B44-B512-1370F02D74DE")); // scratch #4
                 this.BuildCharacteristics(service, Guid.Parse("A495FF25-C5B1-4B44-B512-1370F02D74DE")); // scratch #5
-                Observable
+                this.timer = Observable
                     .Interval(TimeSpan.FromSeconds(1))
                     .Select(_ => Observable.FromAsync(async ct =>
                     {
@@ -121,7 +123,8 @@ namespace Samples.ViewModels.Le
                             await ch.BroadcastObserve(Encoding.UTF8.GetBytes(counter.ToString()));
                         }
                     }))
-                    .Merge(4);
+                    .Merge(5)
+                    .Subscribe();
 
                 this.server
                     .WhenAnyCharacteristicSubscriptionChanged()

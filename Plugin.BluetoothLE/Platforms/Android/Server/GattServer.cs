@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Threading.Tasks;
 using Android.App;
 using Android.Bluetooth;
-using Android.Bluetooth.LE;
 using Android.Content;
-using Android.OS;
 using Plugin.BluetoothLE.Server.Internals;
 
 
@@ -17,66 +12,53 @@ namespace Plugin.BluetoothLE.Server
     {
         readonly BluetoothManager manager;
         readonly GattContext context;
-        readonly Subject<bool> runningSubj;
-        BluetoothGattServer server;
+        readonly BluetoothGattServer server;
 
 
         public GattServer()
         {
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Context.BluetoothService);
-            this.context = new GattContext();
-            this.runningSubj = new Subject<bool>();
-        }
-
-
-        bool isRunning = false;
-        public override bool IsRunning => this.isRunning;
-
-
-        public override IObservable<bool> WhenRunningChanged() => this.runningSubj;
-
-
-        public override Task Start()
-        {
             this.server = this.manager.OpenGattServer(Application.Context, this.context.Callbacks);
-            this.context.Server = this.server;
-
-            foreach (var service in this.Services.OfType<IDroidGattService>())
-            {
-                if (!this.context.Server.AddService(service.Native))
-                    throw new ArgumentException($"Could not add service {service.Uuid} to server");
-
-                foreach (var characteristic in service.Characteristics.OfType<IDroidGattCharacteristic>())
-                {
-                    if (!service.Native.AddCharacteristic(characteristic.Native))
-                        throw new ArgumentException($"Could not add characteristic '{characteristic.Uuid}' to service '{service.Uuid}'");
-
-                    foreach (var descriptor in characteristic.Descriptors.OfType<IDroidGattDescriptor>())
-                    {
-                        if (!characteristic.Native.AddDescriptor(descriptor.Native))
-                            throw new ArgumentException($"Could not add descriptor '{descriptor.Uuid}' to characteristic '{characteristic.Uuid}'");
-                    }
-                }
-                this.server.AddService(service.Native);
-            }
-
-            this.runningSubj.OnNext(true);
-            this.isRunning = true;
-            return Task.CompletedTask;
+            this.context = new GattContext(this.server);
         }
 
 
-        public override void Stop()
+        //public override Task Start()
+        //{
+
+        //    this.context.Server = this.server;
+
+            //foreach (var service in this.Services.OfType<IDroidGattService>())
+            //{
+            //    var nativeService = service.CreateNative();
+            //    if (!this.context.Server.AddService(service.Native))
+            //        throw new ArgumentException($"Could not add service {service.Uuid} to server");
+
+            //    foreach (var characteristic in service.Characteristics.OfType<IDroidGattCharacteristic>())
+            //    {
+            //        if (!service.Native.AddCharacteristic(characteristic.Native))
+            //            throw new ArgumentException($"Could not add characteristic '{characteristic.Uuid}' to service '{service.Uuid}'");
+
+            //        foreach (var descriptor in characteristic.Descriptors.OfType<IDroidGattDescriptor>())
+            //        {
+            //            if (!characteristic.Native.AddDescriptor(descriptor.Native))
+            //                throw new ArgumentException($"Could not add descriptor '{descriptor.Uuid}' to characteristic '{characteristic.Uuid}'");
+            //        }
+            //    }
+            //    this.server.AddService(service.Native);
+            //}
+
+            //this.runningSubj.OnNext(true);
+            //this.isRunning = true;
+        //    return Task.CompletedTask;
+        //}
+
+
+        protected override void Dispose(bool disposing)
         {
-            if (!this.isRunning)
-                return;
-
-            this.isRunning = false;
-
-            this.context.Server = null;
+            base.Dispose(disposing);
             this.server?.Close();
-            this.server = null;
-            this.runningSubj.OnNext(false);
+            //this.server = null;
         }
 
 

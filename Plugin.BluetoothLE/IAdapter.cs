@@ -16,7 +16,7 @@ namespace Plugin.BluetoothLE
         /// Create a BLE server
         /// </summary>
         /// <returns></returns>
-        IGattServer GattServer { get; }
+        IGattServer CreateGattServer();
 
         /// <summary>
         /// Use this to advertise your device

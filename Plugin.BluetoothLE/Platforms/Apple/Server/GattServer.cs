@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Subjects;
-using System.Threading.Tasks;
 using CoreBluetooth;
 
 
@@ -10,15 +7,21 @@ namespace Plugin.BluetoothLE.Server
 {
     public class GattServer : AbstractGattServer
     {
-        readonly CBPeripheralManager manager = new CBPeripheralManager();
-        readonly IList<IGattService> services = new List<IGattService>();
-        readonly Subject<bool> runningSubj = new Subject<bool>();
+        readonly IList<IGattService> services;
+        readonly CBPeripheralManager manager;
 
 
-        public override bool IsRunning => this.manager.Advertising;
+        public GattServer()
+        {
+            this.services = new List<IGattService>();
+            this.manager = new CBPeripheralManager();
+        }
 
 
-        public override IObservable<bool> WhenRunningChanged() => null;
+        protected override void Dispose(bool disposing)
+        {
+            this.manager.Dispose();
+        }
         //{
         //    this.runningOb = this.runningOb ?? Observable.Create<bool>(ob =>
         //    {
@@ -52,8 +55,8 @@ namespace Plugin.BluetoothLE.Server
         //}
 
 
-        public override Task Start()
-        {
+        //public override Task Start()
+        //{
             //CBPeripheralManager.AuthorizationStatus
             //if (this.manager.Advertising)
             //    return Task.CompletedTask;
@@ -64,42 +67,42 @@ namespace Plugin.BluetoothLE.Server
             //if (this.manager.State != CBPeripheralManagerState.PoweredOn)
             //    throw new ArgumentException("Invalid State - " + this.manager.State);
 
-            this.services
-                .Cast<IIosGattService>()
-                .Select(x =>
-                {
-                    x.Native.Characteristics = x
-                        .Characteristics
-                        .OfType<IIosGattCharacteristic>()
-                        .Select(y =>
-                        {
-                            y.Native.Descriptors = y
-                                .Descriptors
-                                .OfType<IIosGattDescriptor>()
-                                .Select(z => z.Native)
-                                .ToArray();
-                            return y.Native;
-                        })
-                        .ToArray();
+        //    this.services
+        //        .Cast<IIosGattService>()
+        //        .Select(x =>
+        //        {
+        //            x.Native.Characteristics = x
+        //                .Characteristics
+        //                .OfType<IIosGattCharacteristic>()
+        //                .Select(y =>
+        //                {
+        //                    y.Native.Descriptors = y
+        //                        .Descriptors
+        //                        .OfType<IIosGattDescriptor>()
+        //                        .Select(z => z.Native)
+        //                        .ToArray();
+        //                    return y.Native;
+        //                })
+        //                .ToArray();
 
-                    return x.Native;
-                })
-                .ToList()
-                .ForEach(this.manager.AddService);
+        //            return x.Native;
+        //        })
+        //        .ToList()
+        //        .ForEach(this.manager.AddService);
 
-            return Task.CompletedTask;
-        }
+        //    return Task.CompletedTask;
+        //}
 
 
-        public override void Stop()
-        {
-            if (!this.manager.Advertising)
-                return;
+        //public override void Stop()
+        //{
+        //    if (this.manager == null)
+        //        return;
 
-            this.manager.RemoveAllServices();
-            this.manager.StopAdvertising();
-            this.runningSubj.OnNext(false);
-        }
+        //    this.manager.RemoveAllServices();
+
+        //    this.runningSubj.OnNext(false);
+        //}
 
 
         protected override IGattService CreateNative(Guid uuid, bool primary)

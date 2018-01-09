@@ -11,10 +11,9 @@ namespace Plugin.BluetoothLE
         public abstract IObservable<bool> WhenScanningStatusChanged();
         public abstract IObservable<IScanResult> Scan(ScanConfig config = null);
         public abstract IObservable<AdapterStatus> WhenStatusChanged();
+        public abstract IGattServer CreateGattServer();
 
         public virtual IAdvertiser Advertiser { get; protected set; }
-        public virtual IGattServer GattServer { get; protected set; }
-
         public virtual string DeviceName { get; protected set; }
         public virtual AdapterFeatures Features { get; protected set; }
         public virtual AdapterStatus Status { get; protected set; }
