@@ -12,7 +12,10 @@ namespace Plugin.BluetoothLE.Server
         readonly GattContext context;
 
 
-        public GattService(GattContext context, IGattServer server, Guid uuid, bool primary) : base(server, uuid, primary)
+        public GattService(GattContext context,
+                           IGattServer server,
+                           Guid uuid,
+                           bool primary) : base(server, uuid, primary)
         {
             this.context = context;
             this.Native = new BluetoothGattService(
@@ -24,7 +27,9 @@ namespace Plugin.BluetoothLE.Server
 
         protected override IGattCharacteristic CreateNative(Guid uuid, CharacteristicProperties properties, GattPermissions permissions)
         {
-            return new GattCharacteristic(this.context, this, uuid, properties, permissions);
+            var ch = new GattCharacteristic(this.context, this, uuid, properties, permissions);
+            this.Native.AddCharacteristic(ch.Native);
+            return ch;
         }
     }
 }

@@ -77,8 +77,7 @@ namespace Plugin.BluetoothLE.Server
 
 
         public override IObservable<CharacteristicBroadcast> BroadcastObserve(byte[] value, params IDevice[] devices)
-        {
-            return Observable.Create<CharacteristicBroadcast>(ob =>
+            => Observable.Create<CharacteristicBroadcast>(ob =>
             {
                 var cancel = false;
                 this.Native.SetValue(value);
@@ -105,7 +104,6 @@ namespace Plugin.BluetoothLE.Server
                 ob.OnCompleted();
                 return () => cancel = true;
             });
-        }
 
 
         IObservable<DeviceSubscriptionEvent> subscriptionOb;
@@ -156,74 +154,70 @@ namespace Plugin.BluetoothLE.Server
         }
 
 
-        public override IObservable<WriteRequest> WhenWriteReceived()
+        public override IObservable<WriteRequest> WhenWriteReceived() => Observable.Create<WriteRequest>(ob =>
         {
-            return Observable.Create<WriteRequest>(ob =>
+            var handler = new EventHandler<CharacteristicWriteEventArgs>((sender, args) =>
             {
-                var handler = new EventHandler<CharacteristicWriteEventArgs>((sender, args) =>
+                if (!args.Characteristic.Equals(this.Native))
+                    return;
+
+                var device = new Device(args.Device);
+                var request = new WriteRequest(device, args.Value, args.Offset, args.ResponseNeeded);
+                ob.OnNext(request);
+
+                if (request.IsReplyNeeded)
                 {
-                    if (!args.Characteristic.Equals(this.Native))
-                        return;
-
-                    var device = new Device(args.Device);
-                    var request = new WriteRequest(device, args.Value, args.Offset, args.ResponseNeeded);
-                    ob.OnNext(request);
-
-                    if (request.IsReplyNeeded)
-                    {
-                        lock (this.context.ServerReadWriteLock)
-                        {
-                            this.context.Server.SendResponse
-                            (
-                                args.Device,
-                                args.RequestId,
-                                request.Status.ToNative(),
-                                request.Offset,
-                                request.Value
-                            );
-                        }
-                    }
-                });
-                this.context.Callbacks.CharacteristicWrite += handler;
-
-                return () => this.context.Callbacks.CharacteristicWrite -= handler;
-            });
-        }
-
-
-        public override IObservable<ReadRequest> WhenReadReceived()
-        {
-            return Observable.Create<ReadRequest>(ob =>
-            {
-                var handler = new EventHandler<CharacteristicReadEventArgs>((sender, args) =>
-                {
-                    if (!args.Characteristic.Equals(this.Native))
-                        return;
-
-                    var device = new Device(args.Device);
-                    var request = new ReadRequest(device, args.Offset);
-                    ob.OnNext(request);
-
                     lock (this.context.ServerReadWriteLock)
                     {
-                        this.context.Server.SendResponse(
+                        this.context.Server.SendResponse
+                        (
                             args.Device,
                             args.RequestId,
                             request.Status.ToNative(),
-                            args.Offset,
+                            request.Offset,
                             request.Value
                         );
                     }
-                });
-                this.context.Callbacks.CharacteristicRead += handler;
-                return () => this.context.Callbacks.CharacteristicRead -= handler;
+                }
             });
-        }
+            this.context.Callbacks.CharacteristicWrite += handler;
+
+            return () => this.context.Callbacks.CharacteristicWrite -= handler;
+        });
+
+
+        public override IObservable<ReadRequest> WhenReadReceived() => Observable.Create<ReadRequest>(ob =>
+        {
+            var handler = new EventHandler<CharacteristicReadEventArgs>((sender, args) =>
+            {
+                if (!args.Characteristic.Equals(this.Native))
+                    return;
+
+                var device = new Device(args.Device);
+                var request = new ReadRequest(device, args.Offset);
+                ob.OnNext(request);
+
+                lock (this.context.ServerReadWriteLock)
+                {
+                    this.context.Server.SendResponse(
+                        args.Device,
+                        args.RequestId,
+                        request.Status.ToNative(),
+                        args.Offset,
+                        request.Value
+                    );
+                }
+            });
+            this.context.Callbacks.CharacteristicRead += handler;
+            return () => this.context.Callbacks.CharacteristicRead -= handler;
+        });
 
 
         protected override IGattDescriptor CreateNative(Guid uuid, byte[] value)
         {
-            return new GattDescriptor(this, uuid, value);
+            var desc = new GattDescriptor(this, uuid, value);
+            this.Native.AddDescriptor(desc.Native);
+            return desc;
         }
 
 

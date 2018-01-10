@@ -3,6 +3,7 @@ using System.Linq;
 using Android.App;
 using Android.Bluetooth;
 using Android.Content;
+using Java.Util;
 using Plugin.BluetoothLE.Server.Internals;
 
 
@@ -54,31 +55,31 @@ namespace Plugin.BluetoothLE.Server
         //}
 
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            this.server?.Close();
-            //this.server = null;
-        }
-
-
         protected override IGattService CreateNative(Guid uuid, bool primary)
         {
             var service  = new GattService(this.context, this, uuid, primary);
-            this.server?.AddService(service.Native);
+            this.server.AddService(service.Native);
             return service;
         }
 
 
         protected override void RemoveNative(IGattService service)
         {
-            var nuuid = Java.Util.UUID.FromString(service.Uuid.ToString());
+            var nuuid = UUID.FromString(service.Uuid.ToString());
             var native = this.server.Services.FirstOrDefault(x => x.Uuid.Equals(nuuid));
             if (native != null)
-                this.server?.RemoveService(native);
+                this.server.RemoveService(native);
         }
 
 
         protected override void ClearNative() => this.server?.ClearServices();
+
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            this.server?.Close();
+            //this.server = null;
+        }
     }
 }
