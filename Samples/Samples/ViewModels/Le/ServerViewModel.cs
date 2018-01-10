@@ -43,6 +43,7 @@ namespace Samples.ViewModels.Le
                     this.OnEvent("GATT Server Stopped");
                     this.server.Dispose();
                     this.server = null;
+                    this.timer?.Dispose();
                 }
             });
 
