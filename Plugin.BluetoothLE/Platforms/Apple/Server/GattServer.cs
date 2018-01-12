@@ -20,105 +20,20 @@ namespace Plugin.BluetoothLE.Server
 
         protected override void Dispose(bool disposing)
         {
+            this.manager.RemoveAllServices();
             this.manager.Dispose();
         }
-        //{
-        //    this.runningOb = this.runningOb ?? Observable.Create<bool>(ob =>
-        //    {
-        //        var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
-        //        {
-        //            if (args.Error == null)
-        //            {
-        //                ob.OnNext(true);
-        //            }
-        //            else
-        //            {
-        //                ob.OnError(new ArgumentException(args.Error.LocalizedDescription));
-        //            }
-        //        });
-        //        this.manager.AdvertisingStarted += handler;
-
-        //        var sub = this.runningSubj
-        //            .AsObservable()
-        //            .Subscribe(ob.OnNext);
-
-        //        return () =>
-        //        {
-        //            this.manager.AdvertisingStarted -= handler;
-        //            sub.Dispose();
-        //        };
-        //    })
-        //    .Publish()
-        //    .RefCount();
-
-        //    return this.runningOb;
-        //}
 
 
-        //public override Task Start()
-        //{
-            //CBPeripheralManager.AuthorizationStatus
-            //if (this.manager.Advertising)
-            //    return Task.CompletedTask;
-
-            //if (CBPeripheralManager.AuthorizationStatus != CBPeripheralManagerAuthorizationStatus.Authorized)
-            //    throw new ArgumentException("Permission Denied - " + CBPeripheralManager.AuthorizationStatus);
-
-            //if (this.manager.State != CBPeripheralManagerState.PoweredOn)
-            //    throw new ArgumentException("Invalid State - " + this.manager.State);
-
-        //    this.services
-        //        .Cast<IIosGattService>()
-        //        .Select(x =>
-        //        {
-        //            x.Native.Characteristics = x
-        //                .Characteristics
-        //                .OfType<IIosGattCharacteristic>()
-        //                .Select(y =>
-        //                {
-        //                    y.Native.Descriptors = y
-        //                        .Descriptors
-        //                        .OfType<IIosGattDescriptor>()
-        //                        .Select(z => z.Native)
-        //                        .ToArray();
-        //                    return y.Native;
-        //                })
-        //                .ToArray();
-
-        //            return x.Native;
-        //        })
-        //        .ToList()
-        //        .ForEach(this.manager.AddService);
-
-        //    return Task.CompletedTask;
-        //}
-
-
-        //public override void Stop()
-        //{
-        //    if (this.manager == null)
-        //        return;
-
-        //    this.manager.RemoveAllServices();
-
-        //    this.runningSubj.OnNext(false);
-        //}
-
-
-        protected override IGattService CreateNative(Guid uuid, bool primary)
-        {
-            var service = new GattService(this.manager, this, uuid, primary);
-            this.services.Add(service);
-            //this.context?.Manager.AddService(service.Native); // TODO: build the service out?
-            return service;
-        }
+        public override IGattService CreateService(Guid uuid, bool primary) => new GattService(this.manager, this, uuid, primary);
+        protected override void AddNative(IGattService service) => this.manager.AddService(((IAppleGattService)service).Native);
 
 
         protected override void RemoveNative(IGattService service)
         {
             if (this.services.Remove(service))
             {
-                var native = ((IIosGattService)service).Native;
+                var native = ((IAppleGattService)service).Native;
                 this.manager.RemoveService(native);
             }
         }
@@ -131,3 +46,12 @@ namespace Plugin.BluetoothLE.Server
         }
     }
 }
+//CBPeripheralManager.AuthorizationStatus
+//if (this.manager.Advertising)
+//    return Task.CompletedTask;
+
+//if (CBPeripheralManager.AuthorizationStatus != CBPeripheralManagerAuthorizationStatus.Authorized)
+//    throw new ArgumentException("Permission Denied - " + CBPeripheralManager.AuthorizationStatus);
+
+//if (this.manager.State != CBPeripheralManagerState.PoweredOn)
+//    throw new ArgumentException("Invalid State - " + this.manager.State);

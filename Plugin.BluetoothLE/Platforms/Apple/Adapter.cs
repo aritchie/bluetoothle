@@ -24,8 +24,9 @@ namespace Plugin.BluetoothLE
         {
             this.context = new AdapterContext(config);
             this.scanStatusChanged = new Subject<bool>();
+#if !__TVOS__
             this.Advertiser = new Advertiser();
-            this.GattServer = new GattServer();
+#endif
         }
 
 
@@ -37,11 +38,13 @@ namespace Plugin.BluetoothLE
             {
                 var v8or9 = UIDevice.CurrentDevice.CheckSystemVersion(8, 0) && !UIDevice.CurrentDevice.CheckSystemVersion(10, 0);
                 return v8or9
-                    ? AdapterFeatures.OpenSettings
-                    : AdapterFeatures.None;
+                    ? AdapterFeatures.AllServer | AdapterFeatures.OpenSettings
+                    : AdapterFeatures.AllServer;
             }
         }
-#else
+#elif __MACOS__
+        public override AdapterFeatures Features => AdapterFeatures.AllServer;
+#elif __TVOS__
         public override AdapterFeatures Features => AdapterFeatures.None;
 #endif
 
@@ -100,9 +103,14 @@ namespace Plugin.BluetoothLE
             return this.statusOb;
         }
 
-
+#if __TVOS__
+        public override IGattServer CreateGattServer()
+        {
+            throw new Exception("GATT Servers are not supported on tvOS");
+        }
+#else
         public override IGattServer CreateGattServer() => new GattServer();
-
+#endif
 
 #if __IOS__ || __TVOS__
         public override bool IsScanning => this.context.Manager.IsScanning;

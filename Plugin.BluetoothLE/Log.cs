@@ -5,11 +5,10 @@ namespace Plugin.BluetoothLE
 {
     public static class Log
     {
-        static Log()
-        {
-            Out = (cat, msg, level) => System.Diagnostics.Debug.WriteLine($"[{level}][{cat}] {msg}");
-        }
+        static Log() => ToDebug();
 
+        public static void ToConsole() => Out = (cat, msg, level) => Console.WriteLine($"[{level}][{cat}] {msg}");
+        public static void ToDebug() => Out = (cat, msg, level) => System.Diagnostics.Debug.WriteLine($"[{level}][{cat}] {msg}");
 
         public static LogLevel MinLogLevel { get; set; } = LogLevel.Info;
         public static Action<string, string, LogLevel> Out { get; set; }

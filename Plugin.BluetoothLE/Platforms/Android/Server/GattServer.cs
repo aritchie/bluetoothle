@@ -24,42 +24,19 @@ namespace Plugin.BluetoothLE.Server
         }
 
 
-        //public override Task Start()
-        //{
-
-        //    this.context.Server = this.server;
-
-            //foreach (var service in this.Services.OfType<IDroidGattService>())
-            //{
-            //    var nativeService = service.CreateNative();
-            //    if (!this.context.Server.AddService(service.Native))
-            //        throw new ArgumentException($"Could not add service {service.Uuid} to server");
-
-            //    foreach (var characteristic in service.Characteristics.OfType<IDroidGattCharacteristic>())
-            //    {
-            //        if (!service.Native.AddCharacteristic(characteristic.Native))
-            //            throw new ArgumentException($"Could not add characteristic '{characteristic.Uuid}' to service '{service.Uuid}'");
-
-            //        foreach (var descriptor in characteristic.Descriptors.OfType<IDroidGattDescriptor>())
-            //        {
-            //            if (!characteristic.Native.AddDescriptor(descriptor.Native))
-            //                throw new ArgumentException($"Could not add descriptor '{descriptor.Uuid}' to characteristic '{characteristic.Uuid}'");
-            //        }
-            //    }
-            //    this.server.AddService(service.Native);
-            //}
-
-            //this.runningSubj.OnNext(true);
-            //this.isRunning = true;
-        //    return Task.CompletedTask;
-        //}
+        public override IGattService CreateService(Guid uuid, bool primary) => new GattService(this.context, this, uuid, primary);
 
 
-        protected override IGattService CreateNative(Guid uuid, bool primary)
+        protected override void AddNative(IGattService service)
         {
-            var service  = new GattService(this.context, this, uuid, primary);
-            this.server.AddService(service.Native);
-            return service;
+            var native = service as IDroidGattService;
+            if (native == null)
+                throw new ArgumentException("Service does not inherit IDroidGattService");
+
+            if (native.Characteristics.Count == 0)
+                throw new ArgumentException("No characteristics added to service");
+
+            this.server.AddService(native.Native);
         }
 
 
@@ -79,7 +56,6 @@ namespace Plugin.BluetoothLE.Server
         {
             base.Dispose(disposing);
             this.server?.Close();
-            //this.server = null;
         }
     }
 }

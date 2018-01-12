@@ -90,6 +90,7 @@ Supported Platforms
     <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' OR '$(TargetFramework)' == 'Xamarin.tvOS10' OR '$(TargetFramework)' == 'Xamarin.Mac20' ">
         <Compile Include="Platforms\Shared\**\*.cs" />
         <Compile Include="Platforms\Apple\**\*.cs" />
+        <Compile Remove="Platforms\Apple\Server\**\*.cs" Condition=" '$(TargetFramework)' == 'Xamarin.tvOS10' " />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">

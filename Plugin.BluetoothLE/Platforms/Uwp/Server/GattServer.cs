@@ -8,39 +8,24 @@ namespace Plugin.BluetoothLE.Server
 {
     public class GattServer : AbstractGattServer
     {
-        GattServiceProviderResult server;
+        protected override void ClearNative() => this.Dispose();
+        public override IGattService CreateService(Guid uuid, bool primary) => new UwpGattService(this, uuid, primary);
 
 
-        //public override bool IsRunning => false; // TODO
-
-        //public override async Task Start()
-        //{
-        //    foreach (var service in this.Services.OfType<IUwpGattService>())
-        //    {
-        //        await service.Init();
-        //    }
-        //    //base.Start();
-        //}
-
-
-        //public override void Stop()
-        //{
-        //}
-
-
-        protected override IGattService CreateNative(Guid uuid, bool primary) => new UwpGattService(this, uuid, primary);
-        protected override void ClearNative() => this.StopAll();
-        protected override void RemoveNative(IGattService service) => ((IUwpGattService)service).Stop();
-        protected virtual void StopAll()
+        protected override void AddNative(IGattService service)
         {
-            foreach (var service in this.Services.OfType<IUwpGattService>())
-                service.Stop();
+            var native = service as IUwpGattService;
+            native.Init().Wait();
         }
 
 
+        protected override void RemoveNative(IGattService service) => ((IUwpGattService)service).Stop();
+
         protected override void Dispose(bool disposing)
         {
-
+            base.Dispose(disposing);
+            foreach (var service in this.Services.OfType<IUwpGattService>())
+                service.Stop();
         }
     }
 }

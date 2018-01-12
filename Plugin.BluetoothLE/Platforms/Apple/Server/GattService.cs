@@ -4,19 +4,19 @@ using CoreBluetooth;
 
 namespace Plugin.BluetoothLE.Server
 {
-    public class GattService : AbstractGattService, IIosGattService
+    public class GattService : AbstractGattService, IAppleGattService
     {
         readonly CBPeripheralManager manager;
         public CBMutableService Native { get; }
 
 
-        public GattService(CBPeripheralManager manager, IGattServer server, Guid serviceUuid, bool primary) : base(server, serviceUuid, primary)
+        public GattService(CBPeripheralManager manager,
+                           IGattServer server,
+                           Guid serviceUuid,
+                           bool primary) : base(server, serviceUuid, primary)
         {
             this.manager = manager;
-#if __TVOS__
-#else
             this.Native = new CBMutableService(serviceUuid.ToCBUuid(), primary);
-#endif
         }
 
 

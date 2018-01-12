@@ -21,7 +21,6 @@ namespace Plugin.BluetoothLE
 
         public Adapter()
         {
-            this.GattServer = new GattServer();
             this.Advertiser = new Advertiser();
         }
 
@@ -183,6 +182,9 @@ namespace Plugin.BluetoothLE
 
             return this.statusOb;
         }
+
+
+        public override IGattServer CreateGattServer() => new GattServer();
 
 
         IObservable<IDevice> deviceStatusOb;

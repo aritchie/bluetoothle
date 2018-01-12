@@ -5,7 +5,7 @@ using Foundation;
 
 namespace Plugin.BluetoothLE.Server
 {
-    public class GattDescriptor : AbstractGattDescriptor, IIosGattDescriptor
+    public class GattDescriptor : AbstractGattDescriptor, IAppleGattDescriptor
     {
         public CBMutableDescriptor Native { get; }
 
@@ -14,10 +14,7 @@ namespace Plugin.BluetoothLE.Server
                               Guid descriptorUuid,
                               byte[] value) : base(characteristic, descriptorUuid, value)
         {
-#if __TVOS__
-#else
             this.Native = new CBMutableDescriptor(descriptorUuid.ToCBUuid(), NSData.FromArray(value));
-#endif
         }
     }
 }

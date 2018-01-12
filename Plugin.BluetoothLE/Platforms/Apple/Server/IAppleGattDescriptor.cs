@@ -4,7 +4,7 @@ using CoreBluetooth;
 
 namespace Plugin.BluetoothLE.Server
 {
-    public interface IIosGattDescriptor : IGattDescriptor
+    public interface IAppleGattDescriptor : IGattDescriptor
     {
         CBMutableDescriptor Native { get; }
     }

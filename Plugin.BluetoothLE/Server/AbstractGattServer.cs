@@ -9,19 +9,18 @@ namespace Plugin.BluetoothLE.Server
 {
     public abstract class AbstractGattServer : IGattServer
     {
-        readonly IList<IGattService> internalList;
-
 
         protected AbstractGattServer()
         {
-            this.internalList = new List<IGattService>();
-            this.Services = new ReadOnlyCollection<IGattService>(this.internalList);
+            this.ServiceList = new List<IGattService>();
+            this.Services = new ReadOnlyCollection<IGattService>(this.ServiceList);
         }
 
 
         ~AbstractGattServer() => this.Dispose(false);
 
 
+        protected IList<IGattService> ServiceList { get; }
         public IReadOnlyList<IGattService> Services { get; }
 
 
@@ -68,11 +67,18 @@ namespace Plugin.BluetoothLE.Server
         }
 
 
-        public IObservable<IGattService> AddService(Guid uuid, bool primary)
+        public virtual void AddService(IGattService service)
         {
-            var native = this.CreateNative(uuid, primary);
-            this.internalList.Add(native);
-            return Observable.Return(native);
+            this.ServiceList.Add(service);
+            this.AddNative(service);
+        }
+
+
+        public virtual void AddService(Guid uuid, bool primary, Action<IGattService> callback)
+        {
+            var service = this.CreateService(uuid, primary);
+            callback(service);
+            this.AddService(service);
         }
 
 
@@ -82,7 +88,7 @@ namespace Plugin.BluetoothLE.Server
             if (service != null)
             {
                 this.RemoveNative(service);
-                this.internalList.Remove(service);
+                this.ServiceList.Remove(service);
             }
         }
 
@@ -90,13 +96,14 @@ namespace Plugin.BluetoothLE.Server
         public void ClearServices()
         {
             this.ClearNative();
-            this.internalList.Clear();
+            this.ServiceList.Clear();
         }
 
 
-        protected abstract IGattService CreateNative(Guid uuid, bool primary);
-        protected abstract void ClearNative();
+        public abstract IGattService CreateService(Guid uuid, bool primary);
+        protected abstract void AddNative(IGattService service);
         protected abstract void RemoveNative(IGattService service);
+        protected abstract void ClearNative();
 
 
         public void Dispose() => this.Dispose(true);

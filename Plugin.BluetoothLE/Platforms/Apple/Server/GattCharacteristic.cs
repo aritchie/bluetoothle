@@ -11,11 +11,10 @@ using Foundation;
 
 namespace Plugin.BluetoothLE.Server
 {
-    public class GattCharacteristic : AbstractGattCharacteristic, IIosGattCharacteristic
+    public class GattCharacteristic : AbstractGattCharacteristic, IAppleGattCharacteristic
     {
         readonly CBPeripheralManager manager;
         readonly IDictionary<NSUuid, IDevice> subscribers;
-
         public CBMutableCharacteristic Native { get; }
 
 
@@ -28,16 +27,13 @@ namespace Plugin.BluetoothLE.Server
             this.manager = manager;
             this.subscribers = new ConcurrentDictionary<NSUuid, IDevice>();
 
-#if __TVOS__
-#else
             this.Native = new CBMutableCharacteristic(
                 characteristicUuid.ToCBUuid(),
                 properties.ToNative(),
                 null,
                 (CBAttributePermissions) (int) permissions // TODO
             );
-#endif
-        }
+       }
 
 
         public override IReadOnlyList<IDevice> SubscribedDevices
@@ -65,8 +61,7 @@ namespace Plugin.BluetoothLE.Server
 
 
         public override IObservable<CharacteristicBroadcast> BroadcastObserve(byte[] value, params IDevice[] devices)
-        {
-            return Observable.Create<CharacteristicBroadcast>(ob =>
+            => Observable.Create<CharacteristicBroadcast>(ob =>
             {
                 var data = NSData.FromArray(value);
 
@@ -86,7 +81,6 @@ namespace Plugin.BluetoothLE.Server
 
                 return Disposable.Empty;
             });
-        }
 
 
         IObservable<DeviceSubscriptionEvent> subOb;
@@ -178,15 +172,11 @@ namespace Plugin.BluetoothLE.Server
         }
 
 
-        protected override IGattDescriptor CreateNative(Guid uuid, byte[] value)
-        {
-            return new GattDescriptor(this, uuid, value);
-        }
+        protected override IGattDescriptor CreateNative(Guid uuid, byte[] value) => new GattDescriptor(this, uuid, value);
 
 
         protected virtual EventHandler<CBPeripheralManagerSubscriptionEventArgs> CreateSubHandler(IObserver<DeviceSubscriptionEvent> ob, bool subscribing)
-        {
-            return (sender, args) =>
+            => (sender, args) =>
             {
                 // on has a subcription or has none
                 if (!args.Characteristic.Equals(this.Native))
@@ -204,7 +194,6 @@ namespace Plugin.BluetoothLE.Server
                         ob.OnNext(new DeviceSubscriptionEvent(device, false));
                 }
             };
-        }
 
 
         IDevice GetOrAdd(CBCentral central)
