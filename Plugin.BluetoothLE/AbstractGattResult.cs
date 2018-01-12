@@ -28,10 +28,10 @@ namespace Plugin.BluetoothLE
                     case GattEvent.NotificationError:
                     case GattEvent.ReadError:
                     case GattEvent.WriteError:
-                        return true;
+                        return false;
 
                     default:
-                        return false;
+                        return true;
                 }
             }
         }
