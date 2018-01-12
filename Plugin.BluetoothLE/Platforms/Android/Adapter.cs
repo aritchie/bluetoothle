@@ -128,8 +128,8 @@ namespace Plugin.BluetoothLE
             if (this.IsScanning)
                 throw new ArgumentException("There is already an active scan");
 
-            this.scanStatusChanged.OnNext(true);
             this.isScanning = true;
+            this.scanStatusChanged.OnNext(true);
 
             return this.context
                 .Scan(config ?? new ScanConfig())
