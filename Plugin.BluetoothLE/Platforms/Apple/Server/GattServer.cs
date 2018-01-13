@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using CoreBluetooth;
 
 
@@ -7,13 +7,11 @@ namespace Plugin.BluetoothLE.Server
 {
     public class GattServer : AbstractGattServer
     {
-        readonly IList<IGattService> services;
         readonly CBPeripheralManager manager;
 
 
         public GattServer()
         {
-            this.services = new List<IGattService>();
             this.manager = new CBPeripheralManager();
         }
 
@@ -26,22 +24,38 @@ namespace Plugin.BluetoothLE.Server
 
 
         public override IGattService CreateService(Guid uuid, bool primary) => new GattService(this.manager, this, uuid, primary);
-        protected override void AddNative(IGattService service) => this.manager.AddService(((IAppleGattService)service).Native);
+
+        protected override void AddNative(IGattService service)
+        {
+            var nativeService = ((IAppleGattService) service).Native;
+            nativeService.Characteristics = service
+                .Characteristics
+                .Cast<IAppleGattCharacteristic>()
+                .Select(x =>
+                {
+                    x.Native.Descriptors = x
+                        .Descriptors
+                        .Cast<IAppleGattDescriptor>()
+                        .Select(y => y.Native)
+                        .ToArray();
+
+                    return x.Native;
+                })
+                .ToArray();
+
+            this.manager.AddService(nativeService);
+        }
 
 
         protected override void RemoveNative(IGattService service)
         {
-            if (this.services.Remove(service))
-            {
-                var native = ((IAppleGattService)service).Native;
-                this.manager.RemoveService(native);
-            }
+            var native = ((IAppleGattService)service).Native;
+            this.manager.RemoveService(native);
         }
 
 
         protected override void ClearNative()
         {
-            this.services.Clear();
             this.manager.RemoveAllServices();
         }
     }

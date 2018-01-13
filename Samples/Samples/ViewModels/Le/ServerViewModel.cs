@@ -39,6 +39,7 @@ namespace Samples.ViewModels.Le
                 }
                 else
                 {
+                    this.ServerText = "Start Server";
                     this.OnEvent("GATT Server Stopped");
                     this.server.Dispose();
                     this.server = null;
@@ -113,6 +114,7 @@ namespace Samples.ViewModels.Le
                 this.BuildCharacteristics(service, Guid.Parse("A495FF24-C5B1-4B44-B512-1370F02D74DE")); // scratch #4
                 this.BuildCharacteristics(service, Guid.Parse("A495FF25-C5B1-4B44-B512-1370F02D74DE")); // scratch #5
                 this.server.AddService(service);
+                this.ServerText = "Stop Server";
 
                 this.timer = Observable
                     .Interval(TimeSpan.FromSeconds(1))
