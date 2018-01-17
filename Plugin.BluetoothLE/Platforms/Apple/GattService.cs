@@ -35,7 +35,7 @@ namespace Plugin.BluetoothLE
                     foreach (var nch in this.Service.Characteristics)
                     {
                         var ch = new GattCharacteristic(this, nch);
-                        if (!characteristics.ContainsKey(ch.Uuid))
+                        if (!characteristics.ContainsKey(ch.Uuid) && characteristicIds.Any(x => ch.Uuid == x))
                         {
                             characteristics.Add(ch.Uuid, ch);
                             ob.OnNext(ch);
