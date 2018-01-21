@@ -45,7 +45,7 @@ namespace Plugin.BluetoothLE.Tests
         {
             this.Device = await CrossBleAdapter
                 .Current
-                .ScanWhenAdapterReady()
+                .ScanExtra()
                 .Select(x => x.Device)
                 .Where(x => x.Name?.Equals("Bean+") ?? false)
                 .Timeout(TimeSpan.FromSeconds(5))

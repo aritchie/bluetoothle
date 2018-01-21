@@ -127,6 +127,12 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public void StopScan()
+        {
+            // TODO
+        }
+
+
         protected virtual IObservable<IScanResult> DoScan(ScanConfig config) => Observable.Create<IScanResult>(ob =>
         {
             this.context.Clear();

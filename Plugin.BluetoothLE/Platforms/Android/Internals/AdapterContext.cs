@@ -38,6 +38,20 @@ namespace Plugin.BluetoothLE.Internals
         }
 
 
+        public void StopScan()
+        {
+            // TODO: need ref to callback (pre & new)
+            if (CrossBleAdapter.AndroidUseNewScanner)
+            {
+                //this.manager.Adapter.BluetoothLeScanner?.StopScan(null)
+            }
+            else
+            {
+                //this.manager.Adapter.StopLeScan(cb);
+            }
+        }
+
+
         protected virtual IObservable<ScanResult> NewScan(ScanConfig config) => Observable.Create<ScanResult>(ob =>
         {
             var cb = new LollipopScanCallback((native, rssi, sr) =>

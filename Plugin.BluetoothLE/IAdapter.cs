@@ -46,6 +46,11 @@ namespace Plugin.BluetoothLE
         bool IsScanning { get; }
 
         /// <summary>
+        /// Stop any current scan - use this if you didn't keep a disposable endpoint for Scan()
+        /// </summary>
+        void StopScan();
+
+        /// <summary>
         /// Gets a list of connected devices
         /// </summary>
         /// <returns></returns>

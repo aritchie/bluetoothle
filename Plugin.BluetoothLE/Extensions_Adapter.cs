@@ -18,10 +18,23 @@ namespace Plugin.BluetoothLE
             .Select(x => x.Device);
 
 
-        public static IObservable<IScanResult> ScanWhenAdapterReady(this IAdapter adapter, ScanConfig config = null) => adapter
+        /// <summary>
+        /// This method wraps the traditional scan, but waits for the adapter to be ready before initiating scan
+        /// </summary>
+        /// <param name="adapter">The adapter to scan with</param>
+        /// <param name="restart">Stops any current scan running</param>
+        /// <param name="config">ScanConfig parameters you would like to use</param>
+        /// <returns></returns>
+        public static IObservable<IScanResult> ScanExtra(this IAdapter adapter, ScanConfig config = null, bool restart = false) =>adapter
             .WhenStatusChanged()
             .Where(x => x == AdapterStatus.PoweredOn)
-            .Select(x => adapter.Scan(config))
+            .Select(_ =>
+            {
+                if (restart && adapter.IsScanning)
+                    adapter.StopScan();
+
+                return adapter.Scan(config);
+            })
             .Switch();
 
 

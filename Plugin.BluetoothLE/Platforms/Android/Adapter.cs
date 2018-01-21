@@ -141,6 +141,17 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override void StopScan()
+        {
+            if (!this.IsScanning)
+                return;
+
+            this.isScanning = false;
+            this.scanStatusChanged.OnNext(false);
+            this.context.StopScan();
+        }
+
+
         IObservable<IDevice> deviceStatusOb;
         public override IObservable<IDevice> WhenDeviceStatusChanged()
         {
