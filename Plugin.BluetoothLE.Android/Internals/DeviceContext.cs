@@ -57,7 +57,7 @@ namespace Plugin.BluetoothLE.Internals
                         ob.OnNext,
                         ex =>
                         {
-                            Log.Debug("Device", "Task completed - releasing lock");
+                            Log.Debug("Device", "Task errored - releasing lock");
                             this.reset.Set();
                             pastGate = false;
                             ob.OnError(ex);
