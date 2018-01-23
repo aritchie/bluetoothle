@@ -28,52 +28,46 @@ namespace Plugin.BluetoothLE
         public override byte[] Value => (this.native.Value as NSData)?.ToArray();
 
 
-        public override IObservable<DescriptorGattResult> Read()
+        public override IObservable<DescriptorGattResult> Read() => Observable.Create<DescriptorGattResult>(ob =>
         {
-            return Observable.Create<DescriptorGattResult>(ob =>
+            var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
             {
-                var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
-                {
-                    if (!this.Equals(args.Descriptor))
-                        return;
+                if (!this.Equals(args.Descriptor))
+                    return;
 
-                    var result = args.Error == null
-                        ? this.ToResult(GattEvent.Read, this.Value)
-                        : this.ToResult(GattEvent.ReadError, args.Error.ToString());
+                var result = args.Error == null
+                    ? this.ToResult(GattEvent.Read, this.Value)
+                    : this.ToResult(GattEvent.ReadError, args.Error.ToString());
 
-                    ob.Respond(result);
-                });
-                this.Peripheral.UpdatedValue += handler;
-                this.Peripheral.ReadValue(this.native);
-
-                return () => this.Peripheral.UpdatedValue -= handler;
+                ob.Respond(result);
             });
-        }
+            this.Peripheral.UpdatedValue += handler;
+            this.Peripheral.ReadValue(this.native);
+
+            return () => this.Peripheral.UpdatedValue -= handler;
+        });
 
 
-        public override IObservable<DescriptorGattResult> Write(byte[] data)
+        public override IObservable<DescriptorGattResult> Write(byte[] data) => Observable.Create<DescriptorGattResult>(ob =>
         {
-            return Observable.Create<DescriptorGattResult>(ob =>
+            var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
             {
-                var handler = new EventHandler<CBDescriptorEventArgs>((sender, args) =>
-                {
-                    if (!this.Equals(args.Descriptor))
-                        return;
+                if (!this.Equals(args.Descriptor))
+                    return;
 
-                    var result = args.Error == null
-                        ? this.ToResult(GattEvent.Write, this.Value)
-                        : this.ToResult(GattEvent.WriteError, args.Error.ToString());
+                var result = args.Error == null
+                    ? this.ToResult(GattEvent.Write, this.Value)
+                    : this.ToResult(GattEvent.WriteError, args.Error.ToString());
 
-                    ob.Respond(result);
-                });
-
-                var nsdata = NSData.FromArray(data);
-                this.Peripheral.WroteDescriptorValue += handler;
-                this.Peripheral.WriteValue(nsdata, this.native);
-
-                return () => this.Peripheral.WroteDescriptorValue -= handler;
+                ob.Respond(result);
             });
-        }
+
+            var nsdata = NSData.FromArray(data);
+            this.Peripheral.WroteDescriptorValue += handler;
+            this.Peripheral.WriteValue(nsdata, this.native);
+
+            return () => this.Peripheral.WroteDescriptorValue -= handler;
+        });
 
 
         bool Equals(CBDescriptor descriptor)
