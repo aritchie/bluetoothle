@@ -10,6 +10,7 @@ using Acr;
 using Android.Bluetooth;
 using Android.OS;
 using Plugin.BluetoothLE.Internals;
+using Plugin.BluetoothLE.Infrastructure;
 
 
 namespace Plugin.BluetoothLE

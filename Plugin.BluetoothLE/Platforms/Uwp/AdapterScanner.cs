@@ -3,6 +3,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Enumeration;
+using Plugin.BluetoothLE.Infrastructure;
 
 
 namespace Plugin.BluetoothLE

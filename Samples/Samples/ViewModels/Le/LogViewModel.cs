@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using ReactiveUI;
 using Xamarin.Forms;
+using Log = Plugin.BluetoothLE.Infrastructure.Log;
 
 
 namespace Samples.ViewModels.Le
@@ -31,7 +32,7 @@ namespace Samples.ViewModels.Le
         public override void OnActivate()
         {
             base.OnActivate();
-            Plugin.BluetoothLE.Log.Out = (category, msg, level) => Device.BeginInvokeOnMainThread(() =>
+            Log.Out = (category, msg, level) => Device.BeginInvokeOnMainThread(() =>
                 this.Logs.Insert(0, new LogItem
                 {
                     Category = category,
@@ -45,7 +46,7 @@ namespace Samples.ViewModels.Le
         public override void OnDeactivate()
         {
             base.OnDeactivate();
-            Plugin.BluetoothLE.Log.ToConsole();
+            Log.ToConsole();
         }
 
 

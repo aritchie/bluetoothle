@@ -9,7 +9,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
 using Acr;
-using Exception = System.Exception;
+using Plugin.BluetoothLE.Infrastructure;
 
 
 namespace Plugin.BluetoothLE.Internals
@@ -101,7 +101,7 @@ namespace Plugin.BluetoothLE.Internals
                         action();
                         ob.Respond(Unit.Default);
                     }
-                    catch (Exception ex)
+                    catch (System.Exception ex)
                     {
                         ob.OnError(ex);
                     }
@@ -140,7 +140,7 @@ namespace Plugin.BluetoothLE.Internals
                 this.Gatt?.Close();
                 this.Gatt = null;
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 Log.Warn("Device", "Unclean disconnect - " + ex);
             }
@@ -189,7 +189,7 @@ namespace Plugin.BluetoothLE.Internals
                     this.Gatt?.Close();
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 Log.Info("Device", "Defaulting to gatt connect compatible method - " + ex);
                 this.Gatt = this.ConnectGattCompat(autoConnect);

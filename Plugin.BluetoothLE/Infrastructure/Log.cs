@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace Plugin.BluetoothLE
+namespace Plugin.BluetoothLE.Infrastructure
 {
     public static class Log
     {

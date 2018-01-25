@@ -127,7 +127,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public void StopScan()
+        public override void StopScan()
         {
             // TODO
         }

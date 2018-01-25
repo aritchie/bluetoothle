@@ -2,6 +2,7 @@
 using Android.Bluetooth;
 using Android.OS;
 using Java.Util;
+using Plugin.BluetoothLE.Infrastructure;
 using Plugin.BluetoothLE.Server;
 using DroidGattStatus = Android.Bluetooth.GattStatus;
 using GattStatus = Plugin.BluetoothLE.Server.GattStatus;

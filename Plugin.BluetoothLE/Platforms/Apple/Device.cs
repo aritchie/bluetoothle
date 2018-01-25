@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using Acr;
 using CoreBluetooth;
 using Foundation;
+using Plugin.BluetoothLE.Infrastructure;
 
 
 namespace Plugin.BluetoothLE

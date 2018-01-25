@@ -9,6 +9,7 @@ using Acr;
 using Android.Bluetooth;
 using Java.Util;
 using Plugin.BluetoothLE.Internals;
+using Plugin.BluetoothLE.Infrastructure;
 using Observable = System.Reactive.Linq.Observable;
 
 
