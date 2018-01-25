@@ -7,6 +7,7 @@ using System.Reactive.Subjects;
 using CoreBluetooth;
 using CoreFoundation;
 using Foundation;
+using Plugin.BluetoothLE.Infrastructure;
 
 
 namespace Plugin.BluetoothLE
