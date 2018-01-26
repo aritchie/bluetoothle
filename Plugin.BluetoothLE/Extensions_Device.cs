@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 using System.Reactive.Linq;
 
 
@@ -11,6 +12,21 @@ namespace Plugin.BluetoothLE
                 .GetKnownService(serviceUuid)
                 .SelectMany(x => x.GetKnownCharacteristics(characteristicIds))
                 .Take(characteristicIds.Length);
+
+
+        public static IObservable<Unit> WhenConnected(this IDevice device)
+            => device
+                .WhenStatusChanged()
+                .Where(x => x == ConnectionStatus.Connected)
+                .Select(x => Unit.Default);
+
+
+        public static IObservable<IGattCharacteristic> WhenKnownCharacteristicsDiscovered(this IDevice device,
+            Guid serviceUuid, params Guid[] characteristicIds)
+            => device
+                .WhenConnected()
+                .Select(_ => device.GetKnownCharacteristics(serviceUuid, characteristicIds))
+                .Switch();
 
 
         public static IObservable<IGattCharacteristic> WhenAnyCharacteristicDiscovered(this IDevice device)
