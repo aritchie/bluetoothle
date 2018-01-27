@@ -11,9 +11,6 @@ namespace Plugin.BluetoothLE.Tests
 {
     public class DeviceTests : AbstractTests
     {
-        readonly ITestOutputHelper output;
-
-
         public DeviceTests(ITestOutputHelper output) : base(output)
         {
         }
@@ -93,8 +90,6 @@ namespace Plugin.BluetoothLE.Tests
             connected.Should().Be(2, "No reconnection count");
             disconnected.Should().Be(2, "No disconnect");
         }
-
-
 
         /*
         Service (ad-data) - A495FF20-C5B1-4B44-B512-1370F02D74DE

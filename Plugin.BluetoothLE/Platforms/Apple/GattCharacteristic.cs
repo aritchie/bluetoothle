@@ -26,69 +26,67 @@ namespace Plugin.BluetoothLE
         public override byte[] Value => this.NativeCharacteristic.Value?.ToArray();
 
 
-        public override void WriteWithoutResponse(byte[] value)
-        {
-            this.AssertWrite(false);
-            this.InternalWriteNoResponse(null, value);
-        }
-
-
-        public override IObservable<CharacteristicGattResult> Write(byte[] value)
+        public override IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value) => Observable.Create<CharacteristicGattResult>(ob =>
         {
             this.AssertWrite(false);
 
-            return Observable.Create<CharacteristicGattResult>(ob =>
+            void Send()
             {
                 var data = NSData.FromArray(value);
-                var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
-                {
-                    if (!this.Equals(args.Characteristic))
-                        return;
+                this.Peripheral.WriteValue(data, this.NativeCharacteristic, CBCharacteristicWriteType.WithoutResponse);
+                var result = this.ToResult(GattEvent.Write, value);
+                ob.Respond(result);
+            }
+            var handler = new EventHandler((sender, args) => Send());
+            this.Peripheral.IsReadyToSendWriteWithoutResponse += handler;
+            if (this.Peripheral.CanSendWriteWithoutResponse)
+                Send();
 
-                    var result = args.Error == null
-                        ? this.ToResult(GattEvent.Write, value)
-                        : this.ToResult(GattEvent.WriteError, args.Error.ToString());
+            return () => this.Peripheral.IsReadyToSendWriteWithoutResponse -= handler; ;
+        });
 
-                    ob.Respond(result);
-                });
 
-                if (this.Properties.HasFlag(CharacteristicProperties.Write))
-                {
-                    this.Peripheral.WroteCharacteristicValue += handler;
-                    this.Peripheral.WriteValue(data, this.NativeCharacteristic, CBCharacteristicWriteType.WithResponse);
-                }
-                else
-                {
-                    this.InternalWriteNoResponse(ob, value);
-                }
-                return () => this.Peripheral.WroteCharacteristicValue -= handler;
+        public override IObservable<CharacteristicGattResult> Write(byte[] value) => Observable.Create<CharacteristicGattResult>(ob =>
+        {
+            this.AssertWrite(true);
+            var data = NSData.FromArray(value);
+            var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
+            {
+                if (!this.Equals(args.Characteristic))
+                    return;
+
+                var result = args.Error == null
+                    ? this.ToResult(GattEvent.Write, value)
+                    : this.ToResult(GattEvent.WriteError, args.Error.ToString());
+
+                ob.Respond(result);
             });
-        }
+            this.Peripheral.WroteCharacteristicValue += handler;
+            this.Peripheral.WriteValue(data, this.NativeCharacteristic, CBCharacteristicWriteType.WithResponse);
+
+            return () => this.Peripheral.WroteCharacteristicValue -= handler;
+        });
 
 
-        public override IObservable<CharacteristicGattResult> Read()
+        public override IObservable<CharacteristicGattResult> Read() => Observable.Create<CharacteristicGattResult>(ob =>
         {
             this.AssertRead();
-
-            return Observable.Create<CharacteristicGattResult>(ob =>
+            var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
             {
-                var handler = new EventHandler<CBCharacteristicEventArgs>((sender, args) =>
-                {
-                    if (!this.Equals(args.Characteristic))
-                        return;
+                if (!this.Equals(args.Characteristic))
+                    return;
 
-                    var result = args.Error == null
-                        ? this.ToResult(GattEvent.Read, this.Value)
-                        : this.ToResult(GattEvent.ReadError, args.Error.ToString());
+                var result = args.Error == null
+                    ? this.ToResult(GattEvent.Read, this.Value)
+                    : this.ToResult(GattEvent.ReadError, args.Error.ToString());
 
-                    ob.Respond(result);
-                });
-                this.Peripheral.UpdatedCharacterteristicValue += handler;
-                this.Peripheral.ReadValue(this.NativeCharacteristic);
-
-                return () => this.Peripheral.UpdatedCharacterteristicValue -= handler;
+                ob.Respond(result);
             });
-        }
+            this.Peripheral.UpdatedCharacterteristicValue += handler;
+            this.Peripheral.ReadValue(this.NativeCharacteristic);
+
+            return () => this.Peripheral.UpdatedCharacterteristicValue -= handler;
+        });
 
 
         public override IObservable<CharacteristicGattResult> EnableNotifications(bool enableIndicationsIfAvailable)
@@ -166,14 +164,6 @@ namespace Plugin.BluetoothLE
             .RefCount();
 
             return this.descriptorOb;
-        }
-
-
-        void InternalWriteNoResponse(IObserver<CharacteristicGattResult> ob, byte[] value)
-        {
-            var data = NSData.FromArray(value);
-            this.Peripheral.WriteValue(data, this.NativeCharacteristic, CBCharacteristicWriteType.WithoutResponse);
-            ob?.Respond(this.ToResult(GattEvent.Write, value));
         }
 
 

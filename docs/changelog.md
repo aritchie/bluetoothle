@@ -3,10 +3,12 @@
 ## 6.0
 * [feature][breaking] GATT server & BLE advertising are now separate functions
 * [feature] ScanConfig is now available on all Adapter extension methods
-* [feature] WhenKnownCharacteristicsDiscovered
-* [feature] StopScan
-* [breaking] GATT server is now static per adapter instead of using CreateInstance()
+* [feature] WhenKnownCharacteristicsDiscovered is a handy way of always calling for known characteristics as device connects
+* [feature] StopScan for cancelling background scans where the observable may have been lost
+* [feature] WriteWithoutResponse is now async (Android - so it can participate in queue & iOS since it provides a ready event)
+* [breaking] GATT server now starts as soon as it is created (removal of start/stop functions)
 * [breaking][feature] All read/write/notification actions now contain a result object (good or bad) instead of calling OnError - why?  because no one knows how to use RX so I'll do the fun stuff for them!
+* [breaking] Write no longer fallsback to "WriteWithoutResponse"
 * [fix][android] Adapter.IsScanning and Adapter.WhenScanningStatusChanged() were not firing reliability
 * [fix][android] fixes to locking mechanism as well as ability to disable it via CrossBleAdapter.AndroidDisableLockMechanism
 

@@ -24,11 +24,11 @@ namespace Plugin.BluetoothLE
         public CharacteristicProperties Properties { get; }
         public abstract byte[] Value { get; }
 
+        public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();
         public abstract IObservable<CharacteristicGattResult> EnableNotifications(bool enableIndicationsIfAvailable);
         public abstract IObservable<CharacteristicGattResult> DisableNotifications();
-        public abstract IObservable<IGattDescriptor> WhenDescriptorDiscovered();
         public abstract IObservable<CharacteristicGattResult> Read();
-        public abstract void WriteWithoutResponse(byte[] value);
+        public abstract IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value);
         public abstract IObservable<CharacteristicGattResult> Write(byte[] value);
         public abstract IObservable<CharacteristicGattResult> WhenNotificationReceived();
 

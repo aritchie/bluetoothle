@@ -19,6 +19,25 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
+        public async Task WriteWithoutResponse()
+        {
+            var value = new byte[] { 0x01, 0x02 };
+
+            var cs = await this.GetCharacteristics();
+            foreach (var ch in cs)
+            {
+                var write = await ch.WriteWithoutResponse(value);
+                write.Success.Should().BeTrue("Write failed - " + write.ErrorMessage);
+
+                var read = await ch.Read();
+                read.Success.Should().BeTrue("Read failed - " + read.ErrorMessage);
+
+                read.Data.Should().BeEquivalentTo(value);
+            }
+        }
+
+
+        [Fact]
         public async Task Concurrent_Notifications()
         {
             var list = new Dictionary<Guid, int>();

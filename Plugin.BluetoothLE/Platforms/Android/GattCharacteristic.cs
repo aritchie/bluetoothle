@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Threading.Tasks;
@@ -37,13 +36,36 @@ namespace Plugin.BluetoothLE
         public override byte[] Value => this.native.GetValue();
 
 
-        public override void WriteWithoutResponse(byte[] value)
+        public override IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value) => this.context.Lock(Observable.FromAsync(async ct =>
         {
             this.AssertWrite(false);
-            this
-                .RawWriteNoResponse(null, value)
-                .Subscribe();
-        }
+
+            CharacteristicGattResult result = null;
+            try
+            {
+                await this.context.Marshall(() =>
+                {
+                    this.native.WriteType = GattWriteType.NoResponse;
+
+                    if (!this.native.SetValue(value))
+                        result = this.ToResult(GattEvent.WriteError, "Failed to set characteristic value");
+
+                    else if (this.context.Gatt.WriteCharacteristic(this.native))
+                        result = this.ToResult(GattEvent.Write, value);
+
+                    else
+                        result = this.ToResult(GattEvent.WriteError, "Failed to write to characteristic");
+                })
+                .ToTask(ct)
+                .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                result = this.ToResult(GattEvent.WriteError, ex.ToString());
+            }
+
+            return result;
+        }));
 
 
         public override IObservable<CharacteristicGattResult> Write(byte[] value) => this.context.Lock(Observable.Create<CharacteristicGattResult>(async ob =>
@@ -65,30 +87,20 @@ namespace Plugin.BluetoothLE
                     ob.Respond(result);
                 });
 
-            if (this.Properties.HasFlag(CharacteristicProperties.Write))
+            Log.Debug("Characteristic", "Hooking for write response - " + this.Uuid);
+            await this.context.Marshall(() =>
             {
-                Log.Debug("Characteristic", "Hooking for write response - " + this.Uuid);
-                await this.context.Marshall(() =>
-                {
 
-                    this.native.WriteType = GattWriteType.Default;
-                    if (!this.native.SetValue(value))
-                        ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to set characteristic value"));
+                this.native.WriteType = GattWriteType.Default;
+                if (!this.native.SetValue(value))
+                    ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to set characteristic value"));
 
-                    else if (!this.context.Gatt.WriteCharacteristic(this.native))
-                        ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to characteristic"));
-                })
-                .ToTask()
-                .ConfigureAwait(false);
-            }
-            else
-            {
-                Log.Debug("Characteristic", "Write with No Response - " + this.Uuid);
-                await this
-                    .RawWriteNoResponse(ob, value)
-                    .ToTask()
-                    .ConfigureAwait(false); ;
-            }
+                else if (!this.context.Gatt.WriteCharacteristic(this.native))
+                    ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to characteristic"));
+            })
+            .ToTask()
+            .ConfigureAwait(false);
+
             return sub;
         }));
 
@@ -258,24 +270,5 @@ namespace Plugin.BluetoothLE
 
             return true;
         }
-
-
-        IObservable<Unit> RawWriteNoResponse(IObserver<CharacteristicGattResult> ob, byte[] bytes) => this.context.Marshall(() =>
-        {
-            this.native.WriteType = GattWriteType.NoResponse;
-
-            // TODO: write no response should probably throw exception
-            if (!this.native.SetValue(bytes))
-                ob?.Respond(this.ToResult(GattEvent.WriteError, "Failed to set characteristic value"));
-
-            else
-            {
-                var result = this.context.Gatt.WriteCharacteristic(this.native)
-                    ? this.ToResult(GattEvent.Write, bytes)
-                    : this.ToResult(GattEvent.WriteError, "Failed to write to characteristic");
-
-                ob?.Respond(result);
-            }
-        });
     }
 }

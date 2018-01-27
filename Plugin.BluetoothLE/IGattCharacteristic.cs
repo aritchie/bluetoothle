@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reactive;
 
 
 namespace Plugin.BluetoothLE
@@ -41,7 +42,7 @@ namespace Plugin.BluetoothLE
         /// This will fire and forget a write
         /// </summary>
         /// <param name="value"></param>
-        void WriteWithoutResponse(byte[] value);
+        IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value);
 
         /// <summary>
         /// Used for writing blobs

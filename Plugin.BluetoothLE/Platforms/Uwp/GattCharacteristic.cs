@@ -51,10 +51,24 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value) => Observable.FromAsync(async _ =>
+        {
+            this.AssertWrite(false);
+            var status = await this.Native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithoutResponse);
+            this.value = value;
+
+            var result = status == GattCommunicationStatus.Success
+                ? this.ToResult(GattEvent.Write, value)
+                : this.ToResult(GattEvent.WriteError, status.ToString());
+
+            return result;
+        });
+
+
         // TODO: reliable write
         public override IObservable<CharacteristicGattResult> Write(byte[] value) => Observable.FromAsync(async ct =>
         {
-            this.AssertWrite(false);
+            this.AssertWrite(true);
             var result = await this.Native
                 .WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse)
                 .AsTask(ct)
@@ -108,7 +122,7 @@ namespace Plugin.BluetoothLE
                 if (status != GattCommunicationStatus.Success)
                 {
                     this.context.SetNotifyCharacteristic(this.Native, value != GattClientCharacteristicConfigurationDescriptorValue.None);
-                    return this.ToResult(GattEvent.Notification, "");
+                    return this.ToResult(GattEvent.Notification, "Invalid Status Result: " + status);
                 }
                 return this.ToResult(GattEvent.NotificationError, status.ToString());
             });
@@ -138,14 +152,5 @@ namespace Plugin.BluetoothLE
             });
             return this.notificationOb;
         }
-
-
-        public override async void WriteWithoutResponse(byte[] value)
-        {
-            this.AssertWrite(false);
-            await this.Native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithoutResponse);
-            this.value = value;
-        }
-
     }
 }
