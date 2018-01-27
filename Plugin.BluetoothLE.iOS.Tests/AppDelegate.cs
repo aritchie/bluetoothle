@@ -19,6 +19,7 @@ namespace Plugin.BluetoothLE.iOS.Tests
 
             this.AutoStart = false;
             this.TerminateAfterExecution = false;
+            //[assembly: CollectionBehavior(MaxParallelThreads = n)]
 
             return base.FinishedLaunching(app, options);
         }

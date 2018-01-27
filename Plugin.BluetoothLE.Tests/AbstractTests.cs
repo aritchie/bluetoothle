@@ -32,6 +32,8 @@ namespace Plugin.BluetoothLE.Tests
     {
         protected AbstractTests(ITestOutputHelper output)
         {
+            CrossBleAdapter.Current.StopScan();
+
             this.Output = output;
             Log.Out = (category, msg, lvl) => this.Output.WriteLine($"[{category}] {msg}");
             CrossBleAdapter.Current.Status.Should().Be(AdapterStatus.PoweredOn, "Adapter is not ON");
