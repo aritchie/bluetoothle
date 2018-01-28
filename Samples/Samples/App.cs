@@ -34,23 +34,5 @@ namespace Samples
                     BindingContext = this.container.Resolve<MainViewModel>()
                 });
         }
-
-
-        protected override void OnResume()
-        {
-            base.OnResume();
-            var apps = this.container.Resolve<IEnumerable<IAppLifecycle>>();
-            foreach (var app in apps)
-                app.OnForeground();
-        }
-
-
-        protected override void OnSleep()
-        {
-            base.OnSleep();
-            var apps = this.container.Resolve<IEnumerable<IAppLifecycle>>();
-            foreach (var app in apps)
-                app.OnBackground();
-        }
     }
 }

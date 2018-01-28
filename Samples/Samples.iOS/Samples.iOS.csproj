@@ -131,9 +131,9 @@
     <BundleResource Include="Resources\Icon-Small%403x.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Acr.UserDialogs" Version="7.0.0-beta4" />
+    <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
     <PackageReference Include="reactiveui" Version="8.0.0-alpha0105" />
-    <PackageReference Include="Xamarin.Forms" Version="2.5.0.121934" />
+    <PackageReference Include="Xamarin.Forms" Version="2.5.0.122203" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

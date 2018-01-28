@@ -20,8 +20,6 @@ namespace Samples.ViewModels
 
         protected IUserDialogs Dialogs => this.services.Dialogs;
         protected IViewModelManager VmManager => this.services.VmManager;
-        //public IAppSettings AppSettings => this.services.AppSettings;
         public IAdapter BleAdapter => this.services.BleAdapter;
-        public IAppState AppState => this.services.AppState;
     }
 }

@@ -39,11 +39,6 @@ namespace Samples
             //    .SingleInstance();
 
             builder
-                .RegisterType<AppStateImpl>()
-                .AsImplementedInterfaces()
-                .SingleInstance();
-
-            builder
                 .Register(x => UserDialogs.Instance)
                 .As<IUserDialogs>()
                 .SingleInstance();

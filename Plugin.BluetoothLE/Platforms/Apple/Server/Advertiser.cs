@@ -22,5 +22,12 @@ namespace Plugin.BluetoothLE.Server
             });
             base.Start(adData);
         }
+
+
+        public override void Stop()
+        {
+            this.manager.StopAdvertising();
+            base.Stop();
+        }
     }
 }

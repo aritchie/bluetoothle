@@ -111,13 +111,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Acr.UserDialogs">
-      <Version>7.0.0-beta4</Version>
+      <Version>7.0.1</Version>
     </PackageReference>
     <PackageReference Include="xunit">
       <Version>2.3.1</Version>
     </PackageReference>
     <PackageReference Include="xunit.runner.devices">
-      <Version>2.3.2</Version>
+      <Version>2.3.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
