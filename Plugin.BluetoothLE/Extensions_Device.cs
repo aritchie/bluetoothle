@@ -23,8 +23,8 @@ namespace Plugin.BluetoothLE
 
                 return () =>
                 {
-                    //if (args.DisconnectOnUnsubscribe)
-                    //    device.Disconnect();
+                    if (args.DisconnectOnUnsubscribe)
+                        device.CancelConnection();
 
                     sub.Dispose();
                 };
