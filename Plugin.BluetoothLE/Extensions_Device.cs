@@ -7,6 +7,30 @@ namespace Plugin.BluetoothLE
 {
     public static partial class Extensions
     {
+        public static IObservable<CharacteristicGattResult> ConnectHook(this IDevice device, ConnectHookArgs args)
+            => Observable.Create<CharacteristicGattResult>(async ob =>
+            {
+                var sub = device
+                    .WhenConnected()
+                    .Select(_ => device.WhenKnownCharacteristicsDiscovered(args.ServiceUuid, args.CharacteristicUuids))
+                    .Switch()
+                    .Select(x => x.RegisterAndNotify(args.UseIndicateIfAvailable))
+                    .Switch()
+                    .Subscribe(ob.OnNext);
+
+                if (device.Status == ConnectionStatus.Disconnected)
+                    await device.Connect();
+
+                return () =>
+                {
+                    //if (args.DisconnectOnUnsubscribe)
+                    //    device.Disconnect();
+
+                    sub.Dispose();
+                };
+            });
+
+
         public static IObservable<IGattCharacteristic> GetKnownCharacteristics(this IDevice device, Guid serviceUuid, params Guid[] characteristicIds)
             => device
                 .GetKnownService(serviceUuid)
