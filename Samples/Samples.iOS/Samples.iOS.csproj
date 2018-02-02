@@ -132,6 +132,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
+    <PackageReference Include="Plugin.Notifications">
+      <Version>5.0.0-beta3</Version>
+    </PackageReference>
     <PackageReference Include="reactiveui" Version="8.0.0-alpha0105" />
     <PackageReference Include="Xamarin.Forms" Version="2.5.0.122203" />
   </ItemGroup>

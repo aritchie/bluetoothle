@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
@@ -14,15 +13,13 @@ namespace Samples.ViewModels.Le
     public class ScanViewModel : AbstractRootViewModel
     {
         IDisposable scan;
-        IDisposable connect;
 
 
         public ScanViewModel(ICoreServices services) : base(services)
         {
             this.Devices = new ObservableCollection<ScanResultViewModel>();
-            this.AppState.WhenBackgrounding().Subscribe(_ => this.scan?.Dispose());
 
-            this.connect = this.BleAdapter
+            this.BleAdapter
                 .WhenDeviceStatusChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
@@ -114,6 +111,13 @@ namespace Samples.ViewModels.Le
                     x => x.Value
                 )
             );
+        }
+
+
+        public override void OnDeactivate()
+        {
+            base.OnDeactivate();
+            this.scan?.Dispose();
         }
 
 

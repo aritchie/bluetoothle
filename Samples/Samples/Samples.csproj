@@ -8,6 +8,7 @@
         <PackageReference Include="Acr.Core" Version="1.1.0" />
         <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
         <PackageReference Include="Autofac" Version="4.6.2" />
+        <PackageReference Include="Plugin.Notifications" Version="5.0.0-beta3" />
         <PackageReference Include="reactiveui" Version="8.0.0-alpha0105" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="Xamarin.Forms" Version="2.5.0.122203" />

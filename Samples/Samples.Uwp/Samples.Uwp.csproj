@@ -141,6 +141,9 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.0.5</Version>
     </PackageReference>
+    <PackageReference Include="Plugin.Notifications">
+      <Version>5.0.0-beta3</Version>
+    </PackageReference>
     <PackageReference Include="reactiveui">
       <Version>8.0.0-alpha0105</Version>
     </PackageReference>
