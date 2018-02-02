@@ -101,6 +101,9 @@ namespace Plugin.BluetoothLE
 
         bool NativeEquals(GattDescriptorEventArgs args)
         {
+            if (this.context.Gatt == null || args.Descriptor?.Characteristic?.Service == null)
+                return false;
+
             if (this.native.Equals(args.Descriptor))
                 return true;
 
