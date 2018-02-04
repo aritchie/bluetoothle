@@ -2,6 +2,7 @@
 using Plugin.BluetoothLE;
 using Acr.UserDialogs;
 using Autofac;
+using Plugin.Notifications;
 using Samples.Services.Impl;
 
 
@@ -33,10 +34,10 @@ namespace Samples
             //    .As<IAppSettings>()
             //    .SingleInstance();
 
-            //builder
-            //    .Register(x => CrossNotifications.Current)
-            //    .As<INotifications>()
-            //    .SingleInstance();
+            builder
+                .Register(x => CrossNotifications.Current)
+                .As<INotifications>()
+                .SingleInstance();
 
             builder
                 .Register(x => UserDialogs.Instance)

@@ -40,6 +40,7 @@ namespace Samples.ViewModels.Le
                 else
                 {
                     this.ServerText = "Start Server";
+                    this.BleAdapter.Advertiser.Stop();
                     this.OnEvent("GATT Server Stopped");
                     this.server.Dispose();
                     this.server = null;
@@ -101,10 +102,10 @@ namespace Samples.ViewModels.Le
             {
                 this.OnEvent("GATT Server Starting");
                 this.server = this.BleAdapter.CreateGattServer();
-                this.BleAdapter.Advertiser.Start(new AdvertisementData
-                {
-                    LocalName = "TestServer"
-                });
+                //this.BleAdapter.Advertiser.Start(new AdvertisementData
+                //{
+                //    LocalName = "TestServer"
+                //});
 
                 var counter = 0;
                 var service = this.server.CreateService(Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE"), true);
