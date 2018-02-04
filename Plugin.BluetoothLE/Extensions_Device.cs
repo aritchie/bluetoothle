@@ -1,12 +1,23 @@
 ﻿using System;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 
 
 namespace Plugin.BluetoothLE
 {
     public static partial class Extensions
     {
+        public static IObservable<CharacteristicGattResult> ConnectHook(this IDevice device, Guid serviceUuid, params Guid[] characteristicUuuids)
+            => device.ConnectHook(new ConnectHookArgs(serviceUuid, characteristicUuuids));
+
+
+        /// <summary>
+        /// This method will connect and manage connection as well as hook into your required characteristics with all the proper cleanups necessary
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public static IObservable<CharacteristicGattResult> ConnectHook(this IDevice device, ConnectHookArgs args)
             => Observable.Create<CharacteristicGattResult>(async ob =>
             {
@@ -29,6 +40,18 @@ namespace Plugin.BluetoothLE
                     sub.Dispose();
                 };
             });
+
+
+        public static IObservable<CharacteristicGattResult> WriteCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid, byte[] data) => Observable.FromAsync<CharacteristicGattResult>(async ct =>
+        {
+            if (device.Status != ConnectionStatus.Connected)
+                await device.Connect();
+
+            var ch = await device.GetKnownCharacteristics(serviceUuid, characteristicUuid).ToTask(ct);
+            var result = await ch.Write(data).ToTask(ct);
+
+            return result;
+        });
 
 
         public static IObservable<IGattCharacteristic> GetKnownCharacteristics(this IDevice device, Guid serviceUuid, params Guid[] characteristicIds)
