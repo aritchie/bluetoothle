@@ -54,6 +54,18 @@ namespace Plugin.BluetoothLE
         });
 
 
+        public static IObservable<CharacteristicGattResult> ReadCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid) => Observable.FromAsync<CharacteristicGattResult>(async ct =>
+        {
+            if (device.Status != ConnectionStatus.Connected)
+                await device.Connect();
+
+            var ch = await device.GetKnownCharacteristics(serviceUuid, characteristicUuid).ToTask(ct);
+            var result = await ch.Read().ToTask(ct);
+
+            return result;
+        });
+
+
         public static IObservable<IGattCharacteristic> GetKnownCharacteristics(this IDevice device, Guid serviceUuid, params Guid[] characteristicIds)
             => device
                 .GetKnownService(serviceUuid)

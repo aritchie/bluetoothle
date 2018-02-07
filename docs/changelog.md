@@ -4,6 +4,8 @@
 * [feature][breaking] GATT server & BLE advertising are now separate functions
 * [feature] ScanConfig is now available on all Adapter extension methods
 * [feature] WhenKnownCharacteristicsDiscovered is a handy way of always calling for known characteristics as device connects
+* [feature] ConnectHook is a new extension that manages everything from the connection/reconnect/disconnect to the characteristic notification
+* [feature] Device.WriteCharacteristic and Device.ReadCharacteristic are new extensions making it easy to read/write to characteristics without a reference to one
 * [feature] StopScan for cancelling background scans where the observable may have been lost
 * [feature] WriteWithoutResponse is now async (Android - so it can participate in queue & iOS since it provides a ready event)
 * [breaking] GATT server now starts as soon as it is created (removal of start/stop functions)
