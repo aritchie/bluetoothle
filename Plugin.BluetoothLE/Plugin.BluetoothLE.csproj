@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;MonoAndroid70;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;uap10.0</TargetFrameworks>
-        <!--<TargetFrameworks>netstandard2.0;monoandroid43;xamarinios10;xamarinmac20;xamarintvos10;uap10.0;net46;tizen4</TargetFrameworks>-->
+        <TargetFrameworks>netstandard1.0;netstandard2.0;MonoAndroid70;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;uap10.0</TargetFrameworks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>aritchie</Authors>
         <Company />
@@ -23,17 +22,15 @@ Supported Platforms
         <PackageIconUrl>https://github.com/aritchie/bluetoothle/raw/master/icon.png</PackageIconUrl>
         <PackageReleaseNotes>https://github.com/aritchie/bluetoothle/blob/master/docs/changelog.md</PackageReleaseNotes>
         <PackageTags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</PackageTags>
-        <!--<PackageTags>ios android uwp windows tvos linux tizen mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</PackageTags>-->
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' OR '$(TargetFramework)' == 'netstandard2.0' ">
         <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
         <DefineConstants>$(DefineConstants);NETSTANDARD;BAIT</DefineConstants>
-        <Product>Plugin.BluetoothLE - .NET Standard 2</Product>
+        <Product>Plugin.BluetoothLE - .NET Standard</Product>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'MonoAndroid80' OR '$(TargetFramework)' == 'MonoAndroid70' ">
-        <!--<TargetFrameworkVersion>v8.0</TargetFrameworkVersion>-->
         <DefineConstants>$(DefineConstants);__ANDROID__</DefineConstants>
         <Product>Plugin.BluetoothLE - Android</Product>
     </PropertyGroup>
@@ -58,11 +55,6 @@ Supported Platforms
         <Product>Plugin.BluetoothLE - Tizen</Product>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'net46' ">
-        <DefineConstants>$(DefineConstants);BLUEZ</DefineConstants>
-        <Product>Plugin.BluetoothLE - BlueZ</Product>
-    </PropertyGroup>
-
     <PropertyGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
         <TargetPlatformVersion>10.0.16299.0</TargetPlatformVersion>
         <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
@@ -73,12 +65,12 @@ Supported Platforms
     <ItemGroup>
         <Compile Remove="Platforms\**\*.cs" />
         <None Include="Platforms\**\*.cs" />
-        <PackageReference Include="Acr.Core" Version="1.1.0" />
+        <PackageReference Include="Acr.Core" Version="1.1.1" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="MSBuild.Sdk.Extras" Version="1.2.1" PrivateAssets="all" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' OR '$(TargetFramework)' == 'netstandard2.0' ">
         <Compile Include="Platforms\Shared\**\*.cs" />
     </ItemGroup>
 
@@ -90,13 +82,7 @@ Supported Platforms
     <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' OR '$(TargetFramework)' == 'Xamarin.tvOS10' OR '$(TargetFramework)' == 'Xamarin.Mac20' ">
         <Compile Include="Platforms\Shared\**\*.cs" />
         <Compile Include="Platforms\Apple\**\*.cs" />
-        <Compile Remove="Platforms\Apple\Server\**\*.cs" Condition=" '$(TargetFramework)' == 'Xamarin.tvOS10' " />
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
-        <Compile Include="Platforms\Shared\**\*.cs" />
-        <Compile Include="Platforms\net46\**\*.cs" />
-        <PackageReference Include="Tmds.DBus" Version="0.5.0" />
+        <Compile Remove="Platforms\Apple\Server\**\*.cs" Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' " />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
