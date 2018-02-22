@@ -31,9 +31,9 @@ scanner.Dispose(); // to stop scanning
 **Scan for Devices - Advanced**
 ```csharp
 CrossBleAdapter.Current.Scan(
-    new ScanSettings 
+    new ScanConfig 
     {
-        ServiceUUID = new Guid("<your guid here>")
+        ServiceUuids = { new Guid("<your guid here>") }
     }
 )
 .Subscribe(scanResult => 
