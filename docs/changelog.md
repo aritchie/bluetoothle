@@ -1,5 +1,10 @@
 # CHANGE LOG
 
+## 5.3.3
+* [fix][android] removes lock on android getknowncharacteristic - this could introduce android bug back into wild
+* [fix][android] more deadlock issues
+
+
 ## 5.3.2
 * [fix][android] fixes to locking mechanism as well as ability to disable it via CrossBleAdapter.AndroidDisableLockMechanism
 * [fix][ios] NRE in reconnection logic
