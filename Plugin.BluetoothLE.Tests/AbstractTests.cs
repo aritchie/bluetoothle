@@ -10,24 +10,6 @@ using Plugin.BluetoothLE.Infrastructure;
 
 namespace Plugin.BluetoothLE.Tests
 {
-    /*
-    Service (ad-data) - A495FF20-C5B1-4B44-B512-1370F02D74DE
-
-    // start count
-    Scratch 1 - A495FF21-C5B1-4B44-B512-1370F02D74DE
-
-    // temp
-    Scratch 2 - A495FF22-C5B1-4B44-B512-1370F02D74DE
-
-    // accel X
-    Scratch 3 - A495FF23-C5B1-4B44-B512-1370F02D74DE
-
-    // accel Y
-    Scratch 4 - A495FF24-C5B1-4B44-B512-1370F02D74DE
-
-    // accel Z
-    Scratch 5 - A495FF25-C5B1-4B44-B512-1370F02D74DE
-    */
     public abstract class AbstractTests : IDisposable
     {
         protected AbstractTests(ITestOutputHelper output)
@@ -43,7 +25,6 @@ namespace Plugin.BluetoothLE.Tests
         public void Dispose() => this.Device?.CancelConnection();
 
 
-        public static Guid ScratchServiceUuid { get; } = new Guid("A495FF20-C5B1-4B44-B512-1370F02D74DE");
         protected async Task<IDevice> FindTestDevice()
         {
             this.Device = await CrossBleAdapter
@@ -64,11 +45,11 @@ namespace Plugin.BluetoothLE.Tests
             var to = timeout ?? TimeSpan.FromSeconds(5);
             this.Device = await this.FindTestDevice();
 
-            await this.Device.Connect().Timeout(to);
+            this.Device.Connect();
             //this.output.WriteLine("Device connected - finding known service");
 
             var service = await this.Device
-                .GetKnownService(ScratchServiceUuid)
+                .GetKnownService(Constants.ScratchServiceUuid)
                 .Timeout(to)
                 .Take(1)
                 .ToTask();

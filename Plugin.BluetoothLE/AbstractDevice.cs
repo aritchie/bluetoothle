@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reactive;
 using System.Reactive.Linq;
 
 
@@ -21,7 +20,7 @@ namespace Plugin.BluetoothLE
         public abstract DeviceFeatures Features { get; }
         public abstract object NativeDevice { get; }
 
-        public abstract IObservable<Unit> Connect(GattConnectionConfig config);
+        public abstract void Connect(GattConnectionConfig config);
         public abstract void CancelConnection();
         public abstract IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan);
         public abstract IObservable<ConnectionStatus> WhenStatusChanged();
@@ -32,7 +31,6 @@ namespace Plugin.BluetoothLE
 
         public virtual PairingStatus PairingStatus => PairingStatus.Unavailiable;
 		public virtual IObservable<bool> PairingRequest(string pin) => throw new ArgumentException("Pairing request is not supported on this platform");
-
 
         public virtual int GetCurrentMtuSize() => 20;
         public virtual IObservable<int> RequestMtu(int size) => Observable.Return(this.GetCurrentMtuSize());

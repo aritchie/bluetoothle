@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
 using FluentAssertions;
@@ -40,20 +42,73 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task GetKnownServicesConsecutively()
+        public async Task GetKnownCharacteristics_Consecutively()
         {
             await this.FindTestDevice();
-            await this.Device.Connect();
+            await this.Device.ConnectWait();
             var s1 = await this.Device
-                .GetKnownCharacteristics(ScratchServiceUuid, new Guid("A495FF21-C5B1-4B44-B512-1370F02D74DE"))
+                .GetKnownCharacteristics(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1)
                 .Timeout(TimeSpan.FromSeconds(5));
 
             var s2 = await this.Device
-                .GetKnownCharacteristics(ScratchServiceUuid, new Guid("A495FF22-C5B1-4B44-B512-1370F02D74DE"))
+                .GetKnownCharacteristics(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid2)
                 .Timeout(TimeSpan.FromSeconds(5));
 
             s1.Should().NotBeNull();
             s2.Should().NotBeNull();
+        }
+
+
+        [Fact]
+        public async Task WhenKnownCharacteristic_Fires()
+        {
+            await this.FindTestDevice();
+
+            this.Device.WhenKnownCharacteristicsDiscovered(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1, Constants.ScratchCharacteristicUuid2);
+            await this.Device.ConnectWait();
+        }
+
+        [Fact]
+        public async Task ReadWriteCharacteristicExtensions()
+        {
+            var dev = await this.FindTestDevice();
+            await Task.WhenAll(
+                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1, new byte[] { 0x01 }).ToTask(),
+                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1).ToTask(),
+
+                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid2, new byte[] { 0x01 }).ToTask(),
+                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid2).ToTask(),
+
+                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid3, new byte[] { 0x01 }).ToTask(),
+                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid3).ToTask(),
+
+                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid4, new byte[] { 0x01 }).ToTask(),
+                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid4).ToTask(),
+
+                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid5, new byte[] { 0x01 }).ToTask(),
+                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid5).ToTask()
+            );
+        }
+
+
+        [Fact]
+        public async Task GetKnownCharacteristics_Concurrent_Notify()
+        {
+            var c1 = Constants.ScratchCharacteristicUuid1;
+            var c2 = Constants.ScratchCharacteristicUuid2;
+
+            await this.FindTestDevice();
+            await this.Device.Connect();
+            var notifications = await this.Device
+                .GetKnownCharacteristics(Constants.ScratchServiceUuid, c1, c2)
+                .Timeout(TimeSpan.FromSeconds(5))
+                .Select(x => x.RegisterAndNotify())
+                .Switch()
+                .Take(4)
+                .ToList();
+
+            notifications.Any(x => x.Characteristic.Uuid.Equals(c1)).Should().BeTrue();
+            notifications.Any(x => x.Characteristic.Uuid.Equals(c2)).Should().BeTrue();
         }
 
 
@@ -90,25 +145,5 @@ namespace Plugin.BluetoothLE.Tests
             connected.Should().Be(2, "No reconnection count");
             disconnected.Should().Be(2, "No disconnect");
         }
-
-        /*
-        Service (ad-data) - A495FF20-C5B1-4B44-B512-1370F02D74DE
-
-        // start count
-        Scratch 1 - A495FF21-C5B1-4B44-B512-1370F02D74DE
-
-        // temp
-        Scratch 2 - A495FF22-C5B1-4B44-B512-1370F02D74DE
-
-        // accel X
-        Scratch 3 - A495FF23-C5B1-4B44-B512-1370F02D74DE
-
-        // accel Y
-        Scratch 4 - A495FF24-C5B1-4B44-B512-1370F02D74DE
-
-        // accel Z
-        Scratch 5 - A495FF25-C5B1-4B44-B512-1370F02D74DE
-        */
-
     }
 }

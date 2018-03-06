@@ -28,7 +28,9 @@ namespace Plugin.BluetoothLE.Internals
         public GattCallbacks Callbacks { get; }
 
 
+        // issues will still arise if the user is doing discovery and data at the same time due to droid
         readonly AutoResetEvent reset = new AutoResetEvent(true);
+
 
         public IObservable<T> Lock<T>(IObservable<T> inner)
         {
@@ -83,7 +85,7 @@ namespace Plugin.BluetoothLE.Internals
                     if (pastGate)
                     {
                         Log.Debug("Device", "Cleanup releasing lock");
-                        this.reset.Set();
+                        reset.Set();
                     }
                 };
             });

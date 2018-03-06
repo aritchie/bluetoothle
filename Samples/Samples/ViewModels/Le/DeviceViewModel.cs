@@ -37,7 +37,7 @@ namespace Samples.ViewModels.Le
                         {
                             using (this.Dialogs.Loading("Connecting", cancelSrc.Cancel, "Cancel"))
                             {
-                                await this.device.Connect().ToTask(cancelSrc.Token);
+                                await this.device.ConnectWait().ToTask(cancelSrc.Token);
                             }
                         }
                     }

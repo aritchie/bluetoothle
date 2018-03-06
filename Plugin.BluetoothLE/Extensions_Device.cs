@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 
 
 namespace Plugin.BluetoothLE
 {
     public static partial class Extensions
     {
+        public static IObservable<Unit> ConnectWait(this IDevice device)
+        {
+            device.Connect();
+            return device.WhenConnected();
+        }
+
+
         public static IObservable<CharacteristicGattResult> ConnectHook(this IDevice device, Guid serviceUuid, params Guid[] characteristicUuuids)
             => device.ConnectHook(new ConnectHookArgs(serviceUuid, characteristicUuuids));
 
@@ -19,7 +25,7 @@ namespace Plugin.BluetoothLE
         /// <param name="args"></param>
         /// <returns></returns>
         public static IObservable<CharacteristicGattResult> ConnectHook(this IDevice device, ConnectHookArgs args)
-            => Observable.Create<CharacteristicGattResult>(async ob =>
+            => Observable.Create<CharacteristicGattResult>(ob =>
             {
                 var sub = device
                     .WhenConnected()
@@ -30,7 +36,7 @@ namespace Plugin.BluetoothLE
                     .Subscribe(ob.OnNext);
 
                 if (device.Status == ConnectionStatus.Disconnected)
-                    await device.Connect();
+                    device.Connect();
 
                 return () =>
                 {
@@ -42,28 +48,25 @@ namespace Plugin.BluetoothLE
             });
 
 
-        public static IObservable<CharacteristicGattResult> WriteCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid, byte[] data) => Observable.FromAsync<CharacteristicGattResult>(async ct =>
+        public static IObservable<CharacteristicGattResult> WriteCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid, byte[] data)
         {
-            if (device.Status != ConnectionStatus.Connected)
-                await device.Connect();
+            device.Connect();
 
-            var ch = await device.GetKnownCharacteristics(serviceUuid, characteristicUuid).ToTask(ct);
-            var result = await ch.Write(data).ToTask(ct);
+            return device
+                .WhenKnownCharacteristicsDiscovered(serviceUuid, characteristicUuid)
+                .Select(x => x.Write(data))
+                .Switch();
+        }
 
-            return result;
-        });
-
-
-        public static IObservable<CharacteristicGattResult> ReadCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid) => Observable.FromAsync<CharacteristicGattResult>(async ct =>
+        public static IObservable<CharacteristicGattResult> ReadCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid)
         {
-            if (device.Status != ConnectionStatus.Connected)
-                await device.Connect();
+            device.Connect();
 
-            var ch = await device.GetKnownCharacteristics(serviceUuid, characteristicUuid).ToTask(ct);
-            var result = await ch.Read().ToTask(ct);
-
-            return result;
-        });
+            return device
+                .WhenKnownCharacteristicsDiscovered(serviceUuid, characteristicUuid)
+                .Select(ch => ch.Read())
+                .Switch();
+        }
 
 
         public static IObservable<IGattCharacteristic> GetKnownCharacteristics(this IDevice device, Guid serviceUuid, params Guid[] characteristicIds)

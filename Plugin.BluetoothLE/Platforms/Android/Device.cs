@@ -151,7 +151,7 @@ namespace Plugin.BluetoothLE
                 };
             })
             .StartWith(this.Status)
-            .DistinctUntilChanged()
+            //.DistinctUntilChanged()
             .Replay(1)
             .RefCount();
 
