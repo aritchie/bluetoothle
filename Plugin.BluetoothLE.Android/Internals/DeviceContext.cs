@@ -91,18 +91,14 @@ namespace Plugin.BluetoothLE.Internals
         {
             if (CrossBleAdapter.AndroidPerformActionsOnMainThread)
             {
-                Application.SynchronizationContext.Post(_ =>
+                if (Application.SynchronizationContext == SynchronizationContext.Current)
                 {
-                    try
-                    {
-                        action();
-                        ob.Respond(null);
-                    }
-                    catch (Exception ex)
-                    {
-                        ob.OnError(ex);
-                    }
-                }, null);
+                    this.Execute(action, ob);
+                }
+                else
+                {
+                    Application.SynchronizationContext.Post(_ => this.Execute(action, ob), null);
+                }
             }
             else
             {
@@ -111,6 +107,20 @@ namespace Plugin.BluetoothLE.Internals
             }
             return Disposable.Empty;
         });
+
+
+        protected virtual void Execute(Action action, IObserver<object> ob)
+        {
+            try
+            {
+                action();
+                ob.Respond(null);
+            }
+            catch (Exception ex)
+            {
+                ob.OnError(ex);
+            }
+        }
 
 
         public IObservable<object> Reconnect(ConnectionPriority priority)
