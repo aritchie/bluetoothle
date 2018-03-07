@@ -18,69 +18,7 @@ namespace Plugin.BluetoothLE
         {
             Current = new Adapter(configuration);
         }
-
-#elif __ANDROID__
-
-        /// <summary>
-        /// Specifies the number of Gatt.Connect attempts that will be run before handing off to NativeDevice.ConnectGatt(autoReconnect);
-        /// DO NOT CHANGE this if you don't know what this is!
-        /// </summary>
-        public static uint AndroidMaxAutoReconnectAttempts { get; set; } = 5;
-
-
-        /// <summary>
-        /// If you disable this, you need to manage serial/sequential access to ALL bluetooth operations yourself!
-        /// DO NOT CHANGE this if you don't know what this is!
-        /// </summary>
-        public static bool AndroidDisableLockingMechanism { get; set; }
-
-
-        /// <summary>
-        /// Time span to pause before service discovery (helps in combating GATT133 error) when service discovery is performed immediately after connection
-        /// DO NOT CHANGE this if you don't know what this is!
-        /// </summary>
-        public static TimeSpan AndroidPauseBeforeServiceDiscovery { get; set; } = TimeSpan.FromMilliseconds(750);
-
-
-        static TimeSpan? androidOpPause;
-
-        /// <summary>
-        /// Time span to pause android operations
-        /// DO NOT CHANGE this if you don't know what this is!
-        /// </summary>
-        public static TimeSpan? AndroidOperationPause
-        {
-            get
-            {
-                if (androidOpPause != null)
-                    return androidOpPause;
-
-                if (Android.OS.Build.VERSION.SdkInt < Android.OS.BuildVersionCodes.N)
-                    return TimeSpan.FromMilliseconds(100);
-
-                return null;
-            }
-            set => androidOpPause = value;
-        }
-
-
-        /// <summary>
-        /// Specifies the wait time before attempting an auto-reconnect
-        /// DO NOT CHANGE if you don't know what this is!
-        /// </summary>
-        public static TimeSpan AndroidPauseBetweenAutoReconnectAttempts { get; set; } = TimeSpan.FromSeconds(1);
-
-
-        public static bool AndroidUseNewScanner { get; set; } = B.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
-
-
-        public static bool AndroidMainThreadSuggested =>
-            B.VERSION.SdkInt < BuildVersionCodes.Kitkat ||
-            B.Manufacturer.Equals("samsung", StringComparison.CurrentCultureIgnoreCase);
-
-
-        public static bool AndroidPerformActionsOnMainThread { get; set; } = AndroidMainThreadSuggested;
-
+        
 #endif
 
         static IAdapterScanner scanner;

@@ -3,21 +3,56 @@
 
 namespace Plugin.BluetoothLE.Internals
 {
-    public class DefaultBleMediator : IBleInvoker
+    public class DefaultBleMediator : IBleMediator
     {
-        public bool ExecuteOnMainThread { get; set; }
-        public TimeSpan? OperationPause { get; set; }
-        public bool SynchronizeActions { get; set; }
-        public bool ShouldWaitForCompletion { get; set; }
+        /// <summary>
+        /// If you disable this, you need to manage serial/sequential access to ALL bluetooth operations yourself!
+        /// DO NOT CHANGE this if you don't know what this is!
+        /// </summary>
+        public bool ExecuteOnMainThread { get; set; } = true;
 
 
-        public IObservable<T> Invoke<T>(Action triggerAction, IObservable<T> observable)
+        public TimeSpan? OperationPause { get; set; } = TimeSpan.FromMilliseconds(100);
+        public bool SynchronizeActions { get; set; } = true;
+        //public bool ShouldWaitForCompletion { get; set; }
+
+
+        public IObservable<T> Invoke<T>(IDevice device, Action triggerAction, IObservable<T> observable)
         {
             throw new NotImplementedException();
         }
     }
 }
 /*
+
+        public static bool IsMainThreadSuggested =>
+            Build.VERSION.SdkInt < BuildVersionCodes.Kitkat ||
+            Build.Manufacturer.Equals("samsung", StringComparison.CurrentCultureIgnoreCase);
+
+
+        public static bool PerformActionsOnMainThread { get; set; } = IsMainThreadSuggested;
+
+
+         static TimeSpan? opPause;
+
+        /// <summary>
+        /// Time span to pause android operations
+        /// DO NOT CHANGE this if you don't know what this is!
+        /// </summary>
+        public static TimeSpan? OperationPause
+        {
+            get
+            {
+                if (opPause != null)
+                    return opPause;
+
+                if (Build.VERSION.SdkInt < BuildVersionCodes.N)
+                    return TimeSpan.FromMilliseconds(100);
+
+                return null;
+            }
+            set => opPause = value;
+        }
 IDisposable sub = null;
                 var pastGate = false;
                 var cancel = false;
