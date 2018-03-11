@@ -36,11 +36,11 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
-        /// Disables the locking mechanism used by all read/writes within android plugin 
+        /// Disables the locking mechanism used by all read/writes within android plugin
         /// You must manage serial communication on your own without this - GOOD LUCK!
         /// DO NOT CHANGE this if you don't know what this is!
         /// </summary>
-        public static bool AndroidDisableLockMechanism { get; set; }
+        public static bool AndroidDisableLockMechanism { get; set; } = true;
 
 
         static TimeSpan? androidOpPause;

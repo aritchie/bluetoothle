@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 5.3.4
+* The locking mechanism for android has been turned off by default
+
 ## 5.3.3
 * [fix][android] removes lock on android getknowncharacteristic - this could introduce android bug back into wild
 * [fix][android] more deadlock issues

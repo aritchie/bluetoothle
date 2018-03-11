@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Plugin.BluetoothLE</id>
-        <version>5.3.3</version>
+        <version>5.3.4</version>
         <title>ACR Bluetooth LE Reactive Plugin for Xamarin and UWP</title>
         <summary>Cross Platform Reactive Bluetooth LE Plugin</summary>
         <description>
