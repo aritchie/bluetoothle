@@ -63,43 +63,43 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<Unit> Connect(GattConnectionConfig config) => Observable.Create<Unit>(async ob =>
+        public override void Connect(GattConnectionConfig config)
         {
-            var connected = false;
+            //var connected = false;
             config = config ?? GattConnectionConfig.DefaultConfiguration;
 
-            var sub1 = this.WhenStatusChanged()
-                .Where(x => x == ConnectionStatus.Connected)
-                .Subscribe(_ =>
-                {
-                    connected = true;
-                    if (config.IsPersistent)
-                        this.autoReconnectSub = this.CreateAutoReconnectSubscription(config);
+            //var sub1 = this.WhenStatusChanged()
+            //    .Where(x => x == ConnectionStatus.Connected)
+            //    .Subscribe(_ =>
+            //    {
+            //        connected = true;
+            //        if (config.IsPersistent)
+            //            this.autoReconnectSub = this.CreateAutoReconnectSubscription(config);
 
-                    ob.Respond(Unit.Default);
-                });
+            //        ob.Respond(Unit.Default);
+            //    });
 
-            var sub2 = this.connFailSubject.Subscribe(x =>
-            {
-                this.connSubject.OnNext(ConnectionStatus.Disconnected);
-                this.context.Gatt?.Close();
-                ob.OnError(new Exception("Connection failed - " + x));
-            });
+            //var sub2 = this.connFailSubject.Subscribe(x =>
+            //{
+            //    this.connSubject.OnNext(ConnectionStatus.Disconnected);
+            //    this.context.Gatt?.Close();
+            //    ob.OnError(new Exception("Connection failed - " + x));
+            //});
 
             this.connSubject.OnNext(ConnectionStatus.Connecting);
-            await this.context.Connect(config.Priority, config.AutoConnect);
+            this.context.Connect(config.Priority, config.AndroidAutoConnect);
 
-            return () =>
-            {
-                if (!connected)
-                {
-                    this.context.Gatt?.Close();
-                    this.connSubject.OnNext(ConnectionStatus.Disconnected);
-                }
-                sub1.Dispose();
-                sub2.Dispose();
-            };
-        });
+            //return () =>
+            //{
+            //    if (!connected)
+            //    {
+            //        this.context.Gatt?.Close();
+            //        this.connSubject.OnNext(ConnectionStatus.Disconnected);
+            //    }
+            //    sub1.Dispose();
+            //    sub2.Dispose();
+            //};
+        }
 
 
         public override void CancelConnection()
@@ -125,8 +125,8 @@ namespace Plugin.BluetoothLE
             .Select(x => this.Name);
 
 
-        IObservable<ConnectionStatus> statusOb;
-        public override IObservable<ConnectionStatus> WhenStatusChanged()
+        IConnectableObservable<ConnectionStatus> statusOb;
+        public override IConnectableObservable<ConnectionStatus> WhenStatusChanged()
         {
             this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
             {
@@ -153,7 +153,8 @@ namespace Plugin.BluetoothLE
             .StartWith(this.Status)
             //.DistinctUntilChanged()
             .Replay(1)
-            .RefCount();
+            .RefCount()
+            .Publish();
 
             return this.statusOb;
         }

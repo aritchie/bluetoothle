@@ -4,11 +4,7 @@ using Android.OS;
 using Java.Lang;
 using System;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Threading;
-using Acr;
 using Plugin.BluetoothLE.Infrastructure;
 
 
@@ -29,110 +25,44 @@ namespace Plugin.BluetoothLE.Internals
 
 
         // issues will still arise if the user is doing discovery and data at the same time due to droid
-        readonly AutoResetEvent reset = new AutoResetEvent(true);
-
-
-        public IObservable<T> Lock<T>(IObservable<T> inner)
+        // TODO: this is botched, reconnect needs to wait?
+        public void Reconnect(ConnectionPriority priority)
         {
-            if (CrossBleAdapter.AndroidDisableLockingMechanism)
-                return inner;
 
-            return Observable.Create<T>(ob =>
-            {
-                IDisposable sub = null;
-                var pastGate = false;
-                var cancel = false;
-                Log.Debug("Device", "Lock - at the gate");
-
-                this.reset.WaitOne();
-
-                if (cancel)
-                {
-                    Log.Debug("Device", "Lock - past the gate, but was cancelled");
-                }
-                else
-                {
-                    pastGate = true;
-                    Log.Debug("Device", "Lock - past the gate");
-
-                    if (CrossBleAdapter.AndroidOperationPause != null)
-                        System.Threading.Thread.Sleep(CrossBleAdapter.AndroidOperationPause.Value);
-
-                    sub = inner.Subscribe(
-                        ob.OnNext,
-                        ex =>
-                        {
-                            Log.Debug("Device", "Task errored - releasing lock");
-                            pastGate = false;
-                            this.reset.Set();
-                            ob.OnError(ex);
-                        },
-                        () =>
-                        {
-                            Log.Debug("Device", "Task completed - releasing lock");
-                            pastGate = false;
-                            this.reset.Set();
-                            ob.OnCompleted();
-                        }
-                    );
-                }
-
-                return () =>
-                {
-                    cancel = true;
-                    sub?.Dispose();
-
-                    if (pastGate)
-                    {
-                        Log.Debug("Device", "Cleanup releasing lock");
-                        reset.Set();
-                    }
-                };
-            });
-        }
-
-
-        public IObservable<Unit> Marshall(Action action) => Observable.Create<Unit>(ob =>
-        {
-            if (CrossBleAdapter.AndroidPerformActionsOnMainThread)
-            {
-                Application.SynchronizationContext.Post(_ =>
-                {
-                    try
-                    {
-                        action();
-                        ob.Respond(Unit.Default);
-                    }
-                    catch (System.Exception ex)
-                    {
-                        ob.OnError(ex);
-                    }
-                }, null);
-            }
-            else
-            {
-                action();
-                ob.Respond(Unit.Default);
-            }
-            return Disposable.Empty;
-        });
-
-
-        public IObservable<Unit> Reconnect(ConnectionPriority priority)
-        {
             if (this.Gatt == null)
                 throw new ArgumentException("Device is not in a reconnectable state");
 
-            return this.Marshall(() => this.Gatt.Connect());
+            this.InvokeOnMainThread(() => this.Gatt.Connect());
         }
 
 
-        public IObservable<Unit> Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.Marshall(() =>
+        public void Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.InvokeOnMainThread(() =>
         {
             this.CreateGatt(androidAutoReconnect);
             if (this.Gatt != null && priority != ConnectionPriority.Normal)
                 this.Gatt.RequestConnectionPriority(this.ToNative(priority));
         });
+
+
+        public void InvokeOnMainThread(Action action)
+        {
+            // TODO: should protect the main thread here
+            if (AndroidBleConfiguration.ShouldInvokeOnMainThread)
+            {
+                if (Application.SynchronizationContext == SynchronizationContext.Current)
+                {
+                    action();
+                }
+                else
+                {
+                    Application.SynchronizationContext.Post(_ => action(), null);
+                }
+            }
+            else
+            {
+                action();
+            }
+        }
 
 
         public void Close()
@@ -254,6 +184,7 @@ namespace Plugin.BluetoothLE.Internals
             var instance = (BluetoothGatt)ctor.NewInstance(args);
             return instance;
         }
+
 
         BluetoothGatt ConnectGattCompat(bool autoConnect) => Build.VERSION.SdkInt >= BuildVersionCodes.M
             ? this.NativeDevice.ConnectGatt(Application.Context, autoConnect, this.Callbacks, BluetoothTransports.Le)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 
 namespace Plugin.BluetoothLE
@@ -19,7 +20,7 @@ namespace Plugin.BluetoothLE
         public Guid Uuid { get; }
         public bool IsPrimary { get; }
 
-        public abstract IObservable<IGattCharacteristic> WhenCharacteristicDiscovered();
+        public abstract IConnectableObservable<IGattCharacteristic> WhenCharacteristicDiscovered();
 
         public virtual string Description => Dictionaries.GetServiceDescription(this.Uuid);
         public virtual IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds)

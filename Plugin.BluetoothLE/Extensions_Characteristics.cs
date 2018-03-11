@@ -64,15 +64,10 @@ namespace Plugin.BluetoothLE
 
 
         public static IObservable<CharacteristicGattResult> ReadInterval(this IGattCharacteristic character, TimeSpan timeSpan)
-            => Observable.Create<CharacteristicGattResult>(ob =>
-                Observable
-                    .Interval(timeSpan)
-                    .Subscribe(async _ =>
-                    {
-                        // BAD
-                        var read = await character.Read();
-                        ob.OnNext(read);
-                    }));
+            => Observable
+                .Interval(timeSpan)
+                .Select(_ => character.Read())
+                .Switch();
 
 
         public static IObservable<CharacteristicGattResult> WhenReadOrNotify(this IGattCharacteristic character, TimeSpan readInterval)

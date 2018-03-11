@@ -58,6 +58,7 @@ namespace Plugin.BluetoothLE
                 .Switch();
         }
 
+
         public static IObservable<CharacteristicGattResult> ReadCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid)
         {
             device.Connect();

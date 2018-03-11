@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive;
+using System.Reactive.Subjects;
 
 
 namespace Plugin.BluetoothLE
@@ -56,14 +57,13 @@ namespace Plugin.BluetoothLE
         /// Monitor connection status
         /// </summary>
         /// <returns></returns>
-        IObservable<ConnectionStatus> WhenStatusChanged();
+        IConnectableObservable<ConnectionStatus> WhenStatusChanged();
 
         /// <summary>
         /// BLE service discovery - This method does not complete.  It will clear all discovered services on subsequent connections
         /// and does not require a connection to hook to it.
         /// </summary>
-        IObservable<IGattService> WhenServiceDiscovered();
-
+        IConnectableObservable<IGattService> WhenServiceDiscovered();
 
         /// <summary>
         /// Searches for a known service
@@ -106,7 +106,7 @@ namespace Plugin.BluetoothLE
         /// Fires when MTU size changes
         /// </summary>
         /// <returns>The mtu change requested.</returns>
-        IObservable<int> WhenMtuChanged();
+        IConnectableObservable<int> WhenMtuChanged();
 
         /// <summary>
         /// Begins a reliable write transaction

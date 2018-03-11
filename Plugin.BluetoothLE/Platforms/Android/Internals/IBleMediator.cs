@@ -3,8 +3,8 @@
 
 namespace Plugin.BluetoothLE.Internals
 {
-    public interface IBleMediator
+    public interface IBleMediator : IDisposable
     {
-        IObservable<T> Invoke<T>(IDevice device, Action triggerAction, IObservable<T> observable);
+        IObservable<T> Invoke<T>(IObservable<T> observable);
     }
 }

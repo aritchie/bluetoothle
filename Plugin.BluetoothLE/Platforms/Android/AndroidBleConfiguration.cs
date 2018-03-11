@@ -7,6 +7,20 @@ namespace Plugin.BluetoothLE
 {
     public static class AndroidBleConfiguration
     {
+        public static bool IsMainThreadSuggested =>
+            Build.VERSION.SdkInt < BuildVersionCodes.Kitkat || (
+                Build.VERSION.SdkInt < BuildVersionCodes.N &&
+                Build.Manufacturer.Equals("samsung", StringComparison.CurrentCultureIgnoreCase)
+            );
+
+
+        /// <summary>
+        /// If you disable this, you need to manage serial/sequential access to ALL bluetooth operations yourself!
+        /// DO NOT CHANGE this if you don't know what this is!
+        /// </summary>
+        public static bool ShouldInvokeOnMainThread { get; set; } = IsMainThreadSuggested;
+
+
         /// <summary>
         /// Specifies the number of Gatt.Connect attempts that will be run before handing off to NativeDevice.ConnectGatt(autoReconnect);
         /// DO NOT CHANGE this if you don't know what this is!
