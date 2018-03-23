@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
@@ -71,9 +70,9 @@ namespace Plugin.BluetoothLE
 
 
         static async Task<IGattCharacteristic> FindCharacteristic(IDevice device) => await device
-            .WhenServiceDiscovered()
+            .DiscoverServices()
             .Where(x => x.Uuid.Equals(HeartRateServiceUuid))
-            .SelectMany(x => x.WhenCharacteristicDiscovered())
+            .SelectMany(x => x.DiscoverCharacteristics())
             .FirstOrDefaultAsync();
     }
 }

@@ -57,13 +57,13 @@ namespace Plugin.BluetoothLE
         /// Monitor connection status
         /// </summary>
         /// <returns></returns>
-        IConnectableObservable<ConnectionStatus> WhenStatusChanged();
+        IObservable<ConnectionStatus> WhenStatusChanged();
 
         /// <summary>
         /// BLE service discovery - This method does not complete.  It will clear all discovered services on subsequent connections
         /// and does not require a connection to hook to it.
         /// </summary>
-        IConnectableObservable<IGattService> WhenServiceDiscovered();
+        IObservable<IGattService> DiscoverServices();
 
         /// <summary>
         /// Searches for a known service
@@ -106,7 +106,7 @@ namespace Plugin.BluetoothLE
         /// Fires when MTU size changes
         /// </summary>
         /// <returns>The mtu change requested.</returns>
-        IConnectableObservable<int> WhenMtuChanged();
+        IObservable<int> WhenMtuChanged();
 
         /// <summary>
         /// Begins a reliable write transaction

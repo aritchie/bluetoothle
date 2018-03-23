@@ -56,7 +56,7 @@ namespace Plugin.BluetoothLE.Tests
             this.Output.WriteLine("Found known service - detecting characteristics");
 
             var characteristics = await service
-                .WhenCharacteristicDiscovered()
+                .DiscoverCharacteristics()
                 .Take(5)
                 .Timeout(to)
                 .ToList()

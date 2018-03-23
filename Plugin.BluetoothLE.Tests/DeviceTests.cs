@@ -25,11 +25,11 @@ namespace Plugin.BluetoothLE.Tests
 
             var count = 0;
             await this.FindTestDevice();
-            this.Device.WhenServiceDiscovered().Subscribe(_ => count++);
+            this.Device.DiscoverServices().Subscribe(_ => count++);
 
-            await this.Device.Connect(new GattConnectionConfig
+            await this.Device.ConnectWait(new GattConnectionConfig
             {
-                AutoConnect = autoConnect,
+                AndroidAutoConnect = autoConnect,
                 IsPersistent = true
             });
             await UserDialogs.Instance.AlertAsync("Now turn device off & press OK");

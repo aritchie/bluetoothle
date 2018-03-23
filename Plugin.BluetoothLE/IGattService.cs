@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reactive.Subjects;
 
 
 namespace Plugin.BluetoothLE
@@ -21,7 +20,7 @@ namespace Plugin.BluetoothLE
         /// <summary>
         /// This will return a repeatable observable of discovered characteristics
         /// </summary>
-        IConnectableObservable<IGattCharacteristic> WhenCharacteristicDiscovered();
+        IObservable<IGattCharacteristic> DiscoverCharacteristics();
 
         /// <summary>
         /// Search for known characteristics

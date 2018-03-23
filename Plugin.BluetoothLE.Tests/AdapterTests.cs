@@ -58,7 +58,7 @@ namespace Plugin.BluetoothLE.Tests
                     ScanType = BleScanType.Balanced,
                     ServiceUuids =
                     {
-                        ScratchServiceUuid
+                        Constants.ScratchServiceUuid
                     }
                 })
                 .Take(1)

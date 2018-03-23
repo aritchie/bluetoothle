@@ -41,9 +41,9 @@ namespace Plugin.BluetoothLE
             this.AssertWrite(false);
 
             CharacteristicGattResult result = null;
-            try
+            this.context.InvokeOnMainThread(() =>
             {
-                await this.context.Marshall(() =>
+                try
                 {
                     this.native.WriteType = GattWriteType.NoResponse;
 
@@ -55,14 +55,12 @@ namespace Plugin.BluetoothLE
 
                     else
                         result = this.ToResult(GattEvent.WriteError, "Failed to write to characteristic");
-                })
-                .ToTask(ct)
-                .ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                result = this.ToResult(GattEvent.WriteError, ex.ToString());
-            }
+                }
+                catch (Exception ex)
+                {
+                    result = this.ToResult(GattEvent.WriteError, ex.ToString());
+                }
+            });
 
             return result;
         }));

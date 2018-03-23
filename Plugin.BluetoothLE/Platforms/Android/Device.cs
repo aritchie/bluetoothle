@@ -113,7 +113,7 @@ namespace Plugin.BluetoothLE
 
         // android does not have a find "1" service - it must discover all services.... seems shit
         public override IObservable<IGattService> GetKnownService(Guid serviceUuid) => this
-            .WhenServiceDiscovered()
+            .DiscoverServices()
             .Where(x => x.Uuid.Equals(serviceUuid))
             .Take(1)
             .Select(x => x);
@@ -126,7 +126,7 @@ namespace Plugin.BluetoothLE
 
 
         IConnectableObservable<ConnectionStatus> statusOb;
-        public override IConnectableObservable<ConnectionStatus> WhenStatusChanged()
+        public override IObservable<ConnectionStatus> WhenStatusChanged()
         {
             this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
             {
@@ -161,7 +161,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IGattService> serviceOb;
-        public override IObservable<IGattService> WhenServiceDiscovered()
+        public override IObservable<IGattService> DiscoverServices()
         {
             this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
             {
@@ -183,7 +183,7 @@ namespace Plugin.BluetoothLE
                     .Where(x => x == ConnectionStatus.Connected)
 
                     // this helps alleviate gatt 133 error
-                    .Delay(CrossBleAdapter.AndroidPauseBeforeServiceDiscovery)
+                    .Delay(AndroidBleConfiguration.AndroidPauseBeforeServiceDiscovery)
                     .Subscribe(_ =>
                     {
                         if (!this.context.Gatt.DiscoverServices())
@@ -426,18 +426,18 @@ namespace Plugin.BluetoothLE
 
             while (!ct.IsCancellationRequested &&
                    this.Status != ConnectionStatus.Connected &&
-                   attempts <= CrossBleAdapter.AndroidMaxAutoReconnectAttempts)
+                   attempts <= AndroidBleConfiguration.MaxAutoReconnectAttempts)
             {
                 Log.Write("Reconnect", "Reconnection Attempt " + attempts);
 
                 // breathe before attempting (again)
                 await Task.Delay(
-                    CrossBleAdapter.AndroidPauseBetweenAutoReconnectAttempts,
+                    AndroidBleConfiguration.PauseBetweenAutoReconnectAttempts,
                     ct
                 );
                 try
                 {
-                    await this.context.Reconnect(config.Priority);
+                    //await this.context.Reconnect(config.Priority);
                 }
                 catch (Exception ex)
                 {
@@ -469,7 +469,7 @@ namespace Plugin.BluetoothLE
                     Log.Debug("Reconnect", "Reconnection failed - handing off to android autoReconnect");
                     try
                     {
-                        await this.context.Connect(config.Priority, true);
+                        //await this.context.Connect(config.Priority, true);
                     }
                     catch (Exception ex)
                     {

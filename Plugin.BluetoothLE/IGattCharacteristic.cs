@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Reactive;
-using System.Reactive.Subjects;
 
 
 namespace Plugin.BluetoothLE
@@ -31,13 +29,13 @@ namespace Plugin.BluetoothLE
         /// This will only monitor any notifications to the characteristic if it is hooked.  It will not (un)subscribe them.  Use SubscribeToNotifications
         /// </summary>
         /// <returns></returns>
-        IConnectableObservable<CharacteristicGattResult> WhenNotificationReceived();
+        IObservable<CharacteristicGattResult> WhenNotificationReceived();
 
         /// <summary>
         /// Discovers descriptors for this characteristic
         /// </summary>
         /// <returns></returns>
-        IConnectableObservable<IGattDescriptor> WhenDescriptorDiscovered();
+        IObservable<IGattDescriptor> DiscoverDescriptors();
 
         /// <summary>
         /// This will fire and forget a write

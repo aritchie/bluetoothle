@@ -11,7 +11,7 @@
         <Description>Cross Platform Reactive Bluetooth LE Plugin for Xamarin
 
 Supported Platforms
-* .NET Standard 2
+* .NET Standard
 * Android 4.3+
 * iOS 7+
 * tvOS

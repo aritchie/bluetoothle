@@ -44,6 +44,13 @@ namespace Plugin.BluetoothLE.Internals
         });
 
 
+        public IObservable<T> Invoke<T>(IObservable<T> observable)
+        {
+            // TODO
+            return observable;
+        }
+
+
         public void InvokeOnMainThread(Action action)
         {
             // TODO: should protect the main thread here
