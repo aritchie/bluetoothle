@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 5.3.5
+* [fix][android] characteristic disconnect crash
+
 ## 5.3.4
 * The locking mechanism for android has been turned off by default
 
