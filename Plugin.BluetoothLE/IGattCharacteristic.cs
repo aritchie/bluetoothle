@@ -44,13 +44,6 @@ namespace Plugin.BluetoothLE
         IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value);
 
         /// <summary>
-        /// Used for writing blobs
-        /// </summary>
-        /// <param name="stream">The stream to send</param>
-        /// <param name="reliableWrite">Use reliable write atomic writing if available (windows and android)</param>
-        IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite = true);
-
-        /// <summary>
         /// Writes the value to the remote characteristic
         /// </summary>
         /// <param name="value">The bytes to send</param>
@@ -61,6 +54,13 @@ namespace Plugin.BluetoothLE
         /// </summary>
         /// <returns></returns>
         IObservable<CharacteristicGattResult> Read();
+
+        /// <summary>
+        /// Used for writing blobs
+        /// </summary>
+        /// <param name="stream">The stream to send</param>
+        /// <param name="reliableWrite">Use reliable write atomic writing if available (windows and android)</param>
+        IObservable<BleWriteSegment> BlobWrite(Stream stream, bool reliableWrite = true);
 
         /// <summary>
         /// Used for writing blobs

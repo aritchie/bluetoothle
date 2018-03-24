@@ -15,25 +15,22 @@ namespace Plugin.BluetoothLE
 
 
         public virtual string Name { get; protected set; }
-        public virtual  Guid Uuid { get; protected set; }
+        public virtual Guid Uuid { get; protected set; }
+        public virtual int MtuSize => 20;
+        public virtual PairingStatus PairingStatus => PairingStatus.Unavailiable;
+        public abstract object NativeDevice { get; }
         public abstract ConnectionStatus Status { get; }
         public abstract DeviceFeatures Features { get; }
-        public abstract object NativeDevice { get; }
 
         public abstract void Connect(GattConnectionConfig config);
         public abstract void CancelConnection();
         public abstract IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan);
         public abstract IObservable<ConnectionStatus> WhenStatusChanged();
         public abstract IObservable<IGattService> DiscoverServices();
-
         public virtual IObservable<string> WhenNameUpdated() => throw new NotImplementedException("WhenNameUpdated is not supported on this platform");
         public virtual IObservable<IGattService> GetKnownService(Guid serviceUuid) => throw new NotImplementedException("GetKnownService is not supported on this platform");
-
-        public virtual PairingStatus PairingStatus => PairingStatus.Unavailiable;
 		public virtual IObservable<bool> PairingRequest(string pin) => throw new ArgumentException("Pairing request is not supported on this platform");
-
-        public virtual int GetCurrentMtuSize() => 20;
-        public virtual IObservable<int> RequestMtu(int size) => Observable.Return(this.GetCurrentMtuSize());
+        public virtual IObservable<int> RequestMtu(int size) => Observable.Return(this.MtuSize);
         public virtual IObservable<int> WhenMtuChanged() => Observable.Empty<int>();
         public virtual IGattReliableWriteTransaction BeginReliableWriteTransaction() => new VoidGattReliableWriteTransaction();
     }

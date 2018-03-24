@@ -70,7 +70,7 @@
       <Version>5.0.0-beta3</Version>
     </PackageReference>
     <PackageReference Include="reactiveui" Version="8.0.0-alpha0105" />
-    <PackageReference Include="Xamarin.Forms" Version="2.5.0.122203" />
+    <PackageReference Include="Xamarin.Forms" Version="2.5.0.280555" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />

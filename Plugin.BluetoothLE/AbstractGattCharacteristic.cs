@@ -48,7 +48,7 @@ namespace Plugin.BluetoothLE
 
                 using (trans)
                 {
-                    var mtu = this.Service.Device.GetCurrentMtuSize();
+                    var mtu = this.Service.Device.MtuSize;
                     var buffer = new byte[mtu];
                     var read = stream.Read(buffer, 0, buffer.Length);
                     var pos = read;

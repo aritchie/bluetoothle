@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Reactive;
-using System.Reactive.Subjects;
 
 
 namespace Plugin.BluetoothLE
@@ -29,6 +27,16 @@ namespace Plugin.BluetoothLE
         Guid Uuid { get; }
 
         /// <summary>
+        /// Gets the size of the current mtu.
+        /// </summary>
+        int MtuSize { get; }
+
+        /// <summary>
+        /// The current pairing status
+        /// </summary>
+        PairingStatus PairingStatus { get; }
+
+        /// <summary>
         /// The current connection status
         /// </summary>
         /// <value>The status.</value>
@@ -38,20 +46,12 @@ namespace Plugin.BluetoothLE
         /// Connect to a device
         /// </summary>
         /// <param name="config">Connection configuration</param>
-        /// <returns></returns>
         void Connect(GattConnectionConfig config = null);
 
         /// <summary>
         /// Disconnect from the device and cancel persistent connection
         /// </summary>
         void CancelConnection();
-
-        /// <summary>
-        /// Monitor when RSSI updates
-        /// </summary>
-        /// <param name="frequency"></param>
-        /// <returns></returns>
-        IObservable<int> WhenRssiUpdated(TimeSpan? frequency = null);
 
         /// <summary>
         /// Monitor connection status
@@ -72,17 +72,11 @@ namespace Plugin.BluetoothLE
         /// <returns></returns>
         IObservable<IGattService> GetKnownService(Guid serviceUuid);
 
-
         /// <summary>
         /// Monitor device name changes
         /// </summary>
         /// <returns></returns>
         IObservable<string> WhenNameUpdated();
-
-        /// <summary>
-        /// The current pairing status
-        /// </summary>
-        PairingStatus PairingStatus { get; }
 
         /// <summary>
         /// Make a pairing request
@@ -95,12 +89,6 @@ namespace Plugin.BluetoothLE
         /// </summary>
         /// <param name="size"></param>
         IObservable<int> RequestMtu(int size);
-
-        /// <summary>
-        /// Gets the size of the current mtu.
-        /// </summary>
-        /// <returns>The current mtu size.</returns>
-        int GetCurrentMtuSize();
 
         /// <summary>
         /// Fires when MTU size changes

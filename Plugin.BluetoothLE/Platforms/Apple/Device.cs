@@ -181,55 +181,35 @@ namespace Plugin.BluetoothLE
             });
 
 
-        IObservable<IGattService> serviceOb;
-        public override IObservable<IGattService> WhenServiceDiscovered()
+        public override IObservable<IGattService> DiscoverServices() => Observable.Create<IGattService>(ob =>
         {
-            this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
+            Log.Info("Device", "service discovery hooked for device " + this.Uuid);
+            var services = new Dictionary<Guid, IGattService>();
+
+            var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
             {
-                Log.Info("Device", "service discovery hooked for device " + this.Uuid);
-                var services = new Dictionary<Guid, IGattService>();
+                if (this.peripheral.Services == null)
+                    return;
 
-                var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
+                foreach (var native in this.peripheral.Services)
                 {
-                    if (this.peripheral.Services == null)
-                        return;
-
-                    foreach (var native in this.peripheral.Services)
+                    var service = new GattService(this, native);
+                    if (!services.ContainsKey(service.Uuid))
                     {
-                        var service = new GattService(this, native);
-                        if (!services.ContainsKey(service.Uuid))
-                        {
-                            services.Add(service.Uuid, service);
-                            ob.OnNext(service);
-                        }
+                        services.Add(service.Uuid, service);
+                        ob.OnNext(service);
                     }
-                });
-                this.peripheral.DiscoveredService += handler;
+                }
+            });
+            this.peripheral.DiscoveredService += handler;
+            this.peripheral.DiscoverServices();
 
-                var sub = this.WhenStatusChanged()
-                    .Where(x => x == ConnectionStatus.Connected)
-                    .Delay(TimeSpan.FromMilliseconds(300))
-                    .Subscribe(_ =>
-                    {
-                        this.peripheral.DiscoverServices();
-                        Log.Info("Device", "service discovery running for device " + this.Uuid);
-                    });
-
-                return () =>
-                {
-                    sub.Dispose();
-                    this.peripheral.DiscoveredService -= handler;
-                };
-            })
-            .ReplayWithReset(this
-                .WhenStatusChanged()
-                .Skip(1)
-                .Where(x => x == ConnectionStatus.Disconnected)
-            )
-            .RefCount();
-
-            return this.serviceOb;
-        }
+            return () =>
+            {
+                sub.Dispose();
+                this.peripheral.DiscoveredService -= handler;
+            };
+        });
 
 
         public override IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan)
@@ -274,16 +254,14 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<int> WhenMtuChanged() => Observable.Return(this.GetCurrentMtuSize());
 
-
-        public override int GetCurrentMtuSize()
+        public override int MtuSize
         {
 #if __IOS__ || __TVOS__
-            return (int)this.peripheral.GetMaximumWriteValueLength(CBCharacteristicWriteType.WithResponse);
+            get => (int)this.peripheral.GetMaximumWriteValueLength(CBCharacteristicWriteType.WithResponse);
 #else
             // TODO: MAC
-            return 20;
+            get => 20;
 #endif
         }
 

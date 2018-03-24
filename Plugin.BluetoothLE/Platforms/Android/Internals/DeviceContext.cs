@@ -4,51 +4,76 @@ using Android.OS;
 using Java.Lang;
 using System;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using Plugin.BluetoothLE.Infrastructure;
 
 
 namespace Plugin.BluetoothLE.Internals
 {
+    //static TimeSpan? opPause;
+    ///// <summary>
+    ///// Time span to pause android operations
+    ///// DO NOT CHANGE this if you don't know what this is!
+    ///// </summary>
+    //public static TimeSpan? OperationPause
+    //{
+    //get
+    //{
+    //    if (opPause != null)
+    //        return opPause;
+
+    //    if (Build.VERSION.SdkInt < BuildVersionCodes.N)
+    //        return TimeSpan.FromMilliseconds(100);
+
+    //    return null;
+    //}
+    //set => opPause = value;
+    //}
     public class DeviceContext
     {
         public DeviceContext(BluetoothDevice device, GattCallbacks callbacks)
         {
             this.NativeDevice = device;
             this.Callbacks = callbacks;
+            this.Lock = new object();
         }
 
 
         public BluetoothGatt Gatt { get; private set; }
         public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
-
+        public object Lock { get; private set; }
 
         // issues will still arise if the user is doing discovery and data at the same time due to droid
         // TODO: this is botched, reconnect needs to wait?
         public void Reconnect(ConnectionPriority priority)
         {
-
             if (this.Gatt == null)
                 throw new ArgumentException("Device is not in a reconnectable state");
 
+            this.Lock = new object();
             this.InvokeOnMainThread(() => this.Gatt.Connect());
         }
 
 
         public void Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.InvokeOnMainThread(() =>
         {
+            this.Lock = new object();
             this.CreateGatt(androidAutoReconnect);
             if (this.Gatt != null && priority != ConnectionPriority.Normal)
                 this.Gatt.RequestConnectionPriority(this.ToNative(priority));
         });
 
 
-        public IObservable<T> Invoke<T>(IObservable<T> observable)
-        {
-            // TODO
-            return observable;
-        }
+        public IObservable<T> Invoke<T>(IObservable<T> observable) => Observable.Create<T>(ob =>
+            observable.Subscribe(
+                ob.OnNext,
+                ob.OnError,
+                ob.OnCompleted
+            )
+        )
+        .Synchronize(this.Lock);
 
 
         public void InvokeOnMainThread(Action action)
@@ -76,6 +101,7 @@ namespace Plugin.BluetoothLE.Internals
         {
             try
             {
+                this.Lock = new object();
                 this.Gatt?.Close();
                 this.Gatt = null;
             }

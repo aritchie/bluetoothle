@@ -17,13 +17,11 @@ namespace Plugin.BluetoothLE
     public class Adapter : AbstractAdapter
     {
         readonly AdapterContext context;
-        readonly Subject<bool> scanStatusChanged;
 
 
         public Adapter(BleAdapterConfiguration config = null)
         {
             this.context = new AdapterContext(config);
-            this.scanStatusChanged = new Subject<bool>();
 #if !__TVOS__
             this.Advertiser = new Advertiser();
 #endif
@@ -115,13 +113,6 @@ namespace Plugin.BluetoothLE
 #if __IOS__ || __TVOS__
         public override bool IsScanning => this.context.Manager.IsScanning;
 #endif
-
-
-        public override IObservable<bool> WhenScanningStatusChanged() =>
-            this.scanStatusChanged
-                .AsObservable()
-                .StartWith(this.IsScanning);
-
 
         public override IObservable<IScanResult> Scan(ScanConfig config)
         {
@@ -236,14 +227,5 @@ namespace Plugin.BluetoothLE
             this.context
                 .WhenWillRestoreState
                 .AsObservable();
-
-
-        void ToggleScanStatus(bool isScanning)
-        {
-            this.scanStatusChanged.OnNext(isScanning);
-#if MAC
-            this.IsScanning = isScanning;
-#endif
-        }
 	}
 }

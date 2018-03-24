@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
-using System.Threading;
 using System.Windows.Input;
 using Plugin.BluetoothLE;
 using Acr.UserDialogs;
 using ReactiveUI;
 using Samples.Services;
-using Xamarin.Forms;
 
 
 namespace Samples.ViewModels.Le
@@ -17,14 +13,12 @@ namespace Samples.ViewModels.Le
 
     public class DeviceViewModel : AbstractRootViewModel
     {
-        readonly IList<IDisposable> cleanup = new List<IDisposable>();
         IDevice device;
 
 
         public DeviceViewModel(ICoreServices services) : base(services)
         {
             this.SelectCharacteristic = ReactiveCommand.Create<GattCharacteristicViewModel>(x => x.Select());
-            this.SelectDescriptor = ReactiveCommand.Create<GattDescriptorViewModel>(x => x.Select());
 
             this.ConnectionToggle = ReactiveCommand.CreateFromTask(async x =>
             {
@@ -33,13 +27,7 @@ namespace Samples.ViewModels.Le
                     // don't cleanup connection - force user to d/c
                     if (this.device.Status == ConnectionStatus.Disconnected)
                     {
-                        using (var cancelSrc = new CancellationTokenSource())
-                        {
-                            using (this.Dialogs.Loading("Connecting", cancelSrc.Cancel, "Cancel"))
-                            {
-                                await this.device.ConnectWait().ToTask(cancelSrc.Token);
-                            }
-                        }
+                        this.device.Connect();
                     }
                     else
                     {
@@ -104,8 +92,8 @@ namespace Samples.ViewModels.Le
                     }
                 },
                 this.WhenAny(
-                    x => x.Status,
-                    x => x.Value == ConnectionStatus.Connected
+                    x => x.ConnectText,
+                    x => x.GetValue().Equals("Disconnect")
                 )
             );
         }
@@ -120,87 +108,36 @@ namespace Samples.ViewModels.Le
         public override void OnActivate()
         {
             base.OnActivate();
-            this.Name = this.device.Name;
-            this.Uuid = this.device.Uuid;
 
-            this.cleanup.Add(this.device
+            this.device
                 .WhenStatusChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe (x =>
+                .Subscribe(status =>
                 {
-                    this.Status = x;
-
-                    switch (x)
+                    switch (status)
                     {
-                        case ConnectionStatus.Disconnecting:
                         case ConnectionStatus.Connecting:
-                            this.ConnectText = x.ToString();
-                            break;
-
-                        case ConnectionStatus.Disconnected:
-                            this.ConnectText = "Connect";
-                            this.GattCharacteristics.Clear();
-                            this.GattDescriptors.Clear();
-                            this.Rssi = 0;
+                            this.ConnectText = "Cancel Connection";
                             break;
 
                         case ConnectionStatus.Connected:
                             this.ConnectText = "Disconnect";
                             break;
+
+                        case ConnectionStatus.Disconnected:
+                            this.ConnectText = "Connect";
+                            this.GattCharacteristics.Clear();
+                            break;
                     }
-                })
-            );
+                });
 
-            this.cleanup.Add(this.device
-                .WhenNameUpdated()
-                .Subscribe(x => this.Name = this.device.Name)
-            );
-
-            this.cleanup.Add(this.device
-                .WhenRssiUpdated()
+            this.device
+                .WhenAnyCharacteristicDiscovered()
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(rssi => this.Rssi = rssi)
-            );
-
-            this.cleanup.Add(this.device
-                .WhenMtuChanged()
-                .Skip(1)
-                .Subscribe(x => this.Dialogs.Alert($"MTU Changed size to {x}"))
-            );
-
-            this.cleanup.Add(this.device
-                .WhenServiceDiscovered()
-                .Subscribe(service =>
+                .Subscribe(chs =>
                 {
-                    var group = new Group<GattCharacteristicViewModel>(service.Uuid.ToString());
-                    service
-                        .WhenCharacteristicDiscovered()
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .Subscribe(character =>
-                        {
-                            var vm = new GattCharacteristicViewModel(this.Dialogs, character);
-                            group.Add(vm);
-                            if (group.Count == 1)
-                                this.GattCharacteristics.Add(group);
 
-                            character
-                                .WhenDescriptorDiscovered()
-                                .Subscribe(desc => Device.BeginInvokeOnMainThread(() =>
-                                {
-                                    var dvm = new GattDescriptorViewModel(this.Dialogs, desc);
-                                    this.GattDescriptors.Add(dvm);
-                                }));
-                        });
-                })
-            );
-        }
-
-
-        public override void OnDeactivate()
-        {
-            base.OnDeactivate();
-            foreach (var item in this.cleanup)
-                item.Dispose();
+                });
         }
 
 
@@ -208,50 +145,23 @@ namespace Samples.ViewModels.Le
         public ICommand PairToDevice { get; }
         public ICommand RequestMtu { get; }
         public ICommand SelectCharacteristic { get; }
-        public ICommand SelectDescriptor { get; }
 
 
-        string name;
-        public string Name
-        {
-            get => this.name;
-            private set => this.RaiseAndSetIfChanged(ref this.name, value);
-        }
+        public string Name => this.device.Name ?? "Unknown";
+        public Guid Uuid => this.device.Uuid;
+        public PairingStatus PairingStatus => this.device.PairingStatus;
+        public ObservableCollection<Group<GattCharacteristicViewModel>> GattCharacteristics { get; } = new ObservableCollection<Group<GattCharacteristicViewModel>>();
 
 
         string connectText = "Connect";
         public string ConnectText
         {
             get => this.connectText;
-            private set => this.RaiseAndSetIfChanged(ref this.connectText, value);
+            private set
+            {
+                this.RaiseAndSetIfChanged(ref this.connectText, value);
+                this.RaisePropertyChanged(nameof(IsConnected));
+            }
         }
-
-
-        Guid uuid;
-        public Guid Uuid
-        {
-            get => this.uuid;
-            private set => this.RaiseAndSetIfChanged(ref this.uuid, value);
-        }
-
-
-        int rssi;
-        public int Rssi
-        {
-            get => this.rssi;
-            private set => this.RaiseAndSetIfChanged(ref this.rssi, value);
-        }
-
-
-        ConnectionStatus status = ConnectionStatus.Disconnected;
-        public ConnectionStatus Status
-        {
-            get => this.status;
-            private set => this.RaiseAndSetIfChanged(ref this.status, value);
-        }
-
-
-        public ObservableCollection<Group<GattCharacteristicViewModel>> GattCharacteristics { get; } = new ObservableCollection<Group<GattCharacteristicViewModel>>();
-        public ObservableCollection<GattDescriptorViewModel> GattDescriptors { get; } = new ObservableCollection<GattDescriptorViewModel>();
     }
 }

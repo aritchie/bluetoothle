@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using Android.App;
 using Android.Bluetooth;
 using Android.Content;
@@ -17,15 +16,12 @@ namespace Plugin.BluetoothLE
     {
         readonly BluetoothManager manager;
         readonly AdapterContext context;
-        readonly Subject<bool> scanStatusChanged;
 
 
         public Adapter()
         {
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Application.BluetoothService);
             this.context = new AdapterContext(this.manager);
-            this.scanStatusChanged = new Subject<bool>();
-
             this.Advertiser = new Advertiser();
         }
 
@@ -36,7 +32,6 @@ namespace Plugin.BluetoothLE
 
         bool isScanning = false;
         public override bool IsScanning => this.isScanning;
-        //public override bool IsScanning => this.manager.Adapter.IsDiscovering;
 
 
         public override IDevice GetKnownDevice(Guid deviceId)
@@ -118,26 +113,15 @@ namespace Plugin.BluetoothLE
         public override IGattServer CreateGattServer() => new GattServer();
 
 
-        public override IObservable<bool> WhenScanningStatusChanged() => this.scanStatusChanged
-            .AsObservable()
-            .StartWith(this.IsScanning);
-
-
         public override IObservable<IScanResult> Scan(ScanConfig config)
         {
             if (this.IsScanning)
                 throw new ArgumentException("There is already an active scan");
 
             this.isScanning = true;
-            this.scanStatusChanged.OnNext(true);
-
             return this.context
                 .Scan(config ?? new ScanConfig())
-                .Finally(() =>
-                {
-                    this.isScanning = false;
-                    this.scanStatusChanged.OnNext(false);
-                });
+                .Finally(() => this.isScanning = false);
         }
 
 
@@ -147,7 +131,6 @@ namespace Plugin.BluetoothLE
                 return;
 
             this.isScanning = false;
-            this.scanStatusChanged.OnNext(false);
             this.context.StopScan();
         }
 

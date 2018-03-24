@@ -38,19 +38,19 @@ namespace Samples.ViewModels.Le
                     this.Title = $"BLE Scanner ({x})";
                 });
 
-            this.BleAdapter
-                .WhenScanningStatusChanged()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(on =>
-                {
-                    this.IsScanning = on;
-                    this.ScanText = on ? "Stop Scan" : "Scan";
-                });
+            //this.BleAdapter
+            //    .WhenScanningStatusChanged()
+            //    .ObserveOn(RxApp.MainThreadScheduler)
+            //    .Subscribe(on =>
+            //    {
+            //        this.IsScanning = on;
+            //        this.ScanText = on ? "Stop Scan" : "Scan";
+            //    });
 
             this.SelectDevice = ReactiveCommand.Create<ScanResultViewModel>(x =>
             {
                 this.scan?.Dispose();
-                services.VmManager.Push<DeviceViewModel>(x.Device);
+                //services.VmManager.Push<DeviceViewModel>(x.Device);
             });
 
             this.OpenSettings = ReactiveCommand.Create(() =>

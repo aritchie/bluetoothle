@@ -63,12 +63,6 @@ namespace Plugin.BluetoothLE
         IEnumerable<IDevice> GetPairedDevices();
 
         /// <summary>
-        /// Monitor for scanning status changes
-        /// </summary>
-        /// <returns></returns>
-        IObservable<bool> WhenScanningStatusChanged();
-
-        /// <summary>
         /// Start scanning for BluetoothLE devices
         /// WARNING: only one scan can be active at a time.  Use IsScanning to check for active scanning
         /// </summary>

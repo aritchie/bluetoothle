@@ -1,6 +1,5 @@
 ﻿using System;
 using Android.OS;
-using Plugin.BluetoothLE.Internals;
 
 
 namespace Plugin.BluetoothLE
@@ -43,10 +42,5 @@ namespace Plugin.BluetoothLE
 
 
         public static bool UseNewScanner { get; set; } = Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
-
-        /// <summary>
-        /// A fresh mediator is called per device connection
-        /// </summary>
-        public static Func<IDevice, IBleMediator> CreateMediator { get; set; }
     }
 }
