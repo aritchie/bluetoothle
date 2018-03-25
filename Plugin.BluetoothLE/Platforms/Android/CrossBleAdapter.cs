@@ -4,8 +4,14 @@ using Android.OS;
 
 namespace Plugin.BluetoothLE
 {
-    public static class AndroidBleConfiguration
+    public static partial class CrossBleAdapter
     {
+        static CrossBleAdapter()
+        {
+            Current = new Adapter();
+        }
+
+
         public static bool IsMainThreadSuggested =>
             Build.VERSION.SdkInt < BuildVersionCodes.Kitkat || (
                 Build.VERSION.SdkInt < BuildVersionCodes.N &&
