@@ -16,8 +16,8 @@
     <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
-    <AndroidUseLatestPlatformSdk>True</AndroidUseLatestPlatformSdk>
-    <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
+    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
+    <TargetFrameworkVersion>v7.1</TargetFrameworkVersion>
     <AndroidSupportedAbis>armeabi,armeabi-v7a,x86</AndroidSupportedAbis>
     <AndroidStoreUncompressedFileExtensions />
     <MandroidI18n />
@@ -58,20 +58,8 @@
     <DebugSymbols>False</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
-    <PackageReference Include="Plugin.Notifications">
-      <Version>5.0.0-beta3</Version>
-    </PackageReference>
     <PackageReference Include="reactiveui" Version="8.0.0-alpha0105" />
     <PackageReference Include="Xamarin.Forms" Version="2.5.0.280555" />
-    <PackageReference Include="Xamarin.Android.Support.v4" Version="26.1.0.1" />
-    <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="26.1.0.1" />
-    <PackageReference Include="Xamarin.Android.Support.Design" Version="26.1.0.1" />
-    <PackageReference Include="Xamarin.Android.Support.Annotations" Version="26.1.0.1" />
-    <PackageReference Include="Xamarin.Android.Support.Compat" Version="26.1.0.1" />
-    <PackageReference Include="Xamarin.Android.Support.v7.Palette" Version="26.1.0.1" />
-    <PackageReference Include="Xamarin.Android.Support.v7.MediaRouter" Version="26.1.0.1" />
-    <PackageReference Include="Xamarin.Android.Support.v7.CardView" Version="26.1.0.1" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Java.Interop" />

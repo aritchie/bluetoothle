@@ -6,26 +6,23 @@ using System.Windows.Input;
 using Acr.UserDialogs;
 using Plugin.BluetoothLE;
 using ReactiveUI;
-using Samples.Services;
-using Xamarin.Forms;
+using Samples.Infrastructure;
 
 
-namespace Samples.ViewModels.Le
+namespace Samples.Adapters
 {
-    public class AdapterListViewModel : AbstractViewModel
+    public class AdapterListViewModel : ViewModel
     {
         readonly IAdapterScanner scanner;
 
 
-        public AdapterListViewModel(IAdapterScanner scanner,
-                                    IUserDialogs dialogs,
-                                    IViewModelManager vmManager)
+        public AdapterListViewModel(IAdapterScanner scanner, IUserDialogs dialogs)
         {
             this.scanner = scanner;
             this.Select = ReactiveCommand.CreateFromTask<IAdapter>(async adapter =>
             {
                 CrossBleAdapter.Current = adapter;
-                await vmManager.Push<MainViewModel>();
+                //await vmManager.Push<MainViewModel>();
             });
             this.Scan = ReactiveCommand.Create(() =>
             {

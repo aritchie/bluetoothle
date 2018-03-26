@@ -1,9 +1,10 @@
 ﻿using System;
+using Acr.XamForms.Pages;
 
 
-namespace Samples.Pages.Le
+namespace Samples.Home
 {
-    public partial class LogPage : Samples.Pages.ContentPage
+    public partial class LogPage : ContentPage
     {
         public LogPage()
         {

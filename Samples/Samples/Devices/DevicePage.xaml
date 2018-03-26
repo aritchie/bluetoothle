@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<TabbedPage
-    xmlns="http://xamarin.com/schemas/2014/forms"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-	xmlns:local="clr-namespace:Samples.Pages.Le;assembly=Samples"
-    xmlns:controls="clr-namespace:Samples.Controls;assembly=Samples"
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:local="clr-namespace:Samples.Pages.Le;assembly=Samples"
     x:Class="Samples.Pages.Le.DevicePage"
     Title="{Binding Name}"
  	NavigationPage.BackButtonTitle="Back">
 
-	<TabbedPage.Children>
-    	<ContentPage Title="Device">
+    <TabbedPage.Children>
+        <ContentPage Title="Device">
             <TableView Intent="Form">
                 <TableRoot>
                     <TableSection Title="Information">
@@ -26,15 +24,17 @@
                     </TableSection>
                 </TableRoot>
             </TableView>
-		</ContentPage>
+        </ContentPage>
 
-		<ContentPage Title="Characteristics">
-           <controls:ListView
-                     ItemsSource="{Binding GattCharacteristics}"
+        <ContentPage Title="Characteristics">
+            <ListView ItemsSource="{Binding GattCharacteristics}"
                      IsGroupingEnabled="true"
                      GroupDisplayBinding="{Binding Name}"
                      ItemClickCommand="{Binding SelectCharacteristic}"
                      HasUnevenRows="true">
+                <behaviors:ItemTapped>
+
+                </behaviors:ItemTapped>
                 <ListView.GroupHeaderTemplate>
                     <DataTemplate>
                         <ViewCell Height="30">
@@ -60,29 +60,29 @@
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
+            </ListView>
+        </ContentPage>
+
+        <ContentPage Title="Descriptors">
+            <controls:ListView ItemsSource="{Binding GattDescriptors}" RowHeight="150" ItemClickCommand="{Binding SelectDescriptor}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout>
+                                    <Label Text="{Binding Description}" />
+                                    <Label Text="{Binding Uuid, StringFormat='UUID: {0}'}" />
+                                    <Label Text="{Binding Value, StringFormat='Value: {0}'}" IsVisible="{Binding IsValueAvailable}" />
+                                    <Label Text="{Binding LastValue, StringFormat='Last Value: {0:hh:mm:ss tt}'}" IsVisible="{Binding IsValueAvailable}" />
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
             </controls:ListView>
-		</ContentPage>
+        </ContentPage>
 
-		<ContentPage Title="Descriptors">
-		    <controls:ListView ItemsSource="{Binding GattDescriptors}" RowHeight="150" ItemClickCommand="{Binding SelectDescriptor}">
-		        <ListView.ItemTemplate>
-		            <DataTemplate>
-						<ViewCell>
-							<ViewCell.View>
-								<StackLayout>
-									<Label Text="{Binding Description}" />
-									<Label Text="{Binding Uuid, StringFormat='UUID: {0}'}" />
-									<Label Text="{Binding Value, StringFormat='Value: {0}'}" IsVisible="{Binding IsValueAvailable}" />
-									<Label Text="{Binding LastValue, StringFormat='Last Value: {0:hh:mm:ss tt}'}" IsVisible="{Binding IsValueAvailable}" />
-								</StackLayout>
-							</ViewCell.View>
-						</ViewCell>
-		            </DataTemplate>
-		        </ListView.ItemTemplate>
-		    </controls:ListView>
-		</ContentPage>
-
-		<local:LogPage Title="Logs" />
-	</TabbedPage.Children>
+        <local:LogPage Title="Logs" />
+    </TabbedPage.Children>
 
 </TabbedPage>

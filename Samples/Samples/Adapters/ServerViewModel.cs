@@ -6,19 +6,19 @@ using System.Windows.Input;
 using Plugin.BluetoothLE;
 using Plugin.BluetoothLE.Server;
 using ReactiveUI;
-using Samples.Services;
+using Samples.Infrastructure;
 using Device = Xamarin.Forms.Device;
 
 
-namespace Samples.ViewModels.Le
+namespace Samples.Adapters
 {
-    public class ServerViewModel : AbstractRootViewModel
+    public class ServerViewModel : ViewModel
     {
         IDisposable timer;
         IGattServer server;
 
 
-        public ServerViewModel(ICoreServices services) : base(services)
+        public ServerViewModel()
         {
             this.BleAdapter
                 .WhenStatusChanged()

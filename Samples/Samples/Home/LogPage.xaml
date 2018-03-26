@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<local:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<pages:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:Samples.Pages;assembly=Samples"
-    xmlns:controls="clr-namespace:Samples.Controls;assembly=Samples"
+    xmlns:pages="clr-namespace:Acr.XamForms.Pages;assembly=Acr.XamForms"
+    xmlns:behaviors="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
     x:Class="Samples.Pages.Le.LogPage"
     Title="Log">
     <ContentPage.ToolbarItems>
@@ -15,22 +15,26 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <controls:ListView
-					ItemsSource="{Binding Data}"
-					IsPullToRefreshEnabled="true"
-					IsRefreshing="{Binding IsRefreshing}"
-					RefreshCommand="{Binding Refresh}"
-					ItemClickCommand="{Binding Show}">
+            <ListView ItemsSource="{Binding Data}"
+					  IsPullToRefreshEnabled="true"
+				  	  IsRefreshing="{Binding IsRefreshing}"
+					  RefreshCommand="{Binding Refresh}">
+                <ListView.Behaviors>
+                    <behaviors:ItemTappedCommandBehavior Command="{Binding Show}" />
+                </ListView.Behaviors>
+
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <TextCell Text="{Binding TimestampLocal, StringFormat='{0:hh:mm:ss tt}'}" Detail="{Binding Description}" />
+                        <TextCell Text="{Binding TimestampLocal, StringFormat='{0:hh:mm:ss tt}'}"
+                                  Detail="{Binding Description}" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </controls:ListView>
+            </ListView>
+
             <StackLayout Orientation="Horizontal" Grid.Row="1">
                 <Switch IsToggled="{Binding IsLoggingEnabled}" />
                 <Label Text="Enable Logging" />
             </StackLayout>
         </Grid>
     </ContentPage.Content>
-</local:ContentPage>
+</pages:ContentPage>

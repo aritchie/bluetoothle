@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Windows.Input;
 using Plugin.BluetoothLE;
 using ReactiveUI;
-using Samples.Services;
+using Samples.Infrastructure;
 
 
-namespace Samples.ViewModels.Le
+namespace Samples.Adapters
 {
-    public class ScanViewModel : AbstractRootViewModel
+    public class ScanViewModel : ViewModel
     {
         IDisposable scan;
 
 
-        public ScanViewModel(ICoreServices services) : base(services)
+        public ScanViewModel()
         {
             this.Devices = new ObservableCollection<ScanResultViewModel>();
 

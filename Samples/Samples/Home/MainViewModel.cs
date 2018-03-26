@@ -1,25 +1,23 @@
 ﻿using System;
-using Samples.ViewModels.Le;
+using Samples.Infrastructure;
 
 
-namespace Samples.ViewModels
+namespace Samples.Home
 {
-    public class MainViewModel : AbstractViewModel
+    public class MainViewModel : ViewModel
     {
-        public MainViewModel(
-            ScanViewModel scanViewModel,
-            ConnectedDevicesViewModel connectViewModel,
-            ServerViewModel serverViewModel)
+        public MainViewModel(ScanViewModel scanViewModel,
+                             LogViewModel logs,
+                             ServerViewModel serverViewModel)
         {
             this.Scan = scanViewModel;
-            this.ConnectedDevices = connectViewModel;
+            this.Logs = logs;
             this.Server = serverViewModel;
         }
 
 
-        //public LogViewModel Logs { get; }
+        public LogViewModel Logs { get; }
         public ScanViewModel Scan { get; }
-        public ConnectedDevicesViewModel ConnectedDevices { get; }
         public ServerViewModel Server { get; }
     }
 }

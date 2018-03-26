@@ -1,9 +1,10 @@
 ﻿using System;
+using Acr.XamForms.Pages;
 
 
-namespace Samples.Pages.Le
+namespace Samples.Adapters
 {
-    public partial class ServerPage : Samples.Pages.ContentPage
+    public partial class ServerPage : ContentPage
     {
         public ServerPage()
         {

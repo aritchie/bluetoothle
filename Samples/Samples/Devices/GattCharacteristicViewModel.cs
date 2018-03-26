@@ -7,15 +7,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Acr;
-using Plugin.BluetoothLE;
 using Acr.UserDialogs;
+using Plugin.BluetoothLE;
 using ReactiveUI;
 using Xamarin.Forms;
+using Samples.Infrastructure;
 
 
-namespace Samples.ViewModels.Le
+namespace Samples.Devices
 {
-    public class GattCharacteristicViewModel : AbstractViewModel
+    public class GattCharacteristicViewModel : ViewModel
     {
         readonly IUserDialogs dialogs;
         IDisposable watcher;

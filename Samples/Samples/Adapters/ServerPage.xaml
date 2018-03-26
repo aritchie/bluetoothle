@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<local:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:Samples.Pages;assembly=Samples"
-             x:Class="Samples.Pages.Le.ServerPage"
-             Title="Server">
+<pages:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   xmlns:pages="clr-namespace:Acr.XamForms.Pages;assembly=Acr.XamForms"
+                   x:Class="Samples.Adapters.ServerPage"
+                   Title="Server">
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
@@ -26,4 +26,4 @@
         </Grid>
     </ContentPage.Content>
 
-</local:ContentPage>
+</pages:ContentPage>

@@ -2,11 +2,12 @@
 using System.Diagnostics;
 using Plugin.BluetoothLE;
 using ReactiveUI;
+using Samples.Infrastructure;
 
 
-namespace Samples.ViewModels.Le
+namespace Samples.Adapters
 {
-    public class ScanResultViewModel : AbstractViewModel
+    public class ScanResultViewModel : ViewModel
     {
         //IDisposable nameOb;
         public IDevice Device { get; private set; }

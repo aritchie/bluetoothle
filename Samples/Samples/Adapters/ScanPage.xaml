@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<local:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:Samples.Pages;assembly=Samples"
-             xmlns:controls="clr-namespace:Samples.Controls;assembly=Samples"
-             x:Class="Samples.Pages.Le.ScanPage"
-             Title="{Binding Title}">
+<pages:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   xmlns:pages="clr-namespace:Acr.XamForms.Pages;assembly=Acr.XamForms"
+                   xmlns:behaviors="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
+                   x:Class="Samples.Pages.Le.ScanPage"
+                   Title="{Binding Title}">
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="{Binding ScanText}" Command="{Binding ScanToggle}" Order="Secondary" />
@@ -14,7 +14,11 @@
 
     <ContentPage.Content>
         <StackLayout>
-			<controls:ListView ItemsSource="{Binding Devices}" RowHeight="160" ItemClickCommand="{Binding SelectDevice}">
+			<ListView ItemsSource="{Binding Devices}" RowHeight="160">
+			    <ListView.Behaviors>
+			        <behaviors:ItemTappedCommandBehavior Command="{Binding SelectDevice}" />
+			    </ListView.Behaviors>
+
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
@@ -49,8 +53,8 @@
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </controls:ListView>
+            </ListView>
             <ActivityIndicator IsRunning="{Binding IsScanning}" />
         </StackLayout>
     </ContentPage.Content>
-</local:ContentPage>
+</pages:ContentPage>
