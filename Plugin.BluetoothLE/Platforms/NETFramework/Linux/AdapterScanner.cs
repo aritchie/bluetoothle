@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using Tmds.DBus;
 
 
-namespace Plugin.BluetoothLE
+namespace Plugin.BluetoothLE.Linux
 {
     //https://github.com/brookpatten/Mono.BlueZ/blob/master/Mono.BlueZ.Console/BlendMicroBootstrap.cs
     public class AdapterScanner : IAdapterScanner

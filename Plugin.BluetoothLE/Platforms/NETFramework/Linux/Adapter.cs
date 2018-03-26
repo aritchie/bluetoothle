@@ -7,7 +7,7 @@ using Mono.BlueZ.DBus;
 using org.freedesktop.DBus;
 
 
-namespace Plugin.BluetoothLE
+namespace Plugin.BluetoothLE.Linux
 {
     public class Adapter : AbstractAdapter
     {
