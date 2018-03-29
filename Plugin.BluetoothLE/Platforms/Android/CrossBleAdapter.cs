@@ -23,7 +23,7 @@ namespace Plugin.BluetoothLE
         /// If you disable this, you need to manage serial/sequential access to ALL bluetooth operations yourself!
         /// DO NOT CHANGE this if you don't know what this is!
         /// </summary>
-        public static bool ShouldInvokeOnMainThread { get; set; } = IsMainThreadSuggested;
+        public static bool ShouldInvokeOnMainThread { get; set; } = true;
 
 
         /// <summary>
@@ -32,6 +32,11 @@ namespace Plugin.BluetoothLE
         /// </summary>
         public static uint MaxAutoReconnectAttempts { get; set; } = 5;
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static TimeSpan? PauseBetweenInvocations { get; set; }
 
         /// <summary>
         /// Time span to pause before service discovery (helps in combating GATT133 error) when service discovery is performed immediately after connection

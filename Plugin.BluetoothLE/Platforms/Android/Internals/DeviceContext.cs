@@ -3,47 +3,33 @@ using Android.Bluetooth;
 using Android.OS;
 using Java.Lang;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
+using Acr;
 using Plugin.BluetoothLE.Infrastructure;
 
 
 namespace Plugin.BluetoothLE.Internals
 {
-    //static TimeSpan? opPause;
-    ///// <summary>
-    ///// Time span to pause android operations
-    ///// DO NOT CHANGE this if you don't know what this is!
-    ///// </summary>
-    //public static TimeSpan? OperationPause
-    //{
-    //get
-    //{
-    //    if (opPause != null)
-    //        return opPause;
-
-    //    if (Build.VERSION.SdkInt < BuildVersionCodes.N)
-    //        return TimeSpan.FromMilliseconds(100);
-
-    //    return null;
-    //}
-    //set => opPause = value;
-    //}
     public class DeviceContext
     {
         public DeviceContext(BluetoothDevice device, GattCallbacks callbacks)
         {
             this.NativeDevice = device;
             this.Callbacks = callbacks;
-            this.Lock = new object();
+            this.Actions = new ConcurrentQueue<Func<Task>>();
         }
 
 
         public BluetoothGatt Gatt { get; private set; }
         public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
-        public object Lock { get; private set; }
+        public ConcurrentQueue<Func<Task>> Actions { get; }
+        //public object Lock { get; private set; }
 
         // issues will still arise if the user is doing discovery and data at the same time due to droid
         // TODO: this is botched, reconnect needs to wait?
@@ -52,14 +38,15 @@ namespace Plugin.BluetoothLE.Internals
             if (this.Gatt == null)
                 throw new ArgumentException("Device is not in a reconnectable state");
 
-            this.Lock = new object();
+            this.Actions.Clear();
             this.InvokeOnMainThread(() => this.Gatt.Connect());
         }
 
 
         public void Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.InvokeOnMainThread(() =>
         {
-            this.Lock = new object();
+            //this.Lock = new object();
+            this.Actions.Clear();
             this.CreateGatt(androidAutoReconnect);
             if (this.Gatt != null && priority != ConnectionPriority.Normal)
                 this.Gatt.RequestConnectionPriority(this.ToNative(priority));
@@ -67,19 +54,39 @@ namespace Plugin.BluetoothLE.Internals
 
 
         public IObservable<T> Invoke<T>(IObservable<T> observable) => Observable.Create<T>(ob =>
-            observable.Subscribe(
-                ob.OnNext,
-                ob.OnError,
-                ob.OnCompleted
-            )
-        )
-        .Synchronize(this.Lock);
+        {
+            var cancel = false;
+            this.Actions.Enqueue(async () =>
+            {
+                try
+                {
+                    if (!cancel)
+                    {
+                        var result = await observable.ToTask().ConfigureAwait(false);
+                        ob.Respond(result);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    ob.OnError(ex);
+                }
+            });
+            return () => cancel = true;
+        });
+
+        //public IObservable<T> Invoke<T>(IObservable<T> observable) => Observable.Create<T>(ob =>
+        //    observable.Subscribe(
+        //        ob.OnNext,
+        //        ob.OnError,
+        //        ob.OnCompleted
+        //    )
+        //)
+        //.Synchronize(this.Lock);
 
 
         public void InvokeOnMainThread(Action action)
         {
-            // TODO: should protect the main thread here
-            if (AndroidBleConfiguration.ShouldInvokeOnMainThread)
+            if (CrossBleAdapter.ShouldInvokeOnMainThread)
             {
                 if (Application.SynchronizationContext == SynchronizationContext.Current)
                 {
@@ -101,7 +108,8 @@ namespace Plugin.BluetoothLE.Internals
         {
             try
             {
-                this.Lock = new object();
+                this.Actions.Clear();
+                //this.Lock = new object();
                 this.Gatt?.Close();
                 this.Gatt = null;
             }
@@ -109,6 +117,24 @@ namespace Plugin.BluetoothLE.Internals
             {
                 Log.Warn("Device", "Unclean disconnect - " + ex);
             }
+        }
+
+
+        bool running;
+        async Task ProcessQueue()
+        {
+            if (this.running)
+                return;
+
+            this.running = true;
+            var ts = CrossBleAdapter.PauseBetweenInvocations;
+            while (this.Actions.TryDequeue(out Func<Task> task))
+            {
+                await task();
+                if (ts != null)
+                    await Task.Delay(ts.Value);
+            }
+            this.running = false;
         }
 
 
