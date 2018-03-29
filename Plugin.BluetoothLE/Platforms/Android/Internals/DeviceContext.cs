@@ -71,6 +71,8 @@ namespace Plugin.BluetoothLE.Internals
                     ob.OnError(ex);
                 }
             });
+            this.ProcessQueue(); // fire and forget
+
             return () => cancel = true;
         });
 
@@ -121,7 +123,7 @@ namespace Plugin.BluetoothLE.Internals
 
 
         bool running;
-        async Task ProcessQueue()
+        async void ProcessQueue()
         {
             if (this.running)
                 return;

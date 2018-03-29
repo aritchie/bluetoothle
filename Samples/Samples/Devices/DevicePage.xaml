@@ -30,11 +30,12 @@
             <ListView ItemsSource="{Binding GattCharacteristics}"
                      IsGroupingEnabled="true"
                      GroupDisplayBinding="{Binding Name}"
-                     ItemClickCommand="{Binding SelectCharacteristic}"
                      HasUnevenRows="true">
-                <behaviors:ItemTapped>
 
-                </behaviors:ItemTapped>
+                <ListView.Behaviors>
+                    <behaviors:ItemTappedCommandBehavior Command="{Binding SelectCharacteristic}" />
+                </ListView.Behaviors>
+
                 <ListView.GroupHeaderTemplate>
                     <DataTemplate>
                         <ViewCell Height="30">
