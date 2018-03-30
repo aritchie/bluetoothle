@@ -26,7 +26,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<Unit> Commit() => this.context.Lock(Observable.Create<Unit>(ob =>
+        public override IObservable<Unit> Commit() => this.context.Invoke(Observable.Create<Unit>(ob =>
         {
             this.AssertAction();
 

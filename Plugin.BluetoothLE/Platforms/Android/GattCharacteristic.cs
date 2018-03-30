@@ -171,8 +171,8 @@ namespace Plugin.BluetoothLE
             if (!this.context.Gatt.SetCharacteristicNotification(this.native, false))
                 return this.ToResult(GattEvent.NotificationError, "Could not set characteristic value");
 
-            if (CrossBleAdapter.AndroidOperationPause != null)
-                await Task.Delay(CrossBleAdapter.AndroidOperationPause.Value, ct);
+            if (CrossBleAdapter.PauseBetweenInvocations != null)
+                await Task.Delay(CrossBleAdapter.PauseBetweenInvocations.Value, ct);
 
             var result = await wrap
                 .Write(BluetoothGattDescriptor.DisableNotificationValue.ToArray())
