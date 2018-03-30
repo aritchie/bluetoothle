@@ -64,29 +64,39 @@ namespace Plugin.BluetoothLE.Tests
         {
             await this.FindTestDevice();
 
-            this.Device.WhenKnownCharacteristicsDiscovered(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1, Constants.ScratchCharacteristicUuid2);
-            await this.Device.ConnectWait();
+            await this.Device
+                .ConnectWait()
+                .Select(x => x.WhenKnownCharacteristicsDiscovered(
+                    Constants.ScratchServiceUuid,
+                    Constants.ScratchCharacteristicUuid1,
+                    Constants.ScratchCharacteristicUuid2
+                ))
+                .Take(5)
+                .Timeout(TimeSpan.FromSeconds(10))
+                .ToTask()
+                .ConfigureAwait(false);
         }
 
         [Fact]
         public async Task ReadWriteCharacteristicExtensions()
         {
             var dev = await this.FindTestDevice();
+
             await Task.WhenAll(
-                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1, new byte[] { 0x01 }).ToTask(),
-                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1).ToTask(),
+                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1, new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
+                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
 
-                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid2, new byte[] { 0x01 }).ToTask(),
-                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid2).ToTask(),
+                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid2, new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
+                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid2).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
 
-                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid3, new byte[] { 0x01 }).ToTask(),
-                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid3).ToTask(),
+                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid3, new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
+                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid3).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
 
-                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid4, new byte[] { 0x01 }).ToTask(),
-                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid4).ToTask(),
+                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid4, new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
+                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid4).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
 
-                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid5, new byte[] { 0x01 }).ToTask(),
-                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid5).ToTask()
+                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid5, new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
+                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid5).Timeout(TimeSpan.FromSeconds(7)).ToTask()
             );
         }
 
@@ -98,7 +108,7 @@ namespace Plugin.BluetoothLE.Tests
             var c2 = Constants.ScratchCharacteristicUuid2;
 
             await this.FindTestDevice();
-            await this.Device.Connect();
+            await this.Device.ConnectWait();
             var notifications = await this.Device
                 .GetKnownCharacteristics(Constants.ScratchServiceUuid, c1, c2)
                 .Timeout(TimeSpan.FromSeconds(5))
@@ -136,9 +146,9 @@ namespace Plugin.BluetoothLE.Tests
                     }
                 });
 
-            await this.Device.Connect(new GattConnectionConfig
+            await this.Device.ConnectWait(new GattConnectionConfig
             {
-                AutoConnect = autoConnect,
+                AndroidAutoConnect = autoConnect,
                 IsPersistent = true
             });
             await UserDialogs.Instance.AlertAsync("No turn device off - wait a 3 seconds then turn it back on - press OK if light goes green or you believe connection has failed");

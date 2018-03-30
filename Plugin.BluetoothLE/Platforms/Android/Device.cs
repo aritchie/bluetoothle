@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading;
-using System.Threading.Tasks;
 using Acr;
 using Android.Bluetooth;
 using Android.OS;
 using Plugin.BluetoothLE.Internals;
-using Plugin.BluetoothLE.Infrastructure;
 
 
 namespace Plugin.BluetoothLE
@@ -18,10 +14,8 @@ namespace Plugin.BluetoothLE
     public class Device : AbstractDevice
     {
         readonly Subject<ConnectionStatus> connSubject;
-        readonly Subject<GattStatus> connFailSubject;
         readonly BluetoothManager manager;
         readonly DeviceContext context;
-        IDisposable autoReconnectSub;
 
 
         public Device(BluetoothManager manager,
@@ -29,7 +23,6 @@ namespace Plugin.BluetoothLE
                       GattCallbacks callbacks) : base(native.Name, ToDeviceId(native.Address))
         {
             this.connSubject = new Subject<ConnectionStatus>();
-            this.connFailSubject = new Subject<GattStatus>();
             this.context = new DeviceContext(native, callbacks);
             this.manager = manager;
         }
@@ -39,73 +32,24 @@ namespace Plugin.BluetoothLE
         public override DeviceFeatures Features => DeviceFeatures.All;
 
 
-        public override ConnectionStatus Status
-        {
-            get
-            {
-                var state = this.manager.GetConnectionState(this.context.NativeDevice, ProfileType.Gatt);
-                switch (state)
-                {
-                    case ProfileState.Connected:
-                        return ConnectionStatus.Connected;
-
-                    case ProfileState.Connecting:
-                        return ConnectionStatus.Connecting;
-
-                    case ProfileState.Disconnecting:
-                        return ConnectionStatus.Disconnecting;
-
-                    case ProfileState.Disconnected:
-                    default:
-                        return ConnectionStatus.Disconnected;
-                }
-            }
-        }
+        public override ConnectionStatus Status => this
+            .manager
+            .GetConnectionState(this.context.NativeDevice, ProfileType.Gatt)
+            .ToStatus();
 
 
         public override void Connect(GattConnectionConfig config)
         {
-            //var connected = false;
             config = config ?? GattConnectionConfig.DefaultConfiguration;
-
-            //var sub1 = this.WhenStatusChanged()
-            //    .Where(x => x == ConnectionStatus.Connected)
-            //    .Subscribe(_ =>
-            //    {
-            //        connected = true;
-            //        if (config.IsPersistent)
-            //            this.autoReconnectSub = this.CreateAutoReconnectSubscription(config);
-
-            //        ob.Respond(Unit.Default);
-            //    });
-
-            //var sub2 = this.connFailSubject.Subscribe(x =>
-            //{
-            //    this.connSubject.OnNext(ConnectionStatus.Disconnected);
-            //    this.context.Gatt?.Close();
-            //    ob.OnError(new Exception("Connection failed - " + x));
-            //});
-
             this.connSubject.OnNext(ConnectionStatus.Connecting);
             this.context.Connect(config.Priority, config.AndroidAutoConnect);
-
-            //return () =>
-            //{
-            //    if (!connected)
-            //    {
-            //        this.context.Gatt?.Close();
-            //        this.connSubject.OnNext(ConnectionStatus.Disconnected);
-            //    }
-            //    sub1.Dispose();
-            //    sub2.Dispose();
-            //};
         }
 
 
         public override void CancelConnection()
         {
             this.connSubject.OnNext(ConnectionStatus.Disconnecting);
-            this.autoReconnectSub?.Dispose();
+            //this.autoReconnectSub?.Dispose();
             this.context.Close();
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
         }
@@ -125,7 +69,7 @@ namespace Plugin.BluetoothLE
             .Select(x => this.Name);
 
 
-        IConnectableObservable<ConnectionStatus> statusOb;
+        IObservable<ConnectionStatus> statusOb;
         public override IObservable<ConnectionStatus> WhenStatusChanged()
         {
             this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
@@ -135,14 +79,9 @@ namespace Plugin.BluetoothLE
                     .Callbacks
                     .ConnectionStateChanged
                     .Where(args => args.Gatt.Device.Equals(this.context.NativeDevice))
-                    .Subscribe(args =>
-                    {
-                        if (args.Status != GattStatus.Success)
-                            this.connFailSubject.OnNext(args.Status);
-
-                        // if failed, likely no reason to broadcast this
-                        ob.OnNext(this.Status);
-                    });
+                    .Select(x => x.NewState.ToStatus())
+                    .DistinctUntilChanged()
+                    .Subscribe(ob.OnNext);
 
                 return () =>
                 {
@@ -151,10 +90,8 @@ namespace Plugin.BluetoothLE
                 };
             })
             .StartWith(this.Status)
-            //.DistinctUntilChanged()
             .Replay(1)
-            .RefCount()
-            .Publish();
+            .RefCount();
 
             return this.statusOb;
         }
@@ -179,11 +116,10 @@ namespace Plugin.BluetoothLE
                     });
 
                 var sub2 = this
-                    .WhenStatusChanged()
-                    .Where(x => x == ConnectionStatus.Connected)
+                    .WhenConnected()
 
                     // this helps alleviate gatt 133 error
-                    .Delay(AndroidBleConfiguration.AndroidPauseBeforeServiceDiscovery)
+                    .Delay(CrossBleAdapter.PauseBeforeServiceDiscovery)
                     .Subscribe(_ =>
                     {
                         if (!this.context.Gatt.DiscoverServices())
@@ -370,7 +306,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override int GetCurrentMtuSize() => this.currentMtu;
+        public int MtuSize => this.currentMtu;
         public override int GetHashCode() => this.context.NativeDevice.GetHashCode();
 
 
@@ -408,77 +344,77 @@ namespace Plugin.BluetoothLE
         }
 
 
-        // TODO: do I need to watch for connection errors here?
-        IDisposable CreateAutoReconnectSubscription(GattConnectionConfig config) => this
-            .WhenStatusChanged()
-            .Skip(1) // skip the initial "Disconnected"
-            .Where(x => x == ConnectionStatus.Disconnected)
-            .Select(_ => Observable.FromAsync(ct1 => this.DoReconnect(config, ct1)))
-            .Merge()
-            .Subscribe();
+        //// TODO: do I need to watch for connection errors here?
+        //IDisposable CreateAutoReconnectSubscription(GattConnectionConfig config) => this
+        //    .WhenStatusChanged()
+        //    .Skip(1) // skip the initial "Disconnected"
+        //    .Where(x => x == ConnectionStatus.Disconnected)
+        //    .Select(_ => Observable.FromAsync(ct1 => this.DoReconnect(config, ct1)))
+        //    .Merge()
+        //    .Subscribe();
 
 
-        async Task DoReconnect(GattConnectionConfig config, CancellationToken ct)
-        {
-            Log.Debug("Reconnect", "Starting reconnection loop");
-            this.connSubject.OnNext(ConnectionStatus.Connecting);
-            var attempts = 1;
+        //async Task DoReconnect(GattConnectionConfig config, CancellationToken ct)
+        //{
+        //    Log.Debug("Reconnect", "Starting reconnection loop");
+        //    this.connSubject.OnNext(ConnectionStatus.Connecting);
+        //    var attempts = 1;
 
-            while (!ct.IsCancellationRequested &&
-                   this.Status != ConnectionStatus.Connected &&
-                   attempts <= AndroidBleConfiguration.MaxAutoReconnectAttempts)
-            {
-                Log.Write("Reconnect", "Reconnection Attempt " + attempts);
+        //    while (!ct.IsCancellationRequested &&
+        //           this.Status != ConnectionStatus.Connected &&
+        //           attempts <= AndroidBleConfiguration.MaxAutoReconnectAttempts)
+        //    {
+        //        Log.Write("Reconnect", "Reconnection Attempt " + attempts);
 
-                // breathe before attempting (again)
-                await Task.Delay(
-                    AndroidBleConfiguration.PauseBetweenAutoReconnectAttempts,
-                    ct
-                );
-                try
-                {
-                    //await this.context.Reconnect(config.Priority);
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Reconnect", "Error reconnecting " + ex);
-                }
-                attempts++;
-            }
-            if (this.Status != ConnectionStatus.Connected)
-                await this.DoFallbackReconnect(config, ct);
-        }
+        //        // breathe before attempting (again)
+        //        await Task.Delay(
+        //            AndroidBleConfiguration.PauseBetweenAutoReconnectAttempts,
+        //            ct
+        //        );
+        //        try
+        //        {
+        //            //await this.context.Reconnect(config.Priority);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Log.Warn("Reconnect", "Error reconnecting " + ex);
+        //        }
+        //        attempts++;
+        //    }
+        //    if (this.Status != ConnectionStatus.Connected)
+        //        await this.DoFallbackReconnect(config, ct);
+        //}
 
 
-        async Task DoFallbackReconnect(GattConnectionConfig config, CancellationToken ct)
-        {
-            if (this.Status == ConnectionStatus.Connected)
-            {
-                Log.Debug("Reconnect", "Reconnection successful");
-            }
-            else
-            {
-                this.context.Close(); // kill current gatt
+        //async Task DoFallbackReconnect(GattConnectionConfig config, CancellationToken ct)
+        //{
+        //    if (this.Status == ConnectionStatus.Connected)
+        //    {
+        //        Log.Debug("Reconnect", "Reconnection successful");
+        //    }
+        //    else
+        //    {
+        //        this.context.Close(); // kill current gatt
 
-                if (ct.IsCancellationRequested)
-                {
-                    Log.Debug("Reconnect", "Reconnection loop cancelled");
-                }
-                else
-                {
-                    Log.Debug("Reconnect", "Reconnection failed - handing off to android autoReconnect");
-                    try
-                    {
-                        //await this.context.Connect(config.Priority, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Reconnect", "Reconnection failed to hand off - " + ex);
-                    }
-                }
+        //        if (ct.IsCancellationRequested)
+        //        {
+        //            Log.Debug("Reconnect", "Reconnection loop cancelled");
+        //        }
+        //        else
+        //        {
+        //            Log.Debug("Reconnect", "Reconnection failed - handing off to android autoReconnect");
+        //            try
+        //            {
+        //                //await this.context.Connect(config.Priority, true);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Log.Error("Reconnect", "Reconnection failed to hand off - " + ex);
+        //            }
+        //        }
 
-            }
-        }
+        //    }
+        //}
 
         #endregion
     }

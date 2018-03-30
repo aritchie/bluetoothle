@@ -36,13 +36,14 @@ namespace Plugin.BluetoothLE
         public override byte[] Value => this.native.GetValue();
 
 
-        public override IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value) => this.context.Lock(Observable.FromAsync(async ct =>
+        public override IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value)
+            => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
         {
             this.AssertWrite(false);
 
-            CharacteristicGattResult result = null;
             this.context.InvokeOnMainThread(() =>
             {
+                CharacteristicGattResult result = null;
                 try
                 {
                     this.native.WriteType = GattWriteType.NoResponse;
@@ -60,13 +61,14 @@ namespace Plugin.BluetoothLE
                 {
                     result = this.ToResult(GattEvent.WriteError, ex.ToString());
                 }
+                ob.OnNext(result);
             });
 
-            return result;
+            return Disposable.Empty;
         }));
 
 
-        public override IObservable<CharacteristicGattResult> Write(byte[] value) => this.context.Lock(Observable.Create<CharacteristicGattResult>(async ob =>
+        public override IObservable<CharacteristicGattResult> Write(byte[] value) => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
         {
             this.AssertWrite(false);
 
@@ -86,24 +88,21 @@ namespace Plugin.BluetoothLE
                 });
 
             Log.Debug("Characteristic", "Hooking for write response - " + this.Uuid);
-            await this.context.Marshall(() =>
+            this.context.InvokeOnMainThread(() =>
             {
-
                 this.native.WriteType = GattWriteType.Default;
                 if (!this.native.SetValue(value))
                     ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to set characteristic value"));
 
                 else if (!this.context.Gatt.WriteCharacteristic(this.native))
                     ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to characteristic"));
-            })
-            .ToTask()
-            .ConfigureAwait(false);
+            });
 
             return sub;
         }));
 
 
-        public override IObservable<CharacteristicGattResult> Read() => this.context.Lock(Observable.Create<CharacteristicGattResult>(async ob =>
+        public override IObservable<CharacteristicGattResult> Read() => this.context.Invoke(Observable.Create<CharacteristicGattResult>(async ob =>
         {
             this.AssertRead();
 
@@ -120,20 +119,18 @@ namespace Plugin.BluetoothLE
                     ob.Respond(result);
                 });
 
-            await this.context.Marshall(() =>
+            this.context.InvokeOnMainThread(() =>
             {
                 if (!this.context.Gatt.ReadCharacteristic(this.native))
                     ob.Respond(this.ToResult(GattEvent.ReadError, "Failed to read characteristic"));
-            })
-            .ToTask()
-            .ConfigureAwait(false);
+            });
 
             return sub;
         }));
 
 
         // this should not be placed in a lock - let it fall to the descriptor
-        public override IObservable<CharacteristicGattResult> EnableNotifications(bool useIndicationsIfAvailable) => Observable.FromAsync(async ct =>
+        public override IObservable<CharacteristicGattResult> EnableNotifications(bool useIndicationsIfAvailable) => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
             if (descriptor == null)
@@ -141,10 +138,10 @@ namespace Plugin.BluetoothLE
 
             var wrap = new GattDescriptor(this, this.context, descriptor);
             if (!this.context.Gatt.SetCharacteristicNotification(this.native, true))
-                return this.ToResult(GattEvent.NotificationError, "Failed to set characteristic notification value");
+                this.ToResult(GattEvent.NotificationError, "Failed to set characteristic notification value");
 
-            if (CrossBleAdapter.AndroidOperationPause != null)
-                await Task.Delay(CrossBleAdapter.AndroidOperationPause.Value, ct);
+            //if (CrossBleAdapter.PauseBetweenInvocations != null)
+            //    await Task.Delay(CrossBleAdapter.PauseBetweenInvocations.Value, ct);
 
             var bytes = useIndicationsIfAvailable && this.CanIndicate()
                 ? BluetoothGattDescriptor.EnableIndicationValue.ToArray()
@@ -160,11 +157,11 @@ namespace Plugin.BluetoothLE
 
             this.IsNotifying = true;
             return this.ToResult(GattEvent.Notification, "");
-        });
+        }));
 
 
         //// this should not be placed in a lock - let it fall to the descriptor
-        public override IObservable<CharacteristicGattResult> DisableNotifications() => Observable.FromAsync(async ct =>
+        public override IObservable<CharacteristicGattResult> DisableNotifications() => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
             if (descriptor == null)
@@ -187,7 +184,7 @@ namespace Plugin.BluetoothLE
 
             this.IsNotifying = true;
             return this.ToResult(GattEvent.Notification, "");
-        });
+        }));
 
 
         IObservable<CharacteristicGattResult> notifyOb;
@@ -217,7 +214,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IGattDescriptor> descriptorOb;
-        public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
+        public override IObservable<IGattDescriptor> DiscoverDescriptors()
         {
             this.descriptorOb = this.descriptorOb ?? Observable.Create<IGattDescriptor>(ob =>
             {

@@ -26,7 +26,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IGattCharacteristic> characteristicOb;
-        public override IObservable<IGattCharacteristic> WhenCharacteristicDiscovered()
+        public override IObservable<IGattCharacteristic> DiscoverCharacteristics()
         {
             this.characteristicOb = this.characteristicOb ?? Observable.Create<IGattCharacteristic>(ob =>
             {
@@ -44,7 +44,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds) => this.context.Lock(
+        public override IObservable<IGattCharacteristic> GetKnownCharacteristics(params Guid[] characteristicIds) => this.context.Invoke(
             Observable.Create<IGattCharacteristic>(ob =>
             {
                 var cids = characteristicIds.Select(x => x.ToUuid()).ToArray();
@@ -58,7 +58,7 @@ namespace Plugin.BluetoothLE
 
                 return Disposable.Empty;
             })
-        , Gates.Discovery);
+        );
 
 
         public override bool Equals(object obj)

@@ -25,7 +25,7 @@ namespace Plugin.BluetoothLE
 
         public override byte[] Value => this.native.GetValue();
 
-        public override IObservable<DescriptorGattResult> Write(byte[] data) => this.context.Lock(Observable.Create<DescriptorGattResult>(async ob =>
+        public override IObservable<DescriptorGattResult> Write(byte[] data) => this.context.Invoke(Observable.Create<DescriptorGattResult>(ob =>
         {
             var sub = this.context
                 .Callbacks
@@ -40,22 +40,20 @@ namespace Plugin.BluetoothLE
                     ob.Respond(result);
                 });
 
-            await this.context.Marshall(() =>
+            this.context.InvokeOnMainThread(() =>
             {
                 if (!this.native.SetValue(data))
                     ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to set descriptor value"));
 
                 else if (!this.context.Gatt.WriteDescriptor(this.native))
                     ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to descriptor"));
-            })
-            .ToTask()
-            .ConfigureAwait(false);
+            });
 
             return sub;
         }));
 
 
-        public override IObservable<DescriptorGattResult> Read() => this.context.Lock(Observable.Create<DescriptorGattResult>(async ob =>
+        public override IObservable<DescriptorGattResult> Read() => this.context.Invoke(Observable.Create<DescriptorGattResult>(ob =>
         {
             var sub = this.context
                 .Callbacks
@@ -70,13 +68,11 @@ namespace Plugin.BluetoothLE
                     ob.Respond(result);
                 });
 
-            await this.context.Marshall(() =>
+            this.context.InvokeOnMainThread(() =>
             {
                 if (!this.context.Gatt.ReadDescriptor(this.native))
                     ob.Respond(this.ToResult(GattEvent.ReadError, "Failed to read descriptor"));
-            })
-            .ToTask()
-            .ConfigureAwait(false);
+            });
 
             return sub;
         }));

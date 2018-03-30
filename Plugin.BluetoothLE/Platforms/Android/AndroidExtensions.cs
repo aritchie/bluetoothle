@@ -12,6 +12,26 @@ namespace Plugin.BluetoothLE
 {
     public static class AndroidExtensions
     {
+        public static ConnectionStatus ToStatus(this ProfileState state)
+        {
+            switch (state)
+            {
+                case ProfileState.Connected:
+                    return ConnectionStatus.Connected;
+
+                case ProfileState.Connecting:
+                    return ConnectionStatus.Connecting;
+
+                case ProfileState.Disconnecting:
+                    return ConnectionStatus.Disconnecting;
+
+                case ProfileState.Disconnected:
+                default:
+                    return ConnectionStatus.Disconnected;
+            }
+        }
+
+
         public static Guid ToGuid(this byte[] uuidBytes)
         {
             Array.Reverse(uuidBytes);

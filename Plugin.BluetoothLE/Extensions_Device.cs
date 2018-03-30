@@ -13,10 +13,12 @@ namespace Plugin.BluetoothLE
         /// <param name="device"></param>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static IObservable<Unit> ConnectWait(this IDevice device, GattConnectionConfig config = null)
+        public static IObservable<IDevice> ConnectWait(this IDevice device, GattConnectionConfig config = null)
         {
             device.Connect(config);
-            return device.WhenConnected();
+            return device
+                .WhenConnected()
+                .Select(_ => device);
         }
 
 

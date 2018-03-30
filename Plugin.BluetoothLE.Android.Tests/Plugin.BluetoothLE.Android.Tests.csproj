@@ -85,7 +85,9 @@
     <Folder Include="Tests\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="xunit.runner.devices">
+      <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
+      <PackageReference Include="Xamarin.Android.Support.Design" Version="26.1.0.1" />
+      <PackageReference Include="xunit.runner.devices">
       <Version>2.3.3</Version>
     </PackageReference>
   </ItemGroup>
