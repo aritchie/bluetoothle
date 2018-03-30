@@ -10,7 +10,7 @@ using Samples.Infrastructure;
 using Device = Xamarin.Forms.Device;
 
 
-namespace Samples.Adapters
+namespace Samples.Ble
 {
     public class ServerViewModel : ViewModel
     {

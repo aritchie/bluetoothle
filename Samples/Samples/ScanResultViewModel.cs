@@ -5,7 +5,7 @@ using ReactiveUI;
 using Samples.Infrastructure;
 
 
-namespace Samples.Adapters
+namespace Samples.Ble
 {
     public class ScanResultViewModel : ViewModel
     {

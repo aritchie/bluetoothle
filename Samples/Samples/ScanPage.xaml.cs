@@ -1,9 +1,10 @@
 ﻿using System;
+using Acr.XamForms.Pages;
 
 
-namespace Samples.Pages.Le
+namespace Samples.Ble
 {
-    public partial class ScanPage : Samples.Pages.ContentPage
+    public partial class ScanPage : ContentPage
     {
         public ScanPage()
         {

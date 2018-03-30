@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <pages:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                   x:Class="Samples.Pages.Le.AdapterListPage"
+                   x:Class="Samples.Ble.AdapterListPage"
                    xmlns:pages="clr-namespace:Acr.XamForms.Pages;assembly=Acr.XamForms"
                    xmlns:behaviors="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
                    Title="BLE Plugin (Adapter List)">

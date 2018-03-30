@@ -7,7 +7,7 @@ using ReactiveUI;
 using Samples.Infrastructure;
 
 
-namespace Samples.Devices
+namespace Samples.Ble
 {
     public class DeviceViewModel : ViewModel
     {

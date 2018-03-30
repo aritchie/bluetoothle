@@ -2,11 +2,11 @@
 using Xamarin.Forms;
 
 
-namespace Samples.Home
+namespace Samples.Ble
 {
-    public partial class MainPage : TabbedPage
+    public partial class DevicePage : TabbedPage
     {
-        public MainPage()
+        public DevicePage()
         {
             this.InitializeComponent();
         }

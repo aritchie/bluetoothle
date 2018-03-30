@@ -2,7 +2,7 @@
 using Xamarin.Forms;
 
 
-namespace Samples
+namespace Samples.Ble
 {
     public class App : Application
     {

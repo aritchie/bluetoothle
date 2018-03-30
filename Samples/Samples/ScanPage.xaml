@@ -3,7 +3,7 @@
                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                    xmlns:pages="clr-namespace:Acr.XamForms.Pages;assembly=Acr.XamForms"
                    xmlns:behaviors="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
-                   x:Class="Samples.Pages.Le.ScanPage"
+                   x:Class="Samples.Ble.ScanPage"
                    Title="{Binding Title}">
 
     <ContentPage.ToolbarItems>

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-            xmlns:local="clr-namespace:Samples.Pages.Le;assembly=Samples"
-    x:Class="Samples.Pages.Le.DevicePage"
-    Title="{Binding Name}"
- 	NavigationPage.BackButtonTitle="Back">
+            xmlns:local="clr-namespace:Samples.Ble;assembly=Samples"
+            xmlns:behaviors="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
+            x:Class="Samples.Ble.DevicePage"
+            Title="{Binding Name}"
+ 	        NavigationPage.BackButtonTitle="Back">
 
     <TabbedPage.Children>
         <ContentPage Title="Device">
@@ -65,7 +66,11 @@
         </ContentPage>
 
         <ContentPage Title="Descriptors">
-            <controls:ListView ItemsSource="{Binding GattDescriptors}" RowHeight="150" ItemClickCommand="{Binding SelectDescriptor}">
+            <ListView ItemsSource="{Binding GattDescriptors}" RowHeight="150" ItemClickCommand="{Binding SelectDescriptor}">
+                <ListView.Behaviors>
+                    <behaviors:ItemTappedCommandBehavior Command="{Binding SelectDescriptor}" />
+                </ListView.Behaviors>
+
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
@@ -80,7 +85,7 @@
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </controls:ListView>
+            </ListView>
         </ContentPage>
 
         <local:LogPage Title="Logs" />

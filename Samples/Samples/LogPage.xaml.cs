@@ -2,11 +2,11 @@
 using Acr.XamForms.Pages;
 
 
-namespace Samples.Adapters
+namespace Samples.Ble
 {
-    public partial class ServerPage : ContentPage
+    public partial class LogPage : ContentPage
     {
-        public ServerPage()
+        public LogPage()
         {
             this.InitializeComponent();
         }

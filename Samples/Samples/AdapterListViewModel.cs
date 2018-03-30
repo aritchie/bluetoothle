@@ -9,7 +9,7 @@ using ReactiveUI;
 using Samples.Infrastructure;
 
 
-namespace Samples.Adapters
+namespace Samples.Ble
 {
     public class AdapterListViewModel : ViewModel
     {
@@ -53,7 +53,7 @@ namespace Samples.Adapters
         }
 
 
-        public override void OnActivate()
+        public override void OnActivated()
         {
             base.OnActivate();
             this.Scan.Execute(null);

@@ -7,7 +7,7 @@ using Xamarin.Forms;
 using Log = Plugin.BluetoothLE.Infrastructure.Log;
 
 
-namespace Samples.Home
+namespace Samples.Ble
 {
     public class LogItem
     {

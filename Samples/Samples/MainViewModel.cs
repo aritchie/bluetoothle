@@ -2,7 +2,7 @@
 using Samples.Infrastructure;
 
 
-namespace Samples.Home
+namespace Samples.Ble
 {
     public class MainViewModel : ViewModel
     {
