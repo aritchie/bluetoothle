@@ -76,6 +76,12 @@ namespace Plugin.BluetoothLE.Internals
             return () => cancel = true;
         });
 
+
+        public async Task OpPause(CancellationToken? cancelToken = null)
+        {
+            if (CrossBleAdapter.PauseBetweenInvocations != null)
+                await Task.Delay(CrossBleAdapter.PauseBetweenInvocations.Value, cancelToken ?? CancellationToken.None);
+        }
         //public IObservable<T> Invoke<T>(IObservable<T> observable) => Observable.Create<T>(ob =>
         //    observable.Subscribe(
         //        ob.OnNext,

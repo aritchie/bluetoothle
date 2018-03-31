@@ -142,45 +142,6 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan) => Observable.Create<int>(ob =>
-        {
-            var ts = timeSpan ?? TimeSpan.FromSeconds(3);
-            IDisposable timer = null;
-
-            var sub1 = this.context
-                .Callbacks
-                .ReadRemoteRssi
-                .Where(x =>
-                    x.Gatt.Device.Equals(this.context.NativeDevice) &&
-                    x.IsSuccessful
-                )
-                .Subscribe(x => ob.OnNext(x.Rssi));
-
-            var sub2 = this
-                .WhenStatusChanged()
-                .Subscribe(x =>
-                {
-                    if (x == ConnectionStatus.Connected)
-                    {
-                        timer = Observable
-                            .Interval(ts)
-                            .Subscribe(_ => this.context.Gatt.ReadRemoteRssi());
-                    }
-                    else
-                    {
-                        timer?.Dispose();
-                    }
-                });
-
-            return () =>
-            {
-                timer?.Dispose();
-                sub1.Dispose();
-                sub2.Dispose();
-            };
-        });
-
-
         public override IObservable<bool> PairingRequest(string pin) => Observable.Create<bool>(ob =>
         {
             IDisposable requestOb = null;

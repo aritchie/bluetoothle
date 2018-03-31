@@ -129,8 +129,7 @@ namespace Plugin.BluetoothLE
         }));
 
 
-        // this should not be placed in a lock - let it fall to the descriptor
-        public override IObservable<CharacteristicGattResult> EnableNotifications(bool useIndicationsIfAvailable) => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
+        public override IObservable<CharacteristicGattResult> EnableNotifications(bool useIndicationsIfAvailable) => this.context.Invoke(Observable.FromAsync(async ct =>
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
             if (descriptor == null)
@@ -140,8 +139,8 @@ namespace Plugin.BluetoothLE
             if (!this.context.Gatt.SetCharacteristicNotification(this.native, true))
                 this.ToResult(GattEvent.NotificationError, "Failed to set characteristic notification value");
 
-            //if (CrossBleAdapter.PauseBetweenInvocations != null)
-            //    await Task.Delay(CrossBleAdapter.PauseBetweenInvocations.Value, ct);
+            if (CrossBleAdapter.PauseBetweenInvocations != null)
+                await Task.Delay(CrossBleAdapter.PauseBetweenInvocations.Value, ct);
 
             var bytes = useIndicationsIfAvailable && this.CanIndicate()
                 ? BluetoothGattDescriptor.EnableIndicationValue.ToArray()
@@ -160,8 +159,7 @@ namespace Plugin.BluetoothLE
         }));
 
 
-        //// this should not be placed in a lock - let it fall to the descriptor
-        public override IObservable<CharacteristicGattResult> DisableNotifications() => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
+        public override IObservable<CharacteristicGattResult> DisableNotifications() => this.context.Invoke(Observable.FromAsync(async ct =>
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
             if (descriptor == null)

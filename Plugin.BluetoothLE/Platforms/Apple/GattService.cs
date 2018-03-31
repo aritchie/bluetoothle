@@ -53,7 +53,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IGattCharacteristic> characteristicOb;
-        public override IObservable<IGattCharacteristic> WhenCharacteristicDiscovered()
+        public override IObservable<IGattCharacteristic> DiscoverCharacteristics()
         {
             this.characteristicOb = this.characteristicOb ?? Observable.Create<IGattCharacteristic>(ob =>
             {

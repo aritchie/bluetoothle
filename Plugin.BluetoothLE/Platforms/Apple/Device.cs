@@ -17,7 +17,8 @@ namespace Plugin.BluetoothLE
         IDisposable autoReconnect;
 
 
-        public Device(AdapterContext context, CBPeripheral peripheral) : base(peripheral.Name, peripheral.Identifier.ToGuid())
+        public Device(AdapterContext context, CBPeripheral peripheral) : base(peripheral.Name,
+            peripheral.Identifier.ToGuid())
         {
             this.context = context;
             this.peripheral = peripheral;
@@ -30,7 +31,7 @@ namespace Plugin.BluetoothLE
 #if __IOS__ || __TVOS__
         public override DeviceFeatures Features => DeviceFeatures.MtuRequests;
 #else
-            // TODO: MAC
+// TODO: MAC
         public override DeviceFeatures Features => DeviceFeatures.None;
 #endif
 
@@ -58,45 +59,33 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<Unit> Connect(GattConnectionConfig config)
-            => Observable.Create<Unit>(ob =>
+        public override void Connect(GattConnectionConfig config)
+        {
+            config = config ?? GattConnectionConfig.DefaultConfiguration;
+
+            //if (config.IsPersistent)
+            //    this.autoReconnect = this.SetupAutoReconnect();
+            //sub2 = this.context
+            //    .FailedConnection
+            //    .Where(x => x.Peripheral.Equals(this.peripheral))
+            //    .Subscribe(x => ob.OnError(new Exception(x.Error.ToString())));
+            //            IDisposable SetupAutoReconnect() => this
+            //                .WhenStatusChanged()
+            //                .Where(x => x == ConnectionStatus.Disconnected)
+            //                .Subscribe(_ => this.DoConnection());
+
+
+            //            void DoConnection() => ;
+            //this.DoConnection();
+            this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
             {
-
-                config = config ?? GattConnectionConfig.DefaultConfiguration;
-                IDisposable sub1 = null;
-                IDisposable sub2 = null;
-
-                if (this.Status == ConnectionStatus.Connected)
-                {
-                    ob.Respond(Unit.Default);
-                }
-                else
-                {
-                    sub1 = this.context
-                        .PeripheralConnected
-                        .Where(x => x.Equals(this.peripheral))
-                        .Subscribe(x =>
-                        {
-                            if (config.IsPersistent)
-                                this.autoReconnect = this.SetupAutoReconnect();
-
-                            ob.Respond(Unit.Default);
-                        });
-
-                    sub2 = this.context
-                        .FailedConnection
-                        .Where(x => x.Peripheral.Equals(this.peripheral))
-                        .Subscribe(x => ob.OnError(new Exception(x.Error.ToString())));
-
-                    this.DoConnection();
-                }
-
-                return () =>
-                {
-                    sub1?.Dispose();
-                    sub2?.Dispose();
-                };
+                NotifyOnDisconnection = true,
+#if __IOS__ || __TVOS__
+                NotifyOnConnection = true,
+                NotifyOnNotification = true
+#endif
             });
+        }
 
 
         public override void CancelConnection()
@@ -204,55 +193,8 @@ namespace Plugin.BluetoothLE
             this.peripheral.DiscoveredService += handler;
             this.peripheral.DiscoverServices();
 
-            return () =>
-            {
-                sub.Dispose();
-                this.peripheral.DiscoveredService -= handler;
-            };
+            return () => this.peripheral.DiscoveredService -= handler;
         });
-
-
-        public override IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan)
-        {
-            var ts = timeSpan ?? TimeSpan.FromSeconds(3);
-
-#if __IOS__ || __TVOS__
-            return Observable.Create<int>(ob =>
-            {
-                var handler = new EventHandler<CBRssiEventArgs>((sender, args) => ob.OnNext(args.Rssi?.Int32Value ?? 0));
-                this.peripheral.RssiRead += handler;
-
-                var innerOb = Observable
-                    .Interval(ts)
-                    .Where(x => this.Status == ConnectionStatus.Connected)
-                    .Subscribe(_ => this.peripheral.ReadRSSI());
-
-                return () =>
-                {
-                    innerOb.Dispose();
-                    this.peripheral.RssiRead -= handler;
-                };
-            });
-#else
-            return Observable.Create<int>(ob =>
-            {
-                var handler = new EventHandler<NSErrorEventArgs>((sender, args) => ob.OnNext(this.peripheral.RSSI?.Int32Value ?? 0));
-                this.peripheral.RssiUpdated += handler;
-
-                var innerOb = Observable
-                    .Interval(ts)
-                    .Where(x => this.Status == ConnectionStatus.Connected)
-                    .Subscribe(_ => this.peripheral.ReadRSSI());
-
-                return () =>
-                {
-                    innerOb.Dispose();
-                    this.peripheral.RssiUpdated -= handler;
-                };
-            });
-#endif
-        }
-
 
 
         public override int MtuSize
@@ -283,21 +225,5 @@ namespace Plugin.BluetoothLE
 
 
         public override string ToString() => this.Uuid.ToString();
-
-
-        IDisposable SetupAutoReconnect() => this
-            .WhenStatusChanged()
-            .Where(x => x == ConnectionStatus.Disconnected)
-            .Subscribe(_ => this.DoConnection());
-
-
-        void DoConnection() => this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
-        {
-            NotifyOnDisconnection = true,
-#if __IOS__ || __TVOS__
-            NotifyOnConnection = true,
-            NotifyOnNotification = true
-#endif
-        });
     }
 }

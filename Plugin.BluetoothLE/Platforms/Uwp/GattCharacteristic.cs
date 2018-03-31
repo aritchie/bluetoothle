@@ -33,7 +33,7 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IGattDescriptor> descriptorOb;
-        public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
+        public override IObservable<IGattDescriptor> DiscoverDescriptors()
         {
             this.descriptorOb = this.descriptorOb ?? Observable.Create<IGattDescriptor>(async ob =>
             {

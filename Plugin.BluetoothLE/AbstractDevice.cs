@@ -24,7 +24,6 @@ namespace Plugin.BluetoothLE
 
         public abstract void Connect(GattConnectionConfig config);
         public abstract void CancelConnection();
-        public abstract IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan);
         public abstract IObservable<ConnectionStatus> WhenStatusChanged();
         public abstract IObservable<IGattService> DiscoverServices();
         public virtual IObservable<string> WhenNameUpdated() => throw new NotImplementedException("WhenNameUpdated is not supported on this platform");
