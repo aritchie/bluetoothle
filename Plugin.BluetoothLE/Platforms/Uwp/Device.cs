@@ -96,10 +96,6 @@ namespace Plugin.BluetoothLE
         //        .Properties["System.Devices.Aep.SignalStrength"]
         //    );
         // TODO: once the gatt connection is established, this guy will stop obviously!
-        public override IObservable<int> WhenRssiUpdated(TimeSpan? frequency) => this.adapterContext
-            .CreateAdvertisementWatcher(null)
-            .Where(x => x.BluetoothAddress == this.context.NativeDevice.BluetoothAddress)
-            .Select(x => (int)x.RawSignalStrengthInDBm);
 
 
         IObservable<IGattService> serviceOb;

@@ -68,7 +68,8 @@ namespace Plugin.BluetoothLE
         }));
 
 
-        public override IObservable<CharacteristicGattResult> Write(byte[] value) => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
+        public override IObservable<CharacteristicGattResult> Write(byte[] value)
+            => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
         {
             this.AssertWrite(false);
 
@@ -102,7 +103,8 @@ namespace Plugin.BluetoothLE
         }));
 
 
-        public override IObservable<CharacteristicGattResult> Read() => this.context.Invoke(Observable.Create<CharacteristicGattResult>(async ob =>
+        public override IObservable<CharacteristicGattResult> Read()
+            => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
         {
             this.AssertRead();
 
@@ -129,7 +131,8 @@ namespace Plugin.BluetoothLE
         }));
 
 
-        public override IObservable<CharacteristicGattResult> EnableNotifications(bool useIndicationsIfAvailable) => this.context.Invoke(Observable.FromAsync(async ct =>
+        public override IObservable<CharacteristicGattResult> EnableNotifications(bool useIndicationsIfAvailable)
+            => this.context.Invoke(Observable.FromAsync(async ct =>
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
             if (descriptor == null)
@@ -159,7 +162,8 @@ namespace Plugin.BluetoothLE
         }));
 
 
-        public override IObservable<CharacteristicGattResult> DisableNotifications() => this.context.Invoke(Observable.FromAsync(async ct =>
+        public override IObservable<CharacteristicGattResult> DisableNotifications()
+            => this.context.Invoke(Observable.FromAsync(async ct =>
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
             if (descriptor == null)

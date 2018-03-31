@@ -1,5 +1,6 @@
 ﻿using AppKit;
 using Foundation;
+using Samples.Ble;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
 

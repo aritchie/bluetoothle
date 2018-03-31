@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if __IOS__ || __MACOS__
+using System;
 using System.Linq;
 using CoreBluetooth;
 
@@ -31,3 +32,4 @@ namespace Plugin.BluetoothLE.Server
         }
     }
 }
+#endif

@@ -4,6 +4,7 @@ using Android;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Samples.Ble;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 

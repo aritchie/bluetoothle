@@ -3,47 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using CoreBluetooth;
-using Plugin.BluetoothLE.Server;
-#if __IOS__
-using UIKit;
-using Foundation;
-using ObjCRuntime;
-#endif
 
 
 namespace Plugin.BluetoothLE
 {
-    public class Adapter : AbstractAdapter
+    public partial class Adapter : AbstractAdapter
     {
         readonly AdapterContext context;
 
 
-        public Adapter(BleAdapterConfiguration config = null)
-        {
-            this.context = new AdapterContext(config);
-#if !__TVOS__
-            this.Advertiser = new Advertiser();
-#endif
-        }
-
-
         public override string DeviceName => "Default Bluetooth Device";
-#if __IOS__
-        public override AdapterFeatures Features
-        {
-            get
-            {
-                var v8or9 = UIDevice.CurrentDevice.CheckSystemVersion(8, 0) && !UIDevice.CurrentDevice.CheckSystemVersion(10, 0);
-                return v8or9
-                    ? AdapterFeatures.AllServer | AdapterFeatures.OpenSettings
-                    : AdapterFeatures.AllServer;
-            }
-        }
-#elif __MACOS__
-        public override AdapterFeatures Features => AdapterFeatures.AllServer;
-#elif __TVOS__
-        public override AdapterFeatures Features => AdapterFeatures.None;
-#endif
 
 
         public override AdapterStatus Status
@@ -100,18 +69,6 @@ namespace Plugin.BluetoothLE
             return this.statusOb;
         }
 
-#if __TVOS__
-        public override IGattServer CreateGattServer()
-        {
-            throw new Exception("GATT Servers are not supported on tvOS");
-        }
-#else
-        public override IGattServer CreateGattServer() => new GattServer();
-#endif
-
-#if __IOS__ || __TVOS__
-        public override bool IsScanning => this.context.Manager.IsScanning;
-#endif
 
         public override IObservable<IScanResult> Scan(ScanConfig config)
         {
@@ -180,44 +137,6 @@ namespace Plugin.BluetoothLE
             return this.deviceStatusOb;
         }
 
-#if __IOS__
-
-        public override void OpenSettings()
-        {
-            if (UIDevice.CurrentDevice.CheckSystemVersion(10, 0))
-            {
-                //var workSpaceClassId = Class.GetHandle("LSApplicationWorkspace");
-                //if (workSpaceClassId != IntPtr.Zero)
-                //{
-                //    var workSpaceClass = new NSObject(workSpaceClassId);
-                //    var workSpaceInstance = workSpaceClass.PerformSelector(new Selector("defaultWorkspace"));
-
-                //    var selector = new Selector("openSensitiveURL:withOptions:");
-                //    if (workSpaceInstance.RespondsToSelector(selector))
-                //    {
-                //        workSpaceInstance.PerformSelector(selector, new NSUrl("Prefs:root=Bluetooth"));
-                //    }
-                //}
-            }
-            else if (UIDevice.CurrentDevice.CheckSystemVersion(9, 0))
-            {
-                OpenUrl("prefs:root=Bluetooth");
-            }
-            else if (UIDevice.CurrentDevice.CheckSystemVersion(8, 0))
-            {
-                OpenUrl("prefs:root=General&path=Bluetooth");
-            }
-        }
-
-
-        static void OpenUrl(string url)
-        {
-            var nsurl = new NSUrl(url);
-            if (UIApplication.SharedApplication.CanOpenUrl(nsurl))
-                UIApplication.SharedApplication.OpenUrl(nsurl);
-        }
-
-#endif
 
         public override IObservable<IDevice> WhenDeviceStateRestored() =>
             this.context

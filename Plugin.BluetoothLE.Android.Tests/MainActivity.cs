@@ -20,7 +20,7 @@ namespace Plugin.BluetoothLE.Android.Tests
     {
         protected override void OnCreate(Bundle bundle)
         {
-            GattConnectionConfig.DefaultConfiguration.AutoConnect = false;
+            GattConnectionConfig.DefaultConfiguration.AndroidAutoConnect = false;
 
             this.RequestPermissions(new[]
             {

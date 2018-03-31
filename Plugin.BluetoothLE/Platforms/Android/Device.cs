@@ -267,7 +267,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public int MtuSize => this.currentMtu;
+        public override int MtuSize => this.currentMtu;
         public override int GetHashCode() => this.context.NativeDevice.GetHashCode();
 
 

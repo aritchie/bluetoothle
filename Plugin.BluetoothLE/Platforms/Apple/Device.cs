@@ -10,7 +10,7 @@ using Plugin.BluetoothLE.Infrastructure;
 
 namespace Plugin.BluetoothLE
 {
-    public class Device : AbstractDevice
+    public partial class Device : AbstractDevice
     {
         readonly AdapterContext context;
         readonly CBPeripheral peripheral;
@@ -27,13 +27,6 @@ namespace Plugin.BluetoothLE
 
         public CBPeripheral Peripheral => this.peripheral;
         public override object NativeDevice => this.peripheral;
-
-#if __IOS__ || __TVOS__
-        public override DeviceFeatures Features => DeviceFeatures.MtuRequests;
-#else
-// TODO: MAC
-        public override DeviceFeatures Features => DeviceFeatures.None;
-#endif
 
 
         public override ConnectionStatus Status
@@ -162,9 +155,7 @@ namespace Plugin.BluetoothLE
                     }
                 });
                 this.peripheral.DiscoveredService += handler;
-                this.WhenStatusChanged()
-                    .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(x => this.peripheral.DiscoverServices(new[] { serviceUuid.ToCBUuid() }));
+                this.peripheral.DiscoverServices(new[] {serviceUuid.ToCBUuid()});
 
                 return () => this.peripheral.DiscoveredService -= handler;
             });
@@ -195,17 +186,6 @@ namespace Plugin.BluetoothLE
 
             return () => this.peripheral.DiscoveredService -= handler;
         });
-
-
-        public override int MtuSize
-        {
-#if __IOS__ || __TVOS__
-            get => (int)this.peripheral.GetMaximumWriteValueLength(CBCharacteristicWriteType.WithResponse);
-#else
-            // TODO: MAC
-            get => 20;
-#endif
-        }
 
 
         public override int GetHashCode() => this.peripheral.GetHashCode();
