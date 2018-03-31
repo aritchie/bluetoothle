@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Plugin.BluetoothLE.Infrastructure;
 using NC = Windows.Devices.Bluetooth.GenericAttributeProfile.GattCharacteristic;
 
 
@@ -64,7 +65,7 @@ namespace Plugin.BluetoothLE
                 }
                 catch (Exception e)
                 {
-                    System.Diagnostics.Debug.WriteLine(e.ToString());
+                    Log.Info("Disconnect", e.ToString());
                 }
                 this.subscribers.Clear();
             }

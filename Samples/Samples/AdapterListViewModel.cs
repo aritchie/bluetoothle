@@ -43,7 +43,7 @@ namespace Samples.Ble
 
                                 case 1:
                                     CrossBleAdapter.Current = this.Adapters.First();
-                                    await vmManager.Push<MainViewModel>();
+                                    //await vmManager.Push<MainViewModel>();
                                     break;
                             }
                         }
@@ -55,7 +55,7 @@ namespace Samples.Ble
 
         public override void OnActivated()
         {
-            base.OnActivate();
+            base.OnActivated();
             this.Scan.Execute(null);
         }
 

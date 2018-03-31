@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using Windows.Devices.Bluetooth;
@@ -34,19 +35,7 @@ namespace Plugin.BluetoothLE
         public override IGattReliableWriteTransaction BeginReliableWriteTransaction() => new GattReliableWriteTransaction();
 
 
-        public override IObservable<Unit> Connect(GattConnectionConfig config)
-            => Observable.Create<Unit>(ob =>
-            {
-                var sub = this.WhenStatusChanged()
-                    .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(_ => ob.Respond(Unit.Default));
-
-                this.context.Connect();
-
-                return sub;
-            });
-
-
+        public override void Connect(GattConnectionConfig config) => this.context.Connect();
         public override async void CancelConnection() => await this.context.Disconnect();
 
 
@@ -114,37 +103,25 @@ namespace Plugin.BluetoothLE
 
 
         IObservable<IGattService> serviceOb;
-        public override IObservable<IGattService> WhenServiceDiscovered()
+        public override IObservable<IGattService> DiscoverServices()
         {
-            this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
+            this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(async ob =>
             {
-                var handler = new TypedEventHandler<BluetoothLEDevice, object>((sender, args) =>
+                //var handler = new TypedEventHandler<BluetoothLEDevice, object>((sender, args) =>
+                //{
+                //    //if (this.native.Equals(sender))
+                //});
+                //this.context.NativeDevice.GattServicesChanged += handler;
+
+                var result = await this.context.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached);
+                foreach (var nservice in result.Services)
                 {
-                    //if (this.native.Equals(sender))
-                });
-                this.context.NativeDevice.GattServicesChanged += handler;
+                    var service = new GattService(this.context, nservice);
+                    ob.OnNext(service);
+                }
 
-                var sub = this
-                    .WhenStatusChanged()
-                    .Where(x => x == ConnectionStatus.Connected)
-                    .Select(_ => Observable.FromAsync(async ct =>
-                    {
-                        var result = await this.context.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached);
-
-                        foreach (var nservice in result.Services)
-                        {
-                            var service = new GattService(this.context, nservice);
-                            ob.OnNext(service);
-                        }
-                    }))
-                    .Merge()
-                    .Subscribe();
-
-                return () =>
-                {
-                    sub.Dispose();
-                    this.context.NativeDevice.GattServicesChanged -= handler;
-                };
+                //return () => this.context.NativeDevice.GattServicesChanged -= handler;
+                return Disposable.Empty;
             })
             .ReplayWithReset(this.WhenStatusChanged()
                 .Skip(1)

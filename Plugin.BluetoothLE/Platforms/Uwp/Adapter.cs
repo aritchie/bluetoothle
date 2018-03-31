@@ -1,19 +1,17 @@
-﻿using System;
+﻿using Plugin.BluetoothLE.Server;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using Windows.Devices.Bluetooth;
-using Windows.Foundation;
 using Windows.Devices.Radios;
+using Windows.Foundation;
 using Windows.System;
-using Plugin.BluetoothLE.Server;
 
 
 namespace Plugin.BluetoothLE
 {
     public class Adapter : AbstractAdapter
     {
-        readonly Subject<bool> scanStatusSubject = new Subject<bool>();
         readonly AdapterContext context = new AdapterContext();
         BluetoothAdapter native;
         Radio radio;
@@ -55,19 +53,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        bool isScanning = false;
-        public override bool IsScanning
-        {
-            get => this.isScanning;
-            protected set
-            {
-                if (this.isScanning == value)
-                    return;
-
-                this.isScanning = value;
-                this.scanStatusSubject.OnNext(value);
-            }
-        }
+        public override bool IsScanning { get; protected set; }
 
 
         public override AdapterStatus Status
@@ -94,12 +80,6 @@ namespace Plugin.BluetoothLE
 
 
         public override IEnumerable<IDevice> GetConnectedDevices() => this.context.GetConnectedDevices();
-
-
-        public override IObservable<bool> WhenScanningStatusChanged()
-            => this.scanStatusSubject
-                .AsObservable()
-                .StartWith(this.IsScanning);
 
 
         public override IObservable<IScanResult> Scan(ScanConfig config)

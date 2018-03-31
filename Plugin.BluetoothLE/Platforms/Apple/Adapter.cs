@@ -150,13 +150,11 @@ namespace Plugin.BluetoothLE
                         this.context.Manager.ScanForPeripherals(uuids, new PeripheralScanningOptions { AllowDuplicatesKey = true });
                     }
                 }
-                this.ToggleScanStatus(true);
 
                 return () =>
                 {
                     this.context.Manager.StopScan();
                     scan.Dispose();
-                    this.ToggleScanStatus(false);
                 };
             });
         }
@@ -168,17 +166,16 @@ namespace Plugin.BluetoothLE
         IObservable<IDevice> deviceStatusOb;
         public override IObservable<IDevice> WhenDeviceStatusChanged()
         {
-            this.deviceStatusOb = this.deviceStatusOb ?? Observable.Merge(
+            this.deviceStatusOb = this.deviceStatusOb ??
                 this.context
                     .PeripheralConnected
-                    .Select(x => this.context.GetDevice(x)),
-
-                this.context
-                    .PeripheralDisconnected
                     .Select(x => this.context.GetDevice(x))
-            )
-            .Publish()
-            .RefCount();
+                    .Merge(this.context
+                        .PeripheralDisconnected
+                        .Select(x => this.context.GetDevice(x))
+                    )
+                    .Publish()
+                    .RefCount();
 
             return this.deviceStatusOb;
         }

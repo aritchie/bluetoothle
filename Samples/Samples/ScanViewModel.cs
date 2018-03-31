@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Windows.Input;
+using Acr.UserDialogs;
 using Plugin.BluetoothLE;
 using ReactiveUI;
 using Samples.Infrastructure;
@@ -11,14 +13,19 @@ namespace Samples.Ble
 {
     public class ScanViewModel : ViewModel
     {
+        readonly IUserDialogs dialogs;
+        readonly IAdapter adapter;
         IDisposable scan;
 
 
         public ScanViewModel()
         {
+            this.dialogs = UserDialogs.Instance;
+            this.adapter = CrossBleAdapter.Current;
+
             this.Devices = new ObservableCollection<ScanResultViewModel>();
 
-            this.BleAdapter
+            this.adapter
                 .WhenDeviceStatusChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
@@ -28,7 +35,7 @@ namespace Samples.Ble
                         vm.IsConnected = x.Status == ConnectionStatus.Connected;
                 });
 
-            this.BleAdapter
+            this.adapter
                 .WhenStatusChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
@@ -36,15 +43,6 @@ namespace Samples.Ble
                     this.IsSupported = x == AdapterStatus.PoweredOn;
                     this.Title = $"BLE Scanner ({x})";
                 });
-
-            //this.BleAdapter
-            //    .WhenScanningStatusChanged()
-            //    .ObserveOn(RxApp.MainThreadScheduler)
-            //    .Subscribe(on =>
-            //    {
-            //        this.IsScanning = on;
-            //        this.ScanText = on ? "Stop Scan" : "Scan";
-            //    });
 
             this.SelectDevice = ReactiveCommand.Create<ScanResultViewModel>(x =>
             {
@@ -54,29 +52,29 @@ namespace Samples.Ble
 
             this.OpenSettings = ReactiveCommand.Create(() =>
             {
-                if (this.BleAdapter.Features.HasFlag(AdapterFeatures.OpenSettings))
+                if (this.adapter.Features.HasFlag(AdapterFeatures.OpenSettings))
                 {
-                    this.BleAdapter.OpenSettings();
+                    this.adapter.OpenSettings();
                 }
                 else
                 {
-                    this.Dialogs.Alert("Cannot open bluetooth settings");
+                    this.dialogs.Alert("Cannot open bluetooth settings");
                 }
             });
 
             this.ToggleAdapterState = ReactiveCommand.Create(
                 () =>
                 {
-                    if (this.BleAdapter.CanControlAdapterState())
+                    if (this.adapter.CanControlAdapterState())
                     {
-                        this.BleAdapter.SetAdapterState(true);
+                        this.adapter.SetAdapterState(true);
                     }
                     else
                     {
-                        this.Dialogs.Alert("Cannot change bluetooth adapter state");
+                        this.dialogs.Alert("Cannot change bluetooth adapter state");
                     }
                 },
-                this.BleAdapter
+                this.adapter
                     .WhenStatusChanged()
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Select(x => x == AdapterStatus.PoweredOff)
@@ -94,7 +92,8 @@ namespace Samples.Ble
                         this.Devices.Clear();
                         this.ScanText = "Stop Scan";
 
-                        this.scan = this.BleAdapter
+                        this.scan = CrossBleAdapter
+                            .Current
                             .Scan()
                             .Buffer(TimeSpan.FromSeconds(1))
                             .ObserveOn(RxApp.MainThreadScheduler)
@@ -113,9 +112,9 @@ namespace Samples.Ble
         }
 
 
-        public override void OnDeactivate()
+        public override void OnDeactivated()
         {
-            base.OnDeactivate();
+            base.OnDeactivated();
             this.scan?.Dispose();
         }
 

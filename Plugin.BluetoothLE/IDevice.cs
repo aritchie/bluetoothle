@@ -3,7 +3,7 @@
 
 namespace Plugin.BluetoothLE
 {
-
+    // TODO: WhenStatusChanged (ConnectionError/Failed event for iOS and Android)
     public interface IDevice
     {
         /// <summary>

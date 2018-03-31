@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Windows.Input;
+using Acr.UserDialogs;
 using Plugin.BluetoothLE;
 using Plugin.BluetoothLE.Server;
 using ReactiveUI;
@@ -14,22 +15,27 @@ namespace Samples.Ble
 {
     public class ServerViewModel : ViewModel
     {
+        readonly IAdapter adapter;
+        readonly IUserDialogs dialogs;
         IDisposable timer;
         IGattServer server;
 
 
         public ServerViewModel()
         {
-            this.BleAdapter
+            this.adapter = CrossBleAdapter.Current;
+            this.dialogs = UserDialogs.Instance;
+
+            this.adapter
                 .WhenStatusChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => this.Status = x);
 
             this.ToggleServer = ReactiveCommand.Create(() =>
             {
-                if (this.BleAdapter.Status != AdapterStatus.PoweredOn)
+                if (this.adapter.Status != AdapterStatus.PoweredOn)
                 {
-                    this.Dialogs.Alert("Could not start GATT Server.  Adapter Status: " + this.BleAdapter.Status);
+                    this.dialogs.Alert("Could not start GATT Server.  Adapter Status: " + this.adapter.Status);
                     return;
                 }
 
@@ -40,7 +46,7 @@ namespace Samples.Ble
                 else
                 {
                     this.ServerText = "Start Server";
-                    this.BleAdapter.Advertiser.Stop();
+                    this.adapter.Advertiser.Stop();
                     this.OnEvent("GATT Server Stopped");
                     this.server.Dispose();
                     this.server = null;
@@ -101,7 +107,7 @@ namespace Samples.Ble
             try
             {
                 this.OnEvent("GATT Server Starting");
-                this.server = this.BleAdapter.CreateGattServer();
+                this.server = this.adapter.CreateGattServer();
                 //this.BleAdapter.Advertiser.Start(new AdvertisementData
                 //{
                 //    LocalName = "TestServer"
@@ -149,7 +155,7 @@ namespace Samples.Ble
             }
             catch (Exception ex)
             {
-                this.Dialogs.Alert("Error building gatt server - " + ex);
+                this.dialogs.Alert("Error building gatt server - " + ex);
             }
         }
 
