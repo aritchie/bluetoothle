@@ -142,9 +142,7 @@ namespace Plugin.BluetoothLE
             if (!this.context.Gatt.SetCharacteristicNotification(this.native, true))
                 this.ToResult(GattEvent.NotificationError, "Failed to set characteristic notification value");
 
-            if (CrossBleAdapter.PauseBetweenInvocations != null)
-                await Task.Delay(CrossBleAdapter.PauseBetweenInvocations.Value, ct);
-
+            await this.context.OpPause(ct).ConfigureAwait(false);
             var bytes = useIndicationsIfAvailable && this.CanIndicate()
                 ? BluetoothGattDescriptor.EnableIndicationValue.ToArray()
                 : BluetoothGattDescriptor.EnableNotificationValue.ToArray();
@@ -173,9 +171,7 @@ namespace Plugin.BluetoothLE
             if (!this.context.Gatt.SetCharacteristicNotification(this.native, false))
                 return this.ToResult(GattEvent.NotificationError, "Could not set characteristic value");
 
-            if (CrossBleAdapter.PauseBetweenInvocations != null)
-                await Task.Delay(CrossBleAdapter.PauseBetweenInvocations.Value, ct);
-
+            await this.context.OpPause(ct).ConfigureAwait(false);
             var result = await wrap
                 .Write(BluetoothGattDescriptor.DisableNotificationValue.ToArray())
                 .ToTask(ct)
