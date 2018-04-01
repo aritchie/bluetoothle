@@ -2,7 +2,6 @@ using System;
 using Plugin.BluetoothLE.Server;
 using UIKit;
 using Foundation;
-using Plugin.BluetoothLE.Server;
 
 
 namespace Plugin.BluetoothLE

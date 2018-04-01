@@ -56,29 +56,28 @@ namespace Plugin.BluetoothLE
         {
             config = config ?? GattConnectionConfig.DefaultConfiguration;
 
-            //if (config.IsPersistent)
-            //    this.autoReconnect = this.SetupAutoReconnect();
+            if (config.IsPersistent)
+            {
+                this.autoReconnect = this.WhenStatusChanged()
+                    .Where(x => x == ConnectionStatus.Disconnected)
+                    .Subscribe(_ => this.DoConnect());
+            }
             //sub2 = this.context
             //    .FailedConnection
             //    .Where(x => x.Peripheral.Equals(this.peripheral))
             //    .Subscribe(x => ob.OnError(new Exception(x.Error.ToString())));
-            //            IDisposable SetupAutoReconnect() => this
-            //                .WhenStatusChanged()
-            //                .Where(x => x == ConnectionStatus.Disconnected)
-            //                .Subscribe(_ => this.DoConnection());
-
-
-            //            void DoConnection() => ;
-            //this.DoConnection();
-            this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
-            {
-                NotifyOnDisconnection = true,
-#if __IOS__ || __TVOS__
-                NotifyOnConnection = true,
-                NotifyOnNotification = true
-#endif
-            });
+            this.DoConnect();
         }
+
+
+        void DoConnect() => this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
+        {
+            NotifyOnDisconnection = true,
+#if __IOS__ || __TVOS__
+            NotifyOnConnection = true,
+            NotifyOnNotification = true
+#endif
+        });
 
 
         public override void CancelConnection()

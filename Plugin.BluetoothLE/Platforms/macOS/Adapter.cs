@@ -12,9 +12,8 @@ namespace Plugin.BluetoothLE
             this.Advertiser = new Advertiser();
         }
 
+
         public override AdapterFeatures Features => AdapterFeatures.AllServer;
-
-
         public override IGattServer CreateGattServer() => new GattServer();
 	}
 }
