@@ -16,6 +16,7 @@ namespace Plugin.BluetoothLE
         readonly Subject<ConnectionStatus> connSubject;
         readonly BluetoothManager manager;
         readonly DeviceContext context;
+        IDisposable autoReconnectSub;
 
 
         public Device(BluetoothManager manager,
@@ -41,6 +42,18 @@ namespace Plugin.BluetoothLE
         public override void Connect(GattConnectionConfig config)
         {
             config = config ?? GattConnectionConfig.DefaultConfiguration;
+            if (config.IsPersistent)
+            {
+                this.autoReconnectSub = this.WhenStatusChanged()
+                    .Where(x => x == ConnectionStatus.Disconnected)
+                    .Skip(1)
+                    .Delay(CrossBleAdapter.PauseBetweenAutoReconnectAttempts)
+                    .Subscribe(_ =>
+                    {
+                        // TODO: watch for GATT 133 for retry
+                        this.context.Connect(config.Priority, true);
+                    });
+            }
             this.connSubject.OnNext(ConnectionStatus.Connecting);
             this.context.Connect(config.Priority, config.AndroidAutoConnect);
         }
@@ -48,8 +61,7 @@ namespace Plugin.BluetoothLE
 
         public override void CancelConnection()
         {
-            this.connSubject.OnNext(ConnectionStatus.Disconnecting);
-            //this.autoReconnectSub?.Dispose();
+            this.autoReconnectSub?.Dispose();
             this.context.Close();
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
         }
@@ -172,7 +184,7 @@ namespace Plugin.BluetoothLE
 
                 // execute
                 if (!this.context.NativeDevice.CreateBond())
-                    ob.OnError(new BleException("Failed to create pairing"));
+                    ob.Respond(false);
             }
             return () =>
             {
