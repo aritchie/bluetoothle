@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using Acr;
 using CoreBluetooth;
 using Foundation;
+using UIKit;
 
 
 namespace Plugin.BluetoothLE
@@ -37,12 +38,29 @@ namespace Plugin.BluetoothLE
                 var result = this.ToResult(GattEvent.Write, value);
                 ob.Respond(result);
             }
+
+#if __IOS__
+            if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+            {
+                var handler = new EventHandler((sender, args) => Send());
+                this.Peripheral.IsReadyToSendWriteWithoutResponse += handler;
+                if (this.Peripheral.CanSendWriteWithoutResponse)
+                    Send();
+            }
+#else
             var handler = new EventHandler((sender, args) => Send());
             this.Peripheral.IsReadyToSendWriteWithoutResponse += handler;
             if (this.Peripheral.CanSendWriteWithoutResponse)
                 Send();
+#endif
 
-            return () => this.Peripheral.IsReadyToSendWriteWithoutResponse -= handler; ;
+            return () =>
+            {
+#if __IOS__
+                if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+#endif
+                    this.Peripheral.IsReadyToSendWriteWithoutResponse -= handler;
+            };
         });
 
 
