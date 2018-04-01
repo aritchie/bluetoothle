@@ -37,7 +37,7 @@ namespace Plugin.BluetoothLE
 
                 var result = args.Error == null
                     ? this.ToResult(GattEvent.Read, this.Value)
-                    : this.ToResult(GattEvent.ReadError, args.Error.ToString());
+                    : this.ToResult(GattEvent.ReadError, args.Error.Description);
 
                 ob.Respond(result);
             });
@@ -57,7 +57,7 @@ namespace Plugin.BluetoothLE
 
                 var result = args.Error == null
                     ? this.ToResult(GattEvent.Write, this.Value)
-                    : this.ToResult(GattEvent.WriteError, args.Error.ToString());
+                    : this.ToResult(GattEvent.WriteError, args.Error.Description);
 
                 ob.Respond(result);
             });
