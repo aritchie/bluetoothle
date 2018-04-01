@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 
 
 namespace Plugin.BluetoothLE
@@ -15,64 +14,31 @@ namespace Plugin.BluetoothLE
         /// </summary>
         /// <param name="adapter"></param>
         /// <returns></returns>
-        public static IObservable<IScanResult> ScanForHeartRateSensors(this IAdapter adapter) => adapter
-            .Scan(new ScanConfig
-            {
-                ServiceUuids =
-                {
-                    HeartRateServiceUuid
-                }
-            });
-
-
-        public static async Task<bool> HasHeartSensor(this IDevice device)
+        public static IObservable<IScanResult> ScanForHeartRateSensors(this IAdapter adapter) => adapter.Scan(new ScanConfig
         {
-            AssertConnected(device);
-            var character = await FindCharacteristic(device);
-            return character != null;
-        }
-
-
-        public static IObservable<ushort> WhenHeartRateBpm(this IDevice device) => Observable.Create<ushort>(async ob =>
-        {
-            AssertConnected(device);
-
-            IDisposable token = null;
-            var ch = await FindCharacteristic(device);
-
-            if (ch == null)
+            ServiceUuids =
             {
-                ob.OnError(new ArgumentException("Device does not appear to be a heart rate sensor"));
+                HeartRateServiceUuid
             }
-            else
-            {
-                token = ch
-                    .WhenReadOrNotify(TimeSpan.FromSeconds(3))
-                    .Subscribe(result =>
-                    {
-                        if ((result.Data[0] & 0x01) == 0)
-                            ob.OnNext(result.Data[1]);
-
-                        var bpm = (ushort)result.Data [1];
-                        bpm = (ushort)(((bpm >> 8) & 0xFF) | ((bpm << 8) & 0xFF00));
-                        ob.OnNext(bpm);
-                    });
-            }
-            return () => token?.Dispose();
         });
 
 
-        static void AssertConnected(IDevice device)
-        {
-            if (device.Status != ConnectionStatus.Connected)
-                throw new ArgumentException("Device must be connected");
-        }
+        public static IObservable<ushort> WhenHeartRateBpm(this IDevice device) => device
+            .GetKnownService(HeartRateServiceUuid)
+            .Select(x => x.DiscoverCharacteristics())
+            .Switch()
+            .Take(1)
+            .Select(x => x.ReadInterval(TimeSpan.FromSeconds(3)))
+            .Switch()
+            .Where(x => x.Success)
+            .Select(x =>
+            {
+                if ((x.Data[0] & 0x01) == 0)
+                    return (ushort)x.Data[1];
 
-
-        static async Task<IGattCharacteristic> FindCharacteristic(IDevice device) => await device
-            .DiscoverServices()
-            .Where(x => x.Uuid.Equals(HeartRateServiceUuid))
-            .SelectMany(x => x.DiscoverCharacteristics())
-            .FirstOrDefaultAsync();
+                var bpm = (ushort)x.Data[1];
+                bpm = (ushort)(((bpm >> 8) & 0xFF) | ((bpm << 8) & 0xFF00));
+                return bpm;
+            });
     }
 }

@@ -42,7 +42,14 @@ namespace Plugin.BluetoothLE.Tests
         public async Task Concurrent_Notifications()
         {
             var list = new Dictionary<Guid, int>();
-            var characteristics = await this.GetCharacteristics();
+            var characteristics = await CrossBleAdapter
+                .Current
+                .ScanUntilDeviceFound(Constants.DeviceName)
+                .Select(x => x.GetCharacteristicsForKnownService(null))
+                .GetCharacteristicsForKnownService(Constants.ScratchServiceUuid)
+                .Take(1)
+                .Select(x => x.GetKnownService(Constants.ScratchServiceUuid))
+                .GetCharacteristics();
 
             characteristics
                 .ToObservable()

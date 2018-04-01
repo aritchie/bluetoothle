@@ -5,6 +5,8 @@ namespace Plugin.BluetoothLE.Tests
 {
     public static class Constants
     {
+        public static string DeviceName { get; } = "Bean+";
+        public static Guid DeviceUuid { get; } = new Guid("");
         public static Guid ScratchServiceUuid { get; } = new Guid("A495FF20-C5B1-4B44-B512-1370F02D74DE");
 
         public static Guid ScratchCharacteristicUuid1 { get; } = new Guid("A495FF21-C5B1-4B44-B512-1370F02D74DE");

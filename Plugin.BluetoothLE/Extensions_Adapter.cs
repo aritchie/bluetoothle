@@ -12,6 +12,38 @@ namespace Plugin.BluetoothLE
         public static bool CanPerformLowPoweredScans(this IAdapter adapter) => adapter.Features.HasFlag(AdapterFeatures.LowPoweredScan);
 
 
+        /// <summary>
+        /// This will scan until the device a specific device is found, then cancel the scan
+        /// </summary>
+        /// <param name="adapter"></param>
+        /// <param name="deviceUuid"></param>
+        /// <returns></returns>
+        public static IObservable<IDevice> ScanUntilDeviceFound(this IAdapter adapter, Guid deviceUuid) => adapter
+            .Scan()
+            .Where(x => x.Device.Uuid.Equals(deviceUuid))
+            .Take(1)
+            .Select(x => x.Device);
+
+
+        /// <summary>
+        /// This will scan until the device a specific device is found, then cancel the scan
+        /// </summary>
+        /// <param name="adapter"></param>
+        /// <param name="deviceName"></param>
+        /// <returns></returns>
+        public static IObservable<IDevice> ScanUntilDeviceFound(this IAdapter adapter, string deviceName) => adapter
+            .Scan()
+            .Where(x => x.Device.Name?.Equals(deviceName, StringComparison.InvariantCultureIgnoreCase) ?? false)
+            .Take(1)
+            .Select(x => x.Device);
+
+
+        /// <summary>
+        /// Scans only for distinct devices instead of repeating each device scan response - this will only give you devices, not RSSI or ad packets
+        /// </summary>
+        /// <param name="adapter"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public static IObservable<IDevice> ScanForUniqueDevices(this IAdapter adapter, ScanConfig config = null) => adapter
             .Scan(config)
             .Distinct(x => x.Device.Uuid)
@@ -36,37 +68,5 @@ namespace Plugin.BluetoothLE
                 return adapter.Scan(config);
             })
             .Switch();
-
-
-        public static IObservable<IScanResult> ScanInterval(this IAdapter adapter, TimeSpan timeSpan, ScanConfig config = null)
-            => Observable.Create<IScanResult>(ob =>
-            {
-                var scanner = adapter
-                    .Scan(config)
-                    .Subscribe(ob.OnNext);
-
-                var timer = Observable
-                    .Interval(timeSpan)
-                    .Subscribe(x =>
-                    {
-                        if (scanner == null)
-                        {
-                            scanner = adapter
-                                .Scan(config)
-                                .Subscribe(ob.OnNext);
-                        }
-                        else
-                        {
-                            scanner.Dispose();
-                            scanner = null;
-                        }
-                    });
-
-                return () =>
-                {
-                    timer.Dispose();
-                    scanner?.Dispose();
-                };
-            });
     }
 }

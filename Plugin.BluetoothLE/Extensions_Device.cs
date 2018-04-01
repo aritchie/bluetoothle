@@ -8,6 +8,18 @@ namespace Plugin.BluetoothLE
     public static partial class Extensions
     {
         /// <summary>
+        /// Starts connection process if not already connecteds
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="config"></param>
+        public static void ConnectIf(this IDevice device, GattConnectionConfig config = null)
+        {
+            if (device.Status == ConnectionStatus.Disconnected)
+                device.Connect(config);
+        }
+
+
+        /// <summary>
         /// Waits for connection to actually happen
         /// </summary>
         /// <param name="device"></param>
@@ -15,7 +27,7 @@ namespace Plugin.BluetoothLE
         /// <returns></returns>
         public static IObservable<IDevice> ConnectWait(this IDevice device, GattConnectionConfig config = null)
         {
-            device.Connect(config);
+            device.ConnectIf(config);
             return device
                 .WhenConnected()
                 .Select(_ => device);
@@ -50,8 +62,7 @@ namespace Plugin.BluetoothLE
                     .Switch()
                     .Subscribe(ob.OnNext);
 
-                if (device.Status == ConnectionStatus.Disconnected)
-                    device.Connect();
+                device.ConnectIf();
 
                 return () =>
                 {
@@ -64,7 +75,7 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
-        /// Writes to a characteristic without need for instance
+        /// Attempts to connect to the device, discover the characteristic and write to it
         /// </summary>
         /// <param name="device"></param>
         /// <param name="serviceUuid"></param>
@@ -73,7 +84,8 @@ namespace Plugin.BluetoothLE
         /// <returns></returns>
         public static IObservable<CharacteristicGattResult> WriteCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid, byte[] data)
         {
-            device.Connect();
+            // TODO: close on success?
+            device.ConnectIf();
 
             return device
                 .WhenKnownCharacteristicsDiscovered(serviceUuid, characteristicUuid)
@@ -83,7 +95,7 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
-        /// /// Reads a characteristic without need for instance
+        /// Attempts to connect to device, discover the characteristic and read it
         /// </summary>
         /// <param name="device"></param>
         /// <param name="serviceUuid"></param>
@@ -91,11 +103,31 @@ namespace Plugin.BluetoothLE
         /// <returns></returns>
         public static IObservable<CharacteristicGattResult> ReadCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid)
         {
-            device.Connect();
+            // TODO: close on success?
+            device.ConnectIf();
 
             return device
                 .WhenKnownCharacteristicsDiscovered(serviceUuid, characteristicUuid)
                 .Select(ch => ch.Read())
+                .Switch();
+        }
+
+
+        /// <summary>
+        /// Will attempt to connect if necessary, discover the known characteristic, and read on a set interval
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="serviceUuid"></param>
+        /// <param name="characteristicUuid"></param>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static IObservable<CharacteristicGattResult> ReadIntervalCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid, TimeSpan timeSpan)
+        {
+            device.ConnectIf();
+
+            return device
+                .WhenKnownCharacteristicsDiscovered(serviceUuid, characteristicUuid)
+                .Select(ch => ch.ReadInterval(timeSpan))
                 .Switch();
         }
 
@@ -107,20 +139,33 @@ namespace Plugin.BluetoothLE
         /// <param name="serviceUuid"></param>
         /// <param name="characteristicIds"></param>
         /// <returns></returns>
-        public static IObservable<IGattCharacteristic> GetKnownCharacteristics(this IDevice device, Guid serviceUuid, params Guid[] characteristicIds)
-            => device
+        public static IObservable<IGattCharacteristic> GetKnownCharacteristics(this IDevice device, Guid serviceUuid, params Guid[] characteristicIds) =>
+            device
                 .GetKnownService(serviceUuid)
                 .SelectMany(x => x.GetKnownCharacteristics(characteristicIds))
                 .Take(characteristicIds.Length);
 
+
+
+        /// <summary>
+        /// Discovers all characteristics for a known service
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="serviceUuid"></param>
+        /// <returns></returns>
+        public static IObservable<IGattCharacteristic> GetCharacteristicsForService(this IDevice device, Guid serviceUuid) =>
+            device
+                .GetKnownService(serviceUuid)
+                .Select(x => x.DiscoverCharacteristics())
+                .Switch();
 
         /// <summary>
         /// Quick helper around WhenStatusChanged().Where(x => x == ConnectionStatus.Connected)
         /// </summary>
         /// <param name="device"></param>
         /// <returns></returns>
-        public static IObservable<Unit> WhenConnected(this IDevice device)
-            => device
+        public static IObservable<Unit> WhenConnected(this IDevice device) =>
+            device
                 .WhenStatusChanged()
                 .Where(x => x == ConnectionStatus.Connected)
                 .Select(x => Unit.Default);

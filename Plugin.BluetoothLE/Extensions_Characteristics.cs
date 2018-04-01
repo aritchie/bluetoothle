@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Threading;
 
 
 namespace Plugin.BluetoothLE
@@ -25,7 +23,7 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
-        ///
+        /// Enables notifications and hooks it for discovered characteristic.  When subscription is disposed, it will also clean up.
         /// </summary>
         /// <param name="characteristic"></param>
         /// <param name="useIndicationIfAvailable"></param>
@@ -41,26 +39,26 @@ namespace Plugin.BluetoothLE
                 );
 
 
-        public static IObservable<CharacteristicGattResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
-            => Observable.Create<CharacteristicGattResult>(async ob =>
-            {
-                var cancelSrc = new CancellationTokenSource();
-                try
-                {
-                    var result = await characteristic.Read().RunAsync(cancelSrc.Token);
-                    while (!result.Data.SequenceEqual(endBytes) && !cancelSrc.IsCancellationRequested)
-                    {
-                        ob.OnNext(result);
-                        result = await characteristic.Read().RunAsync(cancelSrc.Token);
-                    }
-                    ob.OnCompleted();
-                }
-                catch (OperationCanceledException)
-                {
-                    // swallow
-                }
-                return () => cancelSrc.Cancel();
-            });
+        //public static IObservable<CharacteristicGattResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
+        //    => Observable.Create<CharacteristicGattResult>(async ob =>
+        //    {
+        //        var cancelSrc = new CancellationTokenSource();
+        //        try
+        //        {
+        //            var result = await characteristic.Read().RunAsync(cancelSrc.Token);
+        //            while (!result.Data.SequenceEqual(endBytes) && !cancelSrc.IsCancellationRequested)
+        //            {
+        //                ob.OnNext(result);
+        //                result = await characteristic.Read().RunAsync(cancelSrc.Token);
+        //            }
+        //            ob.OnCompleted();
+        //        }
+        //        catch (OperationCanceledException)
+        //        {
+        //            // swallow
+        //        }
+        //        return () => cancelSrc.Cancel();
+        //    });
 
 
         public static IObservable<CharacteristicGattResult> ReadInterval(this IGattCharacteristic character, TimeSpan timeSpan)
@@ -68,21 +66,6 @@ namespace Plugin.BluetoothLE
                 .Interval(timeSpan)
                 .Select(_ => character.Read())
                 .Switch();
-
-
-        public static IObservable<CharacteristicGattResult> WhenReadOrNotify(this IGattCharacteristic character, TimeSpan readInterval)
-        {
-            if (character.CanNotify())
-                return character
-                    .EnableNotifications()
-                    .Select(x => character.WhenNotificationReceived())
-                    .Switch();
-
-            if (character.CanRead())
-                return character.ReadInterval(readInterval);
-
-            throw new ArgumentException($"Characteristic {character.Uuid} does not have read or notify permissions");
-        }
 
 
         public static bool CanRead(this IGattCharacteristic ch) => ch.Properties.HasFlag(CharacteristicProperties.Read);
