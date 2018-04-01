@@ -27,6 +27,10 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public static byte[] GetManufacturerSpecificData(this BluetoothLEAdvertisement adv)
+            => adv.GetSectionDataOrNull(BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData);
+
+
         static byte[] GetSectionDataOrNull(this BluetoothLEAdvertisement adv, byte recType)
         {
             var section = adv.DataSections.FirstOrDefault(x => x.DataType == recType);
