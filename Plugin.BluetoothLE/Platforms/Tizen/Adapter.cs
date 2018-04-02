@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Plugin.BluetoothLE.Internals;
+using Plugin.BluetoothLE.Server;
 using Tizen.Network.Bluetooth;
 
 
@@ -9,7 +10,6 @@ namespace Plugin.BluetoothLE
 {
     public class Adapter : AbstractAdapter
     {
-        readonly Subject<bool> scanSubject = new Subject<bool>();
         readonly DeviceManager deviceManager = new DeviceManager();
 
 
@@ -18,12 +18,11 @@ namespace Plugin.BluetoothLE
             : AdapterStatus.PoweredOff;
 
 
-        public override IObservable<bool> WhenScanningStatusChanged() => this.scanSubject;
+        public override IGattServer CreateGattServer() => null;
 
 
         public override IObservable<IScanResult> Scan(ScanConfig config = null) => Observable.Create<IScanResult>(ob =>
         {
-            this.scanSubject.OnNext(true);
             this.deviceManager.Clear();
             var handler = new EventHandler<AdapterLeScanResultChangedEventArgs>((sender, args) =>
             {
@@ -37,9 +36,11 @@ namespace Plugin.BluetoothLE
             {
                 BluetoothAdapter.StopLeScan();
                 BluetoothAdapter.ScanResultChanged -= handler;
-                this.scanSubject.OnNext(false);
             };
         });
+
+
+        public override void StopScan() => BluetoothAdapter.StopLeScan();
 
 
         public override IObservable<AdapterStatus> WhenStatusChanged() => Observable.Create<AdapterStatus>(ob =>

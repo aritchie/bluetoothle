@@ -14,6 +14,7 @@ namespace Plugin.BluetoothLE
         public AdvertisementData(BluetoothLeDevice native)
         {
             this.native = native;
+            //this.native.GetServiceDataList().Select(x => x.ServiceUuid])
         }
 
 

@@ -10,13 +10,16 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<DescriptorResult> Write(byte[] data)
+        public override byte[] Value { get; }
+
+
+        public override IObservable<DescriptorGattResult> Write(byte[] data)
         {
             throw new NotImplementedException();
         }
 
 
-        public override IObservable<DescriptorResult> Read()
+        public override IObservable<DescriptorGattResult> Read()
         {
             throw new NotImplementedException();
         }

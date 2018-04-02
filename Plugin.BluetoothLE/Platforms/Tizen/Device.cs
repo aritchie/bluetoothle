@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
+using Acr;
 using Tizen.Network.Bluetooth;
 
 
@@ -29,12 +30,14 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<Unit> Connect(GattConnectionConfig config) => Observable.Create<Unit>(ob =>
+        public override void Connect(GattConnectionConfig config)
         {
+            if (this.gatt != null)
+                return;
 
-            this.native.GattConnect(config.AutoConnect);
-            return () => { };
-        });
+            this.gatt = this.native.GattConnect(config.AndroidAutoConnect);
+            // TODO: connecting
+        }
 
 
         public override void CancelConnection()
@@ -44,16 +47,11 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IObservable<int> WhenRssiUpdated(TimeSpan? timeSpan) => Observable.Create<int>(ob =>
-        {
-            return () => { };
-        });
-
-
         public override IObservable<ConnectionStatus> WhenStatusChanged() => Observable.Create<ConnectionStatus>(ob =>
         {
             var handler = new EventHandler<GattConnectionStateChangedEventArgs>((sender, args) =>
             {
+                //args.IsConnected;
             });
             this.native.GattConnectionStateChanged += handler;
             return () => this.native.GattConnectionStateChanged -= handler;
@@ -61,8 +59,13 @@ namespace Plugin.BluetoothLE
         .StartWith(this.Status);
 
 
+        //public override IGattService GetKnownService(Guid serviceUuid)
+        //{
+
+        //}
+
         IObservable<IGattService> serviceOb;
-        public override IObservable<IGattService> WhenServiceDiscovered()
+        public override IObservable<IGattService> DiscoverServices()
         {
             this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
             {

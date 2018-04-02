@@ -1,53 +1,64 @@
 ﻿using System;
 using System.Reactive;
+using System.Reactive.Linq;
+using Tizen.Network.Bluetooth;
 
 
 namespace Plugin.BluetoothLE
 {
     public class GattCharacteristic : AbstractGattCharacteristic
     {
-        public GattCharacteristic(IGattService service, Guid uuid, CharacteristicProperties properties) : base(service, uuid, properties)
+        readonly BluetoothGattCharacteristic native;
+
+
+        public GattCharacteristic(BluetoothGattCharacteristic native, IGattService service, Guid uuid, CharacteristicProperties properties) : base(service, uuid, properties)
         {
+            this.native = native;
         }
 
 
-        public override IObservable<Unit> EnableNotifications(bool enableIndicationsIfAvailable)
-        {
-            throw new NotImplementedException();
-        }
+        public override byte[] Value { get; }
 
 
-        public override IObservable<Unit> DisableNotifications()
-        {
-            throw new NotImplementedException();
-        }
+        public override IObservable<CharacteristicGattResult> WhenNotificationReceived() =>
+            Observable.Create<CharacteristicGattResult>(ob =>
+            {
+                this.native.ValueChanged += null;
 
+                return () => this.native.ValueChanged -= null;
+            });
 
-        public override IObservable<CharacteristicResult> WhenNotificationReceived()
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public override IObservable<IGattDescriptor> WhenDescriptorDiscovered()
+        public override IObservable<IGattDescriptor> DiscoverDescriptors()
         {
             throw new NotImplementedException();
         }
 
 
-        public override void WriteWithoutResponse(byte[] value)
+        public override IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value)
         {
             throw new NotImplementedException();
         }
 
 
-        public override IObservable<CharacteristicResult> Write(byte[] value)
+        public override IObservable<CharacteristicGattResult> Write(byte[] value)
         {
             throw new NotImplementedException();
         }
 
 
-        public override IObservable<CharacteristicResult> Read()
+        public override IObservable<CharacteristicGattResult> EnableNotifications(bool enableIndicationsIfAvailable)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public override IObservable<CharacteristicGattResult> DisableNotifications()
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public override IObservable<CharacteristicGattResult> Read()
         {
             throw new NotImplementedException();
         }
