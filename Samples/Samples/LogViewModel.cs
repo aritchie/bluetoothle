@@ -19,6 +19,7 @@ namespace Samples.Ble
         public string Message { get; set; }
     }
 
+
     public class LogViewModel : ViewModel
     {
         public LogViewModel()

@@ -4,7 +4,12 @@
                    x:Class="Samples.Ble.AdapterListPage"
                    xmlns:pages="clr-namespace:Acr.XamForms.Pages;assembly=Acr.XamForms"
                    xmlns:behaviors="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
+                   xmlns:ble="clr-namespace:Samples.Ble;assembly=Samples"
                    Title="BLE Plugin (Adapter List)">
+
+    <ContentPage.BindingContext>
+        <ble:AdapterListViewModel />
+    </ContentPage.BindingContext>
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Scan" Command="{Binding Scan}" />

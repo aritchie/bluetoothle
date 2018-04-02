@@ -2,8 +2,13 @@
 <pages:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                    xmlns:pages="clr-namespace:Acr.XamForms.Pages;assembly=Acr.XamForms"
+                   xmlns:ble="clr-namespace:Samples.Ble;assembly=Samples"
                    x:Class="Samples.Ble.ServerPage"
                    Title="Server">
+    <ContentPage.BindingContext>
+        <ble:ServerViewModel />
+    </ContentPage.BindingContext>
+
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>

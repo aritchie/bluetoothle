@@ -44,10 +44,13 @@ namespace Samples.Ble
                     this.Title = $"BLE Scanner ({x})";
                 });
 
-            this.SelectDevice = ReactiveCommand.Create<ScanResultViewModel>(x =>
+            this.SelectDevice = ReactiveCommand.CreateFromTask<ScanResultViewModel>(async x =>
             {
                 this.scan?.Dispose();
-                //services.VmManager.Push<DeviceViewModel>(x.Device);
+                await App.Current.MainPage.Navigation.PushAsync(new DevicePage
+                {
+                    BindingContext = new DeviceViewModel(x.Device)
+                });
             });
 
             this.OpenSettings = ReactiveCommand.Create(() =>

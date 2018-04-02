@@ -16,18 +16,18 @@ namespace Samples.Ble
         readonly IAdapterScanner scanner;
 
 
-        public AdapterListViewModel(IAdapterScanner scanner, IUserDialogs dialogs)
+        public AdapterListViewModel()
         {
-            this.scanner = scanner;
             this.Select = ReactiveCommand.CreateFromTask<IAdapter>(async adapter =>
             {
                 CrossBleAdapter.Current = adapter;
-                //await vmManager.Push<MainViewModel>();
+                await App.Current.MainPage.Navigation.PushAsync(new MainPage());
             });
             this.Scan = ReactiveCommand.Create(() =>
             {
                 this.IsBusy = true;
-                this.scanner
+                CrossBleAdapter
+                    .AdapterScanner
                     .FindAdapters()
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(
@@ -38,12 +38,12 @@ namespace Samples.Ble
                             switch (this.Adapters.Count)
                             {
                                 case 0:
-                                    dialogs.Alert("No BluetoothLE Adapters Found");
+                                    UserDialogs.Instance.Alert("No BluetoothLE Adapters Found");
                                     break;
 
                                 case 1:
                                     CrossBleAdapter.Current = this.Adapters.First();
-                                    //await vmManager.Push<MainViewModel>();
+                                    await App.Current.MainPage.Navigation.PushAsync(new MainPage());
                                     break;
                             }
                         }

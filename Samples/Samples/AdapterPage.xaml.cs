@@ -4,9 +4,9 @@ using Xamarin.Forms;
 
 namespace Samples.Ble
 {
-    public partial class MainPage : TabbedPage
+    public partial class AdapterPage : TabbedPage
     {
-        public MainPage()
+        public AdapterPage()
         {
             this.InitializeComponent();
         }

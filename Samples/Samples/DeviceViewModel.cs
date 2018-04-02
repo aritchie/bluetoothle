@@ -11,11 +11,13 @@ namespace Samples.Ble
 {
     public class DeviceViewModel : ViewModel
     {
-        IDevice device;
+        readonly IDevice device;
 
 
-        public DeviceViewModel()
+        public DeviceViewModel(IDevice device)
         {
+            this.device = device;
+
             this.SelectCharacteristic = ReactiveCommand.Create<GattCharacteristicViewModel>(x => x.Select());
 
             this.ConnectionToggle = ReactiveCommand.CreateFromTask(async x =>

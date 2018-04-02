@@ -21,4 +21,10 @@
       <ProjectReference Include="..\..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="AdapterPage.xaml.cs">
+        <DependentUpon>AdapterPage.xaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

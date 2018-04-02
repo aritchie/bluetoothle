@@ -1,4 +1,5 @@
 ﻿using System;
+using Plugin.BluetoothLE;
 using Xamarin.Forms;
 
 
@@ -8,19 +9,9 @@ namespace Samples.Ble
     {
         public App()
         {
-            //var builder = new ContainerBuilder();
-            //builder.RegisterModule(new CoreModule());
-            //this.container = builder.Build();
-
-            //this.MainPage = CrossBleAdapter.AdapterScanner.IsSupported
-            //    ? new NavigationPage(new AdapterListPage
-            //    {
-            //        BindingContext = this.container.Resolve<AdapterListViewModel>()
-            //    })
-            //    : new NavigationPage(new MainPage
-            //    {
-            //        BindingContext = this.container.Resolve<MainViewModel>()
-            //    });
+            this.MainPage = CrossBleAdapter.AdapterScanner.IsSupported
+                ? new NavigationPage(new AdapterListPage())
+                : new NavigationPage(new MainPage());
         }
     }
 }
