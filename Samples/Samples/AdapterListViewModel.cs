@@ -21,7 +21,7 @@ namespace Samples.Ble
             this.Select = ReactiveCommand.CreateFromTask<IAdapter>(async adapter =>
             {
                 CrossBleAdapter.Current = adapter;
-                await App.Current.MainPage.Navigation.PushAsync(new MainPage());
+                await App.Current.MainPage.Navigation.PushAsync(new AdapterPage());
             });
             this.Scan = ReactiveCommand.Create(() =>
             {
@@ -43,7 +43,7 @@ namespace Samples.Ble
 
                                 case 1:
                                     CrossBleAdapter.Current = this.Adapters.First();
-                                    await App.Current.MainPage.Navigation.PushAsync(new MainPage());
+                                    await App.Current.MainPage.Navigation.PushAsync(new AdapterPage());
                                     break;
                             }
                         }

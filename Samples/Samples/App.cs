@@ -11,7 +11,7 @@ namespace Samples.Ble
         {
             this.MainPage = CrossBleAdapter.AdapterScanner.IsSupported
                 ? new NavigationPage(new AdapterListPage())
-                : new NavigationPage(new MainPage());
+                : new NavigationPage(new AdapterPage());
         }
     }
 }
