@@ -4,7 +4,9 @@ using System.Reactive.Linq;
 using Acr;
 using CoreBluetooth;
 using Foundation;
+#if __IOS__
 using UIKit;
+#endif
 
 
 namespace Plugin.BluetoothLE
