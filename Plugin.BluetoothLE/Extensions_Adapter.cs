@@ -33,7 +33,7 @@ namespace Plugin.BluetoothLE
         /// <returns></returns>
         public static IObservable<IDevice> ScanUntilDeviceFound(this IAdapter adapter, string deviceName) => adapter
             .Scan()
-            .Where(x => x.Device.Name?.Equals(deviceName, StringComparison.InvariantCultureIgnoreCase) ?? false)
+            .Where(x => x.Device.Name?.Equals(deviceName, StringComparison.OrdinalIgnoreCase) ?? false)
             .Take(1)
             .Select(x => x.Device);
 
