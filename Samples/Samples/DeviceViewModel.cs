@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
+using Acr.UserDialogs;
 using Plugin.BluetoothLE;
 using ReactiveUI;
 using Samples.Infrastructure;
@@ -22,32 +24,25 @@ namespace Samples.Ble
 
             this.ConnectionToggle = ReactiveCommand.CreateFromTask(async x =>
             {
-                try
+                // don't cleanup connection - force user to d/c
+                if (this.device.Status == ConnectionStatus.Disconnected)
                 {
-                    // don't cleanup connection - force user to d/c
-                    if (this.device.Status == ConnectionStatus.Disconnected)
-                    {
-                        this.device.Connect();
-                    }
-                    else
-                    {
-                        this.device.CancelConnection();
-                    }
+                    this.device.Connect();
                 }
-                catch (Exception ex)
+                else
                 {
-                    //this.Dialogs.Alert(ex.ToString());
+                    this.device.CancelConnection();
                 }
             });
             this.PairToDevice = ReactiveCommand.CreateFromTask(async x =>
             {
                 if (!this.device.Features.HasFlag(DeviceFeatures.PairingRequests))
                 {
-                    //this.Dialogs.Alert("Pairing is not supported on this platform");
+                    UserDialogs.Instance.Alert("Pairing is not supported on this platform");
                 }
                 else if (this.device.PairingStatus == PairingStatus.Paired)
                 {
-                    //this.Dialogs.Alert("Device is already paired");
+                    UserDialogs.Instance.Alert("Device is already paired");
                 }
                 else
                 {
@@ -59,36 +54,36 @@ namespace Samples.Ble
                 {
                     if (!this.device.Features.HasFlag(DeviceFeatures.MtuRequests))
                     {
-                        //this.Dialogs.Alert("MTU Request not supported on this platform");
+                        UserDialogs.Instance.Alert("MTU Request not supported on this platform");
                     }
                     else
                     {
-                        //var result = await this.Dialogs.PromptAsync(new PromptConfig()
-                        //    .SetTitle("MTU Request")
-                        //    .SetMessage("Range 20-512")
-                        //    .SetInputMode(InputType.Number)
-                        //    .SetOnTextChanged(args =>
-                        //    {
-                        //        var len = args.Value?.Length ?? 0;
-                        //        if (len > 0)
-                        //        {
-                        //            if (len > 3)
-                        //            {
-                        //                args.Value = args.Value.Substring(0, 3);
-                        //            }
-                        //            else
-                        //            {
-                        //                var value = Int32.Parse(args.Value);
-                        //                args.IsValid = value >= 20 && value <= 512;
-                        //            }
-                        //        }
-                        //    })
-                        //);
-                        //if (result.Ok)
-                        //{
-                        //    var actual = await this.device.RequestMtu(Int32.Parse(result.Text));
-                        //    this.Dialogs.Alert("MTU Changed to " + actual);
-                        //}
+                        var result = await UserDialogs.Instance.PromptAsync(new PromptConfig()
+                            .SetTitle("MTU Request")
+                            .SetMessage("Range 20-512")
+                            .SetInputMode(InputType.Number)
+                            .SetOnTextChanged(args =>
+                            {
+                                var len = args.Value?.Length ?? 0;
+                                if (len > 0)
+                                {
+                                    if (len > 3)
+                                    {
+                                        args.Value = args.Value.Substring(0, 3);
+                                    }
+                                    else
+                                    {
+                                        var value = Int32.Parse(args.Value);
+                                        args.IsValid = value >= 20 && value <= 512;
+                                    }
+                                }
+                            })
+                        );
+                        if (result.Ok)
+                        {
+                            var actual = await this.device.RequestMtu(Int32.Parse(result.Text));
+                            UserDialogs.Instance.Alert("MTU Changed to " + actual);
+                        }
                     }
                 },
                 this.WhenAny(
@@ -130,7 +125,11 @@ namespace Samples.Ble
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(chs =>
                 {
+                    var service = this.GattCharacteristics.FirstOrDefault(x =>
+                        x.ShortName.Equals(chs.Service.Uuid.ToString())
+                    ) ?? new Group<GattCharacteristicViewModel>(chs.Service.Description, chs.Service.Uuid.ToString());
 
+                    service.Add(new GattCharacteristicViewModel(chs));
                 });
         }
 

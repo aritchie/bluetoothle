@@ -13,9 +13,6 @@ namespace Samples.Ble
 {
     public class AdapterListViewModel : ViewModel
     {
-        readonly IAdapterScanner scanner;
-
-
         public AdapterListViewModel()
         {
             this.Select = ReactiveCommand.CreateFromTask<IAdapter>(async adapter =>

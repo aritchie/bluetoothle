@@ -18,13 +18,11 @@ namespace Samples.Ble
 {
     public class GattCharacteristicViewModel : ViewModel
     {
-        readonly IUserDialogs dialogs;
         IDisposable watcher;
 
 
-        public GattCharacteristicViewModel(IUserDialogs dialogs, IGattCharacteristic characteristic)
+        public GattCharacteristicViewModel(IGattCharacteristic characteristic)
         {
-            this.dialogs = dialogs;
             this.Characteristic = characteristic;
         }
 
@@ -95,7 +93,7 @@ namespace Samples.Ble
                         //.Timeout(TimeSpan.FromSeconds(3))
                         .ToTask();
 
-                    var utf8 = await this.dialogs.ConfirmAsync("Display Value as UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
+                    var utf8 = await UserDialogs.Instance.ConfirmAsync("Display Value as UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
                     this.SetReadValue(value, utf8);
                 });
             }
@@ -106,7 +104,7 @@ namespace Samples.Ble
                 {
                     cfg.Add("Notify", async () =>
                     {
-                        var utf8 = await this.dialogs.ConfirmAsync(
+                        var utf8 = await UserDialogs.Instance.ConfirmAsync(
                             "Display Value as UTF8 or HEX?",
                             okText: "UTF8",
                             cancelText: "HEX"
@@ -129,13 +127,13 @@ namespace Samples.Ble
                 }
             }
             if (cfg.Options.Any())
-                this.dialogs.ActionSheet(cfg.SetCancel());
+                UserDialogs.Instance.ActionSheet(cfg.SetCancel());
         }
 
 
         async void SendBlob()
         {
-            var useReliableWrite = await this.dialogs.ConfirmAsync(new ConfirmConfig()
+            var useReliableWrite = await UserDialogs.Instance.ConfirmAsync(new ConfirmConfig()
                 .UseYesNo()
                 .SetTitle("Confirm")
                 .SetMessage("Use reliable write transaction?")
@@ -143,7 +141,7 @@ namespace Samples.Ble
             var value = RandomString(5000);
             var cts = new CancellationTokenSource();
             var bytes = Encoding.UTF8.GetBytes(value);
-            var dlg = this.dialogs.Loading("Sending Blob", () => cts.Cancel(), "Cancel");
+            var dlg = UserDialogs.Instance.Loading("Sending Blob", () => cts.Cancel(), "Cancel");
             var sw = new Stopwatch();
             sw.Start();
 
@@ -154,7 +152,7 @@ namespace Samples.Ble
                     ex =>
                     {
                         dlg.Dispose();
-                        this.dialogs.Alert("Failed writing blob - " + ex);
+                        UserDialogs.Instance.Alert("Failed writing blob - " + ex);
                         sw.Stop();
                     },
                     () =>
@@ -163,7 +161,7 @@ namespace Samples.Ble
                         sw.Stop();
 
                         var pre = useReliableWrite ? "reliable write" : "write";
-                        this.dialogs.Alert($"BLOB {pre} took " + sw.Elapsed);
+                        UserDialogs.Instance.Alert($"BLOB {pre} took " + sw.Elapsed);
                     }
                 );
 
@@ -182,14 +180,14 @@ namespace Samples.Ble
 
         async Task TryWrite(bool withResponse)
         {
-            var utf8 = await this.dialogs.ConfirmAsync("Write value from UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
-            var result = await this.dialogs.PromptAsync("Please enter a write value", this.Description);
+            var utf8 = await UserDialogs.Instance.ConfirmAsync("Write value from UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
+            var result = await UserDialogs.Instance.PromptAsync("Please enter a write value", this.Description);
 
             if (result.Ok && !String.IsNullOrWhiteSpace(result.Text))
             {
                 try
                 {
-                    using (this.dialogs.Loading("Writing Value..."))
+                    using (UserDialogs.Instance.Loading("Writing Value..."))
                     {
                         var value = result.Text.Trim();
                         var bytes = utf8 ? Encoding.UTF8.GetBytes(value) : value.FromHexString();
@@ -210,7 +208,7 @@ namespace Samples.Ble
                 }
                 catch (Exception ex)
                 {
-                    this.dialogs.Alert($"Error Writing {this.Characteristic.Uuid} - {ex}");
+                    UserDialogs.Instance.Alert($"Error Writing {this.Characteristic.Uuid} - {ex}");
                 }
             }
         }
