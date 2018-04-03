@@ -9,6 +9,7 @@ namespace Plugin.BluetoothLE
         static CrossBleAdapter()
         {
             Current = new Adapter();
+            AdapterScanner = new AdapterScanner();
         }
 
 
@@ -34,7 +35,7 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public static TimeSpan? PauseBetweenInvocations { get; set; }
 
