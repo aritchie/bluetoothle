@@ -10,15 +10,13 @@
         <ble:ScanViewModel />
     </ContentPage.BindingContext>
 
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="{Binding ScanText}" Command="{Binding ScanToggle}" Order="Secondary" />
-		<ToolbarItem Text="Settings" Command="{Binding OpenSettings}" Order="Secondary" />
-        <ToolbarItem Text="Turn On Bluetooth" Command="{Binding ToggleAdapterState}" Order="Secondary" />
-    </ContentPage.ToolbarItems>
-
     <ContentPage.Content>
         <StackLayout>
-			<ListView ItemsSource="{Binding Devices}" RowHeight="160">
+            <Button Text="Scan" Command="{Binding ScanToggle}" />
+            <Button Text="Settings" Command="{Binding OpenSettings}" />
+            <Button Text="Toggle Adapter" Command="{Binding ToggleAdapterState}" />
+
+            <ListView ItemsSource="{Binding Devices}" RowHeight="160">
 			    <ListView.Behaviors>
 			        <behaviors:ItemTappedCommandBehavior Command="{Binding SelectDevice}" />
 			    </ListView.Behaviors>
