@@ -49,20 +49,24 @@ namespace Plugin.BluetoothLE
                 if (this.Peripheral.CanSendWriteWithoutResponse)
                     Send();
             }
+            else
+            {
+                Send();
+            }
+            return () =>
+            {
+
+                if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+                    this.Peripheral.IsReadyToSendWriteWithoutResponse -= handler;
+            };
 #else
             var handler = new EventHandler((sender, args) => Send());
             this.Peripheral.IsReadyToSendWriteWithoutResponse += handler;
             if (this.Peripheral.CanSendWriteWithoutResponse)
                 Send();
-#endif
 
-            return () =>
-            {
-#if __IOS__
-                if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+            return () => this.Peripheral.IsReadyToSendWriteWithoutResponse -= handler;
 #endif
-                    this.Peripheral.IsReadyToSendWriteWithoutResponse -= handler;
-            };
         });
 
 
