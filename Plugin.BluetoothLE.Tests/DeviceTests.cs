@@ -11,32 +11,41 @@ using Xunit.Abstractions;
 
 namespace Plugin.BluetoothLE.Tests
 {
-    public class DeviceTests : AbstractTests
+    public class DeviceTests
     {
-        public DeviceTests(ITestOutputHelper output) : base(output)
+        readonly ITestOutputHelper output;
+        IDevice device;
+
+        public DeviceTests(ITestOutputHelper output) => this.output = output;
+
+
+        async Task Setup(bool connect)
         {
+            this.device = await CrossBleAdapter
+                .Current
+                .ScanUntilDeviceFound(Constants.DeviceName)
+                .ToTask();
+
+            if (connect)
+                await this.device.ConnectWait().ToTask();
         }
 
 
         [Fact]
         public async Task WhenServiceFound_Reconnect_ShouldFlushOriginals()
         {
-            var autoConnect = await UserDialogs.Instance.ConfirmAsync(new ConfirmConfig().SetMessage("Use autoConnect?").UseYesNo());
+            await this.Setup(false);
 
             var count = 0;
-            await this.FindTestDevice();
-            this.Device.DiscoverServices().Subscribe(_ => count++);
+            this.device.DiscoverServices().Subscribe(_ => count++);
 
-            await this.Device.ConnectWait(new GattConnectionConfig
-            {
-                AndroidAutoConnect = autoConnect,
-                IsPersistent = true
-            });
+            await this.device.ConnectWait().ToTask();
             await UserDialogs.Instance.AlertAsync("Now turn device off & press OK");
             var origCount = count;
             count = 0;
 
             await UserDialogs.Instance.AlertAsync("No turn device back on & press OK when light turns green");
+            await Task.Delay(5000);
             count.Should().Be(origCount);
         }
 
@@ -44,15 +53,17 @@ namespace Plugin.BluetoothLE.Tests
         [Fact]
         public async Task GetKnownCharacteristics_Consecutively()
         {
-            await this.FindTestDevice();
-            await this.Device.ConnectWait();
-            var s1 = await this.Device
-                .GetKnownCharacteristics(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1)
-                .Timeout(TimeSpan.FromSeconds(5));
+            await this.Setup(true);
 
-            var s2 = await this.Device
+            var s1 = await this.device
+                .GetKnownCharacteristics(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1)
+                .Timeout(TimeSpan.FromSeconds(5))
+                .ToTask();
+
+            var s2 = await this.device
                 .GetKnownCharacteristics(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid2)
-                .Timeout(TimeSpan.FromSeconds(5));
+                .Timeout(TimeSpan.FromSeconds(5))
+                .ToTask();
 
             s1.Should().NotBeNull();
             s2.Should().NotBeNull();
@@ -62,9 +73,9 @@ namespace Plugin.BluetoothLE.Tests
         [Fact]
         public async Task WhenKnownCharacteristic_Fires()
         {
-            await this.FindTestDevice();
+            await this.Setup(true);
 
-            await this.Device
+            await this.device
                 .ConnectWait()
                 .Select(x => x.WhenKnownCharacteristicsDiscovered(
                     Constants.ScratchServiceUuid,
@@ -80,80 +91,68 @@ namespace Plugin.BluetoothLE.Tests
         [Fact]
         public async Task ReadWriteCharacteristicExtensions()
         {
-            var dev = await this.FindTestDevice();
+            await this.Setup(false);
 
-            await Task.WhenAll(
-                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1, new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
-                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
+            await this.device
+                .WriteCharacteristic(
+                    Constants.ScratchServiceUuid,
+                    Constants.ScratchCharacteristicUuid1,
+                    new byte[] {0x01}
+                )
+                .Timeout(TimeSpan.FromSeconds(7))
+                .ToTask();
 
-                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid2, new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
-                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid2).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
-
-                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid3, new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
-                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid3).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
-
-                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid4, new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
-                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid4).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
-
-                dev.WriteCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid5, new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(7)).ToTask(),
-                dev.ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid5).Timeout(TimeSpan.FromSeconds(7)).ToTask()
-            );
+            await this.device
+                .ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1)
+                .Timeout(TimeSpan.FromSeconds(7))
+                .ToTask();
         }
 
 
         [Fact]
-        public async Task GetKnownCharacteristics_Concurrent_Notify()
+        public async Task Extensions_HookCharacteristic()
         {
-            var c1 = Constants.ScratchCharacteristicUuid1;
-            var c2 = Constants.ScratchCharacteristicUuid2;
+            await this.Setup(false);
+            //this.device.ConnectHook(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1)
+            //    .Subscribe(XmlAssertionExtensions =>
+            //    {
 
-            await this.FindTestDevice();
-            await this.Device.ConnectWait();
-            var notifications = await this.Device
-                .GetKnownCharacteristics(Constants.ScratchServiceUuid, c1, c2)
-                .Timeout(TimeSpan.FromSeconds(5))
-                .Select(x => x.RegisterAndNotify())
-                .Switch()
-                .Take(4)
-                .ToList();
-
-            notifications.Any(x => x.Characteristic.Uuid.Equals(c1)).Should().BeTrue();
-            notifications.Any(x => x.Characteristic.Uuid.Equals(c2)).Should().BeTrue();
+            //    })
         }
 
 
-        [Fact]
-        public async Task ReconnectTest()
-        {
-            var autoConnect = await UserDialogs.Instance.ConfirmAsync(new ConfirmConfig().SetMessage("Use autoConnect?").UseYesNo());
-            var connected = 0;
-            var disconnected = 0;
+        //[Fact]
+        //public async Task ReconnectTest()
+        //{
+        //    var autoConnect = await UserDialogs.Instance.ConfirmAsync(new ConfirmConfig().SetMessage("Use autoConnect?").UseYesNo());
+        //    var connected = 0;
+        //    var disconnected = 0;
 
-            await this.FindTestDevice();
-            this.Device
-                .WhenStatusChanged()
-                .Subscribe(x =>
-                {
-                    switch (x)
-                    {
-                        case ConnectionStatus.Disconnected:
-                            disconnected++;
-                            break;
+        //    await this.FindTestDevice();
+        //    this.Device
+        //        .WhenStatusChanged()
+        //        .Subscribe(x =>
+        //        {
+        //            switch (x)
+        //            {
+        //                case ConnectionStatus.Disconnected:
+        //                    disconnected++;
+        //                    break;
 
-                        case ConnectionStatus.Connected:
-                            connected++;
-                            break;
-                    }
-                });
+        //                case ConnectionStatus.Connected:
+        //                    connected++;
+        //                    break;
+        //            }
+        //        });
 
-            await this.Device.ConnectWait(new GattConnectionConfig
-            {
-                AndroidAutoConnect = autoConnect,
-                IsPersistent = true
-            });
-            await UserDialogs.Instance.AlertAsync("No turn device off - wait a 3 seconds then turn it back on - press OK if light goes green or you believe connection has failed");
-            connected.Should().Be(2, "No reconnection count");
-            disconnected.Should().Be(2, "No disconnect");
-        }
+        //    await this.Device.ConnectWait(new GattConnectionConfig
+        //    {
+        //        AndroidAutoConnect = autoConnect,
+        //        IsPersistent = true
+        //    });
+        //    await UserDialogs.Instance.AlertAsync("No turn device off - wait a 3 seconds then turn it back on - press OK if light goes green or you believe connection has failed");
+        //    connected.Should().Be(2, "No reconnection count");
+        //    disconnected.Should().Be(2, "No disconnect");
+        //}
     }
 }

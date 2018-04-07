@@ -10,12 +10,10 @@ using Xunit.Abstractions;
 
 namespace Plugin.BluetoothLE.Tests
 {
-    public class AdapterTests : AbstractTests
+    public class AdapterTests
     {
-
-        public AdapterTests(ITestOutputHelper output) : base(output)
-        {
-        }
+        readonly ITestOutputHelper output;
+        public AdapterTests(ITestOutputHelper output) => this.output = output;
 
 
         [Fact]
@@ -57,7 +55,7 @@ namespace Plugin.BluetoothLE.Tests
                     ScanType = BleScanType.Balanced,
                     ServiceUuids =
                     {
-                        Constants.ScratchServiceUuid
+                        Constants.AdServiceUuid
                     }
                 })
                 .Take(1)
