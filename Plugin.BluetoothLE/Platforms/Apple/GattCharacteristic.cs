@@ -11,7 +11,7 @@ using UIKit;
 
 namespace Plugin.BluetoothLE
 {
-    public class GattCharacteristic : AbstractGattCharacteristic
+    public partial class GattCharacteristic : AbstractGattCharacteristic
     {
         readonly GattService serivceObj;
         public CBPeripheral Peripheral => this.serivceObj.Peripherial;
@@ -27,47 +27,6 @@ namespace Plugin.BluetoothLE
 
 
         public override byte[] Value => this.NativeCharacteristic.Value?.ToArray();
-
-
-        public override IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value) => Observable.Create<CharacteristicGattResult>(ob =>
-        {
-            this.AssertWrite(false);
-
-            void Send()
-            {
-                var data = NSData.FromArray(value);
-                this.Peripheral.WriteValue(data, this.NativeCharacteristic, CBCharacteristicWriteType.WithoutResponse);
-                var result = this.ToResult(GattEvent.Write, value);
-                ob.Respond(result);
-            }
-
-#if __IOS__
-            if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
-            {
-                var handler = new EventHandler((sender, args) => Send());
-                this.Peripheral.IsReadyToSendWriteWithoutResponse += handler;
-                if (this.Peripheral.CanSendWriteWithoutResponse)
-                    Send();
-            }
-            else
-            {
-                Send();
-            }
-            return () =>
-            {
-
-                if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
-                    this.Peripheral.IsReadyToSendWriteWithoutResponse -= handler;
-            };
-#else
-            var handler = new EventHandler((sender, args) => Send());
-            this.Peripheral.IsReadyToSendWriteWithoutResponse += handler;
-            if (this.Peripheral.CanSendWriteWithoutResponse)
-                Send();
-
-            return () => this.Peripheral.IsReadyToSendWriteWithoutResponse -= handler;
-#endif
-        });
 
 
         public override IObservable<CharacteristicGattResult> Write(byte[] value) => Observable.Create<CharacteristicGattResult>(ob =>
