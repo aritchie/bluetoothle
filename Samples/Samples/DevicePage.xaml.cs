@@ -1,10 +1,10 @@
 ﻿using System;
-using Xamarin.Forms;
+using Acr.XamForms.Pages;
 
 
 namespace Samples.Ble
 {
-    public partial class DevicePage : TabbedPage
+    public partial class DevicePage : ContentPage
     {
         public DevicePage()
         {

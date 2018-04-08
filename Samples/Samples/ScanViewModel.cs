@@ -22,27 +22,12 @@ namespace Samples.Ble
         {
             this.dialogs = UserDialogs.Instance;
             this.adapter = CrossBleAdapter.Current;
-
             this.Devices = new ObservableCollection<ScanResultViewModel>();
-
-            this.adapter
-                .WhenDeviceStatusChanged()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
-                {
-                    var vm = this.Devices.FirstOrDefault(dev => dev.Uuid.Equals(x.Uuid));
-                    if (vm != null)
-                        vm.IsConnected = x.Status == ConnectionStatus.Connected;
-                });
 
             this.adapter
                 .WhenStatusChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
-                {
-                    this.IsSupported = x == AdapterStatus.PoweredOn;
-                    this.Title = $"BLE Scanner ({x})";
-                });
+                .Subscribe(x => this.IsSupported = x == AdapterStatus.PoweredOn);
 
             this.SelectDevice = ReactiveCommand.CreateFromTask<ScanResultViewModel>(async x =>
             {
@@ -89,12 +74,13 @@ namespace Samples.Ble
                     if (this.IsScanning)
                     {
                         this.scan?.Dispose();
+                        this.IsScanning = false;
                     }
                     else
                     {
                         this.Devices.Clear();
-                        this.ScanText = "Stop Scan";
 
+                        this.IsScanning = true;
                         this.scan = CrossBleAdapter
                             .Current
                             .Scan()
@@ -129,11 +115,20 @@ namespace Samples.Ble
         public ObservableCollection<ScanResultViewModel> Devices { get; }
 
 
+        public string ScanText => this.IsSupported
+            ? (this.IsScanning ? "Stop Scan" : "Scan")
+            : "Bad Adapter Status: " + CrossBleAdapter.Current.Status;
+
+
         bool scanning;
         public bool IsScanning
         {
             get => this.scanning;
-            private set => this.RaiseAndSetIfChanged(ref this.scanning, value);
+            private set
+            {
+                this.RaiseAndSetIfChanged(ref this.scanning, value);
+                this.RaisePropertyChanged(nameof(this.ScanText));
+            }
         }
 
 
@@ -141,23 +136,11 @@ namespace Samples.Ble
         public bool IsSupported
         {
             get => this.supported;
-            private set => this.RaiseAndSetIfChanged(ref this.supported, value);
-        }
-
-
-        string scanText;
-        public string ScanText
-        {
-            get => this.scanText;
-            private set => this.RaiseAndSetIfChanged(ref this.scanText, value);
-        }
-
-
-        string title;
-        public string Title
-        {
-            get => this.title;
-            private set => this.RaiseAndSetIfChanged(ref this.title, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref this.supported, value);
+                this.RaisePropertyChanging(nameof(this.ScanText));
+            }
         }
 
 

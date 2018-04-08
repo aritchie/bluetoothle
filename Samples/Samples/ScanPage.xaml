@@ -12,8 +12,8 @@
 
     <ContentPage.Content>
         <StackLayout>
-            <Button Text="Scan" Command="{Binding ScanToggle}" />
-            <Button Text="Settings" Command="{Binding OpenSettings}" />
+            <Button Text="{Binding ScanText}" Command="{Binding ScanToggle}" />
+            <Button Text="Open Settings" Command="{Binding OpenSettings}" />
             <Button Text="Toggle Adapter" Command="{Binding ToggleAdapterState}" />
 
             <ListView ItemsSource="{Binding Devices}" RowHeight="160">
