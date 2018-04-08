@@ -9,7 +9,7 @@
         <Authors>aritchie</Authors>
         <Company />
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
-        <Description>Cross Platform Reactive Bluetooth LE Plugin for Xamarin
+        <Description>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows
 
 Supported Platforms
 * .NET Standard
@@ -18,8 +18,8 @@ Supported Platforms
 * tvOS
 * macOS
 * UWP (beta)</Description>
-        <Product>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows</Product>
-        <Version>6.0.0-beta3</Version>
+        <Product>Plugin.BluetoothLE ($(TargetFramework))</Product>
+        <Version>6.0.0-beta4</Version>
         <PackageProjectUrl>https://github.com/aritchie/bluetoothle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</PackageLicenseUrl>
         <PackageIconUrl>https://github.com/aritchie/bluetoothle/raw/master/icon.png</PackageIconUrl>
@@ -27,47 +27,9 @@ Supported Platforms
         <PackageTags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</PackageTags>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-        <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
-        <DefineConstants>$(DefineConstants);NETSTANDARD;BAIT</DefineConstants>
-        <Product>Plugin.BluetoothLE - .NET Standard</Product>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'MonoAndroid70' OR '$(TargetFramework)' == 'MonoAndroid80' ">
-        <DefineConstants>$(DefineConstants);__ANDROID__</DefineConstants>
-        <Product>Plugin.BluetoothLE - Android</Product>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' ">
-        <DefineConstants>$(DefineConstants);__IOS__</DefineConstants>
-        <Product>Plugin.BluetoothLE - iOS</Product>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'xamarin.tvOS10' ">
-        <DefineConstants>$(DefineConstants);__TVOS__</DefineConstants>
-        <Product>Plugin.BluetoothLE - tvOS</Product>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'Xamarin.Mac20' ">
-        <DefineConstants>$(DefineConstants);__MACOS__</DefineConstants>
-        <Product>Plugin.BluetoothLE - macOS</Product>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'net46' ">
-        <DefineConstants>$(DefineConstants);__MACOS__</DefineConstants>
-        <Product>Plugin.BluetoothLE - macOS</Product>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'tizen4' ">
-        <DefineConstants>$(DefineConstants);__TIZEN__</DefineConstants>
-        <Product>Plugin.BluetoothLE - Tizen</Product>
-    </PropertyGroup>
-
     <PropertyGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
         <TargetPlatformVersion>10.0.16299.0</TargetPlatformVersion>
         <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
-        <DefineConstants>$(DefineConstants);WINDOWS_UWP</DefineConstants>
-        <Product>Plugin.BluetoothLE - UWP</Product>
     </PropertyGroup>
 
     <ItemGroup>

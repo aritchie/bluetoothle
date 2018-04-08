@@ -91,7 +91,10 @@ namespace Plugin.BluetoothLE
                     .Callbacks
                     .ConnectionStateChanged
                     .Where(args => args.Gatt.Device.Equals(this.context.NativeDevice))
-                    .Select(x => x.NewState.ToStatus())
+                    .Select(x =>
+                    {
+                        return x.NewState.ToStatus();
+                    })
                     .DistinctUntilChanged()
                     .Subscribe(ob.OnNext);
 
