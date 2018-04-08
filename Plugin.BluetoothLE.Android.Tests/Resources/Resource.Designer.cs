@@ -63,28 +63,6 @@ namespace Plugin.BluetoothLE.Android.Tests
 			global::AndroidHUD.Resource.Styleable.ProgressWheel_ahText = global::Plugin.BluetoothLE.Android.Tests.Resource.Styleable.ProgressWheel_ahText;
 			global::AndroidHUD.Resource.Styleable.ProgressWheel_ahTextColor = global::Plugin.BluetoothLE.Android.Tests.Resource.Styleable.ProgressWheel_ahTextColor;
 			global::AndroidHUD.Resource.Styleable.ProgressWheel_ahTextSize = global::Plugin.BluetoothLE.Android.Tests.Resource.Styleable.ProgressWheel_ahTextSize;
-			global::Xamarin.Android.NUnitLite.Resource.Id.OptionHostName = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.OptionHostName;
-			global::Xamarin.Android.NUnitLite.Resource.Id.OptionPort = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.OptionPort;
-			global::Xamarin.Android.NUnitLite.Resource.Id.OptionRemoteServer = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.OptionRemoteServer;
-			global::Xamarin.Android.NUnitLite.Resource.Id.OptionsButton = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.OptionsButton;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultFullName = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultFullName;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultMessage = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultMessage;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultResultState = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultResultState;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultRunSingleMethodTest = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultRunSingleMethodTest;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultStackTrace = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultStackTrace;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultsFailed = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultsFailed;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultsId = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultsId;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultsIgnored = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultsIgnored;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultsInconclusive = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultsInconclusive;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultsMessage = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultsMessage;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultsPassed = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultsPassed;
-			global::Xamarin.Android.NUnitLite.Resource.Id.ResultsResult = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.ResultsResult;
-			global::Xamarin.Android.NUnitLite.Resource.Id.RunTestsButton = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.RunTestsButton;
-			global::Xamarin.Android.NUnitLite.Resource.Id.TestSuiteListView = global::Plugin.BluetoothLE.Android.Tests.Resource.Id.TestSuiteListView;
-			global::Xamarin.Android.NUnitLite.Resource.Layout.options = global::Plugin.BluetoothLE.Android.Tests.Resource.Layout.options;
-			global::Xamarin.Android.NUnitLite.Resource.Layout.results = global::Plugin.BluetoothLE.Android.Tests.Resource.Layout.results;
-			global::Xamarin.Android.NUnitLite.Resource.Layout.test_result = global::Plugin.BluetoothLE.Android.Tests.Resource.Layout.test_result;
-			global::Xamarin.Android.NUnitLite.Resource.Layout.test_suite = global::Plugin.BluetoothLE.Android.Tests.Resource.Layout.test_suite;
 			global::Xamarin.Forms.Platform.Android.Resource.Attribute.actionBarSize = global::Plugin.BluetoothLE.Android.Tests.Resource.Attribute.actionBarSize;
 		}
 		
@@ -3140,65 +3118,11 @@ namespace Plugin.BluetoothLE.Android.Tests
 			// aapt resource value: 0x7f080034
 			public const int META = 2131230772;
 			
-			// aapt resource value: 0x7f0800ca
-			public const int OptionHostName = 2131230922;
-			
-			// aapt resource value: 0x7f0800cb
-			public const int OptionPort = 2131230923;
-			
-			// aapt resource value: 0x7f0800c9
-			public const int OptionRemoteServer = 2131230921;
-			
-			// aapt resource value: 0x7f0800d9
-			public const int OptionsButton = 2131230937;
-			
-			// aapt resource value: 0x7f0800d4
-			public const int ResultFullName = 2131230932;
-			
-			// aapt resource value: 0x7f0800d6
-			public const int ResultMessage = 2131230934;
-			
-			// aapt resource value: 0x7f0800d5
-			public const int ResultResultState = 2131230933;
-			
-			// aapt resource value: 0x7f0800d3
-			public const int ResultRunSingleMethodTest = 2131230931;
-			
-			// aapt resource value: 0x7f0800d7
-			public const int ResultStackTrace = 2131230935;
-			
-			// aapt resource value: 0x7f0800cf
-			public const int ResultsFailed = 2131230927;
-			
-			// aapt resource value: 0x7f0800cc
-			public const int ResultsId = 2131230924;
-			
-			// aapt resource value: 0x7f0800d0
-			public const int ResultsIgnored = 2131230928;
-			
-			// aapt resource value: 0x7f0800d1
-			public const int ResultsInconclusive = 2131230929;
-			
-			// aapt resource value: 0x7f0800d2
-			public const int ResultsMessage = 2131230930;
-			
-			// aapt resource value: 0x7f0800ce
-			public const int ResultsPassed = 2131230926;
-			
-			// aapt resource value: 0x7f0800cd
-			public const int ResultsResult = 2131230925;
-			
-			// aapt resource value: 0x7f0800d8
-			public const int RunTestsButton = 2131230936;
-			
 			// aapt resource value: 0x7f080035
 			public const int SHIFT = 2131230773;
 			
 			// aapt resource value: 0x7f080036
 			public const int SYM = 2131230774;
-			
-			// aapt resource value: 0x7f0800da
-			public const int TestSuiteListView = 2131230938;
 			
 			// aapt resource value: 0x7f0800b9
 			public const int action0 = 2131230905;
@@ -3452,14 +3376,14 @@ namespace Plugin.BluetoothLE.Android.Tests
 			// aapt resource value: 0x7f08009b
 			public const int loadingProgressWheel = 2131230875;
 			
-			// aapt resource value: 0x7f0800dd
-			public const int masked = 2131230941;
+			// aapt resource value: 0x7f0800cb
+			public const int masked = 2131230923;
 			
 			// aapt resource value: 0x7f0800bc
 			public const int media_actions = 2131230908;
 			
-			// aapt resource value: 0x7f0800db
-			public const int message = 2131230939;
+			// aapt resource value: 0x7f0800c9
+			public const int message = 2131230921;
 			
 			// aapt resource value: 0x7f080030
 			public const int middle = 2131230768;
@@ -3782,8 +3706,8 @@ namespace Plugin.BluetoothLE.Android.Tests
 			// aapt resource value: 0x7f080016
 			public const int view_offset_helper = 2131230742;
 			
-			// aapt resource value: 0x7f0800dc
-			public const int visible = 2131230940;
+			// aapt resource value: 0x7f0800ca
+			public const int visible = 2131230922;
 			
 			// aapt resource value: 0x7f0800ae
 			public const int volume_item_container = 2131230894;
@@ -4074,31 +3998,19 @@ namespace Plugin.BluetoothLE.Android.Tests
 			public const int notification_template_part_time = 2130903104;
 			
 			// aapt resource value: 0x7f030041
-			public const int options = 2130903105;
+			public const int select_dialog_item_material = 2130903105;
 			
 			// aapt resource value: 0x7f030042
-			public const int results = 2130903106;
+			public const int select_dialog_multichoice_material = 2130903106;
 			
 			// aapt resource value: 0x7f030043
-			public const int select_dialog_item_material = 2130903107;
+			public const int select_dialog_singlechoice_material = 2130903107;
 			
 			// aapt resource value: 0x7f030044
-			public const int select_dialog_multichoice_material = 2130903108;
+			public const int support_simple_spinner_dropdown_item = 2130903108;
 			
 			// aapt resource value: 0x7f030045
-			public const int select_dialog_singlechoice_material = 2130903109;
-			
-			// aapt resource value: 0x7f030046
-			public const int support_simple_spinner_dropdown_item = 2130903110;
-			
-			// aapt resource value: 0x7f030047
-			public const int test_result = 2130903111;
-			
-			// aapt resource value: 0x7f030048
-			public const int test_suite = 2130903112;
-			
-			// aapt resource value: 0x7f030049
-			public const int tooltip = 2130903113;
+			public const int tooltip = 2130903109;
 			
 			static Layout()
 			{

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-            xmlns:local="clr-namespace:Samples.Ble;assembly=Samples"
             xmlns:behaviors="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
             x:Class="Samples.Ble.DevicePage"
             Title="{Binding Name}"
@@ -9,29 +8,32 @@
 
     <TabbedPage.Children>
         <ContentPage Title="Device">
-            <TableView Intent="Form">
-                <TableRoot>
-                    <TableSection Title="Information">
-                        <TextCell Text="Connection Status" Detail="{Binding Status}" />
-                        <TextCell Text="Name" Detail="{Binding Name}" />
-                        <TextCell Text="RSSI" Detail="{Binding Rssi}" />
-                    </TableSection>
-                    <TableSection>
-                        <TextCell Text="{Binding ConnectText}" Command="{Binding ConnectionToggle}" />
-                    </TableSection>
-                    <TableSection>
-                        <TextCell Text="Request MTU" Command="{Binding RequestMtu}" />
-                        <TextCell Text="Pair To Device" Command="{Binding PairToDevice}" />
-                    </TableSection>
-                </TableRoot>
-            </TableView>
+            <ContentPage.ToolbarItems>
+                <ToolbarItem Text="{Binding ConnectText}"
+                             Command="{Binding ConnectionToggle}" />
+            </ContentPage.ToolbarItems>
+
+            <ContentPage.Content>
+                <TableView Intent="Form">
+                    <TableRoot>
+                        <TableSection Title="Information">
+                            <TextCell Text="Connection Status" Detail="{Binding Status}" />
+                            <TextCell Text="Name" Detail="{Binding Name}" />
+                        </TableSection>
+                        <TableSection>
+                            <TextCell Text="Request MTU" Command="{Binding RequestMtu}" />
+                            <TextCell Text="Pair To Device" Command="{Binding PairToDevice}" />
+                        </TableSection>
+                    </TableRoot>
+                </TableView>
+            </ContentPage.Content>
         </ContentPage>
 
         <ContentPage Title="Characteristics">
             <ListView ItemsSource="{Binding GattCharacteristics}"
-                     IsGroupingEnabled="true"
-                     GroupDisplayBinding="{Binding Name}"
-                     HasUnevenRows="true">
+                      IsGroupingEnabled="true"
+                      GroupDisplayBinding="{Binding Name}"
+                      HasUnevenRows="true">
 
                 <ListView.Behaviors>
                     <behaviors:ItemTappedCommandBehavior Command="{Binding SelectCharacteristic}" />
@@ -41,11 +43,14 @@
                     <DataTemplate>
                         <ViewCell Height="30">
                             <ContentView Padding="20,0,0,0">
-                                <Label Text="{Binding Name, StringFormat='Service {0}'}" FontSize="18" FontAttributes="Bold" />
+                                <Label Text="{Binding Name, StringFormat='Service {0}'}"
+                                       FontSize="18"
+                                       FontAttributes="Bold" />
                             </ContentView>
                         </ViewCell>
                     </DataTemplate>
                 </ListView.GroupHeaderTemplate>
+
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell Height="200">
@@ -66,7 +71,7 @@
         </ContentPage>
 
         <ContentPage Title="Descriptors">
-            <ListView ItemsSource="{Binding GattDescriptors}" RowHeight="150" ItemClickCommand="{Binding SelectDescriptor}">
+            <ListView ItemsSource="{Binding GattDescriptors}" RowHeight="150">
                 <ListView.Behaviors>
                     <behaviors:ItemTappedCommandBehavior Command="{Binding SelectDescriptor}" />
                 </ListView.Behaviors>
@@ -88,7 +93,6 @@
             </ListView>
         </ContentPage>
 
-        <local:LogPage Title="Logs" />
     </TabbedPage.Children>
 
 </TabbedPage>

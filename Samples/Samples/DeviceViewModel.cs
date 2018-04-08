@@ -20,9 +20,48 @@ namespace Samples.Ble
         {
             this.device = device;
 
+            this.device
+                .WhenStatusChanged()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(status =>
+                {
+                    switch (status)
+                    {
+                        case ConnectionStatus.Connecting:
+                            this.ConnectText = "Cancel Connection";
+                            break;
+
+                        case ConnectionStatus.Connected:
+                            this.ConnectText = "Disconnect";
+                            break;
+
+                        case ConnectionStatus.Disconnected:
+                            this.ConnectText = "Connect";
+                            this.GattCharacteristics.Clear();
+                            break;
+                    }
+                });
+
+            this.device
+                .WhenAnyCharacteristicDiscovered()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(chs =>
+                {
+                    var service = this.GattCharacteristics.FirstOrDefault(x => x.ShortName.Equals(chs.Service.Uuid.ToString()));
+                    if (service == null)
+                    {
+                        service = new Group<GattCharacteristicViewModel>(
+                            $"{chs.Service.Description} ({chs.Service.Uuid})",
+                            chs.Service.Uuid.ToString()
+                        );
+                        this.GattCharacteristics.Add(service);
+                    }
+                    service.Add(new GattCharacteristicViewModel(chs));
+                });
+
             this.SelectCharacteristic = ReactiveCommand.Create<GattCharacteristicViewModel>(x => x.Select());
 
-            this.ConnectionToggle = ReactiveCommand.CreateFromTask(async x =>
+            this.ConnectionToggle = ReactiveCommand.Create(() =>
             {
                 // don't cleanup connection - force user to d/c
                 if (this.device.Status == ConnectionStatus.Disconnected)
@@ -34,6 +73,7 @@ namespace Samples.Ble
                     this.device.CancelConnection();
                 }
             });
+
             this.PairToDevice = ReactiveCommand.CreateFromTask(async x =>
             {
                 if (!this.device.Features.HasFlag(DeviceFeatures.PairingRequests))
@@ -49,6 +89,7 @@ namespace Samples.Ble
                     await this.device.PairingRequest();
                 }
             });
+
             this.RequestMtu = ReactiveCommand.CreateFromTask(
                 async x =>
                 {
@@ -94,51 +135,10 @@ namespace Samples.Ble
         }
 
 
-        public override void OnActivated()
-        {
-            base.OnActivated();
-
-            this.device
-                .WhenStatusChanged()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(status =>
-                {
-                    switch (status)
-                    {
-                        case ConnectionStatus.Connecting:
-                            this.ConnectText = "Cancel Connection";
-                            break;
-
-                        case ConnectionStatus.Connected:
-                            this.ConnectText = "Disconnect";
-                            break;
-
-                        case ConnectionStatus.Disconnected:
-                            this.ConnectText = "Connect";
-                            this.GattCharacteristics.Clear();
-                            break;
-                    }
-                });
-
-            this.device
-                .WhenAnyCharacteristicDiscovered()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(chs =>
-                {
-                    var service = this.GattCharacteristics.FirstOrDefault(x =>
-                        x.ShortName.Equals(chs.Service.Uuid.ToString())
-                    ) ?? new Group<GattCharacteristicViewModel>(chs.Service.Description, chs.Service.Uuid.ToString());
-
-                    service.Add(new GattCharacteristicViewModel(chs));
-                });
-        }
-
-
         public ICommand ConnectionToggle { get; }
         public ICommand PairToDevice { get; }
         public ICommand RequestMtu { get; }
         public ICommand SelectCharacteristic { get; }
-
 
         public string Name => this.device.Name ?? "Unknown";
         public Guid Uuid => this.device.Uuid;
