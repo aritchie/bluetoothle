@@ -81,14 +81,15 @@ namespace Plugin.BluetoothLE
             .Select(x => this.Name);
 
 
-        public override IObservable<ConnectionStatus> WhenStatusChanged() =>
-            Observable.Create<ConnectionStatus>(ob =>
+        public override IObservable<ConnectionStatus> WhenStatusChanged()
+            => Observable.Create<ConnectionStatus>(ob =>
             {
                 ob.OnNext(this.Status); // won't return connecting/disconnecting states
                 var sub1 = this.connSubject.Subscribe(ob.OnNext);
                 var sub2 = this.context
                     .Callbacks
                     .ConnectionStateChanged
+                    .Where(x => x.Gatt.Device.Address.Equals(this.context.NativeDevice.Address))
                     .Select(x =>
                     {
                         Log.Info(BleLogCategory.Device, "Android Connection State: {x.NewState} - {x.Status}");
@@ -103,38 +104,6 @@ namespace Plugin.BluetoothLE
                     sub2.Dispose();
                 };
             });
-
-        //IObservable<ConnectionStatus> statusOb;
-        //public override IObservable<ConnectionStatus> WhenStatusChanged()
-        //{
-        //    this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
-        //    {
-        //        var sub1 = this.connSubject.Subscribe(ob.OnNext);
-
-        //        Console.WriteLine("SUBJECT HASH: " + this.context.Callbacks.ConnectionStateChanged.GetHashCode());
-        //        var sub2 = this.context
-        //            .Callbacks
-        //            .ConnectionStateChanged
-        //            .Select(x =>
-        //            {
-        //                Console.WriteLine($"HELLO: {x.NewState} - {x.Status}");
-        //                return x.NewState.ToStatus();
-        //            })
-        //            //.DistinctUntilChanged()
-        //            .Subscribe(ob.OnNext);
-
-        //        return () =>
-        //        {
-        //            sub1.Dispose();
-        //            sub2.Dispose();
-        //        };
-        //    })
-        //    .StartWith(this.Status)
-        //    .Replay(1)
-        //    .RefCount();
-
-        //    return this.statusOb;
-        //}
 
 
         IObservable<IGattService> serviceOb;
