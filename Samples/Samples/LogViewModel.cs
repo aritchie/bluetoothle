@@ -3,9 +3,9 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Acr.UserDialogs;
 using ReactiveUI;
-using Samples.Infrastructure;
 using Xamarin.Forms;
-using Log = Plugin.BluetoothLE.Infrastructure.Log;
+using Samples.Infrastructure;
+using Log = Acr.Logging.Log;
 
 
 namespace Samples.Ble
@@ -51,7 +51,7 @@ namespace Samples.Ble
             });
 
             this.Show = ReactiveCommand.Create<LogItem>(item => UserDialogs.Instance.Alert(item.Message));
-            this.Clear = ReactiveCommand.Create(() => Device.BeginInvokeOnMainThread(this.Logs.Clear));
+            this.Clear = ReactiveCommand.Create(this.Logs.Clear);
             this.ToggleState = ReactiveCommand.Create(() => this.Enabled = !this.Enabled);
         }
 

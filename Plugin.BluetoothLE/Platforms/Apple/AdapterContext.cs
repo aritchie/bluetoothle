@@ -2,12 +2,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using CoreBluetooth;
 using CoreFoundation;
 using Foundation;
-using Plugin.BluetoothLE.Infrastructure;
+using Acr.Logging;
 
 
 namespace Plugin.BluetoothLE
@@ -63,7 +62,7 @@ namespace Plugin.BluetoothLE
                 return;
 
             var peripheralArray = (NSArray)dict[CBCentralManager.RestoredStatePeripheralsKey];
-            Log.Info("Adapter", $"Restoring peripheral state on {peripheralArray.Count} devices");
+            Log.Info(BleLogCategory.Adapter, $"Restoring peripheral state on {peripheralArray.Count} devices");
 
             for (nuint i = 0; i < peripheralArray.Count; i++)
             {

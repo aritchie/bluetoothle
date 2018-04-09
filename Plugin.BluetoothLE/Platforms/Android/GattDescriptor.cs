@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using Acr;
 using Android.Bluetooth;
 using Plugin.BluetoothLE.Internals;
@@ -25,32 +24,34 @@ namespace Plugin.BluetoothLE
 
         public override byte[] Value => this.native.GetValue();
 
-        public override IObservable<DescriptorGattResult> Write(byte[] data) => this.context.Invoke(Observable.Create<DescriptorGattResult>(ob =>
-        {
-            var sub = this.context
-                .Callbacks
-                .DescriptorWrite
-                .Where(this.NativeEquals)
-                .Subscribe(args =>
-                {
-                    var result = args.IsSuccessful
-                        ? this.ToResult(GattEvent.Write, data)
-                        : this.ToResult(GattEvent.WriteError, $"Failed to write descriptor value - {args.Status}");
 
-                    ob.Respond(result);
+        public override IObservable<DescriptorGattResult> Write(byte[] data) => Observable.Create<DescriptorGattResult>(ob => //=> this.context.Invoke(Observable.Create<DescriptorGattResult>(ob =>
+            {
+                var sub = this.context
+                    .Callbacks
+                    .DescriptorWrite
+                    .Where(this.NativeEquals)
+                    .Subscribe(args =>
+                    {
+                        var result = args.IsSuccessful
+                            ? this.ToResult(GattEvent.Write, data)
+                            : this.ToResult(GattEvent.WriteError, $"Failed to write descriptor value - {args.Status}");
+
+                        ob.Respond(result);
+                    });
+
+                this.context.InvokeOnMainThread(() =>
+                {
+                    if (!this.native.SetValue(data))
+                        ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to set descriptor value"));
+
+                    else if (!this.context.Gatt.WriteDescriptor(this.native))
+                        ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to descriptor"));
                 });
 
-            this.context.InvokeOnMainThread(() =>
-            {
-                if (!this.native.SetValue(data))
-                    ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to set descriptor value"));
-
-                else if (!this.context.Gatt.WriteDescriptor(this.native))
-                    ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to descriptor"));
+                return sub;
             });
-
-            return sub;
-        }));
+        //}));
 
 
         public override IObservable<DescriptorGattResult> Read() => this.context.Invoke(Observable.Create<DescriptorGattResult>(ob =>

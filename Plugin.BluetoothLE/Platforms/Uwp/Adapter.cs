@@ -173,25 +173,25 @@ namespace Plugin.BluetoothLE
         public override IGattServer CreateGattServer() => new GattServer();
 
 
-        IObservable<IDevice> deviceStatusOb;
-        public override IObservable<IDevice> WhenDeviceStatusChanged()
-        {
-            this.deviceStatusOb = this.deviceStatusOb ?? Observable.Create<IDevice>(ob =>
-            {
-                var cleanup = new List<IDisposable>();
-                var devices = this.context.GetDiscoveredDevices();
+        //IObservable<IDevice> deviceStatusOb;
+        //public override IObservable<IDevice> WhenDeviceStatusChanged()
+        //{
+        //    this.deviceStatusOb = this.deviceStatusOb ?? Observable.Create<IDevice>(ob =>
+        //    {
+        //        var cleanup = new List<IDisposable>();
+        //        var devices = this.context.GetDiscoveredDevices();
 
-                foreach (var device in devices)
-                {
-                    cleanup.Add(device
-                        .WhenStatusChanged()
-                        .Subscribe(_ => ob.OnNext(device))
-                    );
-                }
-                return () => cleanup.ForEach(x => x.Dispose());
-            });
-            return this.deviceStatusOb;
-        }
+        //        foreach (var device in devices)
+        //        {
+        //            cleanup.Add(device
+        //                .WhenStatusChanged()
+        //                .Subscribe(_ => ob.OnNext(device))
+        //            );
+        //        }
+        //        return () => cleanup.ForEach(x => x.Dispose());
+        //    });
+        //    return this.deviceStatusOb;
+        //}
 
 
         public override async void OpenSettings()

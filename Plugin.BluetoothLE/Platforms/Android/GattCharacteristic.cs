@@ -3,12 +3,11 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Threading.Tasks;
-using System.Threading.Tasks;
 using Acr;
+using Acr.Logging;
 using Android.Bluetooth;
 using Java.Util;
 using Plugin.BluetoothLE.Internals;
-using Plugin.BluetoothLE.Infrastructure;
 using Observable = System.Reactive.Linq.Observable;
 
 
@@ -79,7 +78,7 @@ namespace Plugin.BluetoothLE
                 .Where(this.NativeEquals)
                 .Subscribe(args =>
                 {
-                    Log.Debug("Characteristic", "write event - " + args.Characteristic.Uuid);
+                    Log.Debug(BleLogCategory.Characteristic, "write event - " + args.Characteristic.Uuid);
 
                     var result = args.IsSuccessful
                         ? this.ToResult(GattEvent.Write, value)
@@ -88,7 +87,7 @@ namespace Plugin.BluetoothLE
                     ob.Respond(result);
                 });
 
-            Log.Debug("Characteristic", "Hooking for write response - " + this.Uuid);
+            Log.Debug(BleLogCategory.Characteristic, "Hooking for write response - " + this.Uuid);
             this.context.InvokeOnMainThread(() =>
             {
                 this.native.WriteType = GattWriteType.Default;

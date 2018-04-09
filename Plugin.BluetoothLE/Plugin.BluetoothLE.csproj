@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks></TargetFrameworks>
         <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid70;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;uap10.0</TargetFrameworks>
-        <!--<TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid70;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;uap10.0;tizen4</TargetFrameworks>-->
+        <!--<TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid70;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;uap10.0;net46;tizen4</TargetFrameworks>-->
         <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0;MonoAndroid70;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;</TargetFrameworks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>aritchie</Authors>
@@ -35,7 +35,7 @@ Supported Platforms
     <ItemGroup>
         <Compile Remove="Platforms\**\*.cs" />
         <None Include="Platforms\**\*.cs" />
-        <PackageReference Include="Acr.Core" Version="1.2.1" />
+        <PackageReference Include="Acr.Core" Version="1.2.2" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
         <PackageReference Include="MSBuild.Sdk.Extras" Version="1.3.0" PrivateAssets="all" />
     </ItemGroup>

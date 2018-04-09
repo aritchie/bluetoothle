@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive;
 using System.Reactive.Linq;
 using Acr;
+using Acr.Logging;
 using CoreBluetooth;
 using Foundation;
-using Plugin.BluetoothLE.Infrastructure;
 
 
 namespace Plugin.BluetoothLE
@@ -162,7 +161,7 @@ namespace Plugin.BluetoothLE
 
         public override IObservable<IGattService> DiscoverServices() => Observable.Create<IGattService>(ob =>
         {
-            Log.Info("Device", "service discovery hooked for device " + this.Uuid);
+            Log.Info(BleLogCategory.Device, "service discovery hooked for device " + this.Uuid);
             var services = new Dictionary<Guid, IGattService>();
 
             var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>

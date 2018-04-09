@@ -2,8 +2,8 @@
 using Android.Bluetooth;
 using Android.OS;
 using Java.Util;
-using Plugin.BluetoothLE.Infrastructure;
 using Plugin.BluetoothLE.Server;
+using Acr.Logging;
 using DroidGattStatus = Android.Bluetooth.GattStatus;
 using GattStatus = Plugin.BluetoothLE.Server.GattStatus;
 
@@ -54,7 +54,7 @@ namespace Plugin.BluetoothLE
                     return Guid.Parse(id);
 
                 default:
-                    Log.Warn("Device", "Invalid UUID Detected - " + id);
+                    Log.Warn("Adapter", "Invalid UUID Detected - " + id);
                     return Guid.Empty;
             }
         }

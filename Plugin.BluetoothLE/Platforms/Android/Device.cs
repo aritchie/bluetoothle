@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using Acr;
 using Android.Bluetooth;
 using Android.OS;
+using Acr.Logging;
 using Plugin.BluetoothLE.Internals;
 
 
@@ -19,12 +20,11 @@ namespace Plugin.BluetoothLE
         IDisposable autoReconnectSub;
 
 
-        public Device(BluetoothManager manager,
-                      BluetoothDevice native,
-                      GattCallbacks callbacks) : base(native.Name, ToDeviceId(native.Address))
+        public Device(BluetoothManager manager, BluetoothDevice native)
+            : base(native.Name, ToDeviceId(native.Address))
         {
             this.connSubject = new Subject<ConnectionStatus>();
-            this.context = new DeviceContext(native, callbacks);
+            this.context = new DeviceContext(native);
             this.manager = manager;
         }
 
@@ -81,21 +81,20 @@ namespace Plugin.BluetoothLE
             .Select(x => this.Name);
 
 
-        IObservable<ConnectionStatus> statusOb;
-        public override IObservable<ConnectionStatus> WhenStatusChanged()
-        {
-            this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
+        public override IObservable<ConnectionStatus> WhenStatusChanged() =>
+            Observable.Create<ConnectionStatus>(ob =>
             {
+                ob.OnNext(this.Status); // won't return connecting/disconnecting states
                 var sub1 = this.connSubject.Subscribe(ob.OnNext);
                 var sub2 = this.context
                     .Callbacks
                     .ConnectionStateChanged
-                    .Where(args => args.Gatt.Device.Equals(this.context.NativeDevice))
                     .Select(x =>
                     {
+                        Log.Info(BleLogCategory.Device, "Android Connection State: {x.NewState} - {x.Status}");
                         return x.NewState.ToStatus();
                     })
-                    .DistinctUntilChanged()
+                    //.DistinctUntilChanged()
                     .Subscribe(ob.OnNext);
 
                 return () =>
@@ -103,13 +102,39 @@ namespace Plugin.BluetoothLE
                     sub1.Dispose();
                     sub2.Dispose();
                 };
-            })
-            .StartWith(this.Status)
-            .Replay(1)
-            .RefCount();
+            });
 
-            return this.statusOb;
-        }
+        //IObservable<ConnectionStatus> statusOb;
+        //public override IObservable<ConnectionStatus> WhenStatusChanged()
+        //{
+        //    this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
+        //    {
+        //        var sub1 = this.connSubject.Subscribe(ob.OnNext);
+
+        //        Console.WriteLine("SUBJECT HASH: " + this.context.Callbacks.ConnectionStateChanged.GetHashCode());
+        //        var sub2 = this.context
+        //            .Callbacks
+        //            .ConnectionStateChanged
+        //            .Select(x =>
+        //            {
+        //                Console.WriteLine($"HELLO: {x.NewState} - {x.Status}");
+        //                return x.NewState.ToStatus();
+        //            })
+        //            //.DistinctUntilChanged()
+        //            .Subscribe(ob.OnNext);
+
+        //        return () =>
+        //        {
+        //            sub1.Dispose();
+        //            sub2.Dispose();
+        //        };
+        //    })
+        //    .StartWith(this.Status)
+        //    .Replay(1)
+        //    .RefCount();
+
+        //    return this.statusOb;
+        //}
 
 
         IObservable<IGattService> serviceOb;

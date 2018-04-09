@@ -57,7 +57,8 @@ namespace Plugin.BluetoothLE
 
         public override IEnumerable<IDevice> GetConnectedDevices() => this.manager
             .GetConnectedDevices(ProfileType.Gatt)
-            .Select(this.context.Devices.GetDevice);
+            .Select(this.context.Devices.GetDevice)
+            .Where(x => x.Status == ConnectionStatus.Connected);
 
 
         public override AdapterStatus Status
@@ -135,18 +136,18 @@ namespace Plugin.BluetoothLE
         }
 
 
-        IObservable<IDevice> deviceStatusOb;
-        public override IObservable<IDevice> WhenDeviceStatusChanged()
-        {
-            this.deviceStatusOb = this.deviceStatusOb ?? this.context
-                .Callbacks
-                .ConnectionStateChanged
-                .Select(args => this.context.Devices.GetDevice(args.Gatt.Device))
-                .Publish()
-                .RefCount();
+        //IObservable<IDevice> deviceStatusOb;
+        //public override IObservable<IDevice> WhenDeviceStatusChanged()
+        //{
+        //    this.deviceStatusOb = this.deviceStatusOb ?? this.context
+        //        .Callbacks
+        //        .ConnectionStateChanged
+        //        .Select(args => this.context.Devices.GetDevice(args.Gatt.Device))
+        //        .Publish()
+        //        .RefCount();
 
-            return this.deviceStatusOb;
-        }
+        //    return this.deviceStatusOb;
+        //}
 
 
         public override void OpenSettings()

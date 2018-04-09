@@ -75,11 +75,11 @@ namespace Plugin.BluetoothLE
         /// <returns></returns>
         IObservable<AdapterStatus> WhenStatusChanged();
 
-        /// <summary>
-        /// Monitor for all device status changes
-        /// </summary>
-        /// <returns></returns>
-        IObservable<IDevice> WhenDeviceStatusChanged();
+        ///// <summary>
+        ///// Monitor for all device status changes
+        ///// </summary>
+        ///// <returns></returns>
+        //IObservable<IDevice> WhenDeviceStatusChanged();
 
         /// <summary>
         /// Opens the platform settings screen

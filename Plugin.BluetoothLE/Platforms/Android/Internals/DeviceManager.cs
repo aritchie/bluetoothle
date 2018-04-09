@@ -11,19 +11,17 @@ namespace Plugin.BluetoothLE.Internals
     {
         readonly ConcurrentDictionary<string, IDevice> devices = new ConcurrentDictionary<string, IDevice>();
         readonly BluetoothManager manager;
-        readonly GattCallbacks callbacks;
 
 
-        public DeviceManager(BluetoothManager manager, GattCallbacks callbacks)
+        public DeviceManager(BluetoothManager manager)
         {
             this.manager = manager;
-            this.callbacks = callbacks;
         }
 
 
         public IDevice GetDevice(BluetoothDevice btDevice) => this.devices.GetOrAdd(
             btDevice.Address,
-            x => new Device(this.manager, btDevice, this.callbacks)
+            x => new Device(this.manager, btDevice)
         );
 
 

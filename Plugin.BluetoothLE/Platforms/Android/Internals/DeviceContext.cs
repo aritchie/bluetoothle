@@ -10,17 +10,17 @@ using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using Acr;
-using Plugin.BluetoothLE.Infrastructure;
+using Acr.Logging;
 
 
 namespace Plugin.BluetoothLE.Internals
 {
     public class DeviceContext
     {
-        public DeviceContext(BluetoothDevice device, GattCallbacks callbacks)
+        public DeviceContext(BluetoothDevice device)
         {
             this.NativeDevice = device;
-            this.Callbacks = callbacks;
+            this.Callbacks = new GattCallbacks();
             this.Actions = new ConcurrentQueue<Func<Task>>();
         }
 
@@ -123,7 +123,7 @@ namespace Plugin.BluetoothLE.Internals
             }
             catch (System.Exception ex)
             {
-                Log.Warn("Device", "Unclean disconnect - " + ex);
+                Log.Warn(BleLogCategory.Device, "Unclean disconnect - " + ex);
             }
         }
 
@@ -131,7 +131,7 @@ namespace Plugin.BluetoothLE.Internals
         bool running;
         async void ProcessQueue()
         {
-            if (this.running)
+            rif (this.running)
                 return;
 
             this.running = true;

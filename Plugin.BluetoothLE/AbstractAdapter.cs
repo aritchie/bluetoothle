@@ -21,7 +21,7 @@ namespace Plugin.BluetoothLE
         public virtual IDevice GetKnownDevice(Guid deviceId) => throw new NotImplementedException("GetKnownDevice is not supported on this platform");
         public virtual IEnumerable<IDevice> GetConnectedDevices() => throw new NotImplementedException("GetConnectedDevices is not supported on this platform");
         public virtual IEnumerable<IDevice> GetPairedDevices() => throw new NotImplementedException("GetPairedDevices is not supported on this platform");
-        public virtual IObservable<IDevice> WhenDeviceStatusChanged() => throw new NotImplementedException("WhenDeviceStatusChanged is not supported on this platform");
+        //public virtual IObservable<IDevice> WhenDeviceStatusChanged() => throw new NotImplementedException("WhenDeviceStatusChanged is not supported on this platform");
         public virtual void OpenSettings() => throw new NotImplementedException("OpenSettings is not supported on this platform");
         public virtual void SetAdapterState(bool enable) => throw new NotImplementedException("SetAdapterState is not supported on this platform");
         public virtual IObservable<IDevice> WhenDeviceStateRestored() => Observable.Empty<IDevice>();

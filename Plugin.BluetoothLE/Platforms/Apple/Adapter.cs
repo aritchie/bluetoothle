@@ -120,22 +120,22 @@ namespace Plugin.BluetoothLE
         public override void StopScan() => this.context.Manager.StopScan();
 
 
-        IObservable<IDevice> deviceStatusOb;
-        public override IObservable<IDevice> WhenDeviceStatusChanged()
-        {
-            this.deviceStatusOb = this.deviceStatusOb ??
-                this.context
-                    .PeripheralConnected
-                    .Select(x => this.context.GetDevice(x))
-                    .Merge(this.context
-                        .PeripheralDisconnected
-                        .Select(x => this.context.GetDevice(x))
-                    )
-                    .Publish()
-                    .RefCount();
+        //IObservable<IDevice> deviceStatusOb;
+        //public override IObservable<IDevice> WhenDeviceStatusChanged()
+        //{
+        //    this.deviceStatusOb = this.deviceStatusOb ??
+        //        this.context
+        //            .PeripheralConnected
+        //            .Select(x => this.context.GetDevice(x))
+        //            .Merge(this.context
+        //                .PeripheralDisconnected
+        //                .Select(x => this.context.GetDevice(x))
+        //            )
+        //            .Publish()
+        //            .RefCount();
 
-            return this.deviceStatusOb;
-        }
+        //    return this.deviceStatusOb;
+        //}
 
 
         public override IObservable<IDevice> WhenDeviceStateRestored() =>

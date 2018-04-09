@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Acr.Core" Version="1.2.1" />
+        <PackageReference Include="Acr.Core" Version="1.2.2" />
         <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
         <PackageReference Include="Acr.XamForms" Version="3.0.1" />
         <PackageReference Include="reactiveui" Version="8.0.0-alpha0105" />

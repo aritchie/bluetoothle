@@ -20,12 +20,10 @@ namespace Plugin.BluetoothLE.Internals
         public AdapterContext(BluetoothManager manager)
         {
             this.manager = manager;
-            this.Callbacks = new GattCallbacks();
-            this.Devices = new DeviceManager(manager, this.Callbacks);
+            this.Devices = new DeviceManager(manager);
         }
 
 
-        public GattCallbacks Callbacks { get; }
         public DeviceManager Devices { get; }
 
 

@@ -3,7 +3,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Enumeration;
-using Plugin.BluetoothLE.Infrastructure;
+using Acr.Logging;
 
 
 namespace Plugin.BluetoothLE
@@ -18,7 +18,7 @@ namespace Plugin.BluetoothLE
             var devices = await DeviceInformation.FindAllAsync(BluetoothAdapter.GetDeviceSelector());
             foreach (var dev in devices)
             {
-                Log.Info($"Adapter", "found - {dev.Name} ({dev.Kind} - {dev.Id})");
+                Log.Info(BleLogCategory.Adapter, "found - {dev.Name} ({dev.Kind} - {dev.Id})");
 
                 var native = await BluetoothAdapter.FromIdAsync(dev.Id);
                 if (native.IsLowEnergySupported)
