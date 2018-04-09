@@ -131,7 +131,7 @@ namespace Plugin.BluetoothLE.Internals
         bool running;
         async void ProcessQueue()
         {
-            rif (this.running)
+            if (this.running)
                 return;
 
             this.running = true;
