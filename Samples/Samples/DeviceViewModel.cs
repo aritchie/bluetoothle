@@ -74,19 +74,26 @@ namespace Samples.Ble
                 }
             });
 
-            this.PairToDevice = ReactiveCommand.CreateFromTask(async x =>
+            this.PairToDevice = ReactiveCommand.Create(() =>
             {
                 if (!this.device.Features.HasFlag(DeviceFeatures.PairingRequests))
                 {
-                    UserDialogs.Instance.Alert("Pairing is not supported on this platform");
+                    UserDialogs.Instance.Toast("Pairing is not supported on this platform");
                 }
                 else if (this.device.PairingStatus == PairingStatus.Paired)
                 {
-                    UserDialogs.Instance.Alert("Device is already paired");
+                    UserDialogs.Instance.Toast("Device is already paired");
                 }
                 else
                 {
-                    await this.device.PairingRequest();
+                    this.device
+                        .PairingRequest()
+                        .Subscribe(x =>
+                        {
+                            var txt = x ? "Device Paired Successfully" : "Device Pairing Failed";
+                            UserDialogs.Instance.Toast(txt);
+                            this.RaisePropertyChanged(nameof(this.PairingText));
+                        });
                 }
             });
 
@@ -123,7 +130,7 @@ namespace Samples.Ble
                         if (result.Ok)
                         {
                             var actual = await this.device.RequestMtu(Int32.Parse(result.Text));
-                            UserDialogs.Instance.Alert("MTU Changed to " + actual);
+                            UserDialogs.Instance.Toast("MTU Changed to " + actual);
                         }
                     }
                 },
@@ -142,9 +149,8 @@ namespace Samples.Ble
 
         public string Name => this.device.Name ?? "Unknown";
         public Guid Uuid => this.device.Uuid;
-        public PairingStatus PairingStatus => this.device.PairingStatus;
+        public string PairingText => this.device.PairingStatus == PairingStatus.Paired ? "Device Paired" : "Pair Device";
         public ObservableCollection<Group<GattCharacteristicViewModel>> GattCharacteristics { get; } = new ObservableCollection<Group<GattCharacteristicViewModel>>();
-
 
         string connectText = "Connect";
         public string ConnectText

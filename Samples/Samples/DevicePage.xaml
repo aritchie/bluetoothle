@@ -11,7 +11,7 @@
         <StackLayout>
             <Button Text="{Binding ConnectText}" Command="{Binding ConnectionToggle}" />
             <Button Text="Request MTU" Command="{Binding RequestMtu}" />
-            <Button Text="Pair To Device" Command="{Binding PairToDevice}" />
+            <Button Text="{Binding PairingText}" Command="{Binding PairToDevice}" />
 
             <ListView ItemsSource="{Binding GattCharacteristics}"
                       HasUnevenRows="True"

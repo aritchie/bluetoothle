@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Acr;
 using Acr.UserDialogs;
 using Plugin.BluetoothLE;
@@ -76,55 +73,21 @@ namespace Samples.Ble
                 .SetCancel();
 
             if (this.Characteristic.CanWriteWithResponse())
-                cfg.Add("Write With Response", () => this.TryWrite(true));
+                cfg.Add("Write With Response", () => this.DoWrite(true));
 
             if (this.Characteristic.CanWriteWithoutResponse())
-                cfg.Add("Write Without Response", () => this.TryWrite(false));
+                cfg.Add("Write Without Response", () => this.DoWrite(false));
 
             if (this.Characteristic.CanWrite())
-                cfg.Add("Send Test BLOB", () => this.SendBlob());
+                cfg.Add("Send Test BLOB", this.SendBlob);
 
             if (this.Characteristic.CanRead())
-            {
-                cfg.Add("Read", async () =>
-                {
-                    var value = await this.Characteristic
-                        .Read()
-                        //.Timeout(TimeSpan.FromSeconds(3))
-                        .ToTask();
-
-                    var utf8 = await UserDialogs.Instance.ConfirmAsync("Display Value as UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
-                    this.SetReadValue(value, utf8);
-                });
-            }
+                cfg.Add("Read", this.DoRead);
 
             if (this.Characteristic.CanNotify())
             {
-                if (this.watcher == null)
-                {
-                    cfg.Add("Notify", async () =>
-                    {
-                        var utf8 = await UserDialogs.Instance.ConfirmAsync(
-                            "Display Value as UTF8 or HEX?",
-                            okText: "UTF8",
-                            cancelText: "HEX"
-                        );
-                        this.watcher = this.Characteristic
-                            .RegisterAndNotify()
-                            .Subscribe(x => this.SetReadValue(x, utf8));
-
-                        this.IsNotifying = true;
-                    });
-                }
-                else
-                {
-                    cfg.Add("Stop Notifying", () =>
-                    {
-                        this.watcher.Dispose();
-                        this.watcher = null;
-                        this.IsNotifying = false;
-                    });
-                }
+                var txt = this.Characteristic.IsNotifying ? "Stop Notifying" : "Notify";
+                cfg.Add(txt, this.ToggleNotify);
             }
             if (cfg.Options.Any())
                 UserDialogs.Instance.ActionSheet(cfg.SetCancel());
@@ -138,9 +101,8 @@ namespace Samples.Ble
                 .SetTitle("Confirm")
                 .SetMessage("Use reliable write transaction?")
             );
-            var value = RandomString(5000);
             var cts = new CancellationTokenSource();
-            var bytes = Encoding.UTF8.GetBytes(value);
+            var bytes = Encoding.UTF8.GetBytes(RandomString(5000));
             var dlg = UserDialogs.Instance.Loading("Sending Blob", () => cts.Cancel(), "Cancel");
             var sw = new Stopwatch();
             sw.Start();
@@ -152,7 +114,7 @@ namespace Samples.Ble
                     ex =>
                     {
                         dlg.Dispose();
-                        UserDialogs.Instance.Alert("Failed writing blob - " + ex);
+                        UserDialogs.Instance.Toast("Failed writing blob - " + ex);
                         sw.Stop();
                     },
                     () =>
@@ -161,7 +123,7 @@ namespace Samples.Ble
                         sw.Stop();
 
                         var pre = useReliableWrite ? "reliable write" : "write";
-                        UserDialogs.Instance.Alert($"BLOB {pre} took " + sw.Elapsed);
+                        UserDialogs.Instance.Toast($"BLOB {pre} took " + sw.Elapsed);
                     }
                 );
 
@@ -169,48 +131,61 @@ namespace Samples.Ble
         }
 
 
-        static Random random = new Random();
-        static string RandomString(int length)
-        {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            return new string(Enumerable.Repeat(chars, length)
-                      .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
-
-        async Task TryWrite(bool withResponse)
+        async void DoWrite(bool withResponse)
         {
             var utf8 = await UserDialogs.Instance.ConfirmAsync("Write value from UTF8 or HEX?", okText: "UTF8", cancelText: "HEX");
             var result = await UserDialogs.Instance.PromptAsync("Please enter a write value", this.Description);
 
             if (result.Ok && !String.IsNullOrWhiteSpace(result.Text))
             {
-                try
+                var v = result.Text.Trim();
+                var bytes = utf8 ? Encoding.UTF8.GetBytes(v) : v.FromHexString();
+                if (withResponse)
                 {
-                    using (UserDialogs.Instance.Loading("Writing Value..."))
-                    {
-                        var value = result.Text.Trim();
-                        var bytes = utf8 ? Encoding.UTF8.GetBytes(value) : value.FromHexString();
-                        if (withResponse)
-                        {
-                            await this.Characteristic
-                                .Write(bytes)
-                                .Timeout(TimeSpan.FromSeconds(5))
-                                .ToTask();
-                        }
-                        else
-                        {
-                            this.Characteristic.WriteWithoutResponse(bytes);
-                        }
-
-                        this.Value = value;
-                    }
+                    this.Characteristic
+                        .Write(bytes)
+                        .Subscribe(x => UserDialogs.Instance.Toast($"Write Complete - Status: {x.Event}"));
                 }
-                catch (Exception ex)
+                else
                 {
-                    UserDialogs.Instance.Alert($"Error Writing {this.Characteristic.Uuid} - {ex}");
+                    this.Characteristic
+                        .WriteWithoutResponse(bytes)
+                        .Subscribe(x => UserDialogs.Instance.Toast($"Write Without Response Complete - Status: {x.Event}"));
                 }
             }
+        }
+
+
+        async void ToggleNotify()
+        {
+            if (this.Characteristic.IsNotifying)
+            {
+                this.watcher?.Dispose();
+                this.IsNotifying = false;
+            }
+            else
+            {
+                this.IsNotifying = true;
+                var utf8 = await UserDialogs.Instance.ConfirmAsync(
+                    "Display Value as UTF8 or HEX?",
+                    okText: "UTF8",
+                    cancelText: "HEX"
+                );
+                this.watcher = this.Characteristic
+                    .RegisterAndNotify()
+                    .Subscribe(x => this.SetReadValue(x, utf8));
+            }
+        }
+
+
+        async void DoRead()
+        {
+            var utf8 = await UserDialogs.Instance.ConfirmAsync(
+                "Display Value as UTF8 or HEX?",
+                okText: "UTF8",
+                cancelText: "HEX"
+            );
+            this.Characteristic.Read().Subscribe(x => this.SetReadValue(x, utf8));
         }
 
 
@@ -230,5 +205,14 @@ namespace Samples.Ble
                     ? Encoding.UTF8.GetString(result.Data, 0, result.Data.Length)
                     : BitConverter.ToString(result.Data);
         });
+
+
+        static readonly Random random = new Random();
+        static string RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
     }
 }
