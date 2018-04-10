@@ -56,11 +56,6 @@ namespace Plugin.BluetoothLE.Internals
 
 
         public override void OnConnectionStateChange(BluetoothGatt gatt, GattStatus status, ProfileState newState)
-        {
-            Console.WriteLine("SUBJECT HASH: " + this.ConnectionStateChanged.GetHashCode());
-
-            this.ConnectionStateChanged.OnNext(new ConnectionStateEventArgs(gatt, status, newState));
-        }
-            //=> this.ConnectionStateChanged.OnNext(new ConnectionStateEventArgs(gatt, status, newState));
+            => this.ConnectionStateChanged.OnNext(new ConnectionStateEventArgs(gatt, status, newState));
     }
 }

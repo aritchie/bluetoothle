@@ -147,7 +147,7 @@ namespace Plugin.BluetoothLE
                 : BluetoothGattDescriptor.EnableNotificationValue.ToArray();
 
             var result = await wrap
-                .Write(bytes)
+                .WriteInternal(bytes)
                 .ToTask(ct)
                 .ConfigureAwait(false);
 
@@ -172,7 +172,7 @@ namespace Plugin.BluetoothLE
 
             await this.context.OpPause(ct).ConfigureAwait(false);
             var result = await wrap
-                .Write(BluetoothGattDescriptor.DisableNotificationValue.ToArray())
+                .WriteInternal(BluetoothGattDescriptor.DisableNotificationValue.ToArray())
                 .ToTask(ct)
                 .ConfigureAwait(false);
 
