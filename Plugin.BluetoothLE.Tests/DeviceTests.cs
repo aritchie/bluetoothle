@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
-using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -13,10 +11,7 @@ namespace Plugin.BluetoothLE.Tests
 {
     public class DeviceTests
     {
-        readonly ITestOutputHelper output;
         IDevice device;
-
-        public DeviceTests(ITestOutputHelper output) => this.output = output;
 
 
         async Task Setup(bool connect)
@@ -46,7 +41,7 @@ namespace Plugin.BluetoothLE.Tests
 
             await UserDialogs.Instance.AlertAsync("No turn device back on & press OK when light turns green");
             await Task.Delay(5000);
-            count.Should().Be(origCount);
+            Assert.Equal(count, origCount);
         }
 
 
@@ -65,8 +60,8 @@ namespace Plugin.BluetoothLE.Tests
                 .Timeout(TimeSpan.FromSeconds(5))
                 .ToTask();
 
-            s1.Should().NotBeNull();
-            s2.Should().NotBeNull();
+            Assert.NotNull(s1);
+            Assert.NotNull(s2);
         }
 
 
@@ -121,38 +116,38 @@ namespace Plugin.BluetoothLE.Tests
         }
 
 
-        //[Fact]
-        //public async Task ReconnectTest()
-        //{
-        //    var autoConnect = await UserDialogs.Instance.ConfirmAsync(new ConfirmConfig().SetMessage("Use autoConnect?").UseYesNo());
-        //    var connected = 0;
-        //    var disconnected = 0;
+        [Fact]
+        public async Task ReconnectTest()
+        {
+            var autoConnect = await UserDialogs.Instance.ConfirmAsync(new ConfirmConfig().SetMessage("Use autoConnect?").UseYesNo());
+            var connected = 0;
+            var disconnected = 0;
 
-        //    await this.FindTestDevice();
-        //    this.Device
-        //        .WhenStatusChanged()
-        //        .Subscribe(x =>
-        //        {
-        //            switch (x)
-        //            {
-        //                case ConnectionStatus.Disconnected:
-        //                    disconnected++;
-        //                    break;
+            await this.Setup(false);
+            this.device
+                .WhenStatusChanged()
+                .Subscribe(x =>
+                {
+                    switch (x)
+                    {
+                        case ConnectionStatus.Disconnected:
+                            disconnected++;
+                            break;
 
-        //                case ConnectionStatus.Connected:
-        //                    connected++;
-        //                    break;
-        //            }
-        //        });
+                        case ConnectionStatus.Connected:
+                            connected++;
+                            break;
+                    }
+                });
 
-        //    await this.Device.ConnectWait(new GattConnectionConfig
-        //    {
-        //        AndroidAutoConnect = autoConnect,
-        //        IsPersistent = true
-        //    });
-        //    await UserDialogs.Instance.AlertAsync("No turn device off - wait a 3 seconds then turn it back on - press OK if light goes green or you believe connection has failed");
-        //    connected.Should().Be(2, "No reconnection count");
-        //    disconnected.Should().Be(2, "No disconnect");
-        //}
+            await this.device.ConnectWait(new GattConnectionConfig
+            {
+                AndroidAutoConnect = autoConnect,
+                IsPersistent = true
+            });
+            await UserDialogs.Instance.AlertAsync("No turn device off - wait a 3 seconds then turn it back on - press OK if light goes green or you believe connection has failed");
+            Assert.Equal(2, connected);
+            Assert.Equal(2, disconnected);
+        }
     }
 }

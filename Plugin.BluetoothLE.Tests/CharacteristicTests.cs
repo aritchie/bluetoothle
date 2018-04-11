@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -52,7 +51,7 @@ namespace Plugin.BluetoothLE.Tests
             foreach (var ch in this.characteristics)
             {
                 var write = await ch.WriteWithoutResponse(value);
-                write.Success.Should().BeTrue("Write failed - " + write.ErrorMessage);
+                Assert.True(write.Success, "Write failed - " + write.ErrorMessage);
 
                 // TODO: enable write back on host
                 //var read = await ch.Read();
@@ -91,9 +90,9 @@ namespace Plugin.BluetoothLE.Tests
 
             await Task.Delay(10000);
 
-            list.Count.Should().BeGreaterOrEqualTo(2, "There were not at least 2 characteristics in the replies");
-            list.First().Value.Should().BeGreaterOrEqualTo(2, "First characteristic did not speak at least 2 times");
-            list.ElementAt(2).Value.Should().BeGreaterOrEqualTo(2, "Second characteristic did not speak at least 2 times");
+            Assert.True(list.Count >= 2, "There were not at least 2 characteristics in the replies");
+            Assert.True(list.First().Value >= 2, "First characteristic did not speak at least 2 times");
+            Assert.True(list.ElementAt(2).Value >= 2, "Second characteristic did not speak at least 2 times");
         }
 
 
@@ -111,11 +110,11 @@ namespace Plugin.BluetoothLE.Tests
 
             await Task.WhenAll(t1, t2, t3, t4, t5);
 
-            t1.Result.Success.Should().BeTrue("1 failed");
-            t2.Result.Success.Should().BeTrue("2 failed");
-            t3.Result.Success.Should().BeTrue("3 failed");
-            t4.Result.Success.Should().BeTrue("4 failed");
-            t5.Result.Success.Should().BeTrue("5 failed");
+            Assert.True(t1.Result.Success, "1 failed");
+            Assert.True(t2.Result.Success, "2 failed");
+            Assert.True(t3.Result.Success, "3 failed");
+            Assert.True(t4.Result.Success, "4 failed");
+            Assert.True(t5.Result.Success, "5 failed");
         }
 
 
@@ -131,11 +130,11 @@ namespace Plugin.BluetoothLE.Tests
 
             await Task.WhenAll(t1, t2, t3, t4, t5);
 
-            t1.Result.Success.Should().BeTrue("1 failed");
-            t2.Result.Success.Should().BeTrue("2 failed");
-            t3.Result.Success.Should().BeTrue("3 failed");
-            t4.Result.Success.Should().BeTrue("4 failed");
-            t5.Result.Success.Should().BeTrue("5 failed");
+            Assert.True(t1.Result.Success, "1 failed");
+            Assert.True(t2.Result.Success, "2 failed");
+            Assert.True(t3.Result.Success, "3 failed");
+            Assert.True(t4.Result.Success, "4 failed");
+            Assert.True(t5.Result.Success, "5 failed");
         }
 
 
@@ -143,7 +142,6 @@ namespace Plugin.BluetoothLE.Tests
         public async Task NotificationFollowedByWrite()
         {
             await this.Setup();
-            var tcs = new TaskCompletionSource<object>();
 
             var write = await this.characteristics.First()
                 .RegisterAndNotify()
@@ -151,7 +149,7 @@ namespace Plugin.BluetoothLE.Tests
                 .Switch()
                 .FirstOrDefaultAsync();
 
-            write.Success.Should().BeTrue();
+            Assert.True(write.Success);
         }
     }
 }

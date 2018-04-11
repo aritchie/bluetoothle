@@ -21,14 +21,13 @@ namespace Plugin.BluetoothLE.Android.Tests
         {
             //GattConnectionConfig.DefaultConfiguration.AndroidAutoConnect = false;
 
-            //this.RequestPermissions(new[]
-            //{
-            //    Manifest.Permission.AccessCoarseLocation,
-            //    Manifest.Permission.BluetoothPrivileged
-            //}, 0);
+            this.RequestPermissions(new[]
+            {
+                Manifest.Permission.AccessCoarseLocation,
+                Manifest.Permission.BluetoothPrivileged
+            }, 0);
 
-            //UserDialogs.Init(() => (Activity)Forms.Context);
-            //this.AddExecutionAssembly(typeof(ExtensibilityPointFactory).Assembly);
+            UserDialogs.Init(() => (Activity)Forms.Context);
             this.AddTestAssembly(typeof(BluetoothLE.Tests.DeviceTests).Assembly);
             this.AddTestAssembly(Assembly.GetExecutingAssembly());
 
