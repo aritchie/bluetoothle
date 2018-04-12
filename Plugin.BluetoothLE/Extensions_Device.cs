@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive;
 using System.Reactive.Linq;
+using Acr;
 
 
 namespace Plugin.BluetoothLE
@@ -26,12 +27,12 @@ namespace Plugin.BluetoothLE
         /// <param name="config"></param>
         /// <returns></returns>
         public static IObservable<IDevice> ConnectWait(this IDevice device, GattConnectionConfig config = null)
-        {
-            device.ConnectIf(config);
-            return device
-                .WhenConnected()
-                .Select(_ => device);
-        }
+            => Observable.Create<IDevice>(ob =>
+            {
+                var sub = device.WhenConnected().Take(1).Subscribe(_ => ob.Respond(device));
+                device.ConnectIf(config);
+                return sub;
+            });
 
 
         /// <summary>

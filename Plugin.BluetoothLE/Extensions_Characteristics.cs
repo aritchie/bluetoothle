@@ -31,7 +31,13 @@ namespace Plugin.BluetoothLE
         public static IObservable<CharacteristicGattResult> RegisterAndNotify(this IGattCharacteristic characteristic, bool useIndicationIfAvailable = false)
             => characteristic
                 .EnableNotifications(useIndicationIfAvailable)
-                .Select(x => characteristic.WhenNotificationReceived())
+                .Select(x =>
+                {
+                    if (x.Success)
+                        return characteristic.WhenNotificationReceived();
+
+                    return Observable.Return(x);
+                })
                 .Switch()
                 .Finally(() => characteristic
                     .DisableNotifications()
