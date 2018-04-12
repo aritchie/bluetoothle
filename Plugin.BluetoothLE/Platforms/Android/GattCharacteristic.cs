@@ -139,7 +139,7 @@ namespace Plugin.BluetoothLE
 
             var wrap = new GattDescriptor(this, this.context, descriptor);
             if (!this.context.Gatt.SetCharacteristicNotification(this.native, true))
-                this.ToResult(GattEvent.NotificationError, "Failed to set characteristic notification value");
+                return this.ToResult(GattEvent.NotificationError, "Failed to set characteristic notification value");
 
             await this.context.OpPause(ct).ConfigureAwait(false);
             var bytes = useIndicationsIfAvailable && this.CanIndicate()
