@@ -30,7 +30,8 @@ namespace Plugin.BluetoothLE.Tests
             await this.device.ConnectWait().ToTask();
 
             this.characteristics = await this.device
-                .GetCharacteristicsForService(Constants.ScratchServiceUuid).Take(5)
+                .GetCharacteristicsForService(Constants.ScratchServiceUuid)
+                .Take(5)
                 .ToArray()
                 .ToTask();
         }
@@ -70,7 +71,10 @@ namespace Plugin.BluetoothLE.Tests
 
             this.characteristics
                 .ToObservable()
-                .Select(x => x.RegisterAndNotify(true))
+                .Select(x =>
+                {
+                    return x.RegisterAndNotify(true);
+                })
                 .Merge()
                 .Synchronize()
                 .Subscribe(x =>
@@ -88,7 +92,7 @@ namespace Plugin.BluetoothLE.Tests
                     }
                 });
 
-            await Task.Delay(10000);
+            await Task.Delay(TimeSpan.FromSeconds(7));
 
             Assert.True(list.Count >= 2, "There were not at least 2 characteristics in the replies");
             Assert.True(list.First().Value >= 2, "First characteristic did not speak at least 2 times");
