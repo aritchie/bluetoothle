@@ -55,13 +55,11 @@ namespace Plugin.BluetoothLE
         {
             this.AssertWrite(false);
             var status = await this.Native.WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithoutResponse);
+            if (status != GattCommunicationStatus.Success)
+                throw new BleException($"Failed to write characteristic - {status}");
+
             this.value = value;
-
-            var result = status == GattCommunicationStatus.Success
-                ? this.ToResult(GattEvent.Write, value)
-                : this.ToResult(GattEvent.WriteError, status.ToString());
-
-            return result;
+            return new CharacteristicGattResult(this, value);
         });
 
 
@@ -69,18 +67,18 @@ namespace Plugin.BluetoothLE
         public override IObservable<CharacteristicGattResult> Write(byte[] value) => Observable.FromAsync(async ct =>
         {
             this.AssertWrite(true);
-            var result = await this.Native
+            var status = await this.Native
                 .WriteValueAsync(value.AsBuffer(), GattWriteOption.WriteWithResponse)
                 .AsTask(ct)
                 .ConfigureAwait(false);
 
-            this.context.Ping();
-            if (result != GattCommunicationStatus.Success)
-                return this.ToResult(GattEvent.WriteError, "Error writing characteristic - " + result);
+            if (status != GattCommunicationStatus.Success)
+                throw new BleException($"Failed to write characteristic - {status}");
 
+            this.context.Ping();
             this.value = value;
-            return this.ToResult(GattEvent.Write, value);
-         });
+            return new CharacteristicGattResult(this, value);
+        });
 
 
         public override IObservable<CharacteristicGattResult> Read() => Observable.FromAsync(async ct =>
@@ -91,12 +89,12 @@ namespace Plugin.BluetoothLE
                 .AsTask(ct)
                 .ConfigureAwait(false);
 
-            this.context.Ping();
             if (result.Status != GattCommunicationStatus.Success)
-                return this.ToResult(GattEvent.ReadError, "Error reading characteristics - " + result.Status);
+                throw new BleException($"Failed to read characteristic - {result.Status}");
 
-            this.value = result.Value.ToArray();
-            return this.ToResult(GattEvent.Read, this.value);
+            this.context.Ping();
+            this.value = result.Value?.ToArray();
+            return new CharacteristicGattResult(this, this.value);
         });
 
 
@@ -117,14 +115,12 @@ namespace Plugin.BluetoothLE
         IObservable<CharacteristicGattResult> SetNotify(GattClientCharacteristicConfigurationDescriptorValue value)
             => Observable.FromAsync(async ct =>
             {
-
                 var status = await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(value);
                 if (status != GattCommunicationStatus.Success)
-                {
-                    this.context.SetNotifyCharacteristic(this.Native, value != GattClientCharacteristicConfigurationDescriptorValue.None);
-                    return this.ToResult(GattEvent.Notification, "Invalid Status Result: " + status);
-                }
-                return this.ToResult(GattEvent.NotificationError, status.ToString());
+                    throw new BleException($"Failed to write client characteristic configuration descriptor - {status}");
+
+                this.context.SetNotifyCharacteristic(this.Native, value != GattClientCharacteristicConfigurationDescriptorValue.None);
+                return new CharacteristicGattResult(this, null);
             });
 
 
@@ -142,14 +138,17 @@ namespace Plugin.BluetoothLE
                     if (sender.Equals(this.Native))
                     {
                         var bytes = args.CharacteristicValue.ToArray();
-                        var result = this.ToResult(GattEvent.Notification, bytes);
+                        var result = new CharacteristicGattResult(this, bytes);
                         ob.OnNext(result);
                     }
                 });
                 this.Native.ValueChanged += handler;
 
                 return () => this.Native.ValueChanged -= handler;
-            });
+            })
+            .Publish()
+            .RefCount();
+
             return this.notificationOb;
         }
     }

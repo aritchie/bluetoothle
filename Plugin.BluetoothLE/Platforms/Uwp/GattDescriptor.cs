@@ -26,11 +26,10 @@ namespace Plugin.BluetoothLE
         public override IObservable<DescriptorGattResult> Write(byte[] data) => Observable.FromAsync(async _ =>
         {
             var status = await this.native.WriteValueAsync(data.AsBuffer());
-            var result = status == GattCommunicationStatus.Success
-                ? this.ToResult(GattEvent.Write, data)
-                : this.ToResult(GattEvent.WriteError, status.ToString());
+            if (status != GattCommunicationStatus.Success)
+                throw new BleException($"Failed to write descriptor - {status}");
 
-            return result;
+            return new DescriptorGattResult(this, data);
         });
 
 
@@ -38,10 +37,10 @@ namespace Plugin.BluetoothLE
         {
             var result = await this.native.ReadValueAsync(BluetoothCacheMode.Uncached);
             if (result.Status != GattCommunicationStatus.Success)
-                return this.ToResult(GattEvent.WriteError, result.Status.ToString());
+                throw new BleException($"Failed to read descriptor - {result.Status}");
 
-            this.value = result.Value.ToArray();
-            return this.ToResult(GattEvent.Read, this.value);
+            this.value = result.Value?.ToArray();
+            return new DescriptorGattResult(this, this.value);
         });
     }
 }

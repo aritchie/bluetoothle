@@ -86,10 +86,12 @@ namespace Plugin.BluetoothLE
             this.context.InvokeOnMainThread(() =>
             {
                 this.native.WriteType = GattWriteType.Default;
-                if (!this.native.SetValue(value))
-                    ob.OnError(new BleException("Failed to set characteristic value"));
+                this.native.SetValue(value);
+                //if (!this.native.SetValue(value))
+                    //ob.OnError(new BleException("Failed to set characteristic value"));
 
-                else if (!this.context.Gatt.WriteCharacteristic(this.native))
+                //else if (!this.context.Gatt.WriteCharacteristic(this.native))
+                if (!this.context.Gatt.WriteCharacteristic(this.native))
                     ob.OnError(new BleException("Failed to write to characteristic"));
             });
 

@@ -45,13 +45,11 @@ namespace Plugin.BluetoothLE.Internals
         {
             this.CleanUpQueue();
             this.CreateGatt(androidAutoReconnect);
-            //if (this.Gatt == null)
-                //return false;
+            if (this.Gatt == null)
+                throw new BleException("GATT connection could not be established");
 
             if (priority != ConnectionPriority.Normal)
                 this.Gatt.RequestConnectionPriority(this.ToNative(priority));
-
-            //return true;
         });
 
 

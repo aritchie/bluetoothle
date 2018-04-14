@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
@@ -15,13 +14,11 @@ namespace Plugin.BluetoothLE
 {
     public class Device : AbstractDevice
     {
-        readonly AdapterContext adapterContext;
         readonly DeviceContext context;
 
 
-        public Device(AdapterContext context, BluetoothLEDevice native)
+        public Device(BluetoothLEDevice native)
         {
-            this.adapterContext = context;
             this.context = new DeviceContext(this, native);
 
             var mac = this.ToMacAddress(native.BluetoothAddress);
@@ -35,7 +32,7 @@ namespace Plugin.BluetoothLE
         public override IGattReliableWriteTransaction BeginReliableWriteTransaction() => new GattReliableWriteTransaction();
 
 
-        public override bool Connect(GattConnectionConfig config) => this.context.Connect();
+        public override void Connect(GattConnectionConfig config) => this.context.Connect();
         public override async void CancelConnection() => await this.context.Disconnect();
 
 

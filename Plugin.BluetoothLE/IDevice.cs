@@ -46,7 +46,7 @@ namespace Plugin.BluetoothLE
         /// Connect to a device
         /// </summary>
         /// <param name="config">Connection configuration</param>
-        bool Connect(GattConnectionConfig config = null);
+        void Connect(GattConnectionConfig config = null);
 
         /// <summary>
         /// Disconnect from the device and cancel persistent connection

@@ -31,8 +31,7 @@ namespace Plugin.BluetoothLE
         {
             var data = NSData.FromArray(value);
             this.Peripheral.WriteValue(data, this.NativeCharacteristic, type);
-            var result = this.ToResult(GattEvent.Write, value);
-            ob.Respond(result);
+            ob.Respond(new CharacteristicGattResult(this, value));
         }
     }
 }

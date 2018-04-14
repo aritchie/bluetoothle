@@ -51,7 +51,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override bool Connect(GattConnectionConfig config)
+        public override void Connect(GattConnectionConfig config)
         {
             config = config ?? GattConnectionConfig.DefaultConfiguration;
 
@@ -68,7 +68,6 @@ namespace Plugin.BluetoothLE
             //    .Where(x => x.Peripheral.Equals(this.peripheral))
             //    .Subscribe(x => ob.OnError(new Exception(x.Error.ToString())));
             this.DoConnect();
-            return true;
         }
 
 
@@ -118,6 +117,11 @@ namespace Plugin.BluetoothLE
                     .PeripheralConnected
                     .Where(x => x.Equals(this.peripheral))
                     .Subscribe(x => ob.OnNext(this.Status));
+
+                //var sub = this.context
+                //    .FailedConnection
+                //    .Where(x => x.Equals(this.peripheral))
+                //    .Subscribe(x => ob.OnNext(ConnectionStatus.Failed));
 
                 var sub2 = this.context
                     .PeripheralDisconnected

@@ -35,9 +35,9 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
-        ///
+        /// This performs pauses between each operation helping android recover from itself
         /// </summary>
-        public static TimeSpan? PauseBetweenInvocations { get; set; }
+        public static TimeSpan? PauseBetweenInvocations { get; set; } = TimeSpan.FromMilliseconds(200);
 
         /// <summary>
         /// Time span to pause before service discovery (helps in combating GATT133 error) when service discovery is performed immediately after connection
