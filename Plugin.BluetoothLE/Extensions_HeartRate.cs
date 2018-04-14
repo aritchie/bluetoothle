@@ -30,7 +30,6 @@ namespace Plugin.BluetoothLE
             .Take(1)
             .Select(x => x.ReadInterval(TimeSpan.FromSeconds(3)))
             .Switch()
-            .Where(x => x.Success)
             .Select(x =>
             {
                 if ((x.Data[0] & 0x01) == 0)

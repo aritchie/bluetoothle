@@ -57,7 +57,7 @@ namespace Plugin.BluetoothLE.Tests
                 .ToTask();
 
             Assert.NotNull(result);
-            Assert.True(result.Device.Name.Equals("Bean+"));
+            Assert.Equal("Bean+", result.Device.Name);
         }
     }
 }

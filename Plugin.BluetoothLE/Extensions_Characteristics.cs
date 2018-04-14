@@ -6,22 +6,6 @@ namespace Plugin.BluetoothLE
 {
     public static partial class Extensions
     {
-        public static CharacteristicGattResult ToResult(this IGattCharacteristic ch, GattEvent gattEvent, string message)
-            => new CharacteristicGattResult(ch, gattEvent, message);
-
-
-        public static CharacteristicGattResult ToResult(this IGattCharacteristic ch, GattEvent gattEvent, byte[] data)
-            => new CharacteristicGattResult(ch, gattEvent, data);
-
-
-        public static DescriptorGattResult ToResult(this IGattDescriptor desc, GattEvent gattEvent, string message)
-            => new DescriptorGattResult(desc, gattEvent, message);
-
-
-        public static DescriptorGattResult ToResult(this IGattDescriptor desc, GattEvent gattEvent, byte[] data)
-            => new DescriptorGattResult(desc, gattEvent, data);
-
-
         /// <summary>
         /// Enables notifications and hooks it for discovered characteristic.  When subscription is disposed, it will also clean up.
         /// </summary>
@@ -31,13 +15,7 @@ namespace Plugin.BluetoothLE
         public static IObservable<CharacteristicGattResult> RegisterAndNotify(this IGattCharacteristic characteristic, bool useIndicationIfAvailable = false)
             => characteristic
                 .EnableNotifications(useIndicationIfAvailable)
-                .Select(x =>
-                {
-                    if (x.Success)
-                        return characteristic.WhenNotificationReceived();
-
-                    return Observable.Return(x);
-                })
+                .Select(x => x.Characteristic.WhenNotificationReceived())
                 .Switch()
                 .Finally(() => characteristic
                     .DisableNotifications()

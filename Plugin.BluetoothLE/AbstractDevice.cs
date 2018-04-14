@@ -22,7 +22,7 @@ namespace Plugin.BluetoothLE
         public abstract ConnectionStatus Status { get; }
         public abstract DeviceFeatures Features { get; }
 
-        public abstract void Connect(GattConnectionConfig config);
+        public abstract bool Connect(GattConnectionConfig config);
         public abstract void CancelConnection();
         public abstract IObservable<ConnectionStatus> WhenStatusChanged();
         public abstract IObservable<IGattService> DiscoverServices();

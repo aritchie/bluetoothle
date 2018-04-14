@@ -38,11 +38,10 @@ namespace Plugin.BluetoothLE
                 if (!this.Equals(args.Characteristic))
                     return;
 
-                var result = args.Error == null
-                    ? this.ToResult(GattEvent.Write, value)
-                    : this.ToResult(GattEvent.WriteError, args.Error.Description);
-
-                ob.Respond(result);
+                if (args.Error == null)
+                    ob.Respond(new CharacteristicGattResult(this, null));
+                else
+                    ob.OnError(new BleException(args.Error.Description));
             });
             this.Peripheral.WroteCharacteristicValue += handler;
             this.Peripheral.WriteValue(data, this.NativeCharacteristic, CBCharacteristicWriteType.WithResponse);
@@ -59,11 +58,10 @@ namespace Plugin.BluetoothLE
                 if (!this.Equals(args.Characteristic))
                     return;
 
-                var result = args.Error == null
-                    ? this.ToResult(GattEvent.Read, this.Value)
-                    : this.ToResult(GattEvent.ReadError, args.Error.Description);
-
-                ob.Respond(result);
+                if (args.Error == null)
+                    ob.Respond(new CharacteristicGattResult(this, this.Value));
+                else
+                    ob.OnError(new BleException(args.Error.Description));
             });
             this.Peripheral.UpdatedCharacterteristicValue += handler;
             this.Peripheral.ReadValue(this.NativeCharacteristic);
@@ -76,7 +74,7 @@ namespace Plugin.BluetoothLE
         {
             this.AssertNotify();
             this.Peripheral.SetNotifyValue(true, this.NativeCharacteristic);
-            return Observable.Return(this.ToResult(GattEvent.Notification, ""));
+            return Observable.Return(new CharacteristicGattResult(this, null));
         }
 
 
@@ -84,7 +82,7 @@ namespace Plugin.BluetoothLE
         {
             this.AssertNotify();
             this.Peripheral.SetNotifyValue(false, this.NativeCharacteristic);
-            return Observable.Return(this.ToResult(GattEvent.Notification, ""));
+            return Observable.Return(new CharacteristicGattResult(this, null));
         }
 
 
@@ -100,11 +98,10 @@ namespace Plugin.BluetoothLE
                     if (!this.Equals(args.Characteristic))
                         return;
 
-                    var result = args.Error == null
-                        ? this.ToResult(GattEvent.Notification, this.Value)
-                        : this.ToResult(GattEvent.NotificationError, args.Error.Description);
-
-                    ob.OnNext(result);
+                    if (args.Error == null)
+                        ob.Respond(new CharacteristicGattResult(this, null));
+                    else
+                        ob.OnError(new BleException(args.Error.Description));
                 });
                 this.Peripheral.UpdatedCharacterteristicValue += handler;
                 return () => this.Peripheral.UpdatedCharacterteristicValue -= handler;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using Acr;
@@ -144,13 +145,21 @@ namespace Samples.Ble
                 {
                     this.Characteristic
                         .Write(bytes)
-                        .Subscribe(x => UserDialogs.Instance.Toast($"Write Complete - Status: {x.Event}"));
+                        .Timeout(TimeSpan.FromSeconds(2))
+                        .Subscribe(
+                            x => UserDialogs.Instance.Toast("Write Complete"),
+                            ex => UserDialogs.Instance.Alert(ex.ToString())
+                        );
                 }
                 else
                 {
                     this.Characteristic
                         .WriteWithoutResponse(bytes)
-                        .Subscribe(x => UserDialogs.Instance.Toast($"Write Without Response Complete - Status: {x.Event}"));
+                        .Timeout(TimeSpan.FromSeconds(2))
+                        .Subscribe(
+                            x => UserDialogs.Instance.Toast("Write Without Response Complete"),
+                            ex => UserDialogs.Instance.Alert(ex.ToString())
+                        );
                 }
             }
         }
@@ -185,7 +194,13 @@ namespace Samples.Ble
                 okText: "UTF8",
                 cancelText: "HEX"
             );
-            this.Characteristic.Read().Subscribe(x => this.SetReadValue(x, utf8));
+            this.Characteristic
+                .Read()
+                .Timeout(TimeSpan.FromSeconds(2))
+                .Subscribe(
+                    x => this.SetReadValue(x, utf8),
+                    ex => UserDialogs.Instance.Alert(ex.ToString())
+                );
         }
 
 
@@ -194,10 +209,7 @@ namespace Samples.Ble
             this.IsValueAvailable = true;
             this.LastValue = DateTime.Now;
 
-            if (!result.Success)
-                this.Value = "ERROR - " + result.ErrorMessage;
-
-            else if (result.Data == null)
+            if (result.Data == null)
                 this.Value = "EMPTY";
 
             else

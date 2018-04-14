@@ -50,7 +50,13 @@ namespace Plugin.BluetoothLE
 
 
         public void Ping() => this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached); // fire and forget
-        public void Connect() => this.StartKeepAlive();
+
+
+        public bool Connect()
+        {
+            this.StartKeepAlive();
+            return true;
+        }
 
 
         public async Task Disconnect()

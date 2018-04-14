@@ -29,27 +29,29 @@ namespace Plugin.BluetoothLE.Internals
         public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
         public ConcurrentQueue<Func<Task>> Actions { get; }
-        //public object Lock { get; private set; }
 
-        // issues will still arise if the user is doing discovery and data at the same time due to droid
-        // TODO: this is botched, reconnect needs to wait?
+
         public void Reconnect(ConnectionPriority priority)
         {
             if (this.Gatt == null)
                 throw new ArgumentException("Device is not in a reconnectable state");
 
-            this.Actions.Clear();
+            this.CleanUpQueue();
             this.InvokeOnMainThread(() => this.Gatt.Connect());
         }
 
 
         public void Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.InvokeOnMainThread(() =>
         {
-            //this.Lock = new object();
-            this.Actions.Clear();
+            this.CleanUpQueue();
             this.CreateGatt(androidAutoReconnect);
-            if (this.Gatt != null && priority != ConnectionPriority.Normal)
+            //if (this.Gatt == null)
+                //return false;
+
+            if (priority != ConnectionPriority.Normal)
                 this.Gatt.RequestConnectionPriority(this.ToNative(priority));
+
+            //return true;
         });
 
 
@@ -82,14 +84,6 @@ namespace Plugin.BluetoothLE.Internals
             if (CrossBleAdapter.PauseBetweenInvocations != null)
                 await Task.Delay(CrossBleAdapter.PauseBetweenInvocations.Value, cancelToken ?? CancellationToken.None);
         }
-        //public IObservable<T> Invoke<T>(IObservable<T> observable) => Observable.Create<T>(ob =>
-        //    observable.Subscribe(
-        //        ob.OnNext,
-        //        ob.OnError,
-        //        ob.OnCompleted
-        //    )
-        //)
-        //.Synchronize(this.Lock);
 
 
         public void InvokeOnMainThread(Action action)
@@ -117,7 +111,6 @@ namespace Plugin.BluetoothLE.Internals
             try
             {
                 this.Actions.Clear();
-                //this.Lock = new object();
                 this.Gatt?.Close();
                 this.Gatt = null;
             }
@@ -145,6 +138,12 @@ namespace Plugin.BluetoothLE.Internals
             this.running = false;
         }
 
+
+        void CleanUpQueue()
+        {
+            // TODO: cancel everything in queue
+            this.Actions.Clear();
+        }
 
         void CreateGatt(bool autoConnect)
         {

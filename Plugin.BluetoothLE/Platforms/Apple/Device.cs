@@ -51,7 +51,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override void Connect(GattConnectionConfig config)
+        public override bool Connect(GattConnectionConfig config)
         {
             config = config ?? GattConnectionConfig.DefaultConfiguration;
 
@@ -61,11 +61,14 @@ namespace Plugin.BluetoothLE
                     .Where(x => x == ConnectionStatus.Disconnected)
                     .Subscribe(_ => this.DoConnect());
             }
+            // TODO: I need to listen to below - this is async though - android is not
+            // could add connection status "failed" to whenstatuschanged
             //sub2 = this.context
             //    .FailedConnection
             //    .Where(x => x.Peripheral.Equals(this.peripheral))
             //    .Subscribe(x => ob.OnError(new Exception(x.Error.ToString())));
             this.DoConnect();
+            return true;
         }
 
 

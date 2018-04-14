@@ -3,24 +3,16 @@
 
 namespace Plugin.BluetoothLE
 {
-    public class CharacteristicGattResult : AbstractGattResult
+    public class CharacteristicGattResult
     {
-        public CharacteristicGattResult(IGattCharacteristic characteristic,
-                                        GattEvent gattEvent,
-                                        byte[] data) : base(gattEvent, data)
+        public CharacteristicGattResult(IGattCharacteristic characteristic, byte[] data)
         {
             this.Characteristic = characteristic;
-        }
-
-
-        public CharacteristicGattResult(IGattCharacteristic characteristic,
-                                        GattEvent gattEvent,
-                                        string errorMessage) : base(gattEvent, errorMessage)
-        {
-            this.Characteristic = characteristic;
+            this.Data = data;
         }
 
 
         public IGattCharacteristic Characteristic { get; }
+        public byte[] Data { get; }
     }
 }

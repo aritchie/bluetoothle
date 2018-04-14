@@ -39,7 +39,7 @@ namespace Plugin.BluetoothLE
             .ToStatus();
 
 
-        public override void Connect(GattConnectionConfig config)
+        public override bool Connect(GattConnectionConfig config)
         {
             config = config ?? GattConnectionConfig.DefaultConfiguration;
             if (config.IsPersistent)
@@ -55,7 +55,7 @@ namespace Plugin.BluetoothLE
                     });
             }
             this.connSubject.OnNext(ConnectionStatus.Connecting);
-            this.context.Connect(config.Priority, config.AndroidAutoConnect);
+            return this.context.Connect(config.Priority, config.AndroidAutoConnect);
         }
 
 

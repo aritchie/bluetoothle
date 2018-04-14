@@ -35,11 +35,10 @@ namespace Plugin.BluetoothLE
                 if (!this.Equals(args.Descriptor))
                     return;
 
-                var result = args.Error == null
-                    ? this.ToResult(GattEvent.Read, this.Value)
-                    : this.ToResult(GattEvent.ReadError, args.Error.Description);
-
-                ob.Respond(result);
+                if (args.Error == null)
+                    ob.Respond(new DescriptorGattResult(this, this.Value));
+                else
+                    ob.OnError(new BleException(args.Error.Description));
             });
             this.Peripheral.UpdatedValue += handler;
             this.Peripheral.ReadValue(this.native);
@@ -55,11 +54,10 @@ namespace Plugin.BluetoothLE
                 if (!this.Equals(args.Descriptor))
                     return;
 
-                var result = args.Error == null
-                    ? this.ToResult(GattEvent.Write, this.Value)
-                    : this.ToResult(GattEvent.WriteError, args.Error.Description);
-
-                ob.Respond(result);
+                if (args.Error == null)
+                    ob.Respond(new DescriptorGattResult(this, this.Value));
+                else
+                    ob.OnError(new BleException(args.Error.Description));
             });
 
             var nsdata = NSData.FromArray(data);

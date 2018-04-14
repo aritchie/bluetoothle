@@ -37,20 +37,19 @@ namespace Plugin.BluetoothLE
                 .Where(this.NativeEquals)
                 .Subscribe(args =>
                 {
-                    var result = args.IsSuccessful
-                        ? this.ToResult(GattEvent.Write, data)
-                        : this.ToResult(GattEvent.WriteError, $"Failed to write descriptor value - {args.Status}");
-
-                    ob.Respond(result);
+                    if (args.IsSuccessful)
+                        ob.Respond(new DescriptorGattResult(this, data));
+                    else
+                        ob.OnError(new BleException($"Failed to write descriptor value - {args.Status}"));
                 });
 
             this.context.InvokeOnMainThread(() =>
             {
                 if (!this.native.SetValue(data))
-                    ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to set descriptor value"));
+                    ob.OnError(new BleException("Failed to set descriptor value"));
 
                 else if (!this.context.Gatt.WriteDescriptor(this.native))
-                    ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to descriptor"));
+                    ob.OnError(new BleException("Failed to write to descriptor"));
             });
 
             return sub;
@@ -65,17 +64,16 @@ namespace Plugin.BluetoothLE
                 .Where(this.NativeEquals)
                 .Subscribe(args =>
                 {
-                    var result = args.IsSuccessful
-                        ? this.ToResult(GattEvent.Write, this.Value)
-                        : this.ToResult(GattEvent.ReadError, $"Failed to read descriptor value - {args.Status}");
-
-                    ob.Respond(result);
+                    if (args.IsSuccessful)
+                        ob.Respond(new DescriptorGattResult(this, args.Descriptor.GetValue()));
+                    else
+                        ob.OnError(new BleException($"Failed to read descriptor value - {args.Status}"));
                 });
 
             this.context.InvokeOnMainThread(() =>
             {
                 if (!this.context.Gatt.ReadDescriptor(this.native))
-                    ob.Respond(this.ToResult(GattEvent.ReadError, "Failed to read descriptor"));
+                    ob.OnError(new BleException("Failed to read descriptor"));
             });
 
             return sub;

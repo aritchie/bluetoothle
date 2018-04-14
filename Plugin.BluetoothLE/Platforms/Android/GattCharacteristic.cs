@@ -42,25 +42,22 @@ namespace Plugin.BluetoothLE
 
             this.context.InvokeOnMainThread(() =>
             {
-                CharacteristicGattResult result = null;
                 try
                 {
                     this.native.WriteType = GattWriteType.NoResponse;
 
                     if (!this.native.SetValue(value))
-                        result = this.ToResult(GattEvent.WriteError, "Failed to set characteristic value");
+                        throw new BleException("Failed to write characteristic value");
 
-                    else if (this.context.Gatt.WriteCharacteristic(this.native))
-                        result = this.ToResult(GattEvent.Write, value);
+                    if (!this.context.Gatt.WriteCharacteristic(this.native))
+                        throw new BleException("Failed to write to characteristic");
 
-                    else
-                        result = this.ToResult(GattEvent.WriteError, "Failed to write to characteristic");
+                    ob.Respond( new CharacteristicGattResult(this, value));
                 }
                 catch (Exception ex)
                 {
-                    result = this.ToResult(GattEvent.WriteError, ex.ToString());
+                    throw new BleException("Error during charactersitic write", ex);
                 }
-                ob.OnNext(result);
             });
 
             return Disposable.Empty;
@@ -79,12 +76,10 @@ namespace Plugin.BluetoothLE
                 .Subscribe(args =>
                 {
                     Log.Debug(BleLogCategory.Characteristic, "write event - " + args.Characteristic.Uuid);
-
-                    var result = args.IsSuccessful
-                        ? this.ToResult(GattEvent.Write, value)
-                        : this.ToResult(GattEvent.WriteError,$"Failed to write characteristic - {args.Status}");
-
-                    ob.Respond(result);
+                    if (args.IsSuccessful)
+                        ob.Respond(new CharacteristicGattResult(this, value));
+                    else
+                        ob.OnError(new BleException($"Failed to write characteristic - {args.Status}"));
                 });
 
             Log.Debug(BleLogCategory.Characteristic, "Hooking for write response - " + this.Uuid);
@@ -92,10 +87,10 @@ namespace Plugin.BluetoothLE
             {
                 this.native.WriteType = GattWriteType.Default;
                 if (!this.native.SetValue(value))
-                    ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to set characteristic value"));
+                    ob.OnError(new BleException("Failed to set characteristic value"));
 
                 else if (!this.context.Gatt.WriteCharacteristic(this.native))
-                    ob.Respond(this.ToResult(GattEvent.WriteError, "Failed to write to characteristic"));
+                    ob.OnError(new BleException("Failed to write to characteristic"));
             });
 
             return sub;
@@ -113,17 +108,16 @@ namespace Plugin.BluetoothLE
                 .Where(this.NativeEquals)
                 .Subscribe(args =>
                 {
-                    var result = args.IsSuccessful
-                        ? this.ToResult(GattEvent.Read, args.Characteristic.GetValue())
-                        : this.ToResult(GattEvent.ReadError, $"Failed to read characteristic - {args.Status}");
-
-                    ob.Respond(result);
+                    if (args.IsSuccessful)
+                        ob.Respond(new CharacteristicGattResult(this, args.Characteristic.GetValue()));
+                    else
+                        ob.OnError(new BleException($"Failed to read characteristic - {args.Status}"));
                 });
 
             this.context.InvokeOnMainThread(() =>
             {
                 if (!this.context.Gatt.ReadCharacteristic(this.native))
-                    ob.Respond(this.ToResult(GattEvent.ReadError, "Failed to read characteristic"));
+                    ob.OnError(new BleException("Failed to read characteristic"));
             });
 
             return sub;
@@ -135,27 +129,24 @@ namespace Plugin.BluetoothLE
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
             if (descriptor == null)
-                return this.ToResult(GattEvent.NotificationError, "Characteristic Client Configuration Descriptor not found");
+                throw new BleException("Characteristic Client Configuration Descriptor not found");
 
             var wrap = new GattDescriptor(this, this.context, descriptor);
             if (!this.context.Gatt.SetCharacteristicNotification(this.native, true))
-                return this.ToResult(GattEvent.NotificationError, "Failed to set characteristic notification value");
+                throw new BleException("Failed to set characteristic notification value");
 
             await this.context.OpPause(ct).ConfigureAwait(false);
             var bytes = useIndicationsIfAvailable && this.CanIndicate()
                 ? BluetoothGattDescriptor.EnableIndicationValue.ToArray()
                 : BluetoothGattDescriptor.EnableNotificationValue.ToArray();
 
-            var result = await wrap
+            await wrap
                 .WriteInternal(bytes)
                 .ToTask(ct)
                 .ConfigureAwait(false);
 
-            if (!result.Success)
-                return this.ToResult(GattEvent.NotificationError, "Failed to set notification descriptor - " + result.ErrorMessage);
-
             this.IsNotifying = true;
-            return this.ToResult(GattEvent.Notification, "");
+            return new CharacteristicGattResult(this, null);
         }));
 
 
@@ -164,23 +155,20 @@ namespace Plugin.BluetoothLE
         {
             var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
             if (descriptor == null)
-                return this.ToResult(GattEvent.NotificationError, "Characteristic Client Configuration Descriptor not found");
+                throw new BleException("Characteristic Client Configuration Descriptor not found");
 
             var wrap = new GattDescriptor(this, this.context, descriptor);
             if (!this.context.Gatt.SetCharacteristicNotification(this.native, false))
-                return this.ToResult(GattEvent.NotificationError, "Could not set characteristic value");
+                throw new BleException("Could not set characteristic notification value");
 
             await this.context.OpPause(ct).ConfigureAwait(false);
-            var result = await wrap
+            await wrap
                 .WriteInternal(BluetoothGattDescriptor.DisableNotificationValue.ToArray())
                 .ToTask(ct)
                 .ConfigureAwait(false);
 
-            if (!result.Success)
-                return this.ToResult(GattEvent.NotificationError, "Failed to set notification descriptor - " + result.ErrorMessage);
-
             this.IsNotifying = true;
-            return this.ToResult(GattEvent.Notification, "");
+            return new CharacteristicGattResult(this, null);
         }));
 
 
@@ -196,11 +184,10 @@ namespace Plugin.BluetoothLE
                     .Where(this.NativeEquals)
                     .Subscribe(args =>
                     {
-                        var result = args.IsSuccessful
-                            ? this.ToResult(GattEvent.Notification, args.Characteristic.GetValue())
-                            : this.ToResult(GattEvent.NotificationError, "Notification error - " + args.Status.ToString());
-
-                        ob.OnNext(result);
+                        if (args.IsSuccessful)
+                            ob.OnNext(new CharacteristicGattResult(this, args.Characteristic.GetValue()));
+                        else
+                            ob.OnError(new BleException($"Notification error - {args.Status}"));
                     })
             )
             .Publish()

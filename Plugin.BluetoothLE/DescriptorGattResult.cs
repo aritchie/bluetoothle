@@ -3,24 +3,16 @@
 
 namespace Plugin.BluetoothLE
 {
-    public class DescriptorGattResult : AbstractGattResult
+    public class DescriptorGattResult
     {
-        public DescriptorGattResult(IGattDescriptor descriptor,
-                                    GattEvent gattEvent,
-                                    byte[] data) : base(gattEvent, data)
+        public DescriptorGattResult(IGattDescriptor descriptor, byte[] data)
         {
             this.Descriptor = descriptor;
+            this.Data = data;
         }
 
 
-        public DescriptorGattResult(IGattDescriptor descriptor,
-                                    GattEvent gattEvent,
-                                    string errorMessage) : base(gattEvent, errorMessage)
-        {
-            this.Descriptor = descriptor;
-        }
-
-
+        public byte[] Data { get; }
         public IGattDescriptor Descriptor { get; }
     }
 }
