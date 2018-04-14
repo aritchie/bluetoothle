@@ -11,7 +11,8 @@
 * [breaking] GATT server now starts as soon as it is created (removal of start/stop functions)
 * [breaking][feature] All read/write/notification actions now contain a result object (good or bad) instead of calling OnError - why?  because no one knows how to use RX so I'll do the fun stuff for them!
 * [breaking] Write no longer fallsback to "WriteWithoutResponse"
-* [fix][android] Adapter.IsScanning and Adapter.WhenScanningStatusChanged() were not firing reliability
+* [breaking] Connect is no longer observable - it is designed to be async for when device comes into range
+* [breaking] Many methods (Device rssi, Adapter Scan events) have been removed to simplify API as well as remove potential issues due to their use
 * [fix][android] fixes to locking mechanism as well as ability to disable it via CrossBleAdapter.AndroidDisableLockMechanism
 
 ## 5.3.1

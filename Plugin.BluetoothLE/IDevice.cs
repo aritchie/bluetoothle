@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 
 
 namespace Plugin.BluetoothLE
@@ -52,6 +53,12 @@ namespace Plugin.BluetoothLE
         /// Disconnect from the device and cancel persistent connection
         /// </summary>
         void CancelConnection();
+
+        /// <summary>
+        /// This fires when a device connection fails
+        /// </summary>
+        /// <returns></returns>
+        IObservable<BleException> WhenConnectionFailed();
 
         /// <summary>
         /// Monitor connection status

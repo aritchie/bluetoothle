@@ -1,6 +1,10 @@
 ﻿using System;
+using Android.App;
 using Android.OS;
 
+[assembly: UsesPermission("android.permission.BLUETOOTH")]
+[assembly: UsesPermission("android.permission.BLUETOOTH_ADMIN")]
+[assembly: UsesPermission("android.permission.ACCESS_COARSE_LOCATION")]
 
 namespace Plugin.BluetoothLE
 {

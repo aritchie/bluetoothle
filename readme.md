@@ -108,7 +108,7 @@ If you want to use background BLE periperhals, add the following to your Info.pl
 CrossBleAdapter.Current.Scan().Subscribe(scanResult => {});
 
 // Once finding the device/scanresult you want
-await scanResult.Device.Connect();
+scanResult.Device.Connect();
 
 Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
     // read, write, or subscribe to notifications here

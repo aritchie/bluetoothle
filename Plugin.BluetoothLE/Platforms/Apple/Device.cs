@@ -57,16 +57,13 @@ namespace Plugin.BluetoothLE
 
             if (config.IsPersistent)
             {
+                // TODO: when connection failed as well
                 this.autoReconnect = this.WhenStatusChanged()
                     .Where(x => x == ConnectionStatus.Disconnected)
                     .Subscribe(_ => this.DoConnect());
             }
             // TODO: I need to listen to below - this is async though - android is not
             // could add connection status "failed" to whenstatuschanged
-            //sub2 = this.context
-            //    .FailedConnection
-            //    .Where(x => x.Peripheral.Equals(this.peripheral))
-            //    .Subscribe(x => ob.OnError(new Exception(x.Error.ToString())));
             this.DoConnect();
         }
 
@@ -86,6 +83,12 @@ namespace Plugin.BluetoothLE
             this.autoReconnect?.Dispose();
             this.context.Manager.CancelPeripheralConnection(this.peripheral);
         }
+
+
+        public override IObservable<BleException> WhenConnectionFailed() => this.context
+            .FailedConnection
+            .Where(x => x.Peripheral.Equals(this.peripheral))
+            .Select(x => new BleException(x.Error.ToString()));
 
 
         IObservable<string> nameOb;

@@ -21,6 +21,7 @@ namespace Plugin.BluetoothLE
         public abstract object NativeDevice { get; }
         public abstract ConnectionStatus Status { get; }
         public abstract DeviceFeatures Features { get; }
+        public virtual IObservable<BleException> WhenConnectionFailed() => Observable.Empty<BleException>();
 
         public abstract void Connect(GattConnectionConfig config);
         public abstract void CancelConnection();

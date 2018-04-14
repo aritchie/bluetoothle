@@ -17,7 +17,7 @@ namespace Plugin.BluetoothLE
 
         public IDevice AddDevice(ulong bluetoothAddress, BluetoothLEDevice native)
         {
-            var dev = new Device(this, native);
+            var dev = new Device(native);
             this.devices.TryAdd(bluetoothAddress, dev);
             return dev;
         }

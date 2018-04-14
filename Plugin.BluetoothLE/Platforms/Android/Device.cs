@@ -67,6 +67,13 @@ namespace Plugin.BluetoothLE
         }
 
 
+        public override IObservable<BleException> WhenConnectionFailed() => this.context
+            .Callbacks
+            .ConnectionStateChanged
+            .Where(x => !x.IsSuccessful)
+            .Select(x => new BleException($"Failed to connect to device - {x.Status}"));
+
+
         // android does not have a find "1" service - it must discover all services.... seems shit
         public override IObservable<IGattService> GetKnownService(Guid serviceUuid) => this
             .DiscoverServices()
