@@ -4,9 +4,6 @@ using System.Reactive.Linq;
 using Acr;
 using CoreBluetooth;
 using Foundation;
-#if __IOS__
-using UIKit;
-#endif
 
 
 namespace Plugin.BluetoothLE
@@ -99,7 +96,7 @@ namespace Plugin.BluetoothLE
                         return;
 
                     if (args.Error == null)
-                        ob.Respond(new CharacteristicGattResult(this, null));
+                        ob.OnNext(new CharacteristicGattResult(this, args.Characteristic.Value?.ToArray()));
                     else
                         ob.OnError(new BleException(args.Error.Description));
                 });
