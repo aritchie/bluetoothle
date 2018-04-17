@@ -1,17 +1,23 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
 using Xunit;
-using Xunit.Abstractions;
 
 
 namespace Plugin.BluetoothLE.Tests
 {
-    public class DeviceTests
+    public class DeviceTests : IDisposable
     {
         IDevice device;
+
+
+        public void Dispose()
+        {
+            this.device?.CancelConnection();
+        }
 
 
         async Task Setup(bool connect)
@@ -23,6 +29,23 @@ namespace Plugin.BluetoothLE.Tests
 
             if (connect)
                 await this.device.ConnectWait().ToTask();
+        }
+
+
+        [Fact]
+        public async Task GetConnectedDevices()
+        {
+            await this.Setup(true);
+            var devices = CrossBleAdapter.Current.GetConnectedDevices();
+            Assert.Equal(1, devices.Count());
+
+            Assert.True(devices.First().Uuid.Equals(this.device.Uuid));
+            this.device.CancelConnection();
+            await Task.Delay(2000); // wait for dc to occur
+
+            Assert.Equal(ConnectionStatus.Disconnected, this.device.Status);
+            devices = CrossBleAdapter.Current.GetConnectedDevices();
+            Assert.Equal(0, devices.Count());
         }
 
 
