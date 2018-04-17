@@ -62,7 +62,7 @@ namespace Plugin.BluetoothLE.Tests
             var origCount = count;
             count = 0;
 
-            await UserDialogs.Instance.AlertAsync("No turn device back on & press OK when light turns green");
+            await UserDialogs.Instance.AlertAsync("Now turn device back on & press OK when light turns green");
             await Task.Delay(5000);
             Assert.Equal(count, origCount);
         }
@@ -131,11 +131,17 @@ namespace Plugin.BluetoothLE.Tests
         public async Task Extensions_HookCharacteristic()
         {
             await this.Setup(false);
-            //this.device.ConnectHook(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1)
-            //    .Subscribe(XmlAssertionExtensions =>
-            //    {
+            var list = await this.device
+                .ConnectHook(
+                    Constants.ScratchServiceUuid,
+                    Constants.ScratchCharacteristicUuid1
+                )
+                .Take(3)
+                .ToList()
+                .Timeout(TimeSpan.FromSeconds(5))
+                .ToTask();
 
-            //    })
+            Assert.Equal(3, list.Count);
         }
 
 
