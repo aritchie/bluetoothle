@@ -13,21 +13,18 @@ namespace Samples.Ble
 {
     public class ScanViewModel : ViewModel
     {
-        readonly IUserDialogs dialogs;
-        readonly IAdapter adapter;
         IDisposable scan;
 
 
         public ScanViewModel()
         {
-            this.dialogs = UserDialogs.Instance;
-            this.adapter = CrossBleAdapter.Current;
             this.Devices = new ObservableCollection<ScanResultViewModel>();
 
-            this.adapter
+            CrossBleAdapter
+                .Current
                 .WhenStatusChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => this.IsSupported = x == AdapterStatus.PoweredOn);
+                .Subscribe(_ => this.RaisePropertyChanged(nameof(this.Title)));
 
             this.SelectDevice = ReactiveCommand.CreateFromTask<ScanResultViewModel>(async x =>
             {
@@ -40,32 +37,29 @@ namespace Samples.Ble
 
             this.OpenSettings = ReactiveCommand.Create(() =>
             {
-                if (this.adapter.Features.HasFlag(AdapterFeatures.OpenSettings))
+                if (CrossBleAdapter.Current.Features.HasFlag(AdapterFeatures.OpenSettings))
                 {
-                    this.adapter.OpenSettings();
+                    CrossBleAdapter.Current.OpenSettings();
                 }
                 else
                 {
-                    this.dialogs.Alert("Cannot open bluetooth settings");
+                    UserDialogs.Instance.Alert("Cannot open bluetooth settings");
                 }
             });
 
             this.ToggleAdapterState = ReactiveCommand.Create(
                 () =>
                 {
-                    if (this.adapter.CanControlAdapterState())
+                    if (CrossBleAdapter.Current.CanControlAdapterState())
                     {
-                        this.adapter.SetAdapterState(true);
+                        var poweredOn = CrossBleAdapter.Current.Status == AdapterStatus.PoweredOn;
+                        CrossBleAdapter.Current.SetAdapterState(!poweredOn);
                     }
                     else
                     {
-                        this.dialogs.Alert("Cannot change bluetooth adapter state");
+                        UserDialogs.Instance.Alert("Cannot change bluetooth adapter state");
                     }
-                },
-                this.adapter
-                    .WhenStatusChanged()
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Select(x => x == AdapterStatus.PoweredOff)
+                }
             );
 
             this.ScanToggle = ReactiveCommand.Create(
@@ -93,10 +87,11 @@ namespace Samples.Ble
                             });
                     }
                 },
-                this.WhenAny(
-                    x => x.IsSupported,
-                    x => x.Value
-                )
+                CrossBleAdapter
+                    .Current
+                    .WhenStatusChanged()
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Select(x => x == AdapterStatus.PoweredOn)
             );
         }
 
@@ -115,32 +110,14 @@ namespace Samples.Ble
         public ObservableCollection<ScanResultViewModel> Devices { get; }
 
 
-        public string ScanText => this.IsSupported
-            ? (this.IsScanning ? "Stop Scan" : "Scan")
-            : "Bad Adapter Status: " + CrossBleAdapter.Current.Status;
+        public string Title => $"{CrossBleAdapter.Current.DeviceName} ({CrossBleAdapter.Current.Status})";
 
 
         bool scanning;
         public bool IsScanning
         {
             get => this.scanning;
-            private set
-            {
-                this.RaiseAndSetIfChanged(ref this.scanning, value);
-                this.RaisePropertyChanged(nameof(this.ScanText));
-            }
-        }
-
-
-        bool supported;
-        public bool IsSupported
-        {
-            get => this.supported;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref this.supported, value);
-                this.RaisePropertyChanging(nameof(this.ScanText));
-            }
+            private set => this.RaiseAndSetIfChanged(ref this.scanning, value);
         }
 
 

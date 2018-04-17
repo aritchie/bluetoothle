@@ -63,7 +63,6 @@ namespace Plugin.BluetoothLE
                     .Subscribe(_ => this.DoConnect());
             }
             // TODO: I need to listen to below - this is async though - android is not
-            // could add connection status "failed" to whenstatuschanged
             this.DoConnect();
         }
 

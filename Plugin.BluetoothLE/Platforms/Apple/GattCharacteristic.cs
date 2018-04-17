@@ -68,20 +68,20 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<CharacteristicGattResult> EnableNotifications(bool enableIndicationsIfAvailable)
-        {
-            this.AssertNotify();
-            this.Peripheral.SetNotifyValue(true, this.NativeCharacteristic);
-            return Observable.Return(new CharacteristicGattResult(this, null));
-        }
+            => this.SetNotifications(true);
 
 
         public override IObservable<CharacteristicGattResult> DisableNotifications()
+            => this.SetNotifications(false);
+
+
+        IObservable<CharacteristicGattResult> SetNotifications(bool enabled)
         {
             this.AssertNotify();
-            this.Peripheral.SetNotifyValue(false, this.NativeCharacteristic);
+            this.Peripheral.SetNotifyValue(enabled, this.NativeCharacteristic);
+            this.IsNotifying = enabled;
             return Observable.Return(new CharacteristicGattResult(this, null));
         }
-
 
         IObservable<CharacteristicGattResult> notifyOb;
         public override IObservable<CharacteristicGattResult> WhenNotificationReceived()

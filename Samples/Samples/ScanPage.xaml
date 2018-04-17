@@ -4,7 +4,8 @@
                    xmlns:pages="clr-namespace:Acr.XamForms.Pages;assembly=Acr.XamForms"
                    xmlns:behaviors="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
                    xmlns:ble="clr-namespace:Samples.Ble;assembly=Samples"
-                   x:Class="Samples.Ble.ScanPage">
+                   x:Class="Samples.Ble.ScanPage"
+                   Title="{Binding Title}">
 
     <ContentPage.BindingContext>
         <ble:ScanViewModel />
@@ -12,7 +13,16 @@
 
     <ContentPage.Content>
         <StackLayout>
-            <Button Text="{Binding ScanText}" Command="{Binding ScanToggle}" />
+            <Button Command="{Binding ScanToggle}">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsScanning}" Value="True">
+                        <Setter Property="Text" Value="Stop Scan" />
+                    </DataTrigger>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsScanning}" Value="False">
+                        <Setter Property="Text" Value="Scan" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
             <Button Text="Open Settings" Command="{Binding OpenSettings}" />
             <Button Text="Toggle Adapter" Command="{Binding ToggleAdapterState}" />
 

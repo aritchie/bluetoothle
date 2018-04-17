@@ -64,7 +64,6 @@ namespace Samples.Ble
         public Guid ServiceUuid => this.Characteristic.Service.Uuid;
         public string Description => this.Characteristic.Description;
         public string Properties => this.Characteristic.Properties.ToString();
-        public bool CanNotify => this.Characteristic.CanNotify();
 
 
         public void Select()

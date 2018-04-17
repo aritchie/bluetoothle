@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Acr.UserDialogs;
 using ReactiveUI;
-using Xamarin.Forms;
 using Samples.Infrastructure;
 using Log = Acr.Logging.Log;
 
@@ -24,6 +23,7 @@ namespace Samples.Ble
 
     public class LogViewModel : ViewModel
     {
+
         public LogViewModel()
         {
             this.Logs = new ObservableCollection<LogItem>();
@@ -33,15 +33,16 @@ namespace Samples.Ble
                 {
                     Log.Out = (category, msg, level) =>
                     {
-                        Device.BeginInvokeOnMainThread(() =>
-                            this.Logs.Insert(0, new LogItem
-                            {
-                                Category = category,
-                                Message = msg,
-                                Level = level.ToString(),
-                                Timestamp = DateTime.Now
-                            })
-                        );
+                        // TODO: when in the bg, this will fail
+                        //Device.BeginInvokeOnMainThread(() =>
+                        //    this.Logs.Insert(0, new LogItem
+                        //    {
+                        //        Category = category,
+                        //        Message = msg,
+                        //        Level = level.ToString(),
+                        //        Timestamp = DateTime.Now
+                        //    })
+                        //);
                     };
                 }
                 else
@@ -57,6 +58,18 @@ namespace Samples.Ble
 
 
         public string StateText => this.Enabled ? "Disable Logging" : "Enable Logging";
+
+
+        public override void OnActivated()
+        {
+            base.OnActivated();
+        }
+
+
+        public override void OnDeactivated()
+        {
+            base.OnDeactivated();
+        }
 
 
         bool enabled = true;
