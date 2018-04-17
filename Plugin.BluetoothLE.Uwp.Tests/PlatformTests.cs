@@ -69,29 +69,30 @@ namespace Plugin.BluetoothLE.Uwp.Tests
             characteristic.ValueChanged -= handler2;
             characteristic = null;
 
-            service.Dispose();
             //BluetoothLEDevice.GetDeviceSelectorFromConnectionStatus(BluetoothConnectionStatus.Connected)
             //service.Session.SessionStatusChanged += (sender, args) =>
             //{
             //    //args.Status == GattSessionStatus.Active
             //};
             //service.Session.MaintainConnection = true;
-            //foreach (var s in serviceResult.Services)
-            //{
-            //    s.Session.MaintainConnection = false;
-            //    s.Session.Dispose();
-            //    s.Dispose();
-            //}
-            //service = null;
-
-            var list = device.GetType().GetTypeInfo().GetRuntimeMethods().OrderBy(x => x.Name);
-
-            //var releasers = list.Where(x => x.Name.StartsWith("Release"));
-            //foreach (var releaser in releasers)
-            foreach (var method in list)
+            foreach (var c in characteristicResult.Characteristics)
             {
-                this.output.WriteLine($"Name: {method.Name}, Static: {method.IsStatic}, Public: {method.IsPublic}, Private: {method.IsPrivate}, Parameters: {method.GetParameters().Length}");
+                c.Service.Session.Dispose();
             }
+            foreach (var s in serviceResult.Services)
+            {
+                s.Session.Dispose();
+            }
+                //service = null;
+
+                //var list = device.GetType().GetTypeInfo().GetRuntimeMethods().OrderBy(x => x.Name);
+
+                ////var releasers = list.Where(x => x.Name.StartsWith("Release"));
+                ////foreach (var releaser in releasers)
+                //foreach (var method in list)
+                //{
+                //    this.output.WriteLine($"Name: {method.Name}, Static: {method.IsStatic}, Public: {method.IsPublic}, Private: {method.IsPrivate}, Parameters: {method.GetParameters().Length}");
+                //}
 
             device.Dispose();
             device = null;
