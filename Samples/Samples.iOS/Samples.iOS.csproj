@@ -46,10 +46,10 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <MtouchArch>ARMv7, ARM64</MtouchArch>
-    <CodesignKey>iPhone Developer: Allan Ritchie (34FQ4253P2)</CodesignKey>
+    <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchDebug>true</MtouchDebug>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
-    <CodesignProvision>DEV</CodesignProvision>
+    <CodesignProvision>dev-all</CodesignProvision>
     <CodesignExtraArgs>
     </CodesignExtraArgs>
     <IOSDebugOverWiFi>true</IOSDebugOverWiFi>
