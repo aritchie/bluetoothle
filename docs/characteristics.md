@@ -8,37 +8,61 @@ _It important thing with characteristics is NOT to store a reference to an objec
 
 **Discover characteristics on service**
 ```csharp
-Service.WhenCharacteristicDiscovered().Subscribe(characteristic => {});
+Service.DiscoverCharacteristics().Subscribe(characteristics => {});
 ```
 
 **Read and Write to a characteristic**
 ```csharp
 // once you have your characteristic instance from the service discovery
-await Characteristic.Read();
+Characteristic.Read().Subscribe(
+    result => {
+        result.Data (byte[])
+    },
+    exception => {
+        // reads can error!
+    }
+);
 
-await Characteristic.Write(bytes);
+Characteristic.Write(bytes).Subscribe(
+    result => {
+        // you don't really need to do anything with the result
+    },
+    exception => {
+        // writes can error!
+    }
+);
 ```
 
 **Write Without Response**
 ```csharp
-Characteristic.WriteWithoutResponse(bytes);
+Characteristic.WriteWithoutResponse(bytes).Subscribe();
 ```
 
 
 **Notifications**
 ```csharp
-var success = characteristic.SetNotificationValue(CharacteristicConfigDescriptorValue.Notify); // or Indicate
-var sub = characteristic.WhenNotificationReceived().Subscribe(result => { result.Data... });
+ // pass true to use indications (if available on android or UWP)
+Characteristic.EnableNotifications(true);
+var sub = characteristic
+    .WhenNotificationReceived()
+    .Subscribe(
+        result => { result.Data... }
+    );
 
 // don't forget to turn them off when you're done
-characteristic.EnableNotifications(); // pass true to enable indications if supported
+characteristic.DisableNotifications().Subscribe(); // pass true to enable indications if supported
+
+// there are also some nice extensions to help speed this up
+Characteristic.RegisterAndNotify().Subscribe(result => {
+    // if you don't care when the notifications have been enabled
+});
+
+// From the device, this will attempt to discover a known service /w a known characteristic and hook that characteristic
+// for notifications - 1 stop shop all the way
+Device.HookCharacteristic(serviceUuid, characteristicUuid).Subscribe(result => {
+});
 ```
 
-**Monitor Reads/Writes**
-```csharp
-characteristic.WhenRead().Subscribe(result => { result.Data... });
-characteristic.WhenWritten().Subscribe(result => { result.Data... });
-```
 
 **Discover descriptors on a characteristic**
 ```csharp
@@ -81,6 +105,8 @@ characteristic.RegisterAndNotify().Subscribe(result => {});
 characteristic.ReadInterval(TimeSpan).Subscribe(result => { result.Data... });
 
 // discover all characteristics without finding services first
+// you should not use this in production - it is more for easy discovery
+// you should use GetKnownService/GetKnownCharacteristic
 device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {});
 
 // will continue to read in a loop until ending bytes (argument) is detected

@@ -4,7 +4,15 @@ Android Bluetooth is painful and that's being nice.  This library attempts to de
 
 All of the classes and members listed in this page can only be called from your Android project, not your PCL/Core library.  You should call and set
 these values at your main launcher activity or even at an application level.
-```
+
+## General Rules
+
+While this library tries to deal with all of the known Android issues to the best of its ability.
+You likely will encounter issues if you don't follow the below:
+
+1) Don't scan or do anything with the adapter while connected to the GATT
+2) Don't overwhelm the radio. The library now has an internal queue to force operations to finish.
+3) GATT 133 will happen on Connect on occasion.  Catch exceptions in the observable subscriptions.
 
 ## Connection Options
 
