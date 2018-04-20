@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Acr;
+using Acr.Reactive;
 using CoreBluetooth;
 using Foundation;
 using UIKit;

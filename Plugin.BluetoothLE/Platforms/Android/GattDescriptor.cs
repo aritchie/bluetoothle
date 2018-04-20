@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
-using Acr;
+using Acr.Reactive;
 using Android.Bluetooth;
 using Plugin.BluetoothLE.Internals;
 

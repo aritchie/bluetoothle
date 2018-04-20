@@ -16,7 +16,6 @@ namespace Plugin.BluetoothLE.Internals
         LollipopScanCallback callbacks;
 
 
-
         public AdapterContext(BluetoothManager manager)
         {
             this.manager = manager;

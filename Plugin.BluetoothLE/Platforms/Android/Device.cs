@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using Acr;
 using Android.Bluetooth;
 using Android.OS;
 using Acr.Logging;
+using Acr.Reactive;
 using Plugin.BluetoothLE.Internals;
 
 

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Acr;
 using Acr.Logging;
+using Acr.Reactive;
 
 
 namespace Plugin.BluetoothLE.Internals
@@ -58,13 +59,13 @@ namespace Plugin.BluetoothLE.Internals
             var cancel = false;
             this.Actions.Enqueue(async () =>
             {
+                if (cancel)
+                    return;
+
                 try
                 {
-                    if (!cancel)
-                    {
-                        var result = await observable.ToTask().ConfigureAwait(false);
-                        ob.Respond(result);
-                    }
+                    var result = await observable.ToTask().ConfigureAwait(false);
+                    ob.Respond(result);
                 }
                 catch (System.Exception ex)
                 {
@@ -142,6 +143,7 @@ namespace Plugin.BluetoothLE.Internals
             // TODO: cancel everything in queue
             this.Actions.Clear();
         }
+
 
         void CreateGatt(bool autoConnect)
         {

@@ -69,7 +69,7 @@
     <PackageReference Include="Xamarin.Android.Support.Design" Version="26.1.0.1" />
     <PackageReference Include="reactiveui" Version="8.0.0-alpha0105" />
     <PackageReference Include="Xamarin.Build.Download">
-      <Version>0.4.9</Version>
+      <Version>0.4.10</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Forms" Version="2.5.1.444934" />
   </ItemGroup>
