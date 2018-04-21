@@ -169,7 +169,7 @@ namespace Plugin.BluetoothLE
                 .ToTask(ct)
                 .ConfigureAwait(false);
 
-            this.IsNotifying = true;
+            this.IsNotifying = false;
             return new CharacteristicGattResult(this, null);
         }));
 
