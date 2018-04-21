@@ -84,17 +84,6 @@ namespace Plugin.BluetoothLE
         }
 
 
-        //public override IObservable<int> WhenRssiUpdated(TimeSpan? frequency) => Observable
-        //    .Interval(frequency ?? TimeSpan.FromMilliseconds(500))
-        //    .Where(x => this.Status == ConnectionStatus.Connected)
-        //    .Select(_ => (int) this.context
-        //        .NativeDevice
-        //        .DeviceInformation
-        //        .Properties["System.Devices.Aep.SignalStrength"]
-        //    );
-        // TODO: once the gatt connection is established, this guy will stop obviously!
-
-
         IObservable<IGattService> serviceOb;
         public override IObservable<IGattService> DiscoverServices()
         {

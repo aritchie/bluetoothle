@@ -9,7 +9,6 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
-using Acr;
 using Acr.Logging;
 using Acr.Reactive;
 
@@ -32,20 +31,10 @@ namespace Plugin.BluetoothLE.Internals
         public ConcurrentQueue<Func<Task>> Actions { get; }
 
 
-        public void Reconnect(ConnectionPriority priority)
-        {
-            if (this.Gatt == null)
-                throw new ArgumentException("Device is not in a reconnectable state");
-
-            this.CleanUpQueue();
-            this.InvokeOnMainThread(() => this.Gatt.Connect());
-        }
-
-
-        public void Connect(ConnectionPriority priority, bool androidAutoReconnect) => this.InvokeOnMainThread(() =>
+        public void Connect(ConnectionPriority priority, bool autoReconnect) => this.InvokeOnMainThread(() =>
         {
             this.CleanUpQueue();
-            this.CreateGatt(androidAutoReconnect);
+            this.CreateGatt(autoReconnect);
             if (this.Gatt == null)
                 throw new BleException("GATT connection could not be established");
 

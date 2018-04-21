@@ -7,15 +7,6 @@ namespace Plugin.BluetoothLE
     {
         public static GattConnectionConfig DefaultConfiguration { get; } = new GattConnectionConfig();
 
-
-        /// <summary>
-        /// Set this to false if you want initial connection to be faster (you need to make sure the device is in range).
-        /// This property is used only by Android & Tizen
-        /// Leave as true unless you want to control connections yourselfe (defaults to true)
-        /// </summary>
-        public bool AndroidAutoConnect { get; set; } = true;
-
-
         /// <summary>
         /// This will cause disconnected devices to try to immediately reconnect.  It will cause WillRestoreState to fire on iOS. Defaults to true
         /// </summary>
