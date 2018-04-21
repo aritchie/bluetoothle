@@ -119,7 +119,9 @@ namespace Plugin.BluetoothLE
                 if (status != GattCommunicationStatus.Success)
                     throw new BleException($"Failed to write client characteristic configuration descriptor - {status}");
 
-                this.context.SetNotifyCharacteristic(this.Native, value != GattClientCharacteristicConfigurationDescriptorValue.None);
+                var enable = value != GattClientCharacteristicConfigurationDescriptorValue.None;
+                this.context.SetNotifyCharacteristic(this.Native, enable);
+                this.IsNotifying = enable;
                 return new CharacteristicGattResult(this, null);
             });
 
