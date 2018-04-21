@@ -41,7 +41,7 @@
                                     <Label Text="{Binding Description}" FontAttributes="Bold" TextColor="Red" />
                                     <Label Text="{Binding Uuid, StringFormat='UUID: {0}'}" FontAttributes="Italic" />
                                     <Label Text="{Binding Properties, StringFormat='Properties: {0}'}" />
-                                    <Label Text="{Binding IsNotifying, StringFormat='Notifying: {0}'}" IsVisible="{Binding CanNotify}" />
+                                    <Label Text="{Binding IsNotifying, StringFormat='Notifying: {0}'}" />
                                     <Label Text="{Binding Value, StringFormat='Value: {0}'}" IsVisible="{Binding IsValueAvailable}" />
                                     <Label Text="{Binding LastValue, StringFormat='Last Read: {0:hh:mm:ss tt}'}" IsVisible="{Binding IsValueAvailable}" />
                                 </StackLayout>

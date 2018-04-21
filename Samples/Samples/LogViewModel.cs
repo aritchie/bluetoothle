@@ -27,12 +27,13 @@ namespace Samples.Ble
         public LogViewModel()
         {
             this.Logs = new ObservableCollection<LogItem>();
+            Log.ToDebug();
             this.WhenAnyValue(x => x.Enabled).Subscribe(enable =>
             {
                 if (enable)
                 {
-                    Log.Out = (category, msg, level) =>
-                    {
+                    //Log.Out = (category, msg, level) =>
+                    //{
                         // TODO: when in the bg, this will fail
                         //Device.BeginInvokeOnMainThread(() =>
                         //    this.Logs.Insert(0, new LogItem
@@ -43,11 +44,11 @@ namespace Samples.Ble
                         //        Timestamp = DateTime.Now
                         //    })
                         //);
-                    };
+                    //};
                 }
                 else
                 {
-                    Log.ToConsole();
+                    //Log.ToConsole();
                 }
             });
 
