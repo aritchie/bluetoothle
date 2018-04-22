@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<pages:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   xmlns:pages="clr-namespace:Acr.XamForms.Pages;assembly=Acr.XamForms"
+                   xmlns:ble="clr-namespace:Samples.Ble;assembly=Samples"
+                   x:Class="Samples.Ble.ServerPage"
+                   Title="Server">
+    <ContentPage.BindingContext>
+        <ble:ServerViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Entry Placeholder="Characteristic Value" Text="{Binding CharacteristicValue}" />
+            <ScrollView Orientation="Vertical" Grid.Column="0" Grid.Row="1">
+                <Label Text="{Binding Output}" />
+            </ScrollView>
+            <Button Text="{Binding ServerText}" Command="{Binding ToggleServer}" Grid.Column="0" Grid.Row="2" />
+            <Button Text="Clear Output" Command="{Binding Clear}" Grid.Column="0" Grid.Row="3" />
+        </Grid>
+    </ContentPage.Content>
+
+</pages:ContentPage>

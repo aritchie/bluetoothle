@@ -1,6 +1,6 @@
 ﻿using AppKit;
-using Autofac;
 using Foundation;
+using Samples.Ble;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
 
@@ -30,12 +30,7 @@ namespace Samples.macOS
 		public override void DidFinishLaunching(NSNotification notification)
 		{
 			Forms.Init();
-
-		    var builder = new ContainerBuilder();
-		    builder.RegisterModule(new PlatformModule());
-		    var container = builder.Build();
-
-		    this.LoadApplication(new App(container));
+		    this.LoadApplication(new App());
 
 			base.DidFinishLaunching(notification);
 		}

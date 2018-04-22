@@ -5,21 +5,21 @@ using Android;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Xamarin.Forms;
 using Xunit.Runners.UI;
 
 
 namespace Plugin.BluetoothLE.Android.Tests
 {
     [Activity(
-        Label = "Plugin.BluetoothLE.Android.Tests",
-        MainLauncher = true,
-        Icon = "@drawable/icon"
+        Label = "BLE Plugin Tests",
+        MainLauncher = true
     )]
     public class MainActivity : RunnerActivity
     {
         protected override void OnCreate(Bundle bundle)
         {
-            GattConnectionConfig.DefaultConfiguration.AutoConnect = false;
+            //GattConnectionConfig.DefaultConfiguration.AndroidAutoConnect = false;
 
             this.RequestPermissions(new[]
             {
@@ -27,8 +27,7 @@ namespace Plugin.BluetoothLE.Android.Tests
                 Manifest.Permission.BluetoothPrivileged
             }, 0);
 
-            UserDialogs.Init(this);
-            //this.AddExecutionAssembly(typeof(ExtensibilityPointFactory).Assembly);
+            UserDialogs.Init(() => (Activity)Forms.Context);
             this.AddTestAssembly(typeof(BluetoothLE.Tests.DeviceTests).Assembly);
             this.AddTestAssembly(Assembly.GetExecutingAssembly());
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using Plugin.BluetoothLE;
-using Autofac;
 using Foundation;
+using Samples.Ble;
 using UIKit;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.iOS;

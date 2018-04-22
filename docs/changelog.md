@@ -1,19 +1,19 @@
 # CHANGE LOG
 
-## 5.3.5
-* [fix][android] characteristic disconnect crash
-
-## 5.3.4
-* The locking mechanism for android has been turned off by default
-
-## 5.3.3
-* [fix][android] removes lock on android getknowncharacteristic - this could introduce android bug back into wild
-* [fix][android] more deadlock issues
-
-
-## 5.3.2
+## 6.0
+* [feature][breaking] GATT server & BLE advertising are now separate functions
+* [feature] ScanConfig is now available on all Adapter extension methods
+* [feature] WhenKnownCharacteristicsDiscovered is a handy way of always calling for known characteristics as device connects
+* [feature] ConnectHook is a new extension that manages everything from the connection/reconnect/disconnect to the characteristic notification
+* [feature] Device.WriteCharacteristic and Device.ReadCharacteristic are new extensions making it easy to read/write to characteristics without a reference to one
+* [feature] StopScan for cancelling background scans where the observable may have been lost
+* [feature] WriteWithoutResponse is now async (Android - so it can participate in queue & iOS since it provides a ready event)
+* [breaking] GATT server now starts as soon as it is created (removal of start/stop functions)
+* [breaking][feature] All read/write/notification actions now contain a result object (good or bad) instead of calling OnError - why?  because no one knows how to use RX so I'll do the fun stuff for them!
+* [breaking] Write no longer fallsback to "WriteWithoutResponse"
+* [breaking] Connect is no longer observable - it is designed to be async for when device comes into range
+* [breaking] Many methods (Device rssi, Adapter Scan events) have been removed to simplify API as well as remove potential issues due to their use
 * [fix][android] fixes to locking mechanism as well as ability to disable it via CrossBleAdapter.AndroidDisableLockMechanism
-* [fix][ios] NRE in reconnection logic
 
 ## 5.3.1
 * [fix][android] GetKnownCharacteristic now sync locks to prevent android race condition

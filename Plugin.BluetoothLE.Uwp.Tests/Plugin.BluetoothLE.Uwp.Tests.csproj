@@ -124,41 +124,49 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.0.1</Version>
+    <PackageReference Include="Acr.UserDialogs">
+      <Version>7.0.1</Version>
     </PackageReference>
-    <PackageReference Include="MSTest.TestAdapter">
-      <Version>1.2.0</Version>
+    <PackageReference Include="Xamarin.Forms">
+      <Version>2.5.1.444934</Version>
     </PackageReference>
-    <PackageReference Include="MSTest.TestFramework">
-      <Version>1.2.0</Version>
+    <PackageReference Include="xunit">
+      <Version>2.3.1</Version>
     </PackageReference>
     <PackageReference Include="xunit.runner.devices">
-      <Version>2.3.0</Version>
+      <Version>2.3.3</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
+      <Version>6.0.8</Version>
+    </PackageReference>
+    <PackageReference Include="MSTest.TestAdapter">
+      <Version>1.2.1</Version>
+    </PackageReference>
+    <PackageReference Include="MSTest.TestFramework">
+      <Version>1.2.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj">
-      <Project>{01d11ef2-074c-4bc0-9c05-5a6a9f974e05}</Project>
-      <Name>Plugin.BluetoothLE.Abstractions</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Plugin.BluetoothLE.Tests\Plugin.BluetoothLE.Tests.csproj">
       <Project>{7dcadb09-c341-469c-bb5a-aab7f4b2e4f1}</Project>
       <Name>Plugin.BluetoothLE.Tests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Plugin.BluetoothLE.Uwp\Plugin.BluetoothLE.Uwp.csproj">
-      <Project>{74399318-b10f-47dc-9500-1f5b9e337dbc}</Project>
-      <Name>Plugin.BluetoothLE.Uwp</Name>
+    <ProjectReference Include="..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj">
+      <Project>{f44febba-7ea7-4b92-bf25-ebdcc1db1830}</Project>
+      <Name>Plugin.BluetoothLE</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

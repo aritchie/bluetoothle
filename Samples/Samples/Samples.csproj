@@ -5,16 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Acr.UserDialogs" Version="6.5.1" />
-        <PackageReference Include="Autofac" Version="4.6.2" />
+        <PackageReference Include="Acr.Core" Version="2.0.2" />
+        <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
+        <PackageReference Include="Acr.XamForms" Version="3.0.1" />
         <PackageReference Include="reactiveui" Version="8.0.0-alpha0105" />
         <PackageReference Include="System.Reactive" Version="3.1.1" />
-        <PackageReference Include="Xamarin.Forms" Version="2.4.0.38779" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\..\Plugin.BluetoothLE.Abstractions\Plugin.BluetoothLE.Abstractions.csproj" />
-        <ProjectReference Include="..\..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj" />
+        <PackageReference Include="Xamarin.Forms" Version="2.5.1.444934" />
     </ItemGroup>
 
     <ItemGroup>
@@ -22,27 +18,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Update="Pages\Le\AdapterListPage.xaml.cs">
-            <DependentUpon>AdapterListPage.xaml</DependentUpon>
-        </Compile>
-        <Compile Update="Pages\Le\ConnectedDevicesPage.xaml.cs">
-            <DependentUpon>ConnectedDevicesPage.xaml</DependentUpon>
-        </Compile>
-        <Compile Update="Pages\Le\DevicePage.xaml.cs">
-            <DependentUpon>DevicePage.xaml</DependentUpon>
-        </Compile>
-        <Compile Update="Pages\Le\LogPage.xaml.cs">
-            <DependentUpon>LogPage.xaml</DependentUpon>
-        </Compile>
-        <Compile Update="Pages\Le\ScanPage.xaml.cs">
-            <DependentUpon>ScanPage.xaml</DependentUpon>
-        </Compile>
-        <Compile Update="Pages\Le\ServerPage.xaml.cs">
-            <DependentUpon>ServerPage.xaml</DependentUpon>
-        </Compile>
-        <Compile Update="Pages\MainPage.xaml.cs">
-            <DependentUpon>MainPage.xaml</DependentUpon>
-        </Compile>
+      <ProjectReference Include="..\..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="AdapterPage.xaml.cs">
+        <DependentUpon>AdapterPage.xaml</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

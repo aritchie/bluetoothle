@@ -1,30 +1,79 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
 
 namespace Plugin.BluetoothLE.Tests
 {
-    public class CharacteristicTests : AbstractTests
+    public class CharacteristicTests : IDisposable
     {
-        public CharacteristicTests(ITestOutputHelper output) : base(output)
+        readonly ITestOutputHelper output;
+        IGattCharacteristic[] characteristics;
+        IDevice device;
+
+        public CharacteristicTests(ITestOutputHelper output) => this.output = output;
+
+
+        async Task Setup()
         {
+            this.device = await CrossBleAdapter
+                .Current
+                .ScanUntilDeviceFound(Constants.DeviceName)
+                .Timeout(TimeSpan.FromSeconds(5))
+                .ToTask();
+
+            await this.device
+                .ConnectWait()
+                .Timeout(TimeSpan.FromSeconds(15)) // android can take some time :P
+                .ToTask();
+
+            this.characteristics = await this.device
+                .GetCharacteristicsForService(Constants.ScratchServiceUuid)
+                .Take(5)
+                .Timeout(TimeSpan.FromSeconds(5))
+                .ToArray()
+                .ToTask();
+        }
+
+
+        public void Dispose()
+        {
+            this.device?.CancelConnection();
+        }
+
+
+        [Fact]
+        public async Task WriteWithoutResponse()
+        {
+            await this.Setup();
+
+            var value = new byte[] { 0x01, 0x02 };
+            foreach (var ch in this.characteristics)
+            {
+                await ch.WriteWithoutResponse(value);
+                //Assert.True(write.Success, "Write failed - " + write.ErrorMessage);
+
+                // TODO: enable write back on host
+                //var read = await ch.Read();
+                //read.Success.Should().BeTrue("Read failed - " + read.ErrorMessage);
+
+                //read.Data.Should().BeEquivalentTo(value);
+            }
         }
 
 
         [Fact]
         public async Task Concurrent_Notifications()
         {
+            await this.Setup();
             var list = new Dictionary<Guid, int>();
-            var characteristics = await this.GetCharacteristics();
 
-            characteristics
+            var sub = this.characteristics
                 .ToObservable()
                 .Select(x => x.RegisterAndNotify(true))
                 .Merge()
@@ -35,110 +84,66 @@ namespace Plugin.BluetoothLE.Tests
                     if (list.ContainsKey(id))
                     {
                         list[id]++;
-                        this.Output.WriteLine("Existing characteristic reply - " + id);
+                        this.output.WriteLine("Existing characteristic reply - " + id);
                     }
                     else
                     {
                         list.Add(id, 1);
-                        this.Output.WriteLine("New characteristic reply - " + id);
+                        this.output.WriteLine("New characteristic reply - " + id);
                     }
                 });
 
-            await Task.Delay(10000);
+            await Task.Delay(TimeSpan.FromSeconds(7));
+            sub.Dispose();
 
-            list.Count.Should().BeGreaterOrEqualTo(2, "There were not at least 2 characteristics in the replies");
-            list.First().Value.Should().BeGreaterOrEqualTo(2, "First characteristic did not speak at least 2 times");
-            list.ElementAt(2).Value.Should().BeGreaterOrEqualTo(2, "Second characteristic did not speak at least 2 times");
+            Assert.True(list.Count >= 2, "There were not at least 2 characteristics in the replies");
+            Assert.True(list.First().Value >= 2, "First characteristic did not speak at least 2 times");
+            Assert.True(list.ElementAt(2).Value >= 2, "Second characteristic did not speak at least 2 times");
         }
 
 
         [Fact]
         public async Task Concurrent_Writes()
         {
+            await this.Setup();
             var bytes = new byte[] { 0x01 };
-            var cs = await this.GetCharacteristics();
-            var results = await Observable
-                .Merge(
-                    cs.ElementAt(0).Write(bytes),
-                    cs.ElementAt(1).Write(bytes),
-                    cs.ElementAt(2).Write(bytes),
-                    cs.ElementAt(3).Write(bytes),
-                    cs.ElementAt(4).Write(bytes)
-                )
-                .Take(5)
-                //.Timeout(TimeSpan.FromSeconds(5))
-                .ToList();
 
-            results.Count.Should().Be(5);
+            var t1 = this.characteristics[0].Write(bytes).Timeout(TimeSpan.FromSeconds(5)).ToTask();
+            var t2 = this.characteristics[1].Write(bytes).Timeout(TimeSpan.FromSeconds(5)).ToTask();
+            var t3 = this.characteristics[2].Write(bytes).Timeout(TimeSpan.FromSeconds(5)).ToTask();
+            var t4 = this.characteristics[3].Write(bytes).Timeout(TimeSpan.FromSeconds(5)).ToTask();
+            var t5 = this.characteristics[4].Write(bytes).Timeout(TimeSpan.FromSeconds(5)).ToTask();
+
+            await Task.WhenAll(t1, t2, t3, t4, t5);
         }
 
 
         [Fact]
         public async Task Concurrent_Reads()
         {
-            var cs = await this.GetCharacteristics();
-            var results = await Observable
-                .Merge(
-                    cs.ElementAt(0).Read(),
-                    cs.ElementAt(1).Read(),
-                    cs.ElementAt(2).Read(),
-                    cs.ElementAt(3).Read(),
-                    cs.ElementAt(4).Read()
-                )
-                .Take(5)
-                //.Timeout(TimeSpan.FromSeconds(5))
-                .ToList();
+            await this.Setup();
+            var t1 = this.characteristics[0].Read().Timeout(TimeSpan.FromSeconds(5)).ToTask();
+            var t2 = this.characteristics[1].Read().Timeout(TimeSpan.FromSeconds(5)).ToTask();
+            var t3 = this.characteristics[2].Read().Timeout(TimeSpan.FromSeconds(5)).ToTask();
+            var t4 = this.characteristics[3].Read().Timeout(TimeSpan.FromSeconds(5)).ToTask();
+            var t5 = this.characteristics[4].Read().Timeout(TimeSpan.FromSeconds(5)).ToTask();
 
-            results.Count.Should().Be(5);
+            await Task.WhenAll(t1, t2, t3, t4, t5);
         }
 
 
         [Fact]
-        public async Task Cancel_ReleaseLock()
+        public async Task NotificationFollowedByWrite()
         {
-            var bytes = Enumerable.Repeat<byte>(0x01, 20).ToArray();
-            var cs = await this.GetCharacteristics();
-            try
-            {
-                await cs.ElementAt(0).Write(bytes).Timeout(TimeSpan.FromSeconds(0));
-                throw new ArgumentException("This should not have been hit");
-            }
-            catch (ArgumentException)
-            {
-                throw;
-            }
-            catch { }
+            await this.Setup();
 
-            await cs.ElementAt(0).Write(bytes).Timeout(TimeSpan.FromSeconds(3));
-        }
-
-
-        [Fact]
-        public async Task SequentialWrite()
-        {
-            var cs = await this.GetCharacteristics();
-            await cs.First().Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(3));
-            await cs.Last().Write(new byte[] { 0x01 }).Timeout(TimeSpan.FromSeconds(3));
-        }
-
-
-        [Fact]
-        public async Task SequentialRead()
-        {
-            var cs = await this.GetCharacteristics();
-            var sw = new Stopwatch();
-
-            sw.Start();
-            for (var i = 0; i < 5; i++)
-            {
-                await cs.ElementAt(0).Read();
-                await cs.ElementAt(1).Read();
-                await cs.ElementAt(2).Read();
-                await cs.ElementAt(3).Read();
-                await cs.ElementAt(4).Read();
-            }
-            sw.Stop();
-            this.Output.WriteLine($"Reads took {sw.Elapsed.TotalSeconds}s");
+            await this.characteristics
+                .First()
+                .RegisterAndNotify()
+                .Select(x => x.Characteristic.Write(new byte[] {0x0}))
+                .Switch()
+                .Timeout(TimeSpan.FromSeconds(7))
+                .FirstOrDefaultAsync();
         }
     }
 }

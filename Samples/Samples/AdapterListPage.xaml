@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<pages:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   x:Class="Samples.Ble.AdapterListPage"
+                   xmlns:pages="clr-namespace:Acr.XamForms.Pages;assembly=Acr.XamForms"
+                   xmlns:behaviors="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
+                   xmlns:ble="clr-namespace:Samples.Ble;assembly=Samples"
+                   Title="BLE Plugin (Adapter List)">
+
+    <ContentPage.BindingContext>
+        <ble:AdapterListViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Scan" Command="{Binding Scan}" />
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.Content>
+        <StackLayout>
+            <ActivityIndicator IsRunning="{Binding IsBusy}" VerticalOptions="Center" />
+            <ListView ItemsSource="{Binding Adapters}">
+                <ListView.Behaviors>
+                    <behaviors:ItemTappedCommandBehavior Command="{Binding Select}" />
+                </ListView.Behaviors>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextCell Text="{Binding DeviceName}" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</pages:ContentPage>

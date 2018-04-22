@@ -1,18 +1,22 @@
-# ACR Reactive BluetoothLE Plugin
+# <img src="icon.png" width="71" height="71"/> ACR Reactive BluetoothLE Plugin
 Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
-[Change Log - Dec 23, 2017](docs/changelog.md)
+[Change Log - April 21, 2018](docs/changelog.md)
 
 
 ## PLATFORMS
 
-* Android 4.3+
-* iOS 7+
-* macOS
-* tvOS
-* Windows UWP
-  * Client in beta
+Platform|Version
+--------|-------
+Android|4.3+
+iOS|7+
+macOS|Latest
+tvOS|Latest
+Windows UWP|16299+
+
+UWP is still in beta!
+  * Client cannot disconnect
   * Server WIP
   * PRs only during beta please!
 
@@ -47,6 +51,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
 * Android Issues
   * We manage the GATT 133 (mostly, hopefully)
   * Don't like the serial way you have to work with BLE, don't worry, we cover that too.  Read/Write away!
+  * Don't know what thread to run a method on?  Don't worry - we got that covered.... just make the read/write call and relax
 
 
 ## SETUP
@@ -88,6 +93,7 @@ If you want to use background BLE periperhals, add the following to your Info.pl
 <string>YOUR CUSTOM MESSAGE</string>
 ```
 
+
 ## HOW TO USE - CLIENT BASICS
 
 ```csharp
@@ -96,7 +102,7 @@ If you want to use background BLE periperhals, add the following to your Info.pl
 CrossBleAdapter.Current.Scan().Subscribe(scanResult => {});
 
 // Once finding the device/scanresult you want
-await scanResult.Device.Connect();
+scanResult.Device.Connect();
 
 Device.WhenAnyCharacteristicDiscovered().Subscribe(characteristic => {
     // read, write, or subscribe to notifications here
@@ -183,14 +189,15 @@ await server.Start(new AdvertisementData
 * [Characteristics](docs/characteristics.md)
 * [Descriptors](docs/descriptors.md)
 * Platform Specifics
-    * [Android](docs/android.md)
-    * [iOS](docs/ios.md)
+    * [Android](docs/platform_android.md)
+    * [iOS](docs/platform_ios.md)
+    * [UWP](docs/platform_uwp.md)
 * Extensions
-    * [Heart Rate](docs/heartrate.md)
+    * [Heart Rate](docs/extensions_heartrate.md)
+    * [Beacons](docs/extensions_beacons.md)
 * Server
-    * [Advertising](docs/server_advertising.md)
-    * [Services](docs/server_services.md)
-    * [Characteristics](docs/server_characteristics.md)
+    * [Advertising](docs/advertising.md)
+    * [GATT](docs/gattserver.md)
 
 ## FAQ
 
@@ -230,3 +237,21 @@ Q. Why can't I disconnect devices selectively in the GATT server?
 Q. Why can't I configure the device name on Android?
 
 > Please read the [advertising docs](docs/server_advertising.md) on this
+
+
+## GENERAL RULES TO FOLLOW
+
+* DO NOT reuse services, characteristics, and descriptors between connnections
+* DO catch errors in your subscriptions (ie. Reads/Writes)
+* DO set timeouts on all connected operations using [Observable.Timeout(TimeSpan)](http://www.introtorx.com/content/v1.0.10621.0/13_TimeShiftedSequences.html#Timeout).  Timeout throws errors that you must also manage!
+* DO NOT manage reconnection yourself
+* DO NOT scan with the adapter while you have an open GATT connection 
+* 
+
+## CONTRIBUTORS
+
+Thank you for all your help
+
+* **[Marius Bloemhof](https://github.com/mariusbloemhof)** for all the extensive testing 
+* **[Jesse Jiang](https://github.com/jessejiang0214)** for all the PRs
+* **[Jelle Damen](https://twitter.com/JelleDamen)** for the wonderful icons

@@ -8,32 +8,17 @@ You should maintain a reference to a device if you intend to connect to it.
 
 ```csharp
 // connect
-await device.Connect(new GattConnectionConfig 
+device.Connect(new GattConnectionConfig 
 {
-        /// <summary>
-        /// This will cause disconnected devices to try to immediately reconnect.  It will cause WillRestoreState to fire on iOS. Defaults to true
-        /// </summary>
-        public bool IsPersistent { get;  set; } = true;
+    /// <summary>
+    /// This will cause disconnected devices to try to immediately reconnect.  It will cause WillRestoreState to fire on iOS. Defaults to true
+    /// </summary>
+    public bool IsPersistent { get;  set; } = true;
 
-        /// <summary>
-        /// Android only - If you have characteristics where you need faster replies, you can set this to high
-        /// </summary>
-        public ConnectionPriority Priority { get; set; } = ConnectionPriority.Normal;
-
-        /// <summary>
-        /// iOS only
-        /// </summary>
-        public bool NotifyOnConnect { get; set; }
-
-        /// <summary>
-        /// iOS/tvOS/macOS only
-        /// </summary>
-        public bool NotifyOnDisconnect { get; set; }
-
-        /// <summary>
-        /// iOS only
-        /// </summary>
-        public bool NotifyOnNotification { get; set; }    
+    /// <summary>
+    /// Android only - If you have characteristics where you need faster replies, you can set this to high
+    /// </summary>
+    public ConnectionPriority Priority { get; set; } = ConnectionPriority.Normal;
 });
 
 // this will disconnect a current connection, cancel a connection attempt, and
@@ -88,9 +73,6 @@ device.WhenMtuChanged().Subscribe(...)
 ```csharp
 // This will tell you if the device name changes during a connection
 device.WhenNameChanged().Subscribe(string => {});
-
-// this will monitor the RSSI of the connected device.  This will attempt to pull the RSSI every 3 seconds by default
-device.WhenRssiChanged().Subscribe(rssi => {});
 
 // this will watch the connection states to the device
 device.WhenStatusChanged().Subscribe(connectionState => {});

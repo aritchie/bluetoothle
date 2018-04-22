@@ -3,21 +3,13 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
-using FluentAssertions;
 using Xunit;
-using Xunit.Abstractions;
 
 
 namespace Plugin.BluetoothLE.Tests
 {
-    public class AdapterTests : AbstractTests
+    public class AdapterTests
     {
-
-        public AdapterTests(ITestOutputHelper output) : base(output)
-        {
-        }
-
-
         [Fact]
         public async Task Status_Monitor()
         {
@@ -42,8 +34,8 @@ namespace Plugin.BluetoothLE.Tests
                 });
             await UserDialogs.Instance.AlertAsync("Now turn the adapter off and then back on - press ok once done");
 
-            on.Should().BeGreaterOrEqualTo(1);
-            off.Should().BeGreaterOrEqualTo(1);
+            Assert.True(on >= 1);
+            Assert.True(off >= 1);
         }
 
 
@@ -57,15 +49,15 @@ namespace Plugin.BluetoothLE.Tests
                     ScanType = BleScanType.Balanced,
                     ServiceUuids =
                     {
-                        ScratchServiceUuid
+                        Constants.AdServiceUuid
                     }
                 })
                 .Take(1)
                 .Timeout(TimeSpan.FromSeconds(20))
                 .ToTask();
 
-            result.Should().NotBeNull("Device not found");
-            result.Device.Name.Should().Be("Bean+");
+            Assert.NotNull(result);
+            Assert.Equal("Bean+", result.Device.Name);
         }
     }
 }

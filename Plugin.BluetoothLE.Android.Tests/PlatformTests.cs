@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using FluentAssertions;
 using Xunit;
 
 
@@ -11,7 +10,7 @@ namespace Plugin.BluetoothLE.Android.Tests
         [Theory]
         [MemberData(nameof(GetUuids))]
         public void UuidToGuidTests(string uuidString, byte[] bytes)
-            => bytes.ToGuid().ToString().ToUpper().Should().Be(uuidString);
+            => Assert.Equal(uuidString, bytes.ToGuid().ToString().ToUpper());
 
 
         public static IEnumerable<object[]> GetUuids()
@@ -37,7 +36,7 @@ namespace Plugin.BluetoothLE.Android.Tests
         [InlineData(AdapterFeatures.ViewPairedDevices, true)]
         [InlineData(AdapterFeatures.ControlAdapterState, true)]
         public void FeatureCheck(AdapterFeatures feature, bool expectResult) =>
-            CrossBleAdapter.Current.Features.HasFlag(feature).Should().Be(expectResult);
+            Assert.Equal(CrossBleAdapter.Current.Features.HasFlag(feature), expectResult);
 
 
         [Fact]
@@ -47,12 +46,12 @@ namespace Plugin.BluetoothLE.Android.Tests
             var ad = CrossBleAdapter.Current;
             ad.WhenStatusChanged().Subscribe(_ => stateChanges++);
 
-            ad.Status.Should().Be(AdapterStatus.PoweredOn);
+            Assert.Equal(AdapterStatus.PoweredOn, ad.Status);
             ad.SetAdapterState(false);
-            ad.Status.Should().Be(AdapterStatus.PoweredOff);
+            Assert.Equal(AdapterStatus.PoweredOff, ad.Status);
             ad.SetAdapterState(true);
-            ad.Status.Should().Be(AdapterStatus.PoweredOn);
-            stateChanges.Should().Be(3);
+            Assert.Equal(AdapterStatus.PoweredOn, ad.Status);
+            Assert.Equal(3, stateChanges);
         }
     }
 }
