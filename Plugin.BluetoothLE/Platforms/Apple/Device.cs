@@ -13,6 +13,7 @@ namespace Plugin.BluetoothLE
     {
         readonly AdapterContext context;
         readonly CBPeripheral peripheral;
+        IDisposable autoReconnectSub;
 
 
         public Device(AdapterContext context, CBPeripheral peripheral) : base(peripheral.Name,
@@ -52,7 +53,21 @@ namespace Plugin.BluetoothLE
 
         public override void Connect(ConnectionConfig config)
         {
-            this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
+            var arc = config?.AutoConnect ?? true;
+            if (arc)
+            {
+                this.autoReconnectSub = this
+                    .WhenDisconnected()
+                    .Skip(1)
+                    .Subscribe(_ => this.DoConnect());
+            }
+            this.DoConnect();
+        }
+
+
+        protected void DoConnect() => this.context
+            .Manager
+            .ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
             {
                 NotifyOnDisconnection = true,
 #if __IOS__ || __TVOS__
@@ -60,12 +75,15 @@ namespace Plugin.BluetoothLE
                 NotifyOnNotification = true
 #endif
             });
+
+
+        public override void CancelConnection()
+        {
+            this.autoReconnectSub?.Dispose();
+            this.context
+                .Manager
+                .CancelPeripheralConnection(this.peripheral);
         }
-
-
-        public override void CancelConnection() => this.context
-            .Manager
-            .CancelPeripheralConnection(this.peripheral);
 
 
         public override IObservable<BleException> WhenConnectionFailed() => this.context
