@@ -148,7 +148,6 @@ namespace Plugin.BluetoothLE.Tests
         [Fact]
         public async Task ReconnectTest()
         {
-            var autoConnect = await UserDialogs.Instance.ConfirmAsync(new ConfirmConfig().SetMessage("Use autoConnect?").UseYesNo());
             var connected = 0;
             var disconnected = 0;
 
@@ -169,11 +168,7 @@ namespace Plugin.BluetoothLE.Tests
                     }
                 });
 
-            await this.device.ConnectWait(new GattConnectionConfig
-            {
-                AndroidAutoConnect = autoConnect,
-                IsPersistent = true
-            });
+            await this.device.ConnectWait();
             await UserDialogs.Instance.AlertAsync("No turn device off - wait a 3 seconds then turn it back on - press OK if light goes green or you believe connection has failed");
             Assert.Equal(2, connected);
             Assert.Equal(2, disconnected);

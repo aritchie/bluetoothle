@@ -18,6 +18,8 @@ namespace Plugin.BluetoothLE
 
         public AdapterContext(BleAdapterConfiguration config)
         {
+            this.PeripheralManager = new CBPeripheralManager();
+
             this.Manager = config == null
                 ? new CBCentralManager(this, DispatchQueue.CurrentQueue)
                 : new CBCentralManager(this, config.DispatchQueue, new CBCentralInitOptions
@@ -31,6 +33,7 @@ namespace Plugin.BluetoothLE
 
 
         public CBCentralManager Manager { get; }
+        public CBPeripheralManager PeripheralManager { get; }
 
 
         public IDevice GetDevice(CBPeripheral peripheral) => this.peripherals.GetOrAdd(

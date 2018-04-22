@@ -29,6 +29,14 @@ Supported Platforms
         <PackageTags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</PackageTags>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+        <DebugType>full</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
+        <DebugType>pdbonly</DebugType>
+    </PropertyGroup>
+
     <PropertyGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
         <TargetPlatformVersion>10.0.16299.0</TargetPlatformVersion>
         <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>

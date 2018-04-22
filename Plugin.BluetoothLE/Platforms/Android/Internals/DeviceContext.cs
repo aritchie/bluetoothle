@@ -31,13 +31,14 @@ namespace Plugin.BluetoothLE.Internals
         public ConcurrentQueue<Func<Task>> Actions { get; }
 
 
-        public void Connect(ConnectionPriority priority, bool autoReconnect) => this.InvokeOnMainThread(() =>
+        public void Connect(ConnectionConfig config) => this.InvokeOnMainThread(() =>
         {
             this.CleanUpQueue();
-            this.CreateGatt(autoReconnect);
+            this.CreateGatt(config?.AndroidAutoConnect ?? true);
             if (this.Gatt == null)
                 throw new BleException("GATT connection could not be established");
 
+            var priority = config?.AndroidConnectionPriority ?? ConnectionPriority.Normal;
             if (priority != ConnectionPriority.Normal)
                 this.Gatt.RequestConnectionPriority(this.ToNative(priority));
         });

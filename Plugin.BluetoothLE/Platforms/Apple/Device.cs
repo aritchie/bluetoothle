@@ -13,7 +13,6 @@ namespace Plugin.BluetoothLE
     {
         readonly AdapterContext context;
         readonly CBPeripheral peripheral;
-        IDisposable autoReconnect;
 
 
         public Device(AdapterContext context, CBPeripheral peripheral) : base(peripheral.Name,
@@ -51,37 +50,22 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override void Connect(GattConnectionConfig config)
+        public override void Connect(ConnectionConfig config)
         {
-            config = config ?? GattConnectionConfig.DefaultConfiguration;
-
-            if (config.IsPersistent)
+            this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
             {
-                // TODO: when connection failed as well
-                this.autoReconnect = this.WhenStatusChanged()
-                    .Where(x => x == ConnectionStatus.Disconnected)
-                    .Subscribe(_ => this.DoConnect());
-            }
-            // TODO: I need to listen to below - this is async though - android is not
-            this.DoConnect();
-        }
-
-
-        void DoConnect() => this.context.Manager.ConnectPeripheral(this.peripheral, new PeripheralConnectionOptions
-        {
-            NotifyOnDisconnection = true,
+                NotifyOnDisconnection = true,
 #if __IOS__ || __TVOS__
-            NotifyOnConnection = true,
-            NotifyOnNotification = true
+                NotifyOnConnection = true,
+                NotifyOnNotification = true
 #endif
-        });
-
-
-        public override void CancelConnection()
-        {
-            this.autoReconnect?.Dispose();
-            this.context.Manager.CancelPeripheralConnection(this.peripheral);
+            });
         }
+
+
+        public override void CancelConnection() => this.context
+            .Manager
+            .CancelPeripheralConnection(this.peripheral);
 
 
         public override IObservable<BleException> WhenConnectionFailed() => this.context

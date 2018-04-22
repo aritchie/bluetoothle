@@ -42,6 +42,11 @@ namespace Samples.Ble
                 if (this.server == null)
                 {
                     this.BuildServer();
+                    this.adapter.Advertiser.Start(new AdvertisementData
+                    {
+                        LocalName = "My GATT"
+                        //ManufacturerData = new ManufacturerData()
+                    });
                 }
                 else
                 {
@@ -108,10 +113,6 @@ namespace Samples.Ble
             {
                 this.OnEvent("GATT Server Starting");
                 this.server = this.adapter.CreateGattServer();
-                //this.BleAdapter.Advertiser.Start(new AdvertisementData
-                //{
-                //    LocalName = "TestServer"
-                //});
 
                 var counter = 0;
                 var service = this.server.CreateService(Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE"), true);

@@ -30,12 +30,12 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override void Connect(GattConnectionConfig config)
+        public override void Connect()
         {
             if (this.gatt != null)
                 return;
 
-            this.gatt = this.native.GattConnect(config.AndroidAutoConnect);
+            this.gatt = this.native.GattConnect(true);
             // TODO: connecting
         }
 

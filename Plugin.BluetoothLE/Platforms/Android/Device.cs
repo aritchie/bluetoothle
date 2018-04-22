@@ -38,11 +38,10 @@ namespace Plugin.BluetoothLE
             .ToStatus();
 
 
-        public override void Connect(GattConnectionConfig config)
+        public override void Connect(ConnectionConfig config)
         {
-            config = config ?? GattConnectionConfig.DefaultConfiguration;
             this.connSubject.OnNext(ConnectionStatus.Connecting);
-            this.context.Connect(config.Priority, config.IsPersistent);
+            this.context.Connect(config);
         }
 
 

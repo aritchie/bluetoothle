@@ -37,7 +37,15 @@ namespace Samples.Ble
 
                         case ConnectionStatus.Disconnected:
                             this.ConnectText = "Connect";
-                            this.GattCharacteristics.Clear();
+                            try
+                            {
+                                this.GattCharacteristics.Clear();
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex);
+                            }
+
                             break;
                     }
                 });
@@ -47,16 +55,25 @@ namespace Samples.Ble
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(chs =>
                 {
-                    var service = this.GattCharacteristics.FirstOrDefault(x => x.ShortName.Equals(chs.Service.Uuid.ToString()));
-                    if (service == null)
+                    try
                     {
-                        service = new Group<GattCharacteristicViewModel>(
-                            $"{chs.Service.Description} ({chs.Service.Uuid})",
-                            chs.Service.Uuid.ToString()
-                        );
-                        this.GattCharacteristics.Add(service);
+                        var service = this.GattCharacteristics.FirstOrDefault(x => x.ShortName.Equals(chs.Service.Uuid.ToString()));
+                        if (service == null)
+                        {
+                            service = new Group<GattCharacteristicViewModel>(
+                                $"{chs.Service.Description} ({chs.Service.Uuid})",
+                                chs.Service.Uuid.ToString()
+                            );
+                            this.GattCharacteristics.Add(service);
+                        }
+
+                        service.Add(new GattCharacteristicViewModel(chs));
                     }
-                    service.Add(new GattCharacteristicViewModel(chs));
+                    catch (Exception ex)
+                    {
+                        // eat it
+                        Console.WriteLine(ex);
+                    }
                 });
 
             this.SelectCharacteristic = ReactiveCommand.Create<GattCharacteristicViewModel>(x => x.Select());

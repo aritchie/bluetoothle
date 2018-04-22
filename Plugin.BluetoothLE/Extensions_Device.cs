@@ -12,11 +12,10 @@ namespace Plugin.BluetoothLE
         /// Starts connection process if not already connecteds
         /// </summary>
         /// <param name="device"></param>
-        /// <param name="config"></param>
-        public static void ConnectIf(this IDevice device, GattConnectionConfig config = null)
+        public static void ConnectIf(this IDevice device)
         {
             if (device.Status == ConnectionStatus.Disconnected)
-                device.Connect(config);
+                device.Connect();
         }
 
 
@@ -24,13 +23,12 @@ namespace Plugin.BluetoothLE
         /// Waits for connection to actually happen
         /// </summary>
         /// <param name="device"></param>
-        /// <param name="config"></param>
         /// <returns></returns>
-        public static IObservable<IDevice> ConnectWait(this IDevice device, GattConnectionConfig config = null)
+        public static IObservable<IDevice> ConnectWait(this IDevice device)
             => Observable.Create<IDevice>(ob =>
             {
                 var sub = device.WhenConnected().Take(1).Subscribe(_ => ob.Respond(device));
-                device.ConnectIf(config);
+                device.ConnectIf();
                 return sub;
             });
 

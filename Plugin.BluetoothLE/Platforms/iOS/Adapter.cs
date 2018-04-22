@@ -11,7 +11,7 @@ namespace Plugin.BluetoothLE
         public Adapter(BleAdapterConfiguration config = null)
         {
             this.context = new AdapterContext(config);
-            this.Advertiser = new Advertiser();
+            this.Advertiser = new Advertiser(this.context.PeripheralManager);
         }
 
 
@@ -27,7 +27,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IGattServer CreateGattServer() => new GattServer();
+        public override IGattServer CreateGattServer() => new GattServer(this.context.PeripheralManager);
         public override bool IsScanning => this.context.Manager.IsScanning;
         public override void OpenSettings()
         {

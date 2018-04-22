@@ -8,7 +8,11 @@ namespace Plugin.BluetoothLE.Server
 {
     public class Advertiser : AbstractAdvertiser
     {
-        readonly CBPeripheralManager manager = new CBPeripheralManager();
+        readonly CBPeripheralManager manager;
+
+
+        public Advertiser(CBPeripheralManager peripheralManager)
+            => this.manager = peripheralManager;
 
 
         public override void Start(AdvertisementData adData)

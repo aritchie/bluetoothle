@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using CoreBluetooth;
 
@@ -9,14 +10,12 @@ namespace Plugin.BluetoothLE.Server
     public class GattServer : AbstractGattServer
     {
         readonly CBPeripheralManager manager;
-        public GattServer() => this.manager = new CBPeripheralManager();
+        public GattServer(CBPeripheralManager peripheralManager)
+            => this.manager = peripheralManager;
 
 
         protected override void Dispose(bool disposing)
-        {
-            this.manager.RemoveAllServices();
-            this.manager.Dispose();
-        }
+            => this.manager.RemoveAllServices();
 
 
         public override IGattService CreateService(Guid uuid, bool primary) => new GattService(this.manager, this, uuid, primary);
@@ -37,9 +36,14 @@ namespace Plugin.BluetoothLE.Server
                 ch.Native.Descriptors = dlist.ToArray();
             }
             nativeService.Characteristics = chlist.ToArray();
+
+            Debug.WriteLine($"STATE: {this.manager.State} - AUTH: {CBPeripheralManager.AuthorizationStatus}");
+            this.manager.ServiceAdded += (sender, args) =>
+            {
+                if (args.Error != null)
+                    Debug.WriteLine($"ERROR: {args.Error.LocalizedDescription}");
+            };
             this.manager.AddService(nativeService);
-            if (!this.manager.Advertising)
-                this.manager.StartAdvertising(new StartAdvertisingOptions());
         }
 
 
