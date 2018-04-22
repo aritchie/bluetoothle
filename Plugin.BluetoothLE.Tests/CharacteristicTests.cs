@@ -137,18 +137,18 @@ namespace Plugin.BluetoothLE.Tests
         {
             await this.Setup();
 
-            var r = await this.characteristics
-                .First()
+            var rx = this.characteristics.First();
+            var tx = this.characteristics.Last();
+
+            var r = await rx
                 .RegisterAndNotify()
-                .Select(x =>
-                {
-                    return  x.Characteristic.Write(new byte[] {0x0});
-                })
+                .Take(1)
+                .Select(_ => tx.Write(new byte[] {0x0}))
                 .Switch()
                 .Timeout(Constants.OperationTimeout)
                 .FirstOrDefaultAsync();
 
-            Assert.True(r.Data != null);
+            Assert.Equal(tx, r.Characteristic);
         }
     }
 }

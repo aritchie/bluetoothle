@@ -62,7 +62,6 @@ namespace Plugin.BluetoothLE
         public async Task Disconnect()
         {
             this.StopKeepAlive();
-
             foreach (var ch in this.subscribers)
             {
                 try
