@@ -34,7 +34,7 @@ namespace Plugin.BluetoothLE.Internals
         public void Connect(ConnectionConfig config) => this.InvokeOnMainThread(() =>
         {
             this.CleanUpQueue();
-            this.CreateGatt(config?.AndroidAutoConnect ?? true);
+            this.CreateGatt(config?.AutoConnect ?? true);
             if (this.Gatt == null)
                 throw new BleException("GATT connection could not be established");
 

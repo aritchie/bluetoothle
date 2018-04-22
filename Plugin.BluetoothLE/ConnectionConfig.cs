@@ -6,11 +6,12 @@ namespace Plugin.BluetoothLE
     public class ConnectionConfig
     {
         /// <summary>
-        /// Setting this to false will disable auto connect when the device
+        /// Android: Setting this to false will disable auto (re)connect when the device
         /// is in range or when you disconnect.  However, it will speed up initial
-        /// connections signficantly
+        /// connections signficantly (defaults to true)
+        /// iOS: Controls whether or not to reconnect automatically
         /// </summary>
-        public bool AndroidAutoConnect { get; set; } = true;
+        public bool AutoConnect { get; set; } = true;
 
 
         /// <summary>

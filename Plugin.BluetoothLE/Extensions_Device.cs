@@ -172,6 +172,17 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
+        /// Quick helper around WhenStatusChanged().Where(x => x == ConnectionStatus.Disconnected)
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns></returns>
+        public static IObservable<Unit> WhenDisconnected(this IDevice device) =>
+            device
+                .WhenStatusChanged()
+                .Where(x => x == ConnectionStatus.Disconnected)
+                .Select(x => Unit.Default);
+
+        /// <summary>
         /// Will call GetKnownCharacteristics when connected state occurs
         /// </summary>
         /// <param name="device"></param>
