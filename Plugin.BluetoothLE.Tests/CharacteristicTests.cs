@@ -24,18 +24,18 @@ namespace Plugin.BluetoothLE.Tests
             this.device = await CrossBleAdapter
                 .Current
                 .ScanUntilDeviceFound(Constants.DeviceName)
-                .Timeout(TimeSpan.FromSeconds(5))
+                .Timeout(Constants.DeviceScanTimeout)
                 .ToTask();
 
             await this.device
                 .ConnectWait()
-                .Timeout(TimeSpan.FromSeconds(15)) // android can take some time :P
+                .Timeout(Constants.ConnectTimeout) // android can take some time :P
                 .ToTask();
 
             this.characteristics = await this.device
                 .GetCharacteristicsForService(Constants.ScratchServiceUuid)
                 .Take(5)
-                .Timeout(TimeSpan.FromSeconds(5))
+                .Timeout(Constants.OperationTimeout)
                 .ToArray()
                 .ToTask();
         }
@@ -93,7 +93,7 @@ namespace Plugin.BluetoothLE.Tests
                     }
                 });
 
-            await Task.Delay(TimeSpan.FromSeconds(7));
+            await Task.Delay(Constants.OperationTimeout);
             sub.Dispose();
 
             Assert.True(list.Count >= 2, "There were not at least 2 characteristics in the replies");
@@ -108,11 +108,11 @@ namespace Plugin.BluetoothLE.Tests
             await this.Setup();
             var bytes = new byte[] { 0x01 };
 
-            var t1 = this.characteristics[0].Write(bytes).Timeout(TimeSpan.FromSeconds(5)).ToTask();
-            var t2 = this.characteristics[1].Write(bytes).Timeout(TimeSpan.FromSeconds(5)).ToTask();
-            var t3 = this.characteristics[2].Write(bytes).Timeout(TimeSpan.FromSeconds(5)).ToTask();
-            var t4 = this.characteristics[3].Write(bytes).Timeout(TimeSpan.FromSeconds(5)).ToTask();
-            var t5 = this.characteristics[4].Write(bytes).Timeout(TimeSpan.FromSeconds(5)).ToTask();
+            var t1 = this.characteristics[0].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
+            var t2 = this.characteristics[1].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
+            var t3 = this.characteristics[2].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
+            var t4 = this.characteristics[3].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
+            var t5 = this.characteristics[4].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
 
             await Task.WhenAll(t1, t2, t3, t4, t5);
         }
@@ -122,11 +122,11 @@ namespace Plugin.BluetoothLE.Tests
         public async Task Concurrent_Reads()
         {
             await this.Setup();
-            var t1 = this.characteristics[0].Read().Timeout(TimeSpan.FromSeconds(5)).ToTask();
-            var t2 = this.characteristics[1].Read().Timeout(TimeSpan.FromSeconds(5)).ToTask();
-            var t3 = this.characteristics[2].Read().Timeout(TimeSpan.FromSeconds(5)).ToTask();
-            var t4 = this.characteristics[3].Read().Timeout(TimeSpan.FromSeconds(5)).ToTask();
-            var t5 = this.characteristics[4].Read().Timeout(TimeSpan.FromSeconds(5)).ToTask();
+            var t1 = this.characteristics[0].Read().Timeout(Constants.OperationTimeout).ToTask();
+            var t2 = this.characteristics[1].Read().Timeout(Constants.OperationTimeout).ToTask();
+            var t3 = this.characteristics[2].Read().Timeout(Constants.OperationTimeout).ToTask();
+            var t4 = this.characteristics[3].Read().Timeout(Constants.OperationTimeout).ToTask();
+            var t5 = this.characteristics[4].Read().Timeout(Constants.OperationTimeout).ToTask();
 
             await Task.WhenAll(t1, t2, t3, t4, t5);
         }
@@ -137,13 +137,18 @@ namespace Plugin.BluetoothLE.Tests
         {
             await this.Setup();
 
-            await this.characteristics
+            var r = await this.characteristics
                 .First()
                 .RegisterAndNotify()
-                .Select(x => x.Characteristic.Write(new byte[] {0x0}))
+                .Select(x =>
+                {
+                    return  x.Characteristic.Write(new byte[] {0x0});
+                })
                 .Switch()
-                .Timeout(TimeSpan.FromSeconds(7))
+                .Timeout(Constants.OperationTimeout)
                 .FirstOrDefaultAsync();
+
+            Assert.True(r.Data != null);
         }
     }
 }

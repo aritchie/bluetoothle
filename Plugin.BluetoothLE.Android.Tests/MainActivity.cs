@@ -6,8 +6,10 @@ using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Xamarin.Forms;
+using Xunit;
 using Xunit.Runners.UI;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace Plugin.BluetoothLE.Android.Tests
 {
@@ -19,7 +21,7 @@ namespace Plugin.BluetoothLE.Android.Tests
     {
         protected override void OnCreate(Bundle bundle)
         {
-            //GattConnectionConfig.DefaultConfiguration.AndroidAutoConnect = false;
+            //GattConnectionConfig.DefaultConfiguration.AutoConnect = false;
 
             this.RequestPermissions(new[]
             {
@@ -31,14 +33,13 @@ namespace Plugin.BluetoothLE.Android.Tests
             this.AddTestAssembly(typeof(BluetoothLE.Tests.DeviceTests).Assembly);
             this.AddTestAssembly(Assembly.GetExecutingAssembly());
 
-            //CrossBleAdapter.AndroidUseNewScanner = false;
-            CrossBleAdapter.AndroidOperationPause = TimeSpan.FromMilliseconds(100);
-            //CrossBleAdapter.AndroidMaxAutoReconnectAttempts = 2;
-            //CrossBleAdapter.AndroidPerformActionsOnMainThread = false;
+            //CrossBleAdapter.UseNewScanner = false;
+            //CrossBleAdapter.PauseBeforeServiceDiscovery = TimeSpan.FromSeconds(1);
+            //CrossBleAdapter.PauseBetweenInvocations = TimeSpan.FromMilliseconds(250);
+            //CrossBleAdapter.ShouldInvokeOnMainThread = false;
 
             this.AutoStart = false;
             this.TerminateAfterExecution = false;
-            //this.Writer =
 
             base.OnCreate(bundle);
         }

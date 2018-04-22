@@ -25,10 +25,14 @@ namespace Plugin.BluetoothLE.Tests
             this.device = await CrossBleAdapter
                 .Current
                 .ScanUntilDeviceFound(Constants.DeviceName)
+                .Timeout(Constants.DeviceScanTimeout)
                 .ToTask();
 
             if (connect)
-                await this.device.ConnectWait().ToTask();
+                await this.device
+                    .ConnectWait()
+                    .Timeout(Constants.ConnectTimeout)
+                    .ToTask();
         }
 
 
@@ -75,12 +79,12 @@ namespace Plugin.BluetoothLE.Tests
 
             var s1 = await this.device
                 .GetKnownCharacteristics(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1)
-                .Timeout(TimeSpan.FromSeconds(5))
+                .Timeout(Constants.OperationTimeout)
                 .ToTask();
 
             var s2 = await this.device
                 .GetKnownCharacteristics(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid2)
-                .Timeout(TimeSpan.FromSeconds(5))
+                .Timeout(Constants.OperationTimeout)
                 .ToTask();
 
             Assert.NotNull(s1);
@@ -101,7 +105,7 @@ namespace Plugin.BluetoothLE.Tests
                     Constants.ScratchCharacteristicUuid2
                 ))
                 .Take(5)
-                .Timeout(TimeSpan.FromSeconds(10))
+                .Timeout(Constants.OperationTimeout)
                 .ToTask()
                 .ConfigureAwait(false);
         }
@@ -117,12 +121,12 @@ namespace Plugin.BluetoothLE.Tests
                     Constants.ScratchCharacteristicUuid1,
                     new byte[] {0x01}
                 )
-                .Timeout(TimeSpan.FromSeconds(7))
+                .Timeout(Constants.OperationTimeout)
                 .ToTask();
 
             await this.device
                 .ReadCharacteristic(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1)
-                .Timeout(TimeSpan.FromSeconds(7))
+                .Timeout(Constants.OperationTimeout)
                 .ToTask();
         }
 
@@ -138,7 +142,7 @@ namespace Plugin.BluetoothLE.Tests
                 )
                 .Take(3)
                 .ToList()
-                .Timeout(TimeSpan.FromSeconds(5))
+                .Timeout(Constants.OperationTimeout)
                 .ToTask();
 
             Assert.Equal(3, list.Count);
