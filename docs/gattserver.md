@@ -4,6 +4,8 @@ This allows you to accept client connections
 
 Each OS has different limitations and functions
 
+**On iOS - you need to advertise as well as create a gatt server**
+
 # Services
 
 Services are nothing more than categories in the overall perspective of BluetoothLE.  You should be aware that

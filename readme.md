@@ -2,7 +2,7 @@
 Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
-[Change Log - Dec 24, 2017](docs/changelog.md)
+[Change Log - April 21, 2018](docs/changelog.md)
 
 
 ## PLATFORMS
@@ -92,12 +92,6 @@ If you want to use background BLE periperhals, add the following to your Info.pl
 <key>NSBluetoothPeripheralUsageDescription</key>
 <string>YOUR CUSTOM MESSAGE</string>
 ```
-
-## GENERAL RULES TO FOLLOW
-
-* DO NOT reuse services, characteristics, and descriptors between connnections
-* DO try errors for all connected operations (ie. Reads/Writes) using the [Observable Catch](http://www.introtorx.com/content/v1.0.10621.0/11_AdvancedErrorHandling.html#Catch) or using a general "try await catch"
-* DO set timeouts on all connected operations using [Observable.Timeout(TimeSpan)](http://www.introtorx.com/content/v1.0.10621.0/13_TimeShiftedSequences.html#Timeout).  Timeout throws errors that you must also manage!
 
 
 ## HOW TO USE - CLIENT BASICS
@@ -245,6 +239,14 @@ Q. Why can't I configure the device name on Android?
 > Please read the [advertising docs](docs/server_advertising.md) on this
 
 
+## GENERAL RULES TO FOLLOW
+
+* DO NOT reuse services, characteristics, and descriptors between connnections
+* DO catch errors in your subscriptions (ie. Reads/Writes)
+* DO set timeouts on all connected operations using [Observable.Timeout(TimeSpan)](http://www.introtorx.com/content/v1.0.10621.0/13_TimeShiftedSequences.html#Timeout).  Timeout throws errors that you must also manage!
+* DO NOT manage reconnection yourself
+* DO NOT scan with the adapter while you have an open GATT connection 
+* 
 
 ## CONTRIBUTORS
 
