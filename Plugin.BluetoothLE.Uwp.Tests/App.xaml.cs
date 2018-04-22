@@ -9,6 +9,8 @@ namespace Plugin.BluetoothLE.Uwp.Tests
     {
         protected override void OnInitializeRunner()
         {
+            Acr.Logging.Log.ToDebug();
+
             this.AddTestAssembly(typeof(Plugin.BluetoothLE.Tests.DeviceTests).GetTypeInfo().Assembly);
             this.AddTestAssembly(this.GetType().GetTypeInfo().Assembly);
         }

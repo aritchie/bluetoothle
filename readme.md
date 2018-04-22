@@ -246,7 +246,7 @@ Q. Why can't I configure the device name on Android?
 * DO set timeouts on all connected operations using [Observable.Timeout(TimeSpan)](http://www.introtorx.com/content/v1.0.10621.0/13_TimeShiftedSequences.html#Timeout).  Timeout throws errors that you must also manage!
 * DO NOT manage reconnection yourself
 * DO NOT scan with the adapter while you have an open GATT connection 
-* 
+* If you have a TX/RX setup using Notify/Write, use 2 characteristics, not one
 
 ## CONTRIBUTORS
 

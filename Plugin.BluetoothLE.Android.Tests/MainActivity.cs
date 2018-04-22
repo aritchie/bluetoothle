@@ -21,7 +21,7 @@ namespace Plugin.BluetoothLE.Android.Tests
     {
         protected override void OnCreate(Bundle bundle)
         {
-            //GattConnectionConfig.DefaultConfiguration.AutoConnect = false;
+            Acr.Logging.Log.ToDebug();
 
             this.RequestPermissions(new[]
             {

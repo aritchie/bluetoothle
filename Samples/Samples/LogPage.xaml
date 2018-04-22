@@ -15,25 +15,16 @@
     </ContentPage.ToolbarItems>
 
     <ContentPage.Content>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <ListView ItemsSource="{Binding Logs}">
+            <ListView.Behaviors>
+                <behaviors:ItemTappedCommandBehavior Command="{Binding Show}" />
+            </ListView.Behaviors>
 
-            <ListView ItemsSource="{Binding Logs}">
-                <ListView.Behaviors>
-                    <behaviors:ItemTappedCommandBehavior Command="{Binding Show}" />
-                </ListView.Behaviors>
-
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <TextCell Text="{Binding Text}" Detail="{Binding Details}" />
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-
-            <Button Grid.Row="1" Text="{Binding StateText}" Command="{Binding ToggleState}" />
-        </Grid>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding Text}" Detail="{Binding Details}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </ContentPage.Content>
 </pages:ContentPage>
