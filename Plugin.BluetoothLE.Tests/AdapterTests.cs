@@ -40,7 +40,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task ScanFilter()
+        public async Task Scan_Filter()
         {
             var result = await CrossBleAdapter
                 .Current
@@ -58,6 +58,25 @@ namespace Plugin.BluetoothLE.Tests
 
             Assert.NotNull(result);
             Assert.Equal("Bean+", result.Device.Name);
+        }
+
+
+        [Fact]
+        public async Task Scan_Extra_BackToBack()
+        {
+            var ad = CrossBleAdapter.Current;
+
+            var sub = ad.ScanExtra().Subscribe();
+
+            Assert.True(CrossBleAdapter.Current.IsScanning);
+            await Task.Delay(2000);
+            sub.Dispose();
+
+            Assert.False(CrossBleAdapter.Current.IsScanning);
+            sub = ad.ScanExtra(restart: true).Subscribe();
+            Assert.True(CrossBleAdapter.Current.IsScanning);
+
+            sub.Dispose();
         }
     }
 }
