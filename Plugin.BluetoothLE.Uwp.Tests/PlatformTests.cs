@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
@@ -63,11 +62,10 @@ namespace Plugin.BluetoothLE.Uwp.Tests
             await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
             var data = await chtcs.Task;
 
-
             // start cleanup
             await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
             characteristic.ValueChanged -= handler2;
-            characteristic = null;
+
 
             //BluetoothLEDevice.GetDeviceSelectorFromConnectionStatus(BluetoothConnectionStatus.Connected)
             //service.Session.SessionStatusChanged += (sender, args) =>
@@ -75,29 +73,34 @@ namespace Plugin.BluetoothLE.Uwp.Tests
             //    //args.Status == GattSessionStatus.Active
             //};
             //service.Session.MaintainConnection = true;
-            foreach (var c in characteristicResult.Characteristics)
-            {
-                c.Service.Session.Dispose();
-            }
+            //foreach (var c in characteristicResult.Characteristics)
+            //{
+            //    c.Service.Session.Dispose();
+            //}
             foreach (var s in serviceResult.Services)
             {
                 s.Session.Dispose();
             }
-                //service = null;
+            //service = null;
 
-                //var list = device.GetType().GetTypeInfo().GetRuntimeMethods().OrderBy(x => x.Name);
+            //var list = device.GetType().GetTypeInfo().GetRuntimeMethods().OrderBy(x => x.Name);
 
-                ////var releasers = list.Where(x => x.Name.StartsWith("Release"));
-                ////foreach (var releaser in releasers)
-                //foreach (var method in list)
-                //{
-                //    this.output.WriteLine($"Name: {method.Name}, Static: {method.IsStatic}, Public: {method.IsPublic}, Private: {method.IsPrivate}, Parameters: {method.GetParameters().Length}");
-                //}
+            ////var releasers = list.Where(x => x.Name.StartsWith("Release"));
+            ////foreach (var releaser in releasers)
+            //foreach (var method in list)
+            //{
+            //    this.output.WriteLine($"Name: {method.Name}, Static: {method.IsStatic}, Public: {method.IsPublic}, Private: {method.IsPrivate}, Parameters: {method.GetParameters().Length}");
+            //}
+
+            service.Dispose();
+            service = null;
+            characteristic = null;
 
             device.Dispose();
             device = null;
 
             System.GC.Collect();
+            System.GC.WaitForPendingFinalizers();
         }
     }
 }

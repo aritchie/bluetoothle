@@ -69,7 +69,7 @@ namespace Plugin.BluetoothLE.Tests
             var sub = ad.ScanExtra().Subscribe();
 
             Assert.True(CrossBleAdapter.Current.IsScanning);
-            await Task.Delay(2000);
+            //await Task.Delay(2000);
             sub.Dispose();
 
             Assert.False(CrossBleAdapter.Current.IsScanning);

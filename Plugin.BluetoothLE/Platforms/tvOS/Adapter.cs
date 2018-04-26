@@ -17,7 +17,5 @@ namespace Plugin.BluetoothLE
         {
             throw new Exception("GATT Servers are not supported on tvOS");
         }
-
-        public override bool IsScanning => this.context.Manager.IsScanning;
 	}
 }

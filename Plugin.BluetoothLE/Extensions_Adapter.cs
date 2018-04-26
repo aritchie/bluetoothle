@@ -38,6 +38,10 @@ namespace Plugin.BluetoothLE
             .Select(x => x.Device);
 
 
+        //public static IObservable<IScanResult> ScanTimed(this IAdapter adapter, TimeSpan scanTime, ScanConfig config = null) => adapter
+        //    .Scan(config)
+        //    .Take(scanTime);
+
         /// <summary>
         /// Scans only for distinct devices instead of repeating each device scan response - this will only give you devices, not RSSI or ad packets
         /// </summary>
@@ -57,14 +61,15 @@ namespace Plugin.BluetoothLE
         /// <param name="restart">Stops any current scan running</param>
         /// <param name="config">ScanConfig parameters you would like to use</param>
         /// <returns></returns>
-        public static IObservable<IScanResult> ScanExtra(this IAdapter adapter, ScanConfig config = null, bool restart = false) =>adapter
+        public static IObservable<IScanResult> ScanExtra(this IAdapter adapter, ScanConfig config = null, bool restart = false) => adapter
             .WhenStatusChanged()
             .Where(x => x == AdapterStatus.PoweredOn)
             .Select(_ =>
             {
                 if (restart && adapter.IsScanning)
-                    adapter.StopScan();
-
+                {
+                    adapter.StopScan(); // need a pause to wait for scan to end
+                }
                 return adapter.Scan(config);
             })
             .Switch();

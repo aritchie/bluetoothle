@@ -28,7 +28,6 @@ namespace Plugin.BluetoothLE
 
 
         public override IGattServer CreateGattServer() => new GattServer(this.context.PeripheralManager);
-        public override bool IsScanning => this.context.Manager.IsScanning;
         public override void OpenSettings()
         {
             if (UIDevice.CurrentDevice.CheckSystemVersion(10, 0))

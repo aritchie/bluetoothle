@@ -22,6 +22,7 @@ namespace Plugin.BluetoothLE.Server
 
         protected override void AddNative(IGattService service)
         {
+            //CBPeripheralManager.AuthorizationStatus;
             var nativeService = ((IAppleGattService) service).Native;
             var chlist = new List<CBCharacteristic>();
 

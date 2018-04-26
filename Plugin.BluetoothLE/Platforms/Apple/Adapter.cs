@@ -13,6 +13,7 @@ namespace Plugin.BluetoothLE
 
 
         public override string DeviceName => "Default Bluetooth Device";
+        public override bool IsScanning => this.context.Manager.IsScanning;
 
 
         public override AdapterStatus Status

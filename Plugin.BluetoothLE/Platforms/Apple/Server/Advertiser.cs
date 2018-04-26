@@ -15,7 +15,38 @@ namespace Plugin.BluetoothLE.Server
             => this.manager = peripheralManager;
 
 
+        // needs to be async for errors
         public override void Start(AdvertisementData adData)
+        {
+            switch (this.manager.State)
+            {
+                case CBPeripheralManagerState.Resetting:
+                case CBPeripheralManagerState.Unknown:
+                    this.manager.StateUpdated += (sender, args) =>
+                    {
+                        if (this.manager.State == CBPeripheralManagerState.PoweredOn)
+                            this.DoAdvertise(adData);
+                    };
+                    break;
+
+                case CBPeripheralManagerState.PoweredOn:
+                    this.DoAdvertise(adData);
+                    break;
+
+                case CBPeripheralManagerState.PoweredOff:
+                    break;
+
+                case CBPeripheralManagerState.Unsupported:
+                    break;
+
+                case CBPeripheralManagerState.Unauthorized:
+                    // TODO: exception?
+                    break;
+            }
+        }
+
+
+        void DoAdvertise(AdvertisementData adData)
         {
             this.manager.StartAdvertising(new StartAdvertisingOptions
             {
