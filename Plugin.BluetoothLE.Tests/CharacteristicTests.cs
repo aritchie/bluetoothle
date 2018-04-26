@@ -150,5 +150,25 @@ namespace Plugin.BluetoothLE.Tests
 
             Assert.Equal(tx, r.Characteristic);
         }
+
+
+        [Fact]
+        public async Task CancelConnection_RegisterAndNotify()
+        {
+            var tcs = new TaskCompletionSource<object>();
+            await this.Setup();
+
+            this.characteristics
+                .First()
+                .RegisterAndNotify()
+                .Subscribe(
+                    x => { },
+                    tcs.SetException,
+                    () => tcs.SetResult(null)
+                );
+
+            this.device.CancelConnection();
+            await tcs.Task;
+        }
     }
 }

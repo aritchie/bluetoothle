@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
+using Acr.Logging;
 
 
 namespace Plugin.BluetoothLE
@@ -19,7 +20,14 @@ namespace Plugin.BluetoothLE
                 .Switch()
                 .Finally(() => characteristic
                     .DisableNotifications()
-                    .Subscribe()
+                    .Where(x => x.Characteristic.Service.Device.Status == ConnectionStatus.Connected)
+                    .Subscribe(
+                        _ => {},
+                        ex => Log.Warn(
+                            BleLogCategory.Characteristic,
+                            "Could not cleanly disable notifications in RegisterAndNotify - " + ex
+                        )
+                    )
                 );
 
 
