@@ -155,20 +155,17 @@ namespace Plugin.BluetoothLE.Tests
         [Fact]
         public async Task CancelConnection_RegisterAndNotify()
         {
-            var tcs = new TaskCompletionSource<object>();
             await this.Setup();
 
-            this.characteristics
+            var sub = this.characteristics
                 .First()
                 .RegisterAndNotify()
-                .Subscribe(
-                    x => { },
-                    tcs.SetException,
-                    () => tcs.SetResult(null)
-                );
+                .Subscribe();
 
             this.device.CancelConnection();
-            await tcs.Task;
+            sub.Dispose();
+
+            await Task.Delay(1000);
         }
     }
 }

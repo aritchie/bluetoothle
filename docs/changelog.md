@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 6.0.1
+* [fix] RegisterAndNotify cleanup would fail if disposed after connection has been severed
+
 ## 6.0
 * [feature][breaking] GATT server & BLE advertising are now separate functions
 * [feature] ScanConfig is now available on all Adapter extension methods
