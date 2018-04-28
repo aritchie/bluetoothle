@@ -29,7 +29,12 @@ namespace Plugin.BluetoothLE
             {
                 var sub = device.WhenConnected().Take(1).Subscribe(_ => ob.Respond(device));
                 device.ConnectIf();
-                return sub;
+                return () =>
+                {
+                    sub.Dispose();
+                    if (device.Status != ConnectionStatus.Connected)
+                        device.CancelConnection();
+                };
             });
 
 
