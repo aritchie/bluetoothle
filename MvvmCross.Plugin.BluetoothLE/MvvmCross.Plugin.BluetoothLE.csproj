@@ -38,11 +38,8 @@ Supported Platforms
     <ItemGroup>
         <Compile Remove="Platforms\**\*.cs" />
         <None Include="Platforms\**\*.cs" />
+        <PackageReference Include="Plugin.BluetoothLE" Version="6.0.2" />
         <PackageReference Include="MvvmCross" Version="6.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Plugin.BluetoothLE\Plugin.BluetoothLE.csproj" />
     </ItemGroup>
 
 </Project>
