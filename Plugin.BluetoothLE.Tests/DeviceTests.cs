@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -54,7 +56,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task WhenServiceFound_Reconnect_ShouldFlushOriginals()
+        public async Task Reconnect_WhenServiceFound_ShouldFlushOriginals()
         {
             await this.Setup(false);
 
@@ -73,7 +75,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task GetKnownCharacteristics_Consecutively()
+        public async Task KnownCharacteristics_GetKnownCharacteristics_Consecutively()
         {
             await this.Setup(true);
 
@@ -93,25 +95,38 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task WhenKnownCharacteristic_Fires()
+        public async Task KnownCharacteristics_WhenKnownCharacteristics()
         {
             await this.Setup(true);
 
-            await this.device
-                .ConnectWait()
-                .Select(x => x.WhenKnownCharacteristicsDiscovered(
+            var tcs = new TaskCompletionSource<object>();
+            var results = new List<IGattCharacteristic>();
+            this.device
+                .WhenKnownCharacteristicsDiscovered(
                     Constants.ScratchServiceUuid,
                     Constants.ScratchCharacteristicUuid1,
                     Constants.ScratchCharacteristicUuid2
-                ))
-                .Take(5)
-                .Timeout(Constants.OperationTimeout)
-                .ToTask()
-                .ConfigureAwait(false);
+                )
+                .Subscribe(
+                    results.Add,
+                    ex => tcs.SetException(ex),
+                    () => tcs.SetResult(null)
+                );
+
+            await this.device.ConnectWait();
+            await Task.WhenAny(
+                tcs.Task,
+                Task.Delay(5000)
+            );
+
+            Assert.Equal(2, results.Count);
+            Assert.True(results.Any(x => x.Uuid.Equals(Constants.ScratchCharacteristicUuid1)));
+            Assert.True(results.Any(x => x.Uuid.Equals(Constants.ScratchCharacteristicUuid2)));
         }
 
+
         [Fact]
-        public async Task ReadWriteCharacteristicExtensions()
+        public async Task Extension_ReadWriteCharacteristic()
         {
             await this.Setup(false);
 
@@ -132,7 +147,7 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
-        public async Task Extensions_HookCharacteristic()
+        public async Task Extension_HookCharacteristic()
         {
             await this.Setup(false);
             var list = await this.device
