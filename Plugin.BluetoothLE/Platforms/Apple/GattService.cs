@@ -52,10 +52,8 @@ namespace Plugin.BluetoothLE
             });
 
 
-        IObservable<IGattCharacteristic> characteristicOb;
         public override IObservable<IGattCharacteristic> DiscoverCharacteristics()
-        {
-            this.characteristicOb = this.characteristicOb ?? Observable.Create<IGattCharacteristic>(ob =>
+            => Observable.Create<IGattCharacteristic>(ob =>
             {
                 var characteristics = new Dictionary<Guid, IGattCharacteristic>();
                 var handler = new EventHandler<CBServiceEventArgs>((sender, args) =>
@@ -75,17 +73,13 @@ namespace Plugin.BluetoothLE
                             ob.OnNext(ch);
                         }
                     }
+                    ob.OnCompleted();
                 });
                 this.Peripherial.DiscoveredCharacteristic += handler;
                 this.Peripherial.DiscoverCharacteristics(this.Service);
 
                 return () => this.Peripherial.DiscoveredCharacteristic -= handler;
-            })
-            .Replay()
-            .RefCount();
-
-            return this.characteristicOb;
-        }
+            });
 
 
         bool Equals(CBService service)
