@@ -24,6 +24,19 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
+        /// Continuously reads RSSI from a connected device
+        /// WARNING: you really don't want to run this with an Android GATT connection
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="readInterval"></param>
+        /// <returns></returns>
+        public static IObservable<int> ReadRssiContinuously(IDevice device, TimeSpan? readInterval = null) => Observable
+            .Interval(readInterval ?? TimeSpan.FromSeconds(1))
+            .Select(_ => device.ReadRssi())
+            .Switch();
+
+
+        /// <summary>
         /// Waits for connection to actually happen
         /// </summary>
         /// <param name="device"></param>

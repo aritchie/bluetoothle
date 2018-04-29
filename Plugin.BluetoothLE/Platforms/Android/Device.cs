@@ -25,6 +25,8 @@ namespace Plugin.BluetoothLE
             this.connSubject = new Subject<ConnectionStatus>();
             this.context = new DeviceContext(native);
             this.manager = manager;
+
+            //this.context.Gatt.ReadRemoteRssi()
         }
 
 
@@ -99,9 +101,8 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<IGattService> DiscoverServices()
-            => Observable.Create<IGattService>(ob =>
-            {
-                var sub1 = this.context
+            => Observable.Create<IGattService>(ob
+                => this.context
                     .Callbacks
                     .ServicesDiscovered
                     .Where(x => x.Gatt.Device.Equals(this.context.NativeDevice))
@@ -112,25 +113,23 @@ namespace Plugin.BluetoothLE
                             var service = new GattService(this, this.context, ns);
                             ob.OnNext(service);
                         }
-                    });
+                        ob.OnCompleted();
+                    }));
 
-                var sub2 = this
-                    .WhenConnected()
 
-                    // this helps alleviate gatt 133 error
-                    .Delay(CrossBleAdapter.PauseBeforeServiceDiscovery)
-                    .Subscribe(_ =>
-                    {
-                        if (!this.context.Gatt.DiscoverServices())
-                            ob.OnError(new Exception("Failed to request services"));
-                    });
+        public override IObservable<int> ReadRssi() => Observable.Create<int>(ob =>
+        {
+            var sub = this.context
+                .Callbacks
+                .ReadRemoteRssi
+                .Take(1)
+                .Subscribe(x => ob.Respond(x.Rssi));
 
-                return () =>
-                {
-                    sub1.Dispose();
-                    sub2.Dispose();
-                };
-            });
+            if (this.context.Gatt?.ReadRemoteRssi() ?? false)
+                ob.OnError(new BleException("Failed to read RSSI"));
+
+            return sub;
+        });
 
 
         public override IObservable<bool> PairingRequest(string pin) => Observable.Create<bool>(ob =>

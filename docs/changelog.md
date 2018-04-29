@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 6.0.3
+* [feature] Return of device based RSSI requests (Device.ReadRssi() & Device.ReadRssiContinuously())
+
 ## 6.0.2
 * [fix] ConnectWait should cancel the connection if subscription is disposed before connection is successful
 * [fix] ConnectWait listens to connection failures for cancellation

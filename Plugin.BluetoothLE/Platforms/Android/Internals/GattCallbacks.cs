@@ -37,9 +37,9 @@ namespace Plugin.BluetoothLE.Internals
             => this.MtuChanged.OnNext(new MtuChangedEventArgs(mtu, gatt, status));
 
 
-        //public Subject<GattRssiEventArgs> ReadRemoteRssi  { get; } = new Subject<GattRssiEventArgs>();
-        public override void OnReadRemoteRssi(BluetoothGatt gatt, int rssi, GattStatus status) { }
-            //=> this.ReadRemoteRssi.OnNext(new GattRssiEventArgs(gatt, rssi, status));
+        public Subject<GattRssiEventArgs> ReadRemoteRssi  { get; } = new Subject<GattRssiEventArgs>();
+        public override void OnReadRemoteRssi(BluetoothGatt gatt, int rssi, GattStatus status)
+            => this.ReadRemoteRssi.OnNext(new GattRssiEventArgs(rssi, gatt, status));
 
 
         public Subject<GattEventArgs> ReliableWriteCompleted { get; } = new Subject<GattEventArgs>();

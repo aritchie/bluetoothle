@@ -197,6 +197,20 @@ namespace Plugin.BluetoothLE
         });
 
 
+        public override IObservable<int> ReadRssi() => Observable.Create<int>(ob =>
+        {
+            var handler = new EventHandler<CBRssiEventArgs>((sender, args) =>
+            {
+                if (args.Error == null)
+                    ob.Respond(args.Rssi?.Int32Value ?? 0);
+                else
+                    ob.OnError(new Exception(args.Error.LocalizedDescription));
+            });
+            this.peripheral.RssiRead += handler;
+            return () => this.peripheral.RssiRead += handler;
+        });
+
+
         public override int GetHashCode() => this.peripheral.GetHashCode();
 
 

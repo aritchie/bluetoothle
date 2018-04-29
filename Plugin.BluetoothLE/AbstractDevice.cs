@@ -27,6 +27,7 @@ namespace Plugin.BluetoothLE
         public abstract void CancelConnection();
         public abstract IObservable<ConnectionStatus> WhenStatusChanged();
         public abstract IObservable<IGattService> DiscoverServices();
+        public virtual IObservable<int> ReadRssi() => Observable.Empty<int>();
         public virtual IObservable<string> WhenNameUpdated() => throw new NotImplementedException("WhenNameUpdated is not supported on this platform");
         public virtual IObservable<IGattService> GetKnownService(Guid serviceUuid) => throw new NotImplementedException("GetKnownService is not supported on this platform");
 		public virtual IObservable<bool> PairingRequest(string pin) => throw new ArgumentException("Pairing request is not supported on this platform");

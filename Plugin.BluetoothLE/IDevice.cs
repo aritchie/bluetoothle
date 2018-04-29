@@ -86,6 +86,12 @@ namespace Plugin.BluetoothLE
         IObservable<string> WhenNameUpdated();
 
         /// <summary>
+        /// Reads the RSSI of the connected device
+        /// </summary>
+        /// <returns></returns>
+        IObservable<int> ReadRssi();
+
+        /// <summary>
         /// Make a pairing request
         /// </summary>
         /// <returns></returns>
