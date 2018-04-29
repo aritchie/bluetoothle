@@ -8,6 +8,10 @@ namespace Plugin.BluetoothLE
 {
     public static partial class Extensions
     {
+        public static bool IsConnected(this IDevice device) => device.Status == ConnectionStatus.Connected;
+        public static bool IsDisconnected(this IDevice device) => !device.IsConnected();
+
+
         /// <summary>
         /// Starts connection process if not already connecteds
         /// </summary>
@@ -27,11 +31,20 @@ namespace Plugin.BluetoothLE
         public static IObservable<IDevice> ConnectWait(this IDevice device)
             => Observable.Create<IDevice>(ob =>
             {
-                var sub = device.WhenConnected().Take(1).Subscribe(_ => ob.Respond(device));
+                var sub1 = device
+                    .WhenConnected()
+                    .Take(1)
+                    .Subscribe(_ => ob.Respond(device));
+
+                var sub2 = device
+                    .WhenConnectionFailed()
+                    .Subscribe(ob.OnError);
+
                 device.ConnectIf();
                 return () =>
                 {
-                    sub.Dispose();
+                    sub1.Dispose();
+                    sub2.Dispose();
                     if (device.Status != ConnectionStatus.Connected)
                         device.CancelConnection();
                 };
@@ -169,11 +182,11 @@ namespace Plugin.BluetoothLE
         /// </summary>
         /// <param name="device"></param>
         /// <returns></returns>
-        public static IObservable<Unit> WhenConnected(this IDevice device) =>
+        public static IObservable<IDevice> WhenConnected(this IDevice device) =>
             device
                 .WhenStatusChanged()
                 .Where(x => x == ConnectionStatus.Connected)
-                .Select(x => Unit.Default);
+                .Select(_ => device);
 
 
         /// <summary>
@@ -181,11 +194,12 @@ namespace Plugin.BluetoothLE
         /// </summary>
         /// <param name="device"></param>
         /// <returns></returns>
-        public static IObservable<Unit> WhenDisconnected(this IDevice device) =>
+        public static IObservable<IDevice> WhenDisconnected(this IDevice device) =>
             device
                 .WhenStatusChanged()
                 .Where(x => x == ConnectionStatus.Disconnected)
-                .Select(x => Unit.Default);
+                .Select(_ => device);
+
 
         /// <summary>
         /// Will call GetKnownCharacteristics when connected state occurs
@@ -197,8 +211,7 @@ namespace Plugin.BluetoothLE
         public static IObservable<IGattCharacteristic> WhenKnownCharacteristicsDiscovered(this IDevice device, Guid serviceUuid, params Guid[] characteristicIds) =>
             device
                 .WhenConnected()
-                .Select(_ => device.GetKnownCharacteristics(serviceUuid, characteristicIds))
-                .Switch();
+                .SelectMany(x => x.GetKnownCharacteristics(serviceUuid, characteristicIds));
 
 
         /// <summary>
