@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+## 6.0.2
+* [fix] ConnectWait should cancel the connection if subscription is disposed before connection is successful
+* [fix] ConnectWait listens to connection failures for cancellation
+* [fix] Additional NRE fixes on cancelling connection
+* [fix][droid] Characteristic should not throw error, should call OnError
+* [fix][droid] WhenKnownCharacteristicDiscovered was not firing properly
+
 ## 6.0.1
 * [fix] RegisterAndNotify cleanup would fail if disposed after connection has been severed
 
