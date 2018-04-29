@@ -98,10 +98,8 @@ namespace Plugin.BluetoothLE
             });
 
 
-        IObservable<IGattService> serviceOb;
         public override IObservable<IGattService> DiscoverServices()
-        {
-            this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
+            => Observable.Create<IGattService>(ob =>
             {
                 var sub1 = this.context
                     .Callbacks
@@ -132,15 +130,7 @@ namespace Plugin.BluetoothLE
                     sub1.Dispose();
                     sub2.Dispose();
                 };
-            })
-            .ReplayWithReset(this
-                .WhenStatusChanged()
-                .Where(x => x == ConnectionStatus.Disconnected)
-            )
-            .RefCount();
-
-            return this.serviceOb;
-        }
+            });
 
 
         public override IObservable<bool> PairingRequest(string pin) => Observable.Create<bool>(ob =>
