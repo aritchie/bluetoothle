@@ -56,7 +56,7 @@ namespace Plugin.BluetoothLE
                 }
                 catch (Exception ex)
                 {
-                    throw new BleException("Error during charactersitic write", ex);
+                    ob.OnError(new BleException("Error during charactersitic write", ex));
                 }
             });
 
@@ -91,7 +91,7 @@ namespace Plugin.BluetoothLE
                     //ob.OnError(new BleException("Failed to set characteristic value"));
 
                 //else if (!this.context.Gatt.WriteCharacteristic(this.native))
-                if (!this.context.Gatt.WriteCharacteristic(this.native))
+                if (!this.context.Gatt?.WriteCharacteristic(this.native) ?? false)
                     ob.OnError(new BleException("Failed to write to characteristic"));
             });
 
@@ -118,7 +118,7 @@ namespace Plugin.BluetoothLE
 
             this.context.InvokeOnMainThread(() =>
             {
-                if (!this.context.Gatt.ReadCharacteristic(this.native))
+                if (!this.context.Gatt?.ReadCharacteristic(this.native) ?? false)
                     ob.OnError(new BleException("Failed to read characteristic"));
             });
 

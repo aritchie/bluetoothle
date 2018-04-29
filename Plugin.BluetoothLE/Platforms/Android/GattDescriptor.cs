@@ -48,7 +48,7 @@ namespace Plugin.BluetoothLE
                 if (!this.native.SetValue(data))
                     ob.OnError(new BleException("Failed to set descriptor value"));
 
-                else if (!this.context.Gatt.WriteDescriptor(this.native))
+                else if (!this.context.Gatt?.WriteDescriptor(this.native) ?? false)
                     ob.OnError(new BleException("Failed to write to descriptor"));
             });
 
@@ -72,7 +72,7 @@ namespace Plugin.BluetoothLE
 
             this.context.InvokeOnMainThread(() =>
             {
-                if (!this.context.Gatt.ReadDescriptor(this.native))
+                if (!this.context.Gatt?.ReadDescriptor(this.native) ?? false)
                     ob.OnError(new BleException("Failed to read descriptor"));
             });
 
