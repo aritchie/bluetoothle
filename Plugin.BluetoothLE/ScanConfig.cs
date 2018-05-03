@@ -12,6 +12,14 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
+        /// Allows the use of Scan Batching, if supported by the underlying provider
+        /// Currently, this only affects Android devices
+        /// It defaults to false to be transparent/non-breaking with existing code
+        /// </summary>
+        public bool AllowScanBatchingIfSupported { get; set; } = false;
+
+
+        /// <summary>
         /// Filters scan to devices that advertise specified service UUIDs
         /// iOS - you must set this to initiate a background scan
         /// </summary>
