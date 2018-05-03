@@ -12,6 +12,7 @@
             <Button Text="{Binding ConnectText}" Command="{Binding ConnectionToggle}" />
             <Button Text="Request MTU" Command="{Binding RequestMtu}" />
             <Button Text="{Binding PairingText}" Command="{Binding PairToDevice}" />
+            <Label Text="{Binding Rssi, StringFormat='RSSI: {0}'}" />
 
             <ListView ItemsSource="{Binding GattCharacteristics}"
                       HasUnevenRows="True"

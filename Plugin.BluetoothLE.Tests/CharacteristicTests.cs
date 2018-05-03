@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
+using Acr.UserDialogs;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -129,6 +130,47 @@ namespace Plugin.BluetoothLE.Tests
             var t5 = this.characteristics[4].Read().Timeout(Constants.OperationTimeout).ToTask();
 
             await Task.WhenAll(t1, t2, t3, t4, t5);
+        }
+
+
+        [Fact]
+        public async Task Reconnect_ReadAndWrite()
+        {
+            await this.Setup();
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    while (device.IsConnected())
+                    {
+                        await Task.WhenAll
+                        (
+                            this.characteristics[0].Write(new byte[] {0x1}).ToTask(),
+                            this.characteristics[1].Write(new byte[] { 0x1 }).ToTask(),
+                            this.characteristics[2].Write(new byte[] { 0x1 }).ToTask(),
+                            this.characteristics[3].Write(new byte[] { 0x1 }).ToTask(),
+                            this.characteristics[4].Write(new byte[] { 0x1 }).ToTask()
+                        );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            });
+            // TODO: I have to write engage a write operation and have the queue get stuck so reconnections can
+            var disp = UserDialogs.Instance.Alert("Now turn device back on & press OK when light turns green");
+            await this.device.WhenDisconnected().ToTask();
+            disp.Dispose();
+
+            await this.device
+                .WriteCharacteristic(
+                    Constants.ScratchServiceUuid,
+                    Constants.ScratchCharacteristicUuid1,
+                    new byte[] { 0x1 }
+                )
+                .ToTask();
         }
 
 

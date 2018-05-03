@@ -1,6 +1,7 @@
 # CHANGE LOG
 
 ## 6.0.3
+* [fix] reconnect read/write race condition
 * [feature] Return of device based RSSI requests (Device.ReadRssi() & Device.ReadRssiContinuously())
 
 ## 6.0.2

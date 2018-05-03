@@ -135,7 +135,7 @@
     <PackageReference Include="Acr.UserDialogs">
       <Version>7.0.1</Version>
     </PackageReference>
-    <PackageReference Include="reactiveui" Version="8.0.0-alpha0105" />
+    <PackageReference Include="reactiveui" Version="8.0.0" />
     <PackageReference Include="Xamarin.Forms" Version="2.5.1.444934" />
   </ItemGroup>
   <ItemGroup>

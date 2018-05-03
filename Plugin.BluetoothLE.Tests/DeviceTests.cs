@@ -38,6 +38,23 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
+        public async Task Service_Rediscover()
+        {
+            await this.Setup(true);
+            var services1 = await this.device
+                .GetCharacteristicsForService(Constants.ScratchServiceUuid)
+                .Timeout(Constants.OperationTimeout)
+                .ToList()
+                .ToTask();
+
+            var services2 = await this.device
+                .GetCharacteristicsForService(Constants.ScratchServiceUuid)
+                .Timeout(Constants.OperationTimeout)
+                .ToList()
+                .ToTask();
+        }
+
+        [Fact]
         public async Task GetConnectedDevices()
         {
             await this.Setup(true);
@@ -54,23 +71,7 @@ namespace Plugin.BluetoothLE.Tests
         }
 
 
-        [Fact]
-        public async Task Reconnect_WhenServiceFound_ShouldFlushOriginals()
-        {
-            await this.Setup(false);
 
-            var count = 0;
-            this.device.DiscoverServices().Subscribe(_ => count++);
-
-            await this.device.ConnectWait().ToTask();
-            await UserDialogs.Instance.AlertAsync("Now turn device off & press OK");
-            var origCount = count;
-            count = 0;
-
-            await UserDialogs.Instance.AlertAsync("Now turn device back on & press OK when light turns green");
-            await Task.Delay(5000);
-            Assert.Equal(count, origCount);
-        }
 
 
         [Fact]
@@ -190,6 +191,25 @@ namespace Plugin.BluetoothLE.Tests
             await UserDialogs.Instance.AlertAsync("No turn device off - wait a 3 seconds then turn it back on - press OK if light goes green or you believe connection has failed");
             Assert.Equal(2, connected);
             Assert.Equal(2, disconnected);
+        }
+
+
+        [Fact]
+        public async Task Reconnect_WhenServiceFound_ShouldFlushOriginals()
+        {
+            await this.Setup(false);
+
+            var count = 0;
+            this.device.DiscoverServices().Subscribe(_ => count++);
+
+            await this.device.ConnectWait().ToTask();
+            await UserDialogs.Instance.AlertAsync("Now turn device off & press OK");
+            var origCount = count;
+            count = 0;
+
+            await UserDialogs.Instance.AlertAsync("Now turn device back on & press OK when light turns green");
+            await Task.Delay(5000);
+            Assert.Equal(count, origCount);
         }
     }
 }

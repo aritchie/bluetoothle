@@ -33,6 +33,7 @@ namespace Samples.Ble
 
                         case ConnectionStatus.Connected:
                             this.ConnectText = "Disconnect";
+                            //this.device.ReadRssiContinuously();
                             break;
 
                         case ConnectionStatus.Disconnected:

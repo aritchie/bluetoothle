@@ -54,7 +54,9 @@ namespace Plugin.BluetoothLE.Internals
 
                 try
                 {
-                    var result = await observable.ToTask().ConfigureAwait(false);
+                    var result = await observable
+                        .ToTask()
+                        .ConfigureAwait(false);
                     ob.Respond(result);
                 }
                 catch (System.Exception ex)
@@ -99,7 +101,7 @@ namespace Plugin.BluetoothLE.Internals
         {
             try
             {
-                this.Actions.Clear();
+                this.CleanUpQueue();
                 this.Gatt?.Close();
                 this.Gatt = null;
             }
@@ -118,7 +120,7 @@ namespace Plugin.BluetoothLE.Internals
 
             this.running = true;
             var ts = CrossBleAdapter.PauseBetweenInvocations;
-            while (this.Actions.TryDequeue(out Func<Task> task))
+            while (this.Actions.TryDequeue(out Func<Task> task) && this.running)
             {
                 await task();
                 if (ts != null)
@@ -130,7 +132,7 @@ namespace Plugin.BluetoothLE.Internals
 
         void CleanUpQueue()
         {
-            // TODO: cancel everything in queue
+            this.running = false;
             this.Actions.Clear();
         }
 
