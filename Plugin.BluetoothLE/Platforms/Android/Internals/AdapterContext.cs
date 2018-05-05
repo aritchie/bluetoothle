@@ -60,7 +60,10 @@ namespace Plugin.BluetoothLE.Internals
                 var scanResult = this.ToScanResult(native, rssi, new AdvertisementData(sr));
                 ob.OnNext(scanResult);
             });
+
+            var builder = new ScanSettings.Builder();
             var scanMode = this.ToNative(config.ScanType);
+            builder.SetScanMode(scanMode);
 
             var scanFilters = new List<ScanFilter>();
             if (config.ServiceUuids != null && config.ServiceUuids.Count > 0)
@@ -75,15 +78,12 @@ namespace Plugin.BluetoothLE.Internals
                 }
             }
 
-            var supportsScanBatching = this.manager.Adapter.IsOffloadedScanBatchingSupported;
+            if (config.AndroidUseScanBatching && this.manager.Adapter.IsOffloadedScanBatchingSupported)
+                builder.SetReportDelay(100);
 
-        this.manager.Adapter.BluetoothLeScanner.StartScan(
-            scanFilters,
-            new ScanSettings
-                .Builder()
-                .SetScanMode(scanMode)
-                .SetReportDelay(supportsScanBatching && config.AllowScanBatchingIfSupported ? 100:0)
-                    .Build(),
+            this.manager.Adapter.BluetoothLeScanner.StartScan(
+                scanFilters,
+                builder.Build(),
                 this.callbacks
             );
 

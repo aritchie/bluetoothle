@@ -3,6 +3,7 @@
 ## 6.0.3
 * [fix] reconnect read/write race condition
 * [feature] Return of device based RSSI requests (Device.ReadRssi() & Device.ReadRssiContinuously())
+* [feature][droid] batch scanning - courtesy of goiditdev 
 
 ## 6.0.2
 * [fix] ConnectWait should cancel the connection if subscription is disposed before connection is successful

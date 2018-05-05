@@ -16,7 +16,7 @@ namespace Plugin.BluetoothLE
         /// Currently, this only affects Android devices
         /// It defaults to false to be transparent/non-breaking with existing code
         /// </summary>
-        public bool AllowScanBatchingIfSupported { get; set; } = false;
+        public bool AndroidUseScanBatching { get; set; }
 
 
         /// <summary>
