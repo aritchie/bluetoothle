@@ -75,11 +75,14 @@ namespace Plugin.BluetoothLE.Internals
                 }
             }
 
-            this.manager.Adapter.BluetoothLeScanner.StartScan(
-                scanFilters,
-                new ScanSettings
-                    .Builder()
-                    .SetScanMode(scanMode)
+            var supportsScanBatching = this.manager.Adapter.IsOffloadedScanBatchingSupported;
+
+        this.manager.Adapter.BluetoothLeScanner.StartScan(
+            scanFilters,
+            new ScanSettings
+                .Builder()
+                .SetScanMode(scanMode)
+                .SetReportDelay(supportsScanBatching && config.AllowScanBatchingIfSupported ? 100:0)
                     .Build(),
                 this.callbacks
             );
