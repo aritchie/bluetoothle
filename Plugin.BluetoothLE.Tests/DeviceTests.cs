@@ -52,7 +52,10 @@ namespace Plugin.BluetoothLE.Tests
                 .Timeout(Constants.OperationTimeout)
                 .ToList()
                 .ToTask();
+
+            Assert.Equal(services1.Count, services2.Count);
         }
+
 
         [Fact]
         public async Task GetConnectedDevices()

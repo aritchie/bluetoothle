@@ -21,6 +21,11 @@ namespace Samples.Ble
             this.device = device;
 
             this.device
+                .WhenReadRssiContinuously(TimeSpan.FromSeconds(3))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => this.Rssi = x);
+
+            this.device
                 .WhenStatusChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(status =>
@@ -33,7 +38,6 @@ namespace Samples.Ble
 
                         case ConnectionStatus.Connected:
                             this.ConnectText = "Disconnect";
-                            //this.device.ReadRssiContinuously();
                             break;
 
                         case ConnectionStatus.Disconnected:
@@ -175,6 +179,14 @@ namespace Samples.Ble
         {
             get => this.connectText;
             private set => this.RaiseAndSetIfChanged(ref this.connectText, value);
+        }
+
+
+        int rssi;
+        public int Rssi
+        {
+            get => this.rssi;
+            private set => this.RaiseAndSetIfChanged(ref this.rssi, value);
         }
     }
 }
