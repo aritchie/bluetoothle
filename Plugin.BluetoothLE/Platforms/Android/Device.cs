@@ -25,8 +25,6 @@ namespace Plugin.BluetoothLE
             this.connSubject = new Subject<ConnectionStatus>();
             this.context = new DeviceContext(native);
             this.manager = manager;
-
-            //this.context.Gatt.ReadRemoteRssi()
         }
 
 
@@ -101,8 +99,9 @@ namespace Plugin.BluetoothLE
 
 
         public override IObservable<IGattService> DiscoverServices()
-            => Observable.Create<IGattService>(ob
-                => this.context
+            => Observable.Create<IGattService>(ob =>
+            {
+                this.context
                     .Callbacks
                     .ServicesDiscovered
                     .Where(x => x.Gatt.Device.Equals(this.context.NativeDevice))
@@ -114,7 +113,12 @@ namespace Plugin.BluetoothLE
                             ob.OnNext(service);
                         }
                         ob.OnCompleted();
-                    }));
+                    });
+
+                this.context.Gatt.DiscoverServices();
+
+                return () => { };
+            });
 
 
         public override IObservable<int> ReadRssi() => Observable.Create<int>(ob =>
