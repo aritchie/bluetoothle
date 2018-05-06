@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reactive;
 using System.Reactive.Linq;
 using Acr.Reactive;
 
@@ -30,11 +29,23 @@ namespace Plugin.BluetoothLE
         /// <param name="device"></param>
         /// <param name="readInterval"></param>
         /// <returns></returns>
-        public static IObservable<int> ReadRssiContinuously(IDevice device, TimeSpan? readInterval = null) => Observable
+        public static IObservable<int> ReadRssiContinuously(this IDevice device, TimeSpan? readInterval = null) => Observable
             .Interval(readInterval ?? TimeSpan.FromSeconds(1))
             .Select(_ => device.ReadRssi())
             .Switch();
 
+
+        /// <summary>
+        /// When device is connected, this will call for RSSI continuously
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="readInterval"></param>
+        /// <returns></returns>
+        public static IObservable<int> WhenReadRssiContinuously(this IDevice device, TimeSpan? readInterval = null)
+            => device
+                .WhenConnected()
+                .Select(x => x.ReadRssiContinuously(readInterval))
+                .Switch();
 
         /// <summary>
         /// Waits for connection to actually happen
@@ -187,8 +198,8 @@ namespace Plugin.BluetoothLE
         public static IObservable<IGattCharacteristic> GetCharacteristicsForService(this IDevice device, Guid serviceUuid) =>
             device
                 .GetKnownService(serviceUuid)
-                .Select(x => x.DiscoverCharacteristics())
-                .Switch();
+                .SelectMany(x => x.DiscoverCharacteristics());
+
 
         /// <summary>
         /// Quick helper around WhenStatusChanged().Where(x => x == ConnectionStatus.Connected)
