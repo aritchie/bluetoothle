@@ -61,11 +61,11 @@ namespace Plugin.BluetoothLE
                             .ToTask(cts.Token)
                             .ConfigureAwait(false);
 
-                        if (this.Value != buffer)
-                        {
-                            trans.Abort();
-                            throw new GattReliableWriteTransactionException("There was a mismatch response");
-                        }
+                        //if (this.Value != buffer)
+                        //{
+                        //    trans.Abort();
+                        //    throw new GattReliableWriteTransactionException("There was a mismatch response");
+                        //}
                         var seg = new BleWriteSegment(buffer, pos, len);
                         ob.OnNext(seg);
 
