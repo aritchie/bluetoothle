@@ -92,7 +92,7 @@
     <PackageReference Include="Xamarin.Android.Support.v4" Version="26.1.0.1" />
     <PackageReference Include="Xamarin.Android.Support.Design" Version="26.1.0.1" />
     <PackageReference Include="Xamarin.Forms">
-      <Version>2.5.1.444934</Version>
+      <Version>3.0.0.446417</Version>
     </PackageReference>
     <PackageReference Include="xunit.runner.devices">
       <Version>2.3.3</Version>
