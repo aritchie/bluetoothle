@@ -68,6 +68,14 @@ namespace Plugin.BluetoothLE.Tests
         }
 
 
+        //[Fact]
+        //public async Task BlobWriteTest()
+        //{
+        //    await this.Setup();
+
+        //    this.characteristics[0].BlobWrite()
+        //}
+
         [Fact]
         public async Task Concurrent_Notifications()
         {
@@ -138,28 +146,18 @@ namespace Plugin.BluetoothLE.Tests
         {
             await this.Setup();
 
-            Task.Run(async () =>
-            {
-                try
-                {
-                    while (device.IsConnected())
-                    {
-                        await Task.WhenAll
-                        (
-                            this.characteristics[0].Write(new byte[] {0x1}).ToTask(),
-                            this.characteristics[1].Write(new byte[] { 0x1 }).ToTask(),
-                            this.characteristics[2].Write(new byte[] { 0x1 }).ToTask(),
-                            this.characteristics[3].Write(new byte[] { 0x1 }).ToTask(),
-                            this.characteristics[4].Write(new byte[] { 0x1 }).ToTask()
-                        );
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            });
-            // TODO: I have to write engage a write operation and have the queue get stuck so reconnections can
+            // this is used to flood queue
+            var floodWriter = this.characteristics
+                .ToObservable()
+                .Select(x => x.Write(new byte[] {0x1 }))
+                .Repeat()
+                .Switch()
+                .Subscribe(
+                    x => { },
+                    ex => Console.WriteLine(ex)
+                );
+
+            // I need to dispose of it or start a new one
             var disp = UserDialogs.Instance.Alert("Now turn device back on & press OK when light turns green");
             await this.device.WhenDisconnected().ToTask();
             disp.Dispose();
