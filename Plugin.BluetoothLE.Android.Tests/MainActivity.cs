@@ -5,7 +5,6 @@ using Android;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using Xamarin.Forms;
 using Xunit;
 using Xunit.Runners.UI;
 
@@ -29,7 +28,7 @@ namespace Plugin.BluetoothLE.Android.Tests
                 Manifest.Permission.BluetoothPrivileged
             }, 0);
 
-            UserDialogs.Init(() => (Activity)Forms.Context);
+            UserDialogs.Init(() => this);
             this.AddTestAssembly(typeof(BluetoothLE.Tests.DeviceTests).Assembly);
             this.AddTestAssembly(Assembly.GetExecutingAssembly());
 
