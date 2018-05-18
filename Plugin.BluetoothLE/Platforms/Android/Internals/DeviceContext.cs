@@ -29,6 +29,7 @@ namespace Plugin.BluetoothLE.Internals
         public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
         public ConcurrentQueue<Func<Task>> Actions { get; }
+        CancellationTokenSource cancelSrc;
 
 
         public void Connect(ConnectionConfig config) => this.InvokeOnMainThread(() =>
@@ -55,7 +56,7 @@ namespace Plugin.BluetoothLE.Internals
                 try
                 {
                     var result = await observable
-                        .ToTask()
+                        .ToTask(this.cancelSrc.Token)
                         .ConfigureAwait(false);
                     ob.Respond(result);
                 }
@@ -118,13 +119,19 @@ namespace Plugin.BluetoothLE.Internals
             if (this.running)
                 return;
 
-            this.running = true;
-            var ts = CrossBleAdapter.PauseBetweenInvocations;
-            while (this.Actions.TryDequeue(out Func<Task> task) && this.running)
+            try
             {
-                await task();
-                if (ts != null)
-                    await Task.Delay(ts.Value);
+                this.running = true;
+                var ts = CrossBleAdapter.PauseBetweenInvocations;
+                while (this.Actions.TryDequeue(out Func<Task> task) && this.running)
+                {
+                    await task();
+                    if (ts != null)
+                        await Task.Delay(ts.Value, this.cancelSrc.Token);
+                }
+            }
+            catch (TaskCanceledException)
+            {
             }
             this.running = false;
         }
@@ -133,6 +140,8 @@ namespace Plugin.BluetoothLE.Internals
         void CleanUpQueue()
         {
             this.running = false;
+            this.cancelSrc?.Cancel();
+            this.cancelSrc = new CancellationTokenSource();
             this.Actions.Clear();
         }
 
