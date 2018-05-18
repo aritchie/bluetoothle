@@ -10,7 +10,7 @@
         <Company />
         <AssemblyName>Plugin.BluetoothLE</AssemblyName>
         <RootNamespace>Plugin.BluetoothLE</RootNamespace>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyVersion>$(PackageVersion)</AssemblyVersion>
         <Description>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows
 
 Supported Platforms
@@ -21,7 +21,8 @@ Supported Platforms
 * macOS
 * UWP (beta)</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
-        <Version>6.0.4</Version>
+        <AssemblyVersion>$(PackageVersion)</AssemblyVersion>
+        <PackageVersion>6.0.4</PackageVersion>
         <PackageProjectUrl>https://github.com/aritchie/bluetoothle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</PackageLicenseUrl>
         <PackageIconUrl>https://github.com/aritchie/bluetoothle/raw/master/icon.png</PackageIconUrl>
