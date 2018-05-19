@@ -116,14 +116,12 @@ namespace Plugin.BluetoothLE.Tests
         {
             await this.Setup();
             var bytes = new byte[] { 0x01 };
+            var list = new List<Task<CharacteristicGattResult>>();
 
-            var t1 = this.characteristics[0].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
-            var t2 = this.characteristics[1].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
-            var t3 = this.characteristics[2].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
-            var t4 = this.characteristics[3].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
-            var t5 = this.characteristics[4].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
+            foreach (var ch in this.characteristics)
+                list.Add(ch.Write(bytes).Timeout(Constants.OperationTimeout).ToTask());
 
-            await Task.WhenAll(t1, t2, t3, t4, t5);
+            await Task.WhenAll(list);
         }
 
 
@@ -131,13 +129,11 @@ namespace Plugin.BluetoothLE.Tests
         public async Task Concurrent_Reads()
         {
             await this.Setup();
-            var t1 = this.characteristics[0].Read().Timeout(Constants.OperationTimeout).ToTask();
-            var t2 = this.characteristics[1].Read().Timeout(Constants.OperationTimeout).ToTask();
-            var t3 = this.characteristics[2].Read().Timeout(Constants.OperationTimeout).ToTask();
-            var t4 = this.characteristics[3].Read().Timeout(Constants.OperationTimeout).ToTask();
-            var t5 = this.characteristics[4].Read().Timeout(Constants.OperationTimeout).ToTask();
+            var list = new List<Task<CharacteristicGattResult>>();
+            foreach (var ch in this.characteristics)
+                list.Add(ch.Read().Timeout(Constants.OperationTimeout).ToTask());
 
-            await Task.WhenAll(t1, t2, t3, t4, t5);
+            await Task.WhenAll(list);
         }
 
 
@@ -145,30 +141,48 @@ namespace Plugin.BluetoothLE.Tests
         public async Task Reconnect_ReadAndWrite()
         {
             await this.Setup();
+            var tcs = new TaskCompletionSource<object>();
+            IDisposable floodWriter = null;
+            Observable
+                .Timer(TimeSpan.FromSeconds(5))
+                .Subscribe(async _ =>
+                {
+                    try
+                    {
+                        floodWriter?.Dispose();
+                        this.device.CancelConnection();
+
+                        await Task.Delay(1000);
+                        await this.device.ConnectWait().Timeout(Constants.ConnectTimeout);
+                        await this.device
+                            .WriteCharacteristic(
+                                Constants.ScratchServiceUuid,
+                                Constants.ScratchCharacteristicUuid1,
+                                new byte[] {0x1}
+                            )
+                            .Timeout(Constants.OperationTimeout);
+
+                        tcs.SetResult(null);
+                    }
+                    catch (Exception ex)
+                    {
+                        tcs.SetException(ex);
+                    }
+                });
 
             // this is used to flood queue
-            var floodWriter = this.characteristics
+            floodWriter = this.characteristics
                 .ToObservable()
-                .Select(x => x.Write(new byte[] {0x1 }))
+                .Select(x => x.Write(new byte[] { 0x1 }))
+                .Merge(4)
                 .Repeat()
-                .Switch()
+                //.Switch()
                 .Subscribe(
                     x => { },
                     ex => Console.WriteLine(ex)
                 );
 
-            // I need to dispose of it or start a new one
-            var disp = UserDialogs.Instance.Alert("Now turn device back on & press OK when light turns green");
-            await this.device.WhenDisconnected().ToTask();
-            disp.Dispose();
-
-            await this.device
-                .WriteCharacteristic(
-                    Constants.ScratchServiceUuid,
-                    Constants.ScratchCharacteristicUuid1,
-                    new byte[] { 0x1 }
-                )
-                .ToTask();
+            await tcs.Task;
         }
 
 
