@@ -127,7 +127,10 @@ namespace Plugin.BluetoothLE
         public static IObservable<CharacteristicGattResult> WriteCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid, byte[] data)
             => device
                 .WhenKnownCharacteristicsDiscovered(serviceUuid, characteristicUuid)
-                .Select(x => x.Write(data))
+                .Select(x =>
+                {
+                    return x.Write(data);
+                })
                 .Switch();
 
 
@@ -170,8 +173,7 @@ namespace Plugin.BluetoothLE
         public static IObservable<IGattCharacteristic> GetKnownCharacteristics(this IDevice device, Guid serviceUuid, params Guid[] characteristicIds) =>
             device
                 .GetKnownService(serviceUuid)
-                .SelectMany(x => x.GetKnownCharacteristics(characteristicIds))
-                .Take(characteristicIds.Length);
+                .SelectMany(x => x.GetKnownCharacteristics(characteristicIds));
 
 
 
@@ -221,7 +223,10 @@ namespace Plugin.BluetoothLE
         public static IObservable<IGattCharacteristic> WhenKnownCharacteristicsDiscovered(this IDevice device, Guid serviceUuid, params Guid[] characteristicIds) =>
             device
                 .WhenConnected()
-                .SelectMany(x => x.GetKnownCharacteristics(serviceUuid, characteristicIds));
+                .SelectMany(x =>
+                {
+                    return x.GetKnownCharacteristics(serviceUuid, characteristicIds);
+                });
 
 
         /// <summary>
