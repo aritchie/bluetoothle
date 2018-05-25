@@ -70,6 +70,15 @@ namespace Plugin.BluetoothLE
                         ob.OnNext(seg);
 
                         read = stream.Read(buffer, 0, buffer.Length);
+
+                        if (read > 0 && read < buffer.Length)
+                        {
+                            for (var index = read; index < buffer.Length; index++)
+                            {
+                                buffer[index] = 0;
+                            }
+                        }
+
                         pos += read;
                     }
                     await trans.Commit();
