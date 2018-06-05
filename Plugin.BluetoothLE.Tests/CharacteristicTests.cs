@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
+using Plugin.BluetoothLE.Tests.Mocks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -220,6 +221,47 @@ namespace Plugin.BluetoothLE.Tests
             sub.Dispose();
 
             await Task.Delay(1000);
+        }
+
+        [Fact]
+        public async Task BlockWrite_TestBufferClearing()
+        {
+            const int mtuSize = 512;
+            var transaction = new MockGattReliableWriteTransaction();
+            var service = new MockGattService()
+            {
+                Device = new MockDevice()
+                {
+                    MtuSize = mtuSize,
+                    Uuid = Guid.NewGuid(),
+                    Transaction = transaction
+                }
+            };
+            var characteristic = new MockGattCharacteristic(service, service.Uuid, CharacteristicProperties.Write);
+
+            // Ensure write will span multiple packets
+            var blob = new byte[mtuSize + (mtuSize / 2)];
+            // Fill first packet's worth with 1s
+            for (var i = 0; i < mtuSize; i++)
+            {
+                blob[i] = 1;
+            }
+
+            // Fill second packet's worth with 2s
+            for (var i = mtuSize; i < blob.Length; i++)
+            {
+                blob[i] = 2;
+            }
+
+            await characteristic.BlobWrite(blob, true).FirstAsync(segment => segment.Position == segment.TotalLength);
+
+            // First packet should be all 1s
+            Assert.True(transaction.WrittenValues.First().All(val => val == 1));
+            Assert.True(transaction.WrittenValues.First().Where(val => val == 1).Count() == blob.Where(val => val == 1).Count());
+            // Second packet should be half 2s and half 0s
+            Assert.True(transaction.WrittenValues.Last().Take(mtuSize / 2).All(val => val == 2));
+            Assert.True(transaction.WrittenValues.Last().Where(val => val == 2).Count() == blob.Where(val => val == 2).Count());
+            Assert.True(transaction.WrittenValues.Last().Skip(mtuSize / 2).All(val => val == 0));
         }
     }
 }
