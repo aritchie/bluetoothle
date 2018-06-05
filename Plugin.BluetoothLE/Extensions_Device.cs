@@ -100,7 +100,7 @@ namespace Plugin.BluetoothLE
                     .WhenConnected()
                     .Select(_ => device.WhenKnownCharacteristicsDiscovered(args.ServiceUuid, args.CharacteristicUuids))
                     .Switch()
-                    .Select(x => x.RegisterAndNotify(args.UseIndicateIfAvailable))
+                    .Select(x => x.RegisterAndNotify(args.UseIndicateIfAvailable, false))
                     .Switch()
                     .Subscribe(ob.OnNext);
 
