@@ -1,5 +1,10 @@
 # CHANGE LOG
 
+## 6.0.4
+* [fix] buffer mismatch check in BlobWrite unnecessary now
+* [fix] device extensions for Write/ReadCharacteristic no longer auto-connect
+* [fix][droid] more cancellation fixes to droid queue
+
 ## 6.0.3
 * [fix] reconnect read/write race condition
 * [feature] Return of device based RSSI requests (Device.ReadRssi() & Device.ReadRssiContinuously())

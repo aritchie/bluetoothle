@@ -74,9 +74,6 @@ namespace Plugin.BluetoothLE.Tests
         }
 
 
-
-
-
         [Fact]
         public async Task KnownCharacteristics_GetKnownCharacteristics_Consecutively()
         {

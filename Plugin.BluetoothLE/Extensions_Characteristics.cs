@@ -12,23 +12,32 @@ namespace Plugin.BluetoothLE
         /// </summary>
         /// <param name="characteristic"></param>
         /// <param name="useIndicationIfAvailable"></param>
+        /// <param name="autoCleanup"></param>
         /// <returns></returns>
-        public static IObservable<CharacteristicGattResult> RegisterAndNotify(this IGattCharacteristic characteristic, bool useIndicationIfAvailable = false)
-            => characteristic
+        public static IObservable<CharacteristicGattResult> RegisterAndNotify(this IGattCharacteristic characteristic, bool useIndicationIfAvailable = false, bool autoCleanup = true)
+        {
+            var ob = characteristic
                 .EnableNotifications(useIndicationIfAvailable)
                 .Select(x => x.Characteristic.WhenNotificationReceived())
-                .Switch()
-                .Finally(() => characteristic
+                .Switch();
+
+            if (autoCleanup)
+            {
+                ob = ob.Finally(() => characteristic
                     .DisableNotifications()
                     .Where(x => x.Characteristic.Service.Device.Status == ConnectionStatus.Connected)
                     .Subscribe(
-                        _ => {},
+                        _ => { },
                         ex => Log.Warn(
                             BleLogCategory.Characteristic,
                             "Could not cleanly disable notifications in RegisterAndNotify - " + ex
                         )
                     )
                 );
+            }
+
+            return ob;
+        }
 
 
         //public static IObservable<CharacteristicGattResult> ReadUntil(this IGattCharacteristic characteristic, byte[] endBytes)
