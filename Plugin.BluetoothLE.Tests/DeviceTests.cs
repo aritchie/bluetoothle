@@ -164,6 +164,29 @@ namespace Plugin.BluetoothLE.Tests
         }
 
 
+        [Fact(Skip = "TODO")]
+        public async Task ConnectHook_Reconnect()
+        {
+            await this.Setup(false);
+            var count = 0;
+
+            var sub = this.device
+                .ConnectHook(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1)
+                .Subscribe(x => count++);
+
+
+            var disp = UserDialogs.Instance.Alert("Turn off device, wait a few seconds, turn it back");
+            var wait = this.device.WhenDisconnected().Subscribe(_ =>
+            {
+                count = 0;
+            });
+
+            await Task.Delay(1000);
+
+            Assert.True(count > 0, "No pings");
+        }
+
+
         [Fact]
         public async Task ReconnectTest()
         {
