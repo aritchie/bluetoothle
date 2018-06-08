@@ -30,13 +30,12 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override void Connect()
+        public override void Connect(ConnectionConfig config)
         {
             if (this.gatt != null)
                 return;
 
-            this.gatt = this.native.GattConnect(true);
-            // TODO: connecting
+            this.gatt = this.native.GattConnect(config.AutoConnect);
         }
 
 
@@ -64,23 +63,13 @@ namespace Plugin.BluetoothLE
 
         //}
 
-        IObservable<IGattService> serviceOb;
-        public override IObservable<IGattService> DiscoverServices()
+
+        public override IObservable<IGattService> DiscoverServices() => Observable.Create<IGattService>(ob =>
         {
-            this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(ob =>
-            {
-                var services = this.gatt.GetServices();
+            var services = this.gatt.GetServices();
 
-                return () => { };
-            })
-            .ReplayWithReset(this
-                .WhenStatusChanged()
-                .Where(x => x == ConnectionStatus.Disconnected)
-            )
-            .RefCount();
-
-            return this.serviceOb;
-        }
+            return () => { };
+        });
 
 
         public override DeviceFeatures Features { get; }
