@@ -81,26 +81,16 @@ namespace Plugin.BluetoothLE
         /// </summary>
         /// <param name="device"></param>
         /// <param name="serviceUuid"></param>
-        /// <param name="characteristicUuuids"></param>
+        /// <param name="characteristicUuids"></param>
         /// <returns></returns>
-        public static IObservable<CharacteristicGattResult> ConnectHook(this IDevice device, Guid serviceUuid, params Guid[] characteristicUuuids)
-            => device.ConnectHook(new ConnectHookArgs(serviceUuid, characteristicUuuids));
-
-
-        /// <summary>
-        /// Connect and manage connection as well as hook into your required characteristics with all the proper cleanups necessary
-        /// </summary>
-        /// <param name="device"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public static IObservable<CharacteristicGattResult> ConnectHook(this IDevice device, ConnectHookArgs args)
+        public static IObservable<CharacteristicGattResult> ConnectHook(this IDevice device, Guid serviceUuid, params Guid[] characteristicUuids)
             => Observable.Create<CharacteristicGattResult>(ob =>
             {
                 var sub = device
                     .WhenConnected()
-                    .Select(_ => device.WhenKnownCharacteristicsDiscovered(args.ServiceUuid, args.CharacteristicUuids))
+                    .Select(_ => device.WhenKnownCharacteristicsDiscovered(serviceUuid, characteristicUuids))
                     .Switch()
-                    .Select(x => x.RegisterAndNotify(args.UseIndicateIfAvailable, false))
+                    .Select(x => x.RegisterAndNotify(false, false))
                     .Switch()
                     .Subscribe(ob.OnNext);
 
@@ -108,9 +98,7 @@ namespace Plugin.BluetoothLE
 
                 return () =>
                 {
-                    if (args.DisconnectOnUnsubscribe)
-                        device.CancelConnection();
-
+                    device.CancelConnection();
                     sub.Dispose();
                 };
             });
@@ -126,11 +114,8 @@ namespace Plugin.BluetoothLE
         /// <returns></returns>
         public static IObservable<CharacteristicGattResult> WriteCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid, byte[] data)
             => device
-                .WhenKnownCharacteristicsDiscovered(serviceUuid, characteristicUuid)
-                .Select(x =>
-                {
-                    return x.Write(data);
-                })
+                .GetKnownCharacteristics(serviceUuid, characteristicUuid)
+                .Select(x => x.Write(data))
                 .Switch();
 
 
@@ -143,13 +128,13 @@ namespace Plugin.BluetoothLE
         /// <returns></returns>
         public static IObservable<CharacteristicGattResult> ReadCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid)
             => device
-                .WhenKnownCharacteristicsDiscovered(serviceUuid, characteristicUuid)
+                .GetKnownCharacteristics(serviceUuid, characteristicUuid)
                 .Select(ch => ch.Read())
                 .Switch();
 
 
         /// <summary>
-        /// Discover the known characteristic, and read on a set interval
+        /// Discover the known characteristic and read on a set interval
         /// </summary>
         /// <param name="device"></param>
         /// <param name="serviceUuid"></param>
@@ -158,7 +143,7 @@ namespace Plugin.BluetoothLE
         /// <returns></returns>
         public static IObservable<CharacteristicGattResult> ReadIntervalCharacteristic(this IDevice device, Guid serviceUuid, Guid characteristicUuid, TimeSpan timeSpan)
             => device
-                .WhenKnownCharacteristicsDiscovered(serviceUuid, characteristicUuid)
+                .GetKnownCharacteristics(serviceUuid, characteristicUuid)
                 .Select(ch => ch.ReadInterval(timeSpan))
                 .Switch();
 
