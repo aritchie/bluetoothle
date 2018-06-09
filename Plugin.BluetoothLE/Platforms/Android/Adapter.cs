@@ -57,8 +57,7 @@ namespace Plugin.BluetoothLE
 
         public override IEnumerable<IDevice> GetConnectedDevices() => this.manager
             .GetConnectedDevices(ProfileType.Gatt)
-            .Select(this.context.Devices.GetDevice)
-            .Where(x => x.Status == ConnectionStatus.Connected);
+            .Select(this.context.Devices.GetDevice);
 
 
         public override AdapterStatus Status

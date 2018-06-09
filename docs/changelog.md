@@ -1,9 +1,15 @@
 # CHANGE LOG
 
-## 6.0.4
+## 6.1.0
+* [minor] Allow new System.Reactive v4 package
 * [fix] buffer mismatch check in BlobWrite unnecessary now
+* [fix] blobwrite now cleans tail of buffer
 * [fix] device extensions for Write/ReadCharacteristic no longer auto-connect
+* [fix] ConnectHook now reconnects and rehooks characteristic
+* [fix][droid] read rssi now returns properly on all devices
+* [fix][droid] device manager queue cleans up 10x faster
 * [fix][droid] more cancellation fixes to droid queue
+* [feature][droid] Scan batching
 
 ## 6.0.3
 * [fix] reconnect read/write race condition

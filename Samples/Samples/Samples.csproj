@@ -9,7 +9,7 @@
         <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
         <PackageReference Include="Acr.XamForms" Version="3.0.1" />
         <PackageReference Include="reactiveui" Version="8.2.1" />
-        <PackageReference Include="Xamarin.Forms" Version="3.0.0.482510" />
+        <PackageReference Include="Xamarin.Forms" Version="3.0.0.550146" />
     </ItemGroup>
 
     <ItemGroup>
