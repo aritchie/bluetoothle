@@ -72,8 +72,8 @@ namespace Plugin.BluetoothLE
                 {
                     Log.Info(BleLogCategory.Device, "Disconnect Error - " + e);
                 }
-                this.subscribers.Clear();
             }
+            this.subscribers.Clear();
             var result = await this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Cached);
             foreach (var s in result.Services)
             {
