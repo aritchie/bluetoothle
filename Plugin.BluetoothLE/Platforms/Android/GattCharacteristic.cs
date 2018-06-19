@@ -138,9 +138,7 @@ namespace Plugin.BluetoothLE
                 throw new BleException("Failed to set characteristic notification value");
 
             await this.context.OpPause(ct).ConfigureAwait(false);
-            var bytes = useIndicationsIfAvailable && this.CanIndicate()
-                ? BluetoothGattDescriptor.EnableIndicationValue.ToArray()
-                : BluetoothGattDescriptor.EnableNotificationValue.ToArray();
+            var bytes = this.GetNotifyDescriptorBytes(useIndicationsIfAvailable);
 
             await wrap
                 .WriteInternal(bytes)
@@ -253,6 +251,16 @@ namespace Plugin.BluetoothLE
                 return false;
 
             return true;
+        }
+
+
+        byte[] GetNotifyDescriptorBytes(bool useIndicationsIfAvailable)
+        {
+            // if only indicate
+            if (useIndicationsIfAvailable && this.CanIndicate())
+                return BluetoothGattDescriptor.EnableIndicationValue.ToArray();
+
+             return BluetoothGattDescriptor.EnableNotificationValue.ToArray();
         }
     }
 }
