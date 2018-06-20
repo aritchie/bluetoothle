@@ -33,7 +33,7 @@ namespace Plugin.BluetoothLE
         /// Get a known device
         /// </summary>
         /// <param name="deviceId">Device identifier.</param>
-        IDevice GetKnownDevice(Guid deviceId);
+        IObservable<IDevice> GetKnownDevice(Guid deviceId);
 
         /// <summary>
         /// Returns current status of adapter (on/off/permission)
@@ -54,13 +54,13 @@ namespace Plugin.BluetoothLE
         /// Gets a list of connected devices
         /// </summary>
         /// <returns></returns>
-        IEnumerable<IDevice> GetConnectedDevices();
+        IObservable<IEnumerable<IDevice>> GetConnectedDevices();
 
         /// <summary>
         /// Get the list of paired devices
         /// </summary>
         /// <returns></returns>
-        IEnumerable<IDevice> GetPairedDevices();
+        IObservable<IEnumerable<IDevice>> GetPairedDevices();
 
         /// <summary>
         /// Start scanning for BluetoothLE devices

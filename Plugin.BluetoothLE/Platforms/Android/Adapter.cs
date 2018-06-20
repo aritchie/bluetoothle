@@ -34,7 +34,7 @@ namespace Plugin.BluetoothLE
         public override bool IsScanning => this.isScanning;
 
 
-        public override IDevice GetKnownDevice(Guid deviceId)
+        public override IObservable<IDevice> GetKnownDevice(Guid deviceId)
         {
             var native = this.manager.Adapter.GetRemoteDevice(deviceId
                 .ToByteArray()
@@ -43,21 +43,30 @@ namespace Plugin.BluetoothLE
                 .ToArray()
             );
             var device = this.context.Devices.GetDevice(native);
-            return device;
+            return Observable.Return(device);
         }
 
 
-        public override IEnumerable<IDevice> GetPairedDevices() => this.manager
-            .Adapter
-            .BondedDevices
-            .Where(x => x.Type == BluetoothDeviceType.Dual || x.Type == BluetoothDeviceType.Le) // TODO: does it know?
-            .Select(this.context.Devices.GetDevice)
-            .ToList();
+        public override IObservable<IEnumerable<IDevice>> GetPairedDevices()
+        {
+            var devices = this.manager
+                .Adapter
+                .BondedDevices
+                .Where(x => x.Type == BluetoothDeviceType.Dual || x.Type == BluetoothDeviceType.Le)
+                .Select(this.context.Devices.GetDevice);
+
+            return Observable.Return<IEnumerable<IDevice>>(devices);
+        }
 
 
-        public override IEnumerable<IDevice> GetConnectedDevices() => this.manager
-            .GetConnectedDevices(ProfileType.Gatt)
-            .Select(this.context.Devices.GetDevice);
+        public override IObservable<IEnumerable<IDevice>> GetConnectedDevices()
+        {
+            var devices = this.manager
+                .GetConnectedDevices(ProfileType.Gatt)
+                .Select(this.context.Devices.GetDevice);
+
+            return Observable.Return<IEnumerable<IDevice>>(devices);
+        }
 
 
         public override AdapterStatus Status

@@ -61,7 +61,7 @@ namespace Plugin.BluetoothLE.Tests
         public async Task GetConnectedDevices()
         {
             await this.Setup(true);
-            var devices = CrossBleAdapter.Current.GetConnectedDevices();
+            var devices = await CrossBleAdapter.Current.GetConnectedDevices().ToTask();
             Assert.Equal(1, devices.Count());
 
             Assert.True(devices.First().Uuid.Equals(this.device.Uuid));
@@ -69,7 +69,7 @@ namespace Plugin.BluetoothLE.Tests
             await Task.Delay(2000); // wait for dc to occur
 
             Assert.Equal(ConnectionStatus.Disconnected, this.device.Status);
-            devices = CrossBleAdapter.Current.GetConnectedDevices();
+            devices = await CrossBleAdapter.Current.GetConnectedDevices().ToTask();
             Assert.Equal(0, devices.Count());
         }
 
@@ -134,7 +134,7 @@ namespace Plugin.BluetoothLE.Tests
                 .WriteCharacteristic(
                     Constants.ScratchServiceUuid,
                     Constants.ScratchCharacteristicUuid1,
-                    new byte[] {0x01}
+                    new byte[] { 0x01 }
                 )
                 .Timeout(Constants.OperationTimeout)
                 .ToTask();

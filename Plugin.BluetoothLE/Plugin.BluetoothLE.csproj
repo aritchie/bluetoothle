@@ -17,10 +17,10 @@ Supported Platforms
 * iOS 7+
 * tvOS
 * macOS
-* UWP (beta)</Description>
+* UWP</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
         <AssemblyVersion>$(PackageVersion)</AssemblyVersion>
-        <PackageVersion>6.1.0-beta1</PackageVersion>
+        <PackageVersion>6.1.0-beta2</PackageVersion>
         <RepositoryUrl>https://github.com/aritchie/bluetoothle</RepositoryUrl>
         <PackageProjectUrl>https://github.com/aritchie/bluetoothle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</PackageLicenseUrl>

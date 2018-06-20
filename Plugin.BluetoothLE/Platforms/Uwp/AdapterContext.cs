@@ -30,10 +30,16 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IEnumerable<IDevice> GetConnectedDevices() => this.devices
-            .Where(x => x.Value.Status == ConnectionStatus.Connected)
-            .Select(x => x.Value)
-            .ToList();
+        public IDevice AddOrGetDevice(ulong bluetoothAddress, BluetoothLEDevice native)
+        {
+            var dev = this.devices.GetOrAdd(bluetoothAddress, id => new Device(native));
+            return dev;
+        }
+
+        //public IEnumerable<IDevice> GetConnectedDevices() => this.devices
+        //    .Where(x => x.Value.Status == ConnectionStatus.Connected)
+        //    .Select(x => x.Value)
+        //    .ToList();
 
 
         public void Clear() => this.devices
