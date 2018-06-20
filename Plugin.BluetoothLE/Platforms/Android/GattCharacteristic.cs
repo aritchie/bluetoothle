@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
-using System.Reactive.Threading.Tasks;
 using Acr.Logging;
 using Acr.Reactive;
 using Android.Bluetooth;
@@ -35,8 +34,7 @@ namespace Plugin.BluetoothLE
         public override byte[] Value => this.native.GetValue();
 
 
-        public override IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value)
-            => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
+        public override IObservable<CharacteristicGattResult> WriteWithoutResponse(byte[] value) => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
         {
             this.AssertWrite(false);
 
@@ -64,8 +62,7 @@ namespace Plugin.BluetoothLE
         }));
 
 
-        public override IObservable<CharacteristicGattResult> Write(byte[] value)
-            => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
+        public override IObservable<CharacteristicGattResult> Write(byte[] value) => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
         {
             this.AssertWrite(false);
 
@@ -99,8 +96,7 @@ namespace Plugin.BluetoothLE
         }));
 
 
-        public override IObservable<CharacteristicGattResult> Read()
-            => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
+        public override IObservable<CharacteristicGattResult> Read() => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
         {
             this.AssertRead();
 
@@ -126,49 +122,67 @@ namespace Plugin.BluetoothLE
         }));
 
 
-        public override IObservable<CharacteristicGattResult> EnableNotifications(bool useIndicationsIfAvailable)
-            => this.context.Invoke(Observable.FromAsync(async ct =>
+        public override IObservable<CharacteristicGattResult> EnableNotifications(bool useIndicationsIfAvailable) => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
         {
-            var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
-            if (descriptor == null)
-                throw new BleException("Characteristic Client Configuration Descriptor not found");
+            void success()
+            {
+                this.IsNotifying = true;
+                ob.Respond(new CharacteristicGattResult(this, null));
+            };
 
-            var wrap = new GattDescriptor(this, this.context, descriptor);
             if (!this.context.Gatt.SetCharacteristicNotification(this.native, true))
                 throw new BleException("Failed to set characteristic notification value");
 
-            await this.context.OpPause(ct).ConfigureAwait(false);
-            var bytes = this.GetNotifyDescriptorBytes(useIndicationsIfAvailable);
-
-            await wrap
-                .WriteInternal(bytes)
-                .ToTask(ct)
-                .ConfigureAwait(false);
-
-            this.IsNotifying = true;
-            return new CharacteristicGattResult(this, null);
+            IDisposable sub = null;
+            var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
+            if (descriptor == null)
+            {
+                success();
+            }
+            else
+            {
+                var wrap = new GattDescriptor(this, this.context, descriptor);
+                var bytes = this.GetNotifyDescriptorBytes(useIndicationsIfAvailable);
+                sub = wrap.WriteInternal(bytes)
+                    .Delay(CrossBleAdapter.PauseBetweenInvocations.Value)
+                    .Subscribe(
+                        _ => success(),
+                        ex => success()
+                    );
+            }
+            return () => sub?.Dispose();
         }));
 
 
-        public override IObservable<CharacteristicGattResult> DisableNotifications()
-            => this.context.Invoke(Observable.FromAsync(async ct =>
+        public override IObservable<CharacteristicGattResult> DisableNotifications() => this.context.Invoke(Observable.Create<CharacteristicGattResult>(ob =>
         {
-            var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
-            if (descriptor == null)
-                throw new BleException("Characteristic Client Configuration Descriptor not found");
-
-            var wrap = new GattDescriptor(this, this.context, descriptor);
+            void success()
+            {
+                this.IsNotifying = false;
+                ob.Respond(new CharacteristicGattResult(this, null));
+            };
             if (!this.context.Gatt.SetCharacteristicNotification(this.native, false))
                 throw new BleException("Could not set characteristic notification value");
 
-            await this.context.OpPause(ct).ConfigureAwait(false);
-            await wrap
-                .WriteInternal(BluetoothGattDescriptor.DisableNotificationValue.ToArray())
-                .ToTask(ct)
-                .ConfigureAwait(false);
+            IDisposable sub = null;
+            var descriptor = this.native.GetDescriptor(NotifyDescriptorId);
+            if (descriptor == null)
+            {
+                success();
+            }
+            else
+            {
+                var wrap = new GattDescriptor(this, this.context, descriptor);
+                sub = wrap
+                    .WriteInternal(BluetoothGattDescriptor.DisableNotificationValue.ToArray())
+                    .Delay(CrossBleAdapter.PauseBetweenInvocations.Value)
+                    .Subscribe(
+                        _ => success(),
+                        ex => success()
+                    );
+            }
 
-            this.IsNotifying = false;
-            return new CharacteristicGattResult(this, null);
+            return () => sub?.Dispose();
         }));
 
 
@@ -256,8 +270,7 @@ namespace Plugin.BluetoothLE
 
         byte[] GetNotifyDescriptorBytes(bool useIndicationsIfAvailable)
         {
-            // if only indicate
-            if (useIndicationsIfAvailable && this.CanIndicate())
+            if ((useIndicationsIfAvailable || !this.CanNotify()) && this.CanIndicate())
                 return BluetoothGattDescriptor.EnableIndicationValue.ToArray();
 
              return BluetoothGattDescriptor.EnableNotificationValue.ToArray();
