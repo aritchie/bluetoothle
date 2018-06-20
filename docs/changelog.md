@@ -1,6 +1,7 @@
 # CHANGE LOG
 
 ## 6.1.0
+* [breaking] GetKnownDevice, GetPairDevices, & GetConnectedDevices all return observables now
 * [minor] Allow new System.Reactive v4 package
 * [fix] buffer mismatch check in BlobWrite unnecessary now
 * [fix] blobwrite now cleans tail of buffer
@@ -10,6 +11,7 @@
 * [fix][droid] device manager queue cleans up 10x faster
 * [fix][droid] more cancellation fixes to droid queue
 * [feature][droid] Scan batching
+* [feature] UWP!!! 
 
 ## 6.0.3
 * [fix] reconnect read/write race condition
