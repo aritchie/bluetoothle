@@ -1,12 +1,14 @@
 ﻿using Plugin.BluetoothLE.Server;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.System;
-
+using Windows.Devices.Enumeration;
 
 namespace Plugin.BluetoothLE
 {
@@ -79,8 +81,72 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IEnumerable<IDevice> GetConnectedDevices() => this.context.GetConnectedDevices();
+        //public override IEnumerable<IDevice> GetConnectedDevices() => this.context.GetConnectedDevices();
 
+        // this will return the connected devices without first scanning
+        public override IEnumerable<IDevice> GetConnectedDevices()
+        {
+            string[] requestedProperties = { "System.Devices.ContainerId" };
+
+            var devices = Observable.FromAsync(async ct =>
+                await DeviceInformation.FindAllAsync(
+                BluetoothLEDevice.GetDeviceSelectorFromConnectionStatus(BluetoothConnectionStatus.Connected), // Creates the string with the query
+                requestedProperties,
+                DeviceInformationKind.AssociationEndpoint)).ToTask().Result;
+
+            List<IDevice> result = new List<IDevice>();
+            foreach (var deviceInfo in devices)
+            {
+                //AsTask().Result will block this thread but we have to as the GetConnectedDevices() doesn't return Task<IEnumerable<IDevice>>
+                BluetoothLEDevice ble = BluetoothLEDevice.FromIdAsync(deviceInfo.Id).AsTask().Result; // FromXXXX that means the returned native has to be disposed to disconnect
+                result.Add(new Device(ble));
+            }
+            return result;
+        }
+
+
+        public override IDevice GetKnownDevice(Guid deviceId)
+        {
+            byte[] address = deviceId
+                .ToByteArray()
+                .Skip(10)
+                .Take(6)
+                .ToArray();
+
+            string hexAddress = BitConverter.ToString(address).Replace("-", "");
+
+            IDevice device = null;
+            if (ulong.TryParse(hexAddress, System.Globalization.NumberStyles.HexNumber, null, out ulong macaddress))
+            {
+                //AsTask().Result will block this thread but we have to as the GetKnownDevice() doesn't return Task<IDevice>
+                var native = BluetoothLEDevice.FromBluetoothAddressAsync(macaddress).AsTask().Result; // FromXXXX that means the returned native has to be disposed to disconnect
+                if (native != null)
+                {
+                    device = this.context.AddDevice(native.BluetoothAddress, native);
+                }
+            }
+            return device;
+        }
+
+        public override IEnumerable<IDevice> GetPairedDevices()
+        {
+            string[] requestedProperties = { "System.Devices.ContainerId" };
+
+            var devices = Observable.FromAsync(async ct =>
+                await DeviceInformation.FindAllAsync(
+                BluetoothLEDevice.GetDeviceSelectorFromPairingState(true), // Creates the string with the query
+                requestedProperties,
+                DeviceInformationKind.AssociationEndpoint)).ToTask().Result;
+
+            List<IDevice> result = new List<IDevice>();
+            foreach (var deviceInfo in devices)
+            {
+                //AsTask().Result will block this thread but we have to as the GetPairedDevices() doesn't return Task<IEnumerable<IDevice>>
+                BluetoothLEDevice ble = BluetoothLEDevice.FromIdAsync(deviceInfo.Id).AsTask().Result; // FromXXXX that means the returned native has to be disposed to disconnect
+                result.Add(new Device(ble));
+            }
+            return result;
+        }
 
         public override IObservable<IScanResult> Scan(ScanConfig config)
         {
