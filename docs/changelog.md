@@ -10,6 +10,7 @@
 * [fix][droid] read rssi now returns properly on all devices
 * [fix][droid] device manager queue cleans up 10x faster
 * [fix][droid] more cancellation fixes to droid queue
+* [fix][droid] advertising startup checks fixed for android v4.x
 * [feature][droid] Scan batching
 * [feature] UWP!!! 
 
