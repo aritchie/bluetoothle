@@ -84,10 +84,10 @@ namespace Plugin.BluetoothLE
         {
             IDevice device = null;
             var mac = deviceId.ToMacAddress();
-            var native = BluetoothLEDevice.FromBluetoothAddressAsync(mac).AsTask(ct);
+            var native = await BluetoothLEDevice.FromBluetoothAddressAsync(mac).AsTask(ct);
 
             if (native != null)
-                device = this.context.AddOrGetDevice(native.BluetoothAddress, native);
+                device = this.context.AddOrGetDevice(mac, native);
 
             return device;
         });
@@ -254,8 +254,8 @@ namespace Plugin.BluetoothLE
             var results = new List<IDevice>();
             foreach (var deviceInfo in devices)
             {
-                var native = BluetoothLEDevice.FromIdAsync(deviceInfo.Id).AsTask(ct);
-                var wrap = this.context.AddOrGetDevice(native);
+                var native = await BluetoothLEDevice.FromIdAsync(deviceInfo.Id).AsTask(ct);
+                var wrap = this.context.AddOrGetDevice(native.BluetoothAddress, native);
                 results.Add(wrap);
             }
 
