@@ -27,7 +27,17 @@ namespace Plugin.BluetoothLE
 
 
         public override string DeviceName => "Default Bluetooth Device";
-        public override AdapterFeatures Features => AdapterFeatures.All;
+
+        public override AdapterFeatures Features
+        {
+            get
+            {
+                if (CrossBleAdapter.IsServerSupported)
+                    return AdapterFeatures.All;
+
+                return AdapterFeatures.AllClient | AdapterFeatures.AllControls;
+            }
+        }
 
 
         bool isScanning = false;

@@ -10,19 +10,18 @@ namespace Plugin.BluetoothLE.Server
 {
     public class Advertiser : AbstractAdvertiser
     {
-        readonly BluetoothManager manager;
-        readonly AdvertisementCallbacks adCallbacks;
-
-
-        public Advertiser()
-        {
-            this.manager = (BluetoothManager)Application.Context.GetSystemService(Context.BluetoothService);
-            this.adCallbacks = new AdvertisementCallbacks();
-        }
+        BluetoothManager manager;
+        AdvertisementCallbacks adCallbacks;
 
 
         public override void Start(AdvertisementData adData)
         {
+            if (!CrossBleAdapter.IsServerSupported)
+                throw new BleException("BLE Advertiser needs API Level 23+");
+
+            this.manager = (BluetoothManager)Application.Context.GetSystemService(Context.BluetoothService);
+            this.adCallbacks = new AdvertisementCallbacks();
+
             var settings = new AdvertiseSettings.Builder()
                 .SetAdvertiseMode(AdvertiseMode.Balanced)
                 .SetConnectable(true);
@@ -52,7 +51,9 @@ namespace Plugin.BluetoothLE.Server
 
         public override void Stop()
         {
-            this.manager.Adapter.BluetoothLeAdvertiser.StopAdvertising(this.adCallbacks);
+            if (this.manager != null && this.adCallbacks != null)
+                this.manager.Adapter.BluetoothLeAdvertiser.StopAdvertising(this.adCallbacks);
+
             base.Stop();
         }
     }

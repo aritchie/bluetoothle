@@ -1,8 +1,4 @@
-﻿using Android.App;
-using Android.Bluetooth;
-using Android.OS;
-using Java.Lang;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reactive.Linq;
@@ -11,6 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Acr.Logging;
 using Acr.Reactive;
+using Android.App;
+using Android.Bluetooth;
+using Android.OS;
+using Java.Lang;
 
 
 namespace Plugin.BluetoothLE.Internals
@@ -71,11 +71,11 @@ namespace Plugin.BluetoothLE.Internals
         });
 
 
-        public async Task OpPause(CancellationToken? cancelToken = null)
-        {
-            if (CrossBleAdapter.PauseBetweenInvocations != null)
-                await Task.Delay(CrossBleAdapter.PauseBetweenInvocations.Value, cancelToken ?? CancellationToken.None);
-        }
+        //public async Task OpPause(CancellationToken? cancelToken = null)
+        //{
+        //    if (CrossBleAdapter.PauseBetweenInvocations != null)
+        //        await Task.Delay(CrossBleAdapter.PauseBetweenInvocations.Value, cancelToken ?? CancellationToken.None);
+        //}
 
 
         public void InvokeOnMainThread(Action action)
@@ -126,8 +126,8 @@ namespace Plugin.BluetoothLE.Internals
                 while (this.Actions.TryDequeue(out Func<Task> task) && this.running)
                 {
                     await task();
-                    if (ts != null)
-                        await Task.Delay(ts.Value, this.cancelSrc.Token);
+                    if (ts.TotalMilliseconds > 0)
+                        await Task.Delay(ts, this.cancelSrc.Token);
                 }
             }
             catch (TaskCanceledException)
