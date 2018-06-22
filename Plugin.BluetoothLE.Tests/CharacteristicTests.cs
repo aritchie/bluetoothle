@@ -142,6 +142,7 @@ namespace Plugin.BluetoothLE.Tests
         public async Task Reconnect_ReadAndWrite()
         {
             await this.Setup();
+
             var tcs = new TaskCompletionSource<object>();
             IDisposable floodWriter = null;
             Observable
