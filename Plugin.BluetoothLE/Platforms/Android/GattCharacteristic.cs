@@ -144,7 +144,7 @@ namespace Plugin.BluetoothLE
                 var wrap = new GattDescriptor(this, this.context, descriptor);
                 var bytes = this.GetNotifyDescriptorBytes(useIndicationsIfAvailable);
                 sub = wrap.WriteInternal(bytes)
-                    .Delay(CrossBleAdapter.PauseBetweenInvocations.Value)
+                    .Delay(CrossBleAdapter.PauseBetweenInvocations)
                     .Subscribe(
                         _ => success(),
                         ex => success()
@@ -175,7 +175,7 @@ namespace Plugin.BluetoothLE
                 var wrap = new GattDescriptor(this, this.context, descriptor);
                 sub = wrap
                     .WriteInternal(BluetoothGattDescriptor.DisableNotificationValue.ToArray())
-                    .Delay(CrossBleAdapter.PauseBetweenInvocations.Value)
+                    .Delay(CrossBleAdapter.PauseBetweenInvocations)
                     .Subscribe(
                         _ => success(),
                         ex => success()
