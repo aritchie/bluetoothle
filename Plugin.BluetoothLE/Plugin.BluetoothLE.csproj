@@ -19,7 +19,7 @@ Supported Platforms
 * UWP</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
         <!--<AssemblyVersion>$(PackageVersion)</AssemblyVersion>-->
-        <PackageVersion>6.1.0-beta2</PackageVersion>
+        <PackageVersion>6.1.0-beta</PackageVersion>
         <RepositoryUrl>https://github.com/aritchie/bluetoothle</RepositoryUrl>
         <PackageProjectUrl>https://github.com/aritchie/bluetoothle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</PackageLicenseUrl>
@@ -27,18 +27,17 @@ Supported Platforms
         <PackageReleaseNotes>https://github.com/aritchie/bluetoothle/blob/master/docs/changelog.md</PackageReleaseNotes>
         <PackageTags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</PackageTags>
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/PrismLibrary/Prism</RepositoryUrl>
         <IncludeSymbols>True</IncludeSymbols>
         <IncludeSource>True</IncludeSource>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+    <!--<PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
         <DebugType>full</DebugType>
         <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
         <DebugType>pdbonly</DebugType>
-    </PropertyGroup>
+    </PropertyGroup>-->
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
         <TargetPlatformVersion>10.0.16299.0</TargetPlatformVersion>
