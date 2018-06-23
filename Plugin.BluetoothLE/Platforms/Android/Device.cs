@@ -101,7 +101,7 @@ namespace Plugin.BluetoothLE
         public override IObservable<IGattService> DiscoverServices()
             => Observable.Create<IGattService>(ob =>
             {
-                this.context
+                var sub = this.context
                     .Callbacks
                     .ServicesDiscovered
                     .Where(x => x.Gatt.Device.Equals(this.context.NativeDevice))
@@ -117,7 +117,7 @@ namespace Plugin.BluetoothLE
 
                 this.context.Gatt.DiscoverServices();
 
-                return () => { };
+                return sub;
             });
 
 
