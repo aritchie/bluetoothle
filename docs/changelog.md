@@ -11,6 +11,7 @@
 * [fix][droid] device manager queue cleans up 10x faster
 * [fix][droid] more cancellation fixes to droid queue
 * [fix][droid] advertising startup checks fixed for android v4.x
+* [feature] Return of Adapter.ScanInterval
 * [feature][droid] Scan batching
 * [feature] UWP!!! 
 
