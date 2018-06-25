@@ -19,7 +19,7 @@ Supported Platforms
 * UWP</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
         <!--<AssemblyVersion>$(PackageVersion)</AssemblyVersion>-->
-        <PackageVersion>6.1.0-beta3</PackageVersion>
+        <PackageVersion>6.1.0</PackageVersion>
         <RepositoryUrl>https://github.com/aritchie/bluetoothle</RepositoryUrl>
         <PackageProjectUrl>https://github.com/aritchie/bluetoothle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</PackageLicenseUrl>
@@ -87,7 +87,7 @@ Supported Platforms
     <ItemGroup Condition=" $(TargetFramework.StartsWith('uap')) ">
         <Compile Include="Platforms\Uwp\**\*.cs" />
         <EmbeddedResource Include="Platforms\Uwp\Plugin.BluetoothLE.rd.xml" />
-        <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.0.8" />
+        <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.0.8" PrivateAssets="All" />
     </ItemGroup>
 
     <!--<ItemGroup Condition=" $(TargetFramework.StartsWith('tizen')) ">

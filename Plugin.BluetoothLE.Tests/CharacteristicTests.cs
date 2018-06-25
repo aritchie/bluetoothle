@@ -138,7 +138,7 @@ namespace Plugin.BluetoothLE.Tests
         }
 
 
-        [Fact]
+        [Fact(Skip = "TODO")]
         public async Task Reconnect_ReadAndWrite()
         {
             await this.Setup();
