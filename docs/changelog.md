@@ -1,9 +1,19 @@
 # CHANGE LOG
 
-## 6.0.4
+## 6.1.0
+* [breaking] GetKnownDevice, GetPairDevices, & GetConnectedDevices all return observables now
+* [minor] Allow new System.Reactive v4 package
 * [fix] buffer mismatch check in BlobWrite unnecessary now
+* [fix] blobwrite now cleans tail of buffer
 * [fix] device extensions for Write/ReadCharacteristic no longer auto-connect
+* [fix] ConnectHook now reconnects and rehooks characteristic
+* [fix][droid] read rssi now returns properly on all devices
+* [fix][droid] device manager queue cleans up 10x faster
 * [fix][droid] more cancellation fixes to droid queue
+* [fix][droid] advertising startup checks fixed for android v4.x
+* [feature] Return of Adapter.ScanInterval
+* [feature][droid] Scan batching
+* [feature] UWP!!! 
 
 ## 6.0.3
 * [fix] reconnect read/write race condition
