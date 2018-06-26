@@ -25,15 +25,24 @@ namespace Plugin.BluetoothLE.Internals
         );
 
 
-        public IEnumerable<IDevice> GetConnectedDevices() => this.devices
-            .Where(x => x.Value.Status == ConnectionStatus.Connected)
-            .Select(x => x.Value)
-            .ToList();
+        public IEnumerable<IDevice> GetConnectedDevices()
+        {
+            var nativeDevices = this.manager.GetDevicesMatchingConnectionStates(ProfileType.Gatt, new[]
+            {
+                (int) ProfileState.Connecting,
+                (int) ProfileState.Connected
+            });
+            foreach (var native in nativeDevices)
+                yield return this.GetDevice(native);
+        }
 
 
-        public void Clear() => this.devices
-            .Where(x => x.Value.Status != ConnectionStatus.Connected)
-            .ToList()
-            .ForEach(x => this.devices.TryRemove(x.Key, out _));
+        public void Clear()
+        {
+            var connectedDevices = this.GetConnectedDevices().ToList();
+            this.devices.Clear();
+            foreach (var dev in connectedDevices)
+                this.devices.TryAdd(((BluetoothDevice) dev.NativeDevice).Address, dev);
+        }
     }
 }

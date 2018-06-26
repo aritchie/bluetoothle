@@ -1,15 +1,26 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
 using Xunit;
+using Xunit.Abstractions;
 
 
 namespace Plugin.BluetoothLE.Tests
 {
     public class AdapterTests
     {
+        readonly ITestOutputHelper output;
+
+
+        public AdapterTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
+
         [Fact]
         public async Task Status_Monitor()
         {
@@ -77,6 +88,73 @@ namespace Plugin.BluetoothLE.Tests
             Assert.True(CrossBleAdapter.Current.IsScanning);
 
             sub.Dispose();
+        }
+
+
+        [Fact]
+        public async Task Devices_GetPaired()
+        {
+            var ad = CrossBleAdapter.Current;
+            var devices = await ad.GetPairedDevices();
+
+            foreach (var device in devices)
+            {
+                this.output.WriteLine($"Paired Bluetooth Devices: Name={device.Name} UUID={device.Uuid} Paired={device.PairingStatus}");
+                Assert.True(device.PairingStatus == PairingStatus.Paired);
+            }
+        }
+
+
+        [Fact]
+        public async Task Devices_GetConnected()
+        {
+            var ad = CrossBleAdapter.Current;
+            var devices = await ad.GetConnectedDevices();
+
+            if (devices.Count() == 0)
+            {
+                this.output.WriteLine($"There are no connected Bluetooth devices. Trying to connect a device...");
+                var paired = await ad.GetPairedDevices();
+
+                // Get the first paired device
+                var device = paired.FirstOrDefault();
+                if (device != null)
+                {
+                    await device.ConnectWait().ToTask();
+                    devices = await ad.GetConnectedDevices();
+                }
+                else
+                {
+                    this.output.WriteLine($"There are no connected Bluetooth devices. Connect a device and try again.");
+                }
+            }
+
+            foreach (var device in devices)
+            {
+                this.output.WriteLine($"Connected Bluetooth Devices: Name={device.Name} UUID={device.Uuid} Connected={device.IsConnected()}");
+                Assert.True(device.Status == ConnectionStatus.Connected);
+            }
+        }
+
+
+        [Fact]
+        public async Task Devices_GetKnown()
+        {
+            var ad = CrossBleAdapter.Current;
+            var devices = await ad.GetPairedDevices();
+
+            // Get the first paired device
+            var known = devices.FirstOrDefault();
+            if (known != null)
+            {
+                // Now try to get it from the known Devices
+                var found = await ad.GetKnownDevice(known.Uuid);
+                Assert.True(known.Uuid == found.Uuid);
+            }
+            else
+            {
+                this.output.WriteLine($"No well known device found to test with. Please pair a device");
+            }
         }
     }
 }

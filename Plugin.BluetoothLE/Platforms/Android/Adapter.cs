@@ -27,14 +27,24 @@ namespace Plugin.BluetoothLE
 
 
         public override string DeviceName => "Default Bluetooth Device";
-        public override AdapterFeatures Features => AdapterFeatures.All;
+
+        public override AdapterFeatures Features
+        {
+            get
+            {
+                if (CrossBleAdapter.IsServerSupported)
+                    return AdapterFeatures.All;
+
+                return AdapterFeatures.AllClient | AdapterFeatures.AllControls;
+            }
+        }
 
 
         bool isScanning = false;
         public override bool IsScanning => this.isScanning;
 
 
-        public override IDevice GetKnownDevice(Guid deviceId)
+        public override IObservable<IDevice> GetKnownDevice(Guid deviceId)
         {
             var native = this.manager.Adapter.GetRemoteDevice(deviceId
                 .ToByteArray()
@@ -43,22 +53,30 @@ namespace Plugin.BluetoothLE
                 .ToArray()
             );
             var device = this.context.Devices.GetDevice(native);
-            return device;
+            return Observable.Return(device);
         }
 
 
-        public override IEnumerable<IDevice> GetPairedDevices() => this.manager
-            .Adapter
-            .BondedDevices
-            .Where(x => x.Type == BluetoothDeviceType.Dual || x.Type == BluetoothDeviceType.Le) // TODO: does it know?
-            .Select(this.context.Devices.GetDevice)
-            .ToList();
+        public override IObservable<IEnumerable<IDevice>> GetPairedDevices()
+        {
+            var devices = this.manager
+                .Adapter
+                .BondedDevices
+                .Where(x => x.Type == BluetoothDeviceType.Dual || x.Type == BluetoothDeviceType.Le)
+                .Select(this.context.Devices.GetDevice);
+
+            return Observable.Return<IEnumerable<IDevice>>(devices);
+        }
 
 
-        public override IEnumerable<IDevice> GetConnectedDevices() => this.manager
-            .GetConnectedDevices(ProfileType.Gatt)
-            .Select(this.context.Devices.GetDevice)
-            .Where(x => x.Status == ConnectionStatus.Connected);
+        public override IObservable<IEnumerable<IDevice>> GetConnectedDevices()
+        {
+            var devices = this.manager
+                .GetConnectedDevices(ProfileType.Gatt)
+                .Select(this.context.Devices.GetDevice);
+
+            return Observable.Return<IEnumerable<IDevice>>(devices);
+        }
 
 
         public override AdapterStatus Status

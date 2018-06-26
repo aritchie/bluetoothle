@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Acr.UserDialogs;
+using Plugin.BluetoothLE.Tests.Mocks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -68,6 +69,14 @@ namespace Plugin.BluetoothLE.Tests
         }
 
 
+        //[Fact]
+        //public async Task BlobWriteTest()
+        //{
+        //    await this.Setup();
+
+        //    this.characteristics[0].BlobWrite()
+        //}
+
         [Fact]
         public async Task Concurrent_Notifications()
         {
@@ -108,14 +117,12 @@ namespace Plugin.BluetoothLE.Tests
         {
             await this.Setup();
             var bytes = new byte[] { 0x01 };
+            var list = new List<Task<CharacteristicGattResult>>();
 
-            var t1 = this.characteristics[0].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
-            var t2 = this.characteristics[1].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
-            var t3 = this.characteristics[2].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
-            var t4 = this.characteristics[3].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
-            var t5 = this.characteristics[4].Write(bytes).Timeout(Constants.OperationTimeout).ToTask();
+            foreach (var ch in this.characteristics)
+                list.Add(ch.Write(bytes).Timeout(Constants.OperationTimeout).ToTask());
 
-            await Task.WhenAll(t1, t2, t3, t4, t5);
+            await Task.WhenAll(list);
         }
 
 
@@ -123,54 +130,61 @@ namespace Plugin.BluetoothLE.Tests
         public async Task Concurrent_Reads()
         {
             await this.Setup();
-            var t1 = this.characteristics[0].Read().Timeout(Constants.OperationTimeout).ToTask();
-            var t2 = this.characteristics[1].Read().Timeout(Constants.OperationTimeout).ToTask();
-            var t3 = this.characteristics[2].Read().Timeout(Constants.OperationTimeout).ToTask();
-            var t4 = this.characteristics[3].Read().Timeout(Constants.OperationTimeout).ToTask();
-            var t5 = this.characteristics[4].Read().Timeout(Constants.OperationTimeout).ToTask();
+            var list = new List<Task<CharacteristicGattResult>>();
+            foreach (var ch in this.characteristics)
+                list.Add(ch.Read().Timeout(Constants.OperationTimeout).ToTask());
 
-            await Task.WhenAll(t1, t2, t3, t4, t5);
+            await Task.WhenAll(list);
         }
 
 
-        [Fact]
+        [Fact(Skip = "TODO")]
         public async Task Reconnect_ReadAndWrite()
         {
             await this.Setup();
 
-            Task.Run(async () =>
-            {
-                try
+            var tcs = new TaskCompletionSource<object>();
+            IDisposable floodWriter = null;
+            Observable
+                .Timer(TimeSpan.FromSeconds(5))
+                .Subscribe(async _ =>
                 {
-                    while (device.IsConnected())
+                    try
                     {
-                        await Task.WhenAll
-                        (
-                            this.characteristics[0].Write(new byte[] {0x1}).ToTask(),
-                            this.characteristics[1].Write(new byte[] { 0x1 }).ToTask(),
-                            this.characteristics[2].Write(new byte[] { 0x1 }).ToTask(),
-                            this.characteristics[3].Write(new byte[] { 0x1 }).ToTask(),
-                            this.characteristics[4].Write(new byte[] { 0x1 }).ToTask()
-                        );
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            });
-            // TODO: I have to write engage a write operation and have the queue get stuck so reconnections can
-            var disp = UserDialogs.Instance.Alert("Now turn device back on & press OK when light turns green");
-            await this.device.WhenDisconnected().ToTask();
-            disp.Dispose();
+                        floodWriter?.Dispose();
+                        this.device.CancelConnection();
 
-            await this.device
-                .WriteCharacteristic(
-                    Constants.ScratchServiceUuid,
-                    Constants.ScratchCharacteristicUuid1,
-                    new byte[] { 0x1 }
-                )
-                .ToTask();
+                        await Task.Delay(1000);
+                        await this.device.ConnectWait().Timeout(Constants.ConnectTimeout);
+                        await this.device
+                            .WriteCharacteristic(
+                                Constants.ScratchServiceUuid,
+                                Constants.ScratchCharacteristicUuid1,
+                                new byte[] {0x1}
+                            )
+                            .Timeout(Constants.OperationTimeout);
+
+                        tcs.SetResult(null);
+                    }
+                    catch (Exception ex)
+                    {
+                        tcs.SetException(ex);
+                    }
+                });
+
+            // this is used to flood queue
+            floodWriter = this.characteristics
+                .ToObservable()
+                .Select(x => x.Write(new byte[] { 0x1 }))
+                .Merge(4)
+                .Repeat()
+                //.Switch()
+                .Subscribe(
+                    x => { },
+                    ex => Console.WriteLine(ex)
+                );
+
+            await tcs.Task;
         }
 
 
@@ -208,6 +222,47 @@ namespace Plugin.BluetoothLE.Tests
             sub.Dispose();
 
             await Task.Delay(1000);
+        }
+
+        [Fact]
+        public async Task BlockWrite_TestBufferClearing()
+        {
+            const int mtuSize = 512;
+            var transaction = new MockGattReliableWriteTransaction();
+            var service = new MockGattService()
+            {
+                Device = new MockDevice()
+                {
+                    MtuSize = mtuSize,
+                    Uuid = Guid.NewGuid(),
+                    Transaction = transaction
+                }
+            };
+            var characteristic = new MockGattCharacteristic(service, service.Uuid, CharacteristicProperties.Write);
+
+            // Ensure write will span multiple packets
+            var blob = new byte[mtuSize + (mtuSize / 2)];
+            // Fill first packet's worth with 1s
+            for (var i = 0; i < mtuSize; i++)
+            {
+                blob[i] = 1;
+            }
+
+            // Fill second packet's worth with 2s
+            for (var i = mtuSize; i < blob.Length; i++)
+            {
+                blob[i] = 2;
+            }
+
+            await characteristic.BlobWrite(blob, true).FirstAsync(segment => segment.Position == segment.TotalLength);
+
+            // First packet should be all 1s
+            Assert.True(transaction.WrittenValues.First().All(val => val == 1));
+            Assert.True(transaction.WrittenValues.First().Where(val => val == 1).Count() == blob.Where(val => val == 1).Count());
+            // Second packet should be half 2s and half 0s
+            Assert.True(transaction.WrittenValues.Last().Take(mtuSize / 2).All(val => val == 2));
+            Assert.True(transaction.WrittenValues.Last().Where(val => val == 2).Count() == blob.Where(val => val == 2).Count());
+            Assert.True(transaction.WrittenValues.Last().Skip(mtuSize / 2).All(val => val == 0));
         }
     }
 }

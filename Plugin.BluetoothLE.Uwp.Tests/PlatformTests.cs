@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
@@ -81,16 +83,6 @@ namespace Plugin.BluetoothLE.Uwp.Tests
             {
                 s.Session.Dispose();
             }
-            //service = null;
-
-            //var list = device.GetType().GetTypeInfo().GetRuntimeMethods().OrderBy(x => x.Name);
-
-            ////var releasers = list.Where(x => x.Name.StartsWith("Release"));
-            ////foreach (var releaser in releasers)
-            //foreach (var method in list)
-            //{
-            //    this.output.WriteLine($"Name: {method.Name}, Static: {method.IsStatic}, Public: {method.IsPublic}, Private: {method.IsPrivate}, Parameters: {method.GetParameters().Length}");
-            //}
 
             service.Dispose();
             service = null;
@@ -101,6 +93,43 @@ namespace Plugin.BluetoothLE.Uwp.Tests
 
             System.GC.Collect();
             System.GC.WaitForPendingFinalizers();
+        }
+
+
+        [Fact]
+        public async Task CancelConnectionTest()
+        {
+            var ad = CrossBleAdapter.Current;
+            var pairedDevices = await ad.GetPairedDevices();
+            var known = pairedDevices.FirstOrDefault();
+
+            if (known != null)
+            {
+                // Make sure that is not connected already
+                var connectedDevices = await ad.GetConnectedDevices();
+                var device = connectedDevices.FirstOrDefault(d => d.Uuid == known.Uuid);
+                Assert.Null(device);
+
+                await known.ConnectWait().ToTask();
+
+                connectedDevices = await ad.GetConnectedDevices();
+                device = connectedDevices.FirstOrDefault(d => d.Uuid == known.Uuid);
+                Assert.NotNull(device);
+
+                known.CancelConnection();
+                // and also we have to dispose of (not to hold a reference of) to the device returned from GetConnectedDevices() else GC will not collect it and it will not disconnect on Dispose.
+                // As long as there is a reference to a device (device instance AS A SINGLETON) it will not disconnect. Even if we don't explicitly open a connection the second device (third,... reference to the device)
+                // can still read and write to the BT it doesn't have to explicitly connect if it is already connected. So any BT Device instantiation like FromIdAsync, FromBluetoothAddressAsync and in general any FromXXXX
+                // will return the same BT with or without a connection.
+                device.CancelConnection(); // to actually only call NativeDevice.Dispose(). // We can make the IDevice : IDisposable to simplify?
+
+                // Give it a couple of seconds to disconnect
+                System.Threading.Thread.Sleep(TimeSpan.FromSeconds(10));
+                connectedDevices = await ad.GetConnectedDevices();
+                device = connectedDevices.FirstOrDefault(d => d.Uuid == known.Uuid);
+
+                Assert.Null(device);
+            }
         }
     }
 }

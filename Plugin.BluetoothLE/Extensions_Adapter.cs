@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 using System.Reactive.Linq;
 
 
@@ -73,5 +74,48 @@ namespace Plugin.BluetoothLE
                 return adapter.Scan(config);
             })
             .Switch();
+
+
+        /// <summary>
+        /// Runs BLE scan for a set timespan then pauses for configured timespan before starting again
+        /// </summary>
+        /// <param name="adapter"></param>
+        /// <param name="scanTime"></param>
+        /// <param name="scanPauseTime"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static IObservable<IScanResult> ScanInterval(this IAdapter adapter, TimeSpan scanTime, TimeSpan scanPauseTime, ScanConfig config = null) => Observable.Create<IScanResult>(ob =>
+        {
+            var scanObs = adapter.ScanExtra(config).Do(ob.OnNext, ob.OnError);
+            IObservable<long> scanPauseObs = null;
+            IObservable<long> scanStopObs = null;
+
+            IDisposable scanSub = null;
+            IDisposable scanStopSub = null;
+            IDisposable scanPauseSub = null;
+
+            void Scan()
+            {
+                scanPauseSub?.Dispose();
+                scanSub = scanObs.Subscribe();
+                scanStopSub = scanStopObs.Subscribe();
+            }
+
+            scanPauseObs = Observable.Interval(scanPauseTime).Do(_ => Scan());
+            scanStopObs = Observable.Interval(scanTime).Do(_ =>
+            {
+                scanSub?.Dispose();
+                scanStopSub?.Dispose();
+                scanPauseSub = scanPauseObs.Subscribe();
+            });
+            Scan(); // start initial scan
+
+            return () =>
+            {
+                scanSub?.Dispose();
+                scanStopSub?.Dispose();
+                scanPauseSub?.Dispose();
+            };
+        });
     }
 }

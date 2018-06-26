@@ -40,7 +40,7 @@ namespace Plugin.BluetoothLE
         {
             get
             {
-                switch (this.context.NativeDevice.ConnectionStatus)
+                switch (this.context.NativeDevice?.ConnectionStatus)
                 {
                     case BluetoothConnectionStatus.Connected:
                         return ConnectionStatus.Connected;

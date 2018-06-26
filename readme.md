@@ -254,3 +254,4 @@ Thank you for all your help
 * **[Marius Bloemhof](https://github.com/mariusbloemhof)** for all the extensive testing 
 * **[Jesse Jiang](https://github.com/jessejiang0214)** for all the PRs
 * **[Jelle Damen](https://twitter.com/JelleDamen)** for the wonderful icons
+* **[MKGNZ](https://github.com/MKGNZ)** for the UWP work

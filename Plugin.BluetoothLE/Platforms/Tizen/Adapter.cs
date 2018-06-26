@@ -27,7 +27,7 @@ namespace Plugin.BluetoothLE
             var handler = new EventHandler<AdapterLeScanResultChangedEventArgs>((sender, args) =>
             {
                 var device = this.deviceManager.GetDevice(args.DeviceData);
-                ob.OnNext(new ScanResult(args.DeviceData, device));
+                ob.OnNext(new ScanResult(device, args.DeviceData.Rssi, new AdvertisementData(args.DeviceData)));
             });
             BluetoothAdapter.ScanResultChanged += handler;
             BluetoothAdapter.StartLeScan();

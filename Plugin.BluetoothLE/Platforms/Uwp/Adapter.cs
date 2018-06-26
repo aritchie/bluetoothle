@@ -6,6 +6,7 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.System;
+using Windows.Devices.Enumeration;
 
 
 namespace Plugin.BluetoothLE
@@ -79,7 +80,27 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IEnumerable<IDevice> GetConnectedDevices() => this.context.GetConnectedDevices();
+        public override IObservable<IDevice> GetKnownDevice(Guid deviceId) => Observable.FromAsync(async ct =>
+        {
+            IDevice device = null;
+            var mac = deviceId.ToMacAddress();
+            var native = await BluetoothLEDevice.FromBluetoothAddressAsync(mac).AsTask(ct);
+
+            if (native != null)
+                device = this.context.AddOrGetDevice(mac, native);
+
+            return device;
+        });
+
+
+        public override IObservable<IEnumerable<IDevice>> GetConnectedDevices() => this.GetDevices(
+            BluetoothLEDevice.GetDeviceSelectorFromConnectionStatus(BluetoothConnectionStatus.Connected)
+        );
+
+
+        public override IObservable<IEnumerable<IDevice>> GetPairedDevices() => this.GetDevices(
+            BluetoothLEDevice.GetDeviceSelectorFromPairingState(true)
+        );
 
 
         public override IObservable<IScanResult> Scan(ScanConfig config)
@@ -216,6 +237,29 @@ namespace Plugin.BluetoothLE
 
             this.radio = await this.native.GetRadioAsync().AsTask(ct);
             return this.radio;
+        });
+
+
+        IObservable<IEnumerable<IDevice>> GetDevices(string selector) => Observable.FromAsync(async ct =>
+        {
+            string[] requestedProperties = { "System.Devices.ContainerId" };
+            var devices = await DeviceInformation
+                .FindAllAsync(
+                    selector,
+                    requestedProperties,
+                    DeviceInformationKind.AssociationEndpoint
+                )
+                .AsTask(ct);
+
+            var results = new List<IDevice>();
+            foreach (var deviceInfo in devices)
+            {
+                var native = await BluetoothLEDevice.FromIdAsync(deviceInfo.Id).AsTask(ct);
+                var wrap = this.context.AddOrGetDevice(native.BluetoothAddress, native);
+                results.Add(wrap);
+            }
+
+            return results;
         });
     }
 }

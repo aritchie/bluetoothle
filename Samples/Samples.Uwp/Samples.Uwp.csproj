@@ -142,13 +142,13 @@
       <Version>6.0.8</Version>
     </PackageReference>
     <PackageReference Include="reactiveui">
-      <Version>8.0.0-alpha0105</Version>
+      <Version>8.3.1</Version>
     </PackageReference>
     <PackageReference Include="System.Reactive">
       <Version>3.1.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Forms">
-      <Version>2.5.1.444934</Version>
+      <Version>3.1.0.583944</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

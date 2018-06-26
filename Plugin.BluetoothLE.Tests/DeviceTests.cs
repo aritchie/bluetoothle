@@ -57,24 +57,21 @@ namespace Plugin.BluetoothLE.Tests
         }
 
 
-        [Fact]
-        public async Task GetConnectedDevices()
-        {
-            await this.Setup(true);
-            var devices = CrossBleAdapter.Current.GetConnectedDevices();
-            Assert.Equal(1, devices.Count());
+        //[Fact]
+        //public async Task GetConnectedDevices()
+        //{
+        //    await this.Setup(true);
+        //    var devices = await CrossBleAdapter.Current.GetConnectedDevices().ToTask();
+        //    Assert.Equal(1, devices.Count());
 
-            Assert.True(devices.First().Uuid.Equals(this.device.Uuid));
-            this.device.CancelConnection();
-            await Task.Delay(2000); // wait for dc to occur
+        //    Assert.True(devices.First().Uuid.Equals(this.device.Uuid));
+        //    this.device.CancelConnection();
+        //    await Task.Delay(2000); // wait for dc to occur
 
-            Assert.Equal(ConnectionStatus.Disconnected, this.device.Status);
-            devices = CrossBleAdapter.Current.GetConnectedDevices();
-            Assert.Equal(0, devices.Count());
-        }
-
-
-
+        //    Assert.Equal(ConnectionStatus.Disconnected, this.device.Status);
+        //    devices = await CrossBleAdapter.Current.GetConnectedDevices().ToTask();
+        //    Assert.Equal(0, devices.Count());
+        //}
 
 
         [Fact]
@@ -137,7 +134,7 @@ namespace Plugin.BluetoothLE.Tests
                 .WriteCharacteristic(
                     Constants.ScratchServiceUuid,
                     Constants.ScratchCharacteristicUuid1,
-                    new byte[] {0x01}
+                    new byte[] { 0x01 }
                 )
                 .Timeout(Constants.OperationTimeout)
                 .ToTask();
@@ -164,6 +161,33 @@ namespace Plugin.BluetoothLE.Tests
                 .ToTask();
 
             Assert.Equal(3, list.Count);
+        }
+
+
+        [Fact]
+        public async Task ConnectHook_Reconnect()
+        {
+            await this.Setup(false);
+            var count = 0;
+
+            var sub = this.device
+                .ConnectHook(Constants.ScratchServiceUuid, Constants.ScratchCharacteristicUuid1)
+                .Subscribe(x => count++);
+
+            await this.device.WhenConnected().Take(1).ToTask();
+            var disp = UserDialogs.Instance.Alert("Now turn off device and wait");
+            await this.device.WhenDisconnected().Take(1).ToTask();
+            count = 0;
+            disp.Dispose();
+
+            await Task.Delay(1000);
+            disp = UserDialogs.Instance.Alert("Now turn device on and wait");
+            await this.device.WhenConnected().Take(1).ToTask();
+            disp.Dispose();
+
+            await Task.Delay(3000);
+            sub.Dispose();
+            Assert.True(count > 0, "No pings");
         }
 
 

@@ -1,16 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks></TargetFrameworks>
-        <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;uap10.0</TargetFrameworks>
-        <!--<TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10;uap10.0;net46;tizen4</TargetFrameworks>-->
-        <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.tvOS10</TargetFrameworks>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.TVOS10;uap10.0</TargetFrameworks>
+        <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.TVOS10</TargetFrameworks>
+        <GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
         <Authors>aritchie</Authors>
         <Company />
         <AssemblyName>Plugin.BluetoothLE</AssemblyName>
         <RootNamespace>Plugin.BluetoothLE</RootNamespace>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <Description>ACR Bluetooth LE Reactive Plugin for Xamarin and Windows
 
 Supported Platforms
@@ -19,69 +16,81 @@ Supported Platforms
 * iOS 7+
 * tvOS
 * macOS
-* UWP (beta)</Description>
+* UWP</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
-        <Version>6.0.3</Version>
+        <!--<AssemblyVersion>$(PackageVersion)</AssemblyVersion>-->
+        <PackageVersion>6.1.0</PackageVersion>
+        <RepositoryUrl>https://github.com/aritchie/bluetoothle</RepositoryUrl>
         <PackageProjectUrl>https://github.com/aritchie/bluetoothle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</PackageLicenseUrl>
         <PackageIconUrl>https://github.com/aritchie/bluetoothle/raw/master/icon.png</PackageIconUrl>
         <PackageReleaseNotes>https://github.com/aritchie/bluetoothle/blob/master/docs/changelog.md</PackageReleaseNotes>
         <PackageTags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</PackageTags>
+        <RepositoryType>git</RepositoryType>
+        <IncludeSymbols>True</IncludeSymbols>
+        <IncludeSource>True</IncludeSource>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+    <!--<PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
         <DebugType>full</DebugType>
         <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
         <DebugType>pdbonly</DebugType>
-    </PropertyGroup>
+    </PropertyGroup>-->
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
         <TargetPlatformVersion>10.0.16299.0</TargetPlatformVersion>
         <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    </PropertyGroup>
+
     <ItemGroup>
         <Compile Remove="Platforms\**\*.cs" />
         <None Include="Platforms\**\*.cs" />
         <PackageReference Include="Acr.Core" Version="2.0.2" />
-        <PackageReference Include="System.Reactive" Version="3.1.1" />
-        <PackageReference Include="MSBuild.Sdk.Extras" Version="1.3.1" PrivateAssets="all" />
+        <PackageReference Include="System.Reactive" Version="[3.1.1, 5)" />
+        <PackageReference Include="MSBuild.Sdk.Extras" Version="1.5.4" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-62925-02" PrivateAssets="All" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'net47' ">
+    <!--<ItemGroup Condition=" $(TargetFramework.StartsWith('net')) ">
         <Compile Include="Platforms\NETFramework\**\*.cs" />
         <PackageReference Include="Tmds.DBus" Version="0.5.0" />
-    </ItemGroup>
+    </ItemGroup>-->
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid70' OR '$(TargetFramework)' == 'MonoAndroid80' ">
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
         <Compile Include="Platforms\Android\**\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' ">
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
         <Compile Include="Platforms\Apple\**\*.cs" />
         <Compile Include="Platforms\iOS\**\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.Mac20' ">
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.Mac')) ">
         <Compile Include="Platforms\Apple\**\*.cs" />
         <Compile Include="Platforms\macOS\**\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.tvOS10' ">
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.TVOS')) ">
         <Compile Include="Platforms\Apple\**\*.cs" />
         <Compile Include="Platforms\tvOS\**\*.cs" />
         <Compile Remove="Platforms\Apple\Server\**\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('uap')) ">
         <Compile Include="Platforms\Uwp\**\*.cs" />
         <EmbeddedResource Include="Platforms\Uwp\Plugin.BluetoothLE.rd.xml" />
-        <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.0.8" />
+        <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.0.8" PrivateAssets="All" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'tizen4' ">
+    <!--<ItemGroup Condition=" $(TargetFramework.StartsWith('tizen')) ">
         <Compile Include="Platforms\Shared\**\*.cs" />
         <Compile Include="Platforms\Tizen\**\*.cs" />
         <PackageReference Include="Tizen.NET" Version="4.0.0">
@@ -89,7 +98,7 @@ Supported Platforms
         </PackageReference>
         <PackageReference Include="Tizen.NET.Sdk" Version="1.0.1" />
         <PackageReference Include="Tizen.Network.Bluetooth" Version="1.0.9" />
-    </ItemGroup>
+    </ItemGroup>-->
 
     <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
 </Project>

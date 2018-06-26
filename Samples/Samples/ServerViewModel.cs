@@ -39,6 +39,12 @@ namespace Samples.Ble
                     return;
                 }
 
+                if (!this.adapter.Features.HasFlag(AdapterFeatures.ServerGatt))
+                {
+                    this.dialogs.Alert("GATT Server is not supported on this platform configuration");
+                    return;
+                }
+
                 if (this.server == null)
                 {
                     this.BuildServer();

@@ -101,7 +101,7 @@ namespace Plugin.BluetoothLE
         public override IObservable<IGattService> DiscoverServices()
             => Observable.Create<IGattService>(ob =>
             {
-                this.context
+                var sub = this.context
                     .Callbacks
                     .ServicesDiscovered
                     .Where(x => x.Gatt.Device.Equals(this.context.NativeDevice))
@@ -117,7 +117,7 @@ namespace Plugin.BluetoothLE
 
                 this.context.Gatt.DiscoverServices();
 
-                return () => { };
+                return sub;
             });
 
 
@@ -129,8 +129,9 @@ namespace Plugin.BluetoothLE
                 .Take(1)
                 .Subscribe(x => ob.Respond(x.Rssi));
 
-            if (this.context.Gatt?.ReadRemoteRssi() ?? false)
-                ob.OnError(new BleException("Failed to read RSSI"));
+            this.context.Gatt?.ReadRemoteRssi();
+            //if (this.context.Gatt?.ReadRemoteRssi() ?? false)
+            //    ob.OnError(new BleException("Failed to read RSSI"));
 
             return sub;
         });
@@ -178,24 +179,6 @@ namespace Plugin.BluetoothLE
 
         public override IGattReliableWriteTransaction BeginReliableWriteTransaction() =>
             new GattReliableWriteTransaction(this.context);
-
-
-        public static byte[] ConvertPinToBytes(string pin)
-        {
-            var bytes = new List<byte>();
-            foreach (var p in pin)
-            {
-                if (!char.IsDigit(p))
-                    throw new ArgumentException("PIN contain invalid value - " + p);
-
-                var value = byte.Parse(p.ToString());
-                if (value > 10)
-                    throw new ArgumentException("Invalid range for PIN value - " + value);
-
-                bytes.Add(value);
-            }
-            return bytes.ToArray();
-        }
 
 
         public override PairingStatus PairingStatus
@@ -282,6 +265,24 @@ namespace Plugin.BluetoothLE
 
 
         #region Internals
+
+        public static byte[] ConvertPinToBytes(string pin)
+        {
+            var bytes = new List<byte>();
+            foreach (var p in pin)
+            {
+                if (!char.IsDigit(p))
+                    throw new ArgumentException("PIN contain invalid value - " + p);
+
+                var value = byte.Parse(p.ToString());
+                if (value > 10)
+                    throw new ArgumentException("Invalid range for PIN value - " + value);
+
+                bytes.Add(value);
+            }
+            return bytes.ToArray();
+        }
+
 
         // thanks monkey robotics
         protected static Guid ToDeviceId(string address)

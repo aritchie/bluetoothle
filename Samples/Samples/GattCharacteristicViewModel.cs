@@ -181,7 +181,10 @@ namespace Samples.Ble
                 );
                 this.watcher = this.Characteristic
                     .RegisterAndNotify()
-                    .Subscribe(x => this.SetReadValue(x, utf8));
+                    .Subscribe(
+                        x => this.SetReadValue(x, utf8),
+                        ex => UserDialogs.Instance.Alert(ex.ToString())
+                    );
             }
         }
 
