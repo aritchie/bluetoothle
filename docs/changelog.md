@@ -13,7 +13,6 @@
 * [fix][droid] advertising startup checks fixed for android v4.x
 * [feature] Return of Adapter.ScanInterval
 * [feature][droid] Scan batching
-* [feature] UWP!!! 
 
 ## 6.0.3
 * [fix] reconnect read/write race condition
