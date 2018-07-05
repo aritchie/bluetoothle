@@ -207,6 +207,8 @@ namespace Plugin.BluetoothLE
                     ob.OnError(new Exception(args.Error.LocalizedDescription));
             });
             this.peripheral.RssiRead += handler;
+            this.peripheral.ReadRSSI();
+
             return () => this.peripheral.RssiRead += handler;
         });
 
