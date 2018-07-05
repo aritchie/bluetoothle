@@ -22,9 +22,8 @@ namespace Plugin.BluetoothLE
                 .ToArray();
 
             var hexAddress = BitConverter.ToString(address).Replace("-", "");
-            //if (ulong.TryParse(hexAddress, System.Globalization.NumberStyles.HexNumber, null, out ulong macaddress))
-
-            //    return hexAddress;
+            if (ulong.TryParse(hexAddress, System.Globalization.NumberStyles.HexNumber, null, out ulong mac))
+                return mac;
 
             return 0L;
         }

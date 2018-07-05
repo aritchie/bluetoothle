@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 6.1.1
+* [fix][uwp] MAC address parsing
+
 ## 6.1.0
 * [breaking] GetKnownDevice, GetPairDevices, & GetConnectedDevices all return observables now
 * [minor] Allow new System.Reactive v4 package
