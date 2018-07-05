@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## 6.1.2
+* [fix][ios] RSSI not returning
+* Update to newest ACR core to allow for RXv4
+
 ## 6.1.1
 * [fix][uwp] MAC address parsing
 
