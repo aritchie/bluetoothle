@@ -97,12 +97,17 @@ namespace Plugin.BluetoothLE
                         ob.OnError
                     );
 
+                var connSub = device
+                    .WhenConnectionFailed()
+                    .Subscribe(ob.OnError);
+
                 device.ConnectIf();
 
                 return () =>
                 {
                     device.CancelConnection();
-                    sub.Dispose();
+                    sub?.Dispose();
+                    connSub?.Dispose();
                 };
             });
 
