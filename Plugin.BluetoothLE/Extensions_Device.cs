@@ -92,7 +92,10 @@ namespace Plugin.BluetoothLE
                     .Switch()
                     .Select(x => x.RegisterAndNotify(false, false))
                     .Switch()
-                    .Subscribe(ob.OnNext);
+                    .Subscribe(
+                        ob.OnNext,
+                        ob.OnError
+                    );
 
                 device.ConnectIf();
 
