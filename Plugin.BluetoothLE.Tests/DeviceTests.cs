@@ -222,6 +222,14 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
+        public async Task CancelConnection_And_Watch()
+        {
+            await this.Setup(true);
+            device.CancelConnection();
+            await device.WhenDisconnected().Timeout(TimeSpan.FromSeconds(5)).Take(1).ToTask();
+        }
+
+        [Fact]
         public async Task Reconnect_WhenServiceFound_ShouldFlushOriginals()
         {
             await this.Setup(false);
