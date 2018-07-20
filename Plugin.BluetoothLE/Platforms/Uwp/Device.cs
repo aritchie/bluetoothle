@@ -32,7 +32,7 @@ namespace Plugin.BluetoothLE
         public override IGattReliableWriteTransaction BeginReliableWriteTransaction() => new GattReliableWriteTransaction();
 
 
-        public override void Connect(ConnectionConfig config) => this.context.Connect();
+        public override async void Connect(ConnectionConfig config) => await this.context.Connect();
         public override async void CancelConnection() => await this.context.Disconnect();
 
 
