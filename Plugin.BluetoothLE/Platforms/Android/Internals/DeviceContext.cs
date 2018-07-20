@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,17 +12,23 @@ using Android.App;
 using Android.Bluetooth;
 using Android.OS;
 using Java.Lang;
+using Exception = System.Exception;
 
 
 namespace Plugin.BluetoothLE.Internals
 {
     public class DeviceContext
     {
+        readonly Subject<BleException> connErrorSubject;
+        CancellationTokenSource cancelSrc;
+
+
         public DeviceContext(BluetoothDevice device)
         {
             this.NativeDevice = device;
             this.Callbacks = new GattCallbacks();
             this.Actions = new ConcurrentQueue<Func<Task>>();
+            this.connErrorSubject = new Subject<BleException>();
         }
 
 
@@ -29,19 +36,27 @@ namespace Plugin.BluetoothLE.Internals
         public BluetoothDevice NativeDevice { get; }
         public GattCallbacks Callbacks { get; }
         public ConcurrentQueue<Func<Task>> Actions { get; }
-        CancellationTokenSource cancelSrc;
+        public IObservable<BleException> ConnectionFailed => this.connErrorSubject;
 
 
         public void Connect(ConnectionConfig config) => this.InvokeOnMainThread(() =>
         {
-            this.CleanUpQueue();
-            this.CreateGatt(config?.AutoConnect ?? true);
-            if (this.Gatt == null)
-                throw new BleException("GATT connection could not be established");
+            try
+            {
+                this.CleanUpQueue();
+                this.CreateGatt(config?.AutoConnect ?? true);
+                if (this.Gatt == null)
+                    throw new BleException("GATT connection could not be established");
 
-            var priority = config?.AndroidConnectionPriority ?? ConnectionPriority.Normal;
-            if (priority != ConnectionPriority.Normal)
-                this.Gatt.RequestConnectionPriority(this.ToNative(priority));
+                var priority = config?.AndroidConnectionPriority ?? ConnectionPriority.Normal;
+                if (priority != ConnectionPriority.Normal)
+                    this.Gatt.RequestConnectionPriority(this.ToNative(priority));
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Connection", "Connection to device failed - " + ex);
+                this.connErrorSubject.OnNext(new BleException("Failed to connect to device", ex));
+            }
         });
 
 

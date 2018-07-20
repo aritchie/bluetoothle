@@ -57,18 +57,10 @@ namespace Plugin.BluetoothLE
         public override IObservable<IEnumerable<IDevice>> GetConnectedDevices() => Observable.Return(this.context.GetConnectedDevices());
 
 
-        IObservable<AdapterStatus> statusOb;
-        public override IObservable<AdapterStatus> WhenStatusChanged()
-        {
-            this.statusOb = this.statusOb ?? this.context
-                .StateUpdated
-                .StartWith(this.Status)
-                .Select(_ => this.Status)
-                .Replay(1)
-                .RefCount();
-
-            return this.statusOb;
-        }
+        public override IObservable<AdapterStatus> WhenStatusChanged() => this.context
+            .StateUpdated
+            .Select(_ => this.Status)
+            .StartWith(this.Status);
 
 
         public override IObservable<IScanResult> Scan(ScanConfig config)

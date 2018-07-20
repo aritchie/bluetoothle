@@ -1,5 +1,18 @@
 # CHANGE LOG
 
+## 6.1.3
+* [fix][ios] Adapter.WhenStatusChanged() could return wrong status under certain conditions
+* [fix][android] Fixes & improvements around connection errors
+* [fix] ConnectHook now bubbles through errors properly
+* [fix] Ensure other connection extension methods are respecting connection errors
+
+## 6.1.2
+* [fix][ios] RSSI not returning
+* Update to newest ACR core to allow for RXv4
+
+## 6.1.1
+* [fix][uwp] MAC address parsing
+
 ## 6.1.0
 * [breaking] GetKnownDevice, GetPairDevices, & GetConnectedDevices all return observables now
 * [minor] Allow new System.Reactive v4 package
