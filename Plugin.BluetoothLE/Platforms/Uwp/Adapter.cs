@@ -117,7 +117,7 @@ namespace Plugin.BluetoothLE
                     .Where(rdo => rdo != null)
                     .Select(_ => this.DoScan(config))
                     .Switch()
-                    .Subscribe(ob.OnNext);
+                    .Subscribe(sr => { if (sr == null) { ob.OnCompleted(); } else { ob.OnNext(sr); } });
 
                 return () =>
                 {
@@ -130,7 +130,7 @@ namespace Plugin.BluetoothLE
 
         public override void StopScan()
         {
-            // TODO
+            this.IsScanning = false;
         }
 
 
@@ -142,18 +142,20 @@ namespace Plugin.BluetoothLE
                 .CreateAdvertisementWatcher(config)
                 .Subscribe(async args => // CAREFUL
                 {
-                    var device = this.context.GetDevice(args.BluetoothAddress);
-                    if (device == null)
-                    {
-                        var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
-                        if (btDevice != null)
-                            device = this.context.AddDevice(args.BluetoothAddress, btDevice);
-                    }
+                    IDevice device = null;
+                    var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
+                    if (btDevice != null)
+                        device = new Device(btDevice); // this.context.AddDevice(args.BluetoothAddress, btDevice);
                     if (device != null)
                     {
                         var adData = new AdvertisementData(args);
                         var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
                         ob.OnNext(scanResult);
+                    }
+                    if (this.IsScanning == false)
+                    {
+                        ob.OnNext(null);
+                        ob.OnCompleted();
                     }
                 });
         });
