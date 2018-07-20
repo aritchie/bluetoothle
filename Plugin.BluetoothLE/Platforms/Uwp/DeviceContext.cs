@@ -16,7 +16,6 @@ namespace Plugin.BluetoothLE
         readonly object syncLock;
         readonly IList<NC> subscribers;
         IDisposable keepAlive;
-        readonly ulong btaddress;
 
         public DeviceContext(IDevice device, BluetoothLEDevice native)
         {
@@ -24,7 +23,6 @@ namespace Plugin.BluetoothLE
             this.subscribers = new List<NC>();
             this.Device = device;
             this.NativeDevice = native;
-            this.btaddress = native.BluetoothAddress;
         }
 
 
@@ -53,7 +51,7 @@ namespace Plugin.BluetoothLE
         public void Ping() => this.NativeDevice?.GetGattServicesAsync(BluetoothCacheMode.Uncached); // fire and forget
 
 
-        public async Task<bool> Connect()
+        public bool Connect()
         {
             if (this.NativeDevice == null)
                 new BleException("NativeDevice has been Disposed.");
