@@ -177,6 +177,12 @@ namespace Plugin.BluetoothLE
 
             var handler = new EventHandler<NSErrorEventArgs>((sender, args) =>
             {
+                if (args.Error != null)
+                {
+                    ob.OnError(new BleException(args.Error.LocalizedDescription));
+                    return;
+                }
+
                 if (this.peripheral.Services == null)
                     return;
 
@@ -189,6 +195,7 @@ namespace Plugin.BluetoothLE
                         ob.OnNext(service);
                     }
                 }
+                ob.OnCompleted();
             });
             this.peripheral.DiscoveredService += handler;
             this.peripheral.DiscoverServices();
