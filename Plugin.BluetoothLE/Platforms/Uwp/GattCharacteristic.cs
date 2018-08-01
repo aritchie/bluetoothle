@@ -75,7 +75,6 @@ namespace Plugin.BluetoothLE
             if (status != GattCommunicationStatus.Success)
                 throw new BleException($"Failed to write characteristic - {status}");
 
-            this.context.Ping();
             this.value = value;
             return new CharacteristicGattResult(this, value);
         });
@@ -92,7 +91,6 @@ namespace Plugin.BluetoothLE
             if (result.Status != GattCommunicationStatus.Success)
                 throw new BleException($"Failed to read characteristic - {result.Status}");
 
-            this.context.Ping();
             this.value = result.Value?.ToArray();
             return new CharacteristicGattResult(this, this.value);
         });

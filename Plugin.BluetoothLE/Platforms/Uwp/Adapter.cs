@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.System;
@@ -83,11 +84,12 @@ namespace Plugin.BluetoothLE
         public override IObservable<IDevice> GetKnownDevice(Guid deviceId) => Observable.FromAsync(async ct =>
         {
             IDevice device = null;
-            var mac = deviceId.ToMacAddress();
+            var mac = deviceId.ToBluetoothAddress();
             var native = await BluetoothLEDevice.FromBluetoothAddressAsync(mac).AsTask(ct);
 
-            if (native != null)
-                device = this.context.AddOrGetDevice(mac, native);
+            // TODO: remove old and put in new?  edge case?
+            //if (native != null)
+            //    device = this.context.AddOrGetDevice(mac, native);
 
             return device;
         });
@@ -115,9 +117,24 @@ namespace Plugin.BluetoothLE
                 var sub = this
                     .WhenRadioReady()
                     .Where(rdo => rdo != null)
-                    .Select(_ => this.DoScan(config))
+                    .Select(_ => this.CreateScanner(config))
                     .Switch()
-                    .Subscribe(ob.OnNext);
+                    .Subscribe(async args => // CAREFUL
+                    {
+                        var device = this.context.GetDevice(args.BluetoothAddress);
+                        if (device == null)
+                        {
+                            var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
+                            if (btDevice != null)
+                                device = this.context.AddDevice(btDevice);
+                        }
+                        if (device != null)
+                        {
+                            var adData = new AdvertisementData(args);
+                            var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
+                            ob.OnNext(scanResult);
+                        }
+                    });
 
                 return () =>
                 {
@@ -132,31 +149,6 @@ namespace Plugin.BluetoothLE
         {
             // TODO
         }
-
-
-        protected virtual IObservable<IScanResult> DoScan(ScanConfig config) => Observable.Create<IScanResult>(ob =>
-        {
-            this.context.Clear();
-
-            return this.context
-                .CreateAdvertisementWatcher(config)
-                .Subscribe(async args => // CAREFUL
-                {
-                    var device = this.context.GetDevice(args.BluetoothAddress);
-                    if (device == null)
-                    {
-                        var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
-                        if (btDevice != null)
-                            device = this.context.AddDevice(args.BluetoothAddress, btDevice);
-                    }
-                    if (device != null)
-                    {
-                        var adData = new AdvertisementData(args);
-                        var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
-                        ob.OnNext(scanResult);
-                    }
-                });
-        });
 
 
         IObservable<AdapterStatus> statusOb;
@@ -226,6 +218,44 @@ namespace Plugin.BluetoothLE
         }
 
 
+        IObservable<BluetoothLEAdvertisementReceivedEventArgs> CreateScanner(ScanConfig config)
+             => Observable.Create<BluetoothLEAdvertisementReceivedEventArgs>(ob =>
+             {
+                 this.context.Clear();
+                 config = config ?? new ScanConfig { ScanType = BleScanType.Balanced };
+
+                 var adWatcher = new BluetoothLEAdvertisementWatcher();
+                 if (config.ServiceUuids != null)
+                     foreach (var serviceUuid in config.ServiceUuids)
+                         adWatcher.AdvertisementFilter.Advertisement.ServiceUuids.Add(serviceUuid);
+
+                 switch (config.ScanType)
+                 {
+                     case BleScanType.Balanced:
+                         adWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+                         break;
+
+                     case BleScanType.Background:
+                     case BleScanType.LowLatency:
+                     case BleScanType.LowPowered:
+                         adWatcher.ScanningMode = BluetoothLEScanningMode.Passive;
+                         break;
+                 }
+                 var handler = new TypedEventHandler<BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>
+                     ((sender, args) => ob.OnNext(args)
+                 );
+
+                 adWatcher.Received += handler;
+                 adWatcher.Start();
+
+                 return () =>
+                 {
+                     adWatcher.Stop();
+                     adWatcher.Received -= handler;
+                 };
+             });
+
+
         IObservable<Radio> WhenRadioReady() => Observable.FromAsync(async ct =>
         {
             if (this.radio != null)
@@ -255,7 +285,7 @@ namespace Plugin.BluetoothLE
             foreach (var deviceInfo in devices)
             {
                 var native = await BluetoothLEDevice.FromIdAsync(deviceInfo.Id).AsTask(ct);
-                var wrap = this.context.AddOrGetDevice(native.BluetoothAddress, native);
+                var wrap = this.context.AddOrGetDevice(native);
                 results.Add(wrap);
             }
 
