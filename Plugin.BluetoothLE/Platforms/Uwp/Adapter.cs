@@ -37,7 +37,7 @@ namespace Plugin.BluetoothLE
         {
             get
             {
-                if (!this.native.IsLowEnergySupported)
+                if (this.native == null || !this.native.IsLowEnergySupported)
                     return AdapterFeatures.None;
 
                 var features = AdapterFeatures.AllClient;
@@ -83,13 +83,14 @@ namespace Plugin.BluetoothLE
 
         public override IObservable<IDevice> GetKnownDevice(Guid deviceId) => Observable.FromAsync(async ct =>
         {
-            IDevice device = null;
             var mac = deviceId.ToBluetoothAddress();
-            var native = await BluetoothLEDevice.FromBluetoothAddressAsync(mac).AsTask(ct);
+            var device = this.context.GetDevice(mac);
 
-            // TODO: remove old and put in new?  edge case?
-            //if (native != null)
-            //    device = this.context.AddOrGetDevice(mac, native);
+            if (device == null)
+            {
+                var native = await BluetoothLEDevice.FromBluetoothAddressAsync(mac).AsTask(ct);
+                device = this.context.AddDevice(native);
+            }
 
             return device;
         });
@@ -119,22 +120,25 @@ namespace Plugin.BluetoothLE
                     .Where(rdo => rdo != null)
                     .Select(_ => this.CreateScanner(config))
                     .Switch()
-                    .Subscribe(async args => // CAREFUL
-                    {
-                        var device = this.context.GetDevice(args.BluetoothAddress);
-                        if (device == null)
+                    .Subscribe(
+                        async args => // CAREFUL
                         {
-                            var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
-                            if (btDevice != null)
-                                device = this.context.AddDevice(btDevice);
-                        }
-                        if (device != null)
-                        {
-                            var adData = new AdvertisementData(args);
-                            var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
-                            ob.OnNext(scanResult);
-                        }
-                    });
+                            var device = this.context.GetDevice(args.BluetoothAddress);
+                            if (device == null)
+                            {
+                                var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
+                                if (btDevice != null)
+                                    device = this.context.AddDevice(btDevice);
+                            }
+                            if (device != null)
+                            {
+                                var adData = new AdvertisementData(args);
+                                var scanResult = new ScanResult(device, args.RawSignalStrengthInDBm, adData);
+                                ob.OnNext(scanResult);
+                            }
+                        },
+                        ob.OnError
+                    );
 
                 return () =>
                 {
@@ -160,12 +164,17 @@ namespace Plugin.BluetoothLE
                 var handler = new TypedEventHandler<Radio, object>((sender, args) =>
                     ob.OnNext(this.Status)
                 );
-                var sub = this.WhenRadioReady().Subscribe(rdo =>
-                {
-                    r = rdo;
-                    ob.OnNext(this.Status);
-                    r.StateChanged += handler;
-                });
+                var sub = this
+                    .WhenRadioReady()
+                    .Subscribe(
+                        rdo =>
+                        {
+                            r = rdo;
+                            ob.OnNext(this.Status);
+                            r.StateChanged += handler;
+                        },
+                        ob.OnError
+                    );
 
                 return () =>
                 {
