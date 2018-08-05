@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows.Input;
+using Acr.Collections;
 using Acr.UserDialogs;
 using Plugin.BluetoothLE;
 using ReactiveUI;
@@ -18,14 +20,6 @@ namespace Samples.Ble
 
         public ScanViewModel()
         {
-            this.Devices = new ObservableCollection<ScanResultViewModel>();
-
-            CrossBleAdapter
-                .Current
-                .WhenStatusChanged()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => this.RaisePropertyChanged(nameof(this.Title)));
-
             this.SelectDevice = ReactiveCommand.CreateFromTask<ScanResultViewModel>(async x =>
             {
                 this.scan?.Dispose();
@@ -80,26 +74,46 @@ namespace Samples.Ble
                             .Scan()
                             .Buffer(TimeSpan.FromSeconds(1))
                             .ObserveOn(RxApp.MainThreadScheduler)
-                            .Subscribe(results =>
-                            {
-                                foreach (var result in results)
-                                    this.OnScanResult(result);
-                            });
+                            .Subscribe(
+                                results =>
+                                {
+                                    var list = new List<ScanResultViewModel>();
+                                    foreach (var result in results)
+                                    {
+                                        var dev = this.Devices.FirstOrDefault(x => x.Uuid.Equals(result.Device.Uuid));
+                                        if (dev != null)
+                                        {
+                                            dev.TrySet(result);
+                                        }
+                                        else
+                                        {
+                                            dev = new ScanResultViewModel();
+                                            dev.TrySet(result);
+                                            list.Add(dev);
+                                        }
+                                    }
+                                    if (list.Any())
+                                        this.Devices.AddRange(list);
+                                },
+                                ex => UserDialogs.Instance.Alert(ex.ToString(), "ERROR")
+                            )
+                            .DisposeWith(this.DeactivateWith);
                     }
-                },
-                CrossBleAdapter
-                    .Current
-                    .WhenStatusChanged()
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Select(x => x == AdapterStatus.PoweredOn)
+                }
             );
         }
 
 
-        public override void OnDeactivated()
+        public override void OnActivated()
         {
-            base.OnDeactivated();
-            this.scan?.Dispose();
+            base.OnActivated();
+            CrossBleAdapter
+                .Current
+                .WhenStatusChanged()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ => this.RaisePropertyChanged(nameof(this.Title)))
+                .DisposeWith(this.DeactivateWith);
+
         }
 
 
@@ -107,7 +121,7 @@ namespace Samples.Ble
         public ICommand OpenSettings { get; }
         public ICommand ToggleAdapterState { get; }
         public ICommand SelectDevice { get; }
-        public ObservableCollection<ScanResultViewModel> Devices { get; }
+        public ObservableList<ScanResultViewModel> Devices { get; } = new ObservableList<ScanResultViewModel>();
 
 
         public string Title => $"{CrossBleAdapter.Current.DeviceName} ({CrossBleAdapter.Current.Status})";
@@ -118,22 +132,6 @@ namespace Samples.Ble
         {
             get => this.scanning;
             private set => this.RaiseAndSetIfChanged(ref this.scanning, value);
-        }
-
-
-        void OnScanResult(IScanResult result)
-        {
-            var dev = this.Devices.FirstOrDefault(x => x.Uuid.Equals(result.Device.Uuid));
-            if (dev != null)
-            {
-                dev.TrySet(result);
-            }
-            else
-            {
-                dev = new ScanResultViewModel();
-                dev.TrySet(result);
-                this.Devices.Add(dev);
-            }
         }
     }
 }

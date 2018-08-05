@@ -29,6 +29,7 @@ namespace Samples.Ble
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(
                         this.Adapters.Add,
+                        ex => UserDialogs.Instance.Alert(ex.ToString(), "Error"),
                         async () =>
                         {
                             this.IsBusy = false;
