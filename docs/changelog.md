@@ -1,5 +1,13 @@
 # CHANGE LOG
 
+## 6.2.0
+* [fix][ios] DiscoverServices now completes and bubbles through errors properly
+* [fix][ios] Creating a GATT server now waits 
+* [fix][uwp] Device caching is now cleared when device connection is cancelled
+* [fix][uwp] StopScan implemented
+* [feature] WhenReadyStartServer is now available to monitor the overall state of the bluetooth adapter before starting a gatt server
+* [breaking] CreateGattServer is now a completable observable so that iOS can properly detect state of adapter before starting
+
 ## 6.1.3
 * [fix][ios] Adapter.WhenStatusChanged() could return wrong status under certain conditions
 * [fix][android] Fixes & improvements around connection errors
