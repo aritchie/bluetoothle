@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Radios;
@@ -14,13 +15,16 @@ namespace Plugin.BluetoothLE
 {
     public class Adapter : AbstractAdapter
     {
-        readonly AdapterContext context = new AdapterContext();
+        readonly AdapterContext context;
+        readonly Subject<bool> scanSubject;
         BluetoothAdapter native;
         Radio radio;
 
 
         public Adapter()
         {
+            this.scanSubject = new Subject<bool>();
+            this.context = new AdapterContext();
             this.Advertiser = new Advertiser();
         }
 
@@ -140,80 +144,55 @@ namespace Plugin.BluetoothLE
                         ob.OnError
                     );
 
+                var stopSub = this.scanSubject.Subscribe(_ =>
+                {
+                    this.IsScanning = false;
+                    sub?.Dispose();
+                    ob.OnCompleted();
+                });
+
                 return () =>
                 {
                     this.IsScanning = false;
-                    sub.Dispose();
+                    sub?.Dispose();
+                    stopSub?.Dispose();
                 };
             });
         }
 
 
-        public override void StopScan()
-        {
-            // TODO
-        }
+        public override void StopScan() => this.scanSubject.OnNext(false);
 
 
-        IObservable<AdapterStatus> statusOb;
-        public override IObservable<AdapterStatus> WhenStatusChanged()
+        public override IObservable<AdapterStatus> WhenStatusChanged() => Observable.Create<AdapterStatus>(ob =>
         {
-            this.statusOb = this.statusOb ?? Observable.Create<AdapterStatus>(ob =>
-            {
-                Radio r = null;
-                var handler = new TypedEventHandler<Radio, object>((sender, args) =>
-                    ob.OnNext(this.Status)
+            Radio r = null;
+            var handler = new TypedEventHandler<Radio, object>((sender, args) =>
+                ob.OnNext(this.Status)
+            );
+            var sub = this
+                .WhenRadioReady()
+                .Subscribe(
+                    rdo =>
+                    {
+                        r = rdo;
+                        ob.OnNext(this.Status);
+                        r.StateChanged += handler;
+                    },
+                    ob.OnError
                 );
-                var sub = this
-                    .WhenRadioReady()
-                    .Subscribe(
-                        rdo =>
-                        {
-                            r = rdo;
-                            ob.OnNext(this.Status);
-                            r.StateChanged += handler;
-                        },
-                        ob.OnError
-                    );
 
-                return () =>
-                {
-                    sub.Dispose();
-                    if (r != null)
-                        r.StateChanged -= handler;
-                };
-            })
-            .Publish()
-            .StartWith(this.Status)
-            .Replay(1)
-            .RefCount();
-
-            return this.statusOb;
-        }
+            return () =>
+            {
+                sub.Dispose();
+                if (r != null)
+                    r.StateChanged -= handler;
+            };
+        })
+        .StartWith(this.Status);
 
 
         public override IObservable<IGattServer> CreateGattServer() => Observable.Return(new GattServer());
-
-
-        //IObservable<IDevice> deviceStatusOb;
-        //public override IObservable<IDevice> WhenDeviceStatusChanged()
-        //{
-        //    this.deviceStatusOb = this.deviceStatusOb ?? Observable.Create<IDevice>(ob =>
-        //    {
-        //        var cleanup = new List<IDisposable>();
-        //        var devices = this.context.GetDiscoveredDevices();
-
-        //        foreach (var device in devices)
-        //        {
-        //            cleanup.Add(device
-        //                .WhenStatusChanged()
-        //                .Subscribe(_ => ob.OnNext(device))
-        //            );
-        //        }
-        //        return () => cleanup.ForEach(x => x.Dispose());
-        //    });
-        //    return this.deviceStatusOb;
-        //}
 
 
         public override async void OpenSettings()
