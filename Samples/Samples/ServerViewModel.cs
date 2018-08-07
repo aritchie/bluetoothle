@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Acr.UserDialogs;
 using Plugin.BluetoothLE;
@@ -31,7 +32,7 @@ namespace Samples.Ble
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => this.Status = x);
 
-            this.ToggleServer = ReactiveCommand.Create(() =>
+            this.ToggleServer = ReactiveCommand.CreateFromTask(async _ =>
             {
                 if (this.adapter.Status != AdapterStatus.PoweredOn)
                 {
@@ -47,7 +48,7 @@ namespace Samples.Ble
 
                 if (this.server == null)
                 {
-                    this.BuildServer();
+                    await this.BuildServer();
                     this.adapter.Advertiser.Start(new AdvertisementData
                     {
                         LocalName = "My GATT"
@@ -85,14 +86,6 @@ namespace Samples.Ble
         }
 
 
-        string descValue;
-        public string DescriptorValue
-        {
-            get => this.descValue;
-            set => this.RaiseAndSetIfChanged(ref this.descValue, value);
-        }
-
-
         string output;
         public string Output
         {
@@ -113,12 +106,12 @@ namespace Samples.Ble
         public ICommand Clear { get; }
 
 
-        void BuildServer()
+        async Task BuildServer()
         {
             try
             {
                 this.OnEvent("GATT Server Starting");
-                this.server = this.adapter.CreateGattServer();
+                this.server = await this.adapter.CreateGattServer();
 
                 var counter = 0;
                 var service = this.server.CreateService(Guid.Parse("A495FF20-C5B1-4B44-B512-1370F02D74DE"), true);

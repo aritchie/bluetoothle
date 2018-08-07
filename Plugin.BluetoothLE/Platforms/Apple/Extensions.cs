@@ -29,7 +29,7 @@ namespace Plugin.BluetoothLE
 
             if (!properties.HasFlag(CharacteristicProperties.Read))
                 nativeProps &= ~CBCharacteristicProperties.Read;
-            
+
             if (properties.HasFlag(CharacteristicProperties.AuthenticatedSignedWrites))
                 nativeProps |= CBCharacteristicProperties.AuthenticatedSignedWrites;
 

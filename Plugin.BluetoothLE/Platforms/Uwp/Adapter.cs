@@ -192,7 +192,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IGattServer CreateGattServer() => new GattServer();
+        public override IObservable<IGattServer> CreateGattServer() => Observable.Return(new GattServer());
 
 
         //IObservable<IDevice> deviceStatusOb;
