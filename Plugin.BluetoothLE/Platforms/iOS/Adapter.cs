@@ -13,7 +13,7 @@ namespace Plugin.BluetoothLE
     {
         public Adapter(BleAdapterConfiguration config = null)
         {
-            this.context = new Internals.AdapterContext(config);
+            this.context = new AdapterContext(config);
         }
 
 

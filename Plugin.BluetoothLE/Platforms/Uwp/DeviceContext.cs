@@ -26,7 +26,6 @@ namespace Plugin.BluetoothLE
         {
             this.syncLock = new object();
             this.connSubject = new Subject<ConnectionStatus>();
-            this.deviceSubject = new Subject<BluetoothLEDevice>();
             this.adapterContext = adapterContext;
             this.subscribers = new List<NC>();
             this.Device = device;
