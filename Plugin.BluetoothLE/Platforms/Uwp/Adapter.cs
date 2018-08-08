@@ -93,7 +93,8 @@ namespace Plugin.BluetoothLE
             if (device == null)
             {
                 var native = await BluetoothLEDevice.FromBluetoothAddressAsync(mac).AsTask(ct);
-                device = this.context.AddDevice(native);
+                if (native != null)
+                    device = this.context.AddOrGetDevice(native);
             }
 
             return device;
@@ -132,7 +133,7 @@ namespace Plugin.BluetoothLE
                             {
                                 var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
                                 if (btDevice != null)
-                                    device = this.context.AddDevice(btDevice);
+                                    device = this.context.AddOrGetDevice(btDevice);
                             }
                             if (device != null)
                             {
