@@ -15,7 +15,7 @@ namespace Plugin.BluetoothLE
     {
         readonly object syncLock;
         readonly AdapterContext adapterContext;
-        readonly IList<NC> subscribers;
+        readonly IList<GattCharacteristic> subscribers;
         readonly Subject<ConnectionStatus> connSubject;
         readonly ulong bluetoothAddress;
 
@@ -27,7 +27,7 @@ namespace Plugin.BluetoothLE
             this.syncLock = new object();
             this.connSubject = new Subject<ConnectionStatus>();
             this.adapterContext = adapterContext;
-            this.subscribers = new List<NC>();
+            this.subscribers = new List<GattCharacteristic>();
             this.Device = device;
             this.NativeDevice = native;
             this.bluetoothAddress = native.BluetoothAddress;
@@ -61,7 +61,7 @@ namespace Plugin.BluetoothLE
             {
                 try
                 {
-                    await ch.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
+                    await ch.Disconnect();
                 }
                 catch (Exception e)
                 {
@@ -69,7 +69,6 @@ namespace Plugin.BluetoothLE
                 }
             }
             this.subscribers.Clear();
-            this.adapterContext.Remove(this.NativeDevice.BluetoothAddress);
 
             this.NativeDevice.ConnectionStatusChanged -= this.OnNativeConnectionStatusChanged;
             this.NativeDevice?.Dispose();
@@ -80,11 +79,11 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public void SetNotifyCharacteristic(NC characteristic, bool enable)
+        public void SetNotifyCharacteristic(GattCharacteristic characteristic)
         {
             lock (this.syncLock)
             {
-                if (enable)
+                if (characteristic.IsNotifying)
                 {
                     this.subscribers.Add(characteristic);
                 }

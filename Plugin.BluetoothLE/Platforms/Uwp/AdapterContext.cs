@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using Windows.Devices.Bluetooth;
+using Acr.Logging;
 
 
 namespace Plugin.BluetoothLE
@@ -24,9 +25,6 @@ namespace Plugin.BluetoothLE
             this.devices.TryGetValue(bluetoothAddress, out var device);
             return device;
         }
-
-
-        public void Remove(ulong bluetoothAddress) => this.devices.TryRemove(bluetoothAddress, out _);
 
 
         public IDevice AddOrGetDevice(BluetoothLEDevice native)

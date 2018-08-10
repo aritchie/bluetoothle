@@ -68,7 +68,6 @@ namespace Plugin.BluetoothLE.Uwp.Tests
             await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
             characteristic.ValueChanged -= handler2;
 
-
             //BluetoothLEDevice.GetDeviceSelectorFromConnectionStatus(BluetoothConnectionStatus.Connected)
             //service.Session.SessionStatusChanged += (sender, args) =>
             //{
@@ -79,10 +78,10 @@ namespace Plugin.BluetoothLE.Uwp.Tests
             //{
             //    c.Service.Session.Dispose();
             //}
-            foreach (var s in serviceResult.Services)
-            {
-                s.Session.Dispose();
-            }
+            //foreach (var s in serviceResult.Services)
+            //{
+            //    s.Session.Dispose();
+            //}
 
             service.Dispose();
             service = null;

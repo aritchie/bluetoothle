@@ -255,6 +255,7 @@ namespace Plugin.BluetoothLE
                 throw new ArgumentException("No bluetooth adapter found");
 
             this.radio = await this.native.GetRadioAsync().AsTask(ct);
+            this.DeviceName = this.radio.Name;
             return this.radio;
         });
 
