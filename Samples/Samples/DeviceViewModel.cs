@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using Acr.UserDialogs;
@@ -19,67 +20,6 @@ namespace Samples.Ble
         public DeviceViewModel(IDevice device)
         {
             this.device = device;
-
-            this.device
-                .WhenReadRssiContinuously(TimeSpan.FromSeconds(3))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => this.Rssi = x);
-
-            this.device
-                .WhenStatusChanged()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(status =>
-                {
-                    switch (status)
-                    {
-                        case ConnectionStatus.Connecting:
-                            this.ConnectText = "Cancel Connection";
-                            break;
-
-                        case ConnectionStatus.Connected:
-                            this.ConnectText = "Disconnect";
-                            break;
-
-                        case ConnectionStatus.Disconnected:
-                            this.ConnectText = "Connect";
-                            try
-                            {
-                                this.GattCharacteristics.Clear();
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex);
-                            }
-
-                            break;
-                    }
-                });
-
-            this.device
-                .WhenAnyCharacteristicDiscovered()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(chs =>
-                {
-                    try
-                    {
-                        var service = this.GattCharacteristics.FirstOrDefault(x => x.ShortName.Equals(chs.Service.Uuid.ToString()));
-                        if (service == null)
-                        {
-                            service = new Group<GattCharacteristicViewModel>(
-                                $"{chs.Service.Description} ({chs.Service.Uuid})",
-                                chs.Service.Uuid.ToString()
-                            );
-                            this.GattCharacteristics.Add(service);
-                        }
-
-                        service.Add(new GattCharacteristicViewModel(chs));
-                    }
-                    catch (Exception ex)
-                    {
-                        // eat it
-                        Console.WriteLine(ex);
-                    }
-                });
 
             this.SelectCharacteristic = ReactiveCommand.Create<GattCharacteristicViewModel>(x => x.Select());
 
@@ -164,6 +104,76 @@ namespace Samples.Ble
         }
 
 
+        public override void OnActivated()
+        {
+            base.OnActivated();
+
+            this.device
+                .WhenReadRssiContinuously(TimeSpan.FromSeconds(3))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => this.Rssi = x)
+                .DisposeWith(this.DeactivateWith);
+
+            this.device
+                .WhenStatusChanged()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(status =>
+                {
+                    switch (status)
+                    {
+                        case ConnectionStatus.Connecting:
+                            this.ConnectText = "Cancel Connection";
+                            break;
+
+                        case ConnectionStatus.Connected:
+                            this.ConnectText = "Disconnect";
+                            break;
+
+                        case ConnectionStatus.Disconnected:
+                            this.ConnectText = "Connect";
+                            try
+                            {
+                                this.GattCharacteristics.Clear();
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex);
+                            }
+
+                            break;
+                    }
+                })
+                .DisposeWith(this.DeactivateWith);
+
+            this.device
+                .WhenAnyCharacteristicDiscovered()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(chs =>
+                {
+                    try
+                    {
+                        var service = this.GattCharacteristics.FirstOrDefault(x => x.ShortName.Equals(chs.Service.Uuid.ToString()));
+                        if (service == null)
+                        {
+                            service = new Group<GattCharacteristicViewModel>(
+                                $"{chs.Service.Description} ({chs.Service.Uuid})",
+                                chs.Service.Uuid.ToString()
+                            );
+                            this.GattCharacteristics.Add(service);
+                        }
+
+                        service.Add(new GattCharacteristicViewModel(chs));
+                    }
+                    catch (Exception ex)
+                    {
+                        // eat it
+                        Console.WriteLine(ex);
+                    }
+                })
+                .DisposeWith(this.DeactivateWith);
+        }
+
+
         public ICommand ConnectionToggle { get; }
         public ICommand PairToDevice { get; }
         public ICommand RequestMtu { get; }
@@ -173,6 +183,7 @@ namespace Samples.Ble
         public Guid Uuid => this.device.Uuid;
         public string PairingText => this.device.PairingStatus == PairingStatus.Paired ? "Device Paired" : "Pair Device";
         public ObservableCollection<Group<GattCharacteristicViewModel>> GattCharacteristics { get; } = new ObservableCollection<Group<GattCharacteristicViewModel>>();
+
 
         string connectText = "Connect";
         public string ConnectText

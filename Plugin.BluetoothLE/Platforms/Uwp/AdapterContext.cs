@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using Windows.Devices.Bluetooth;
-using Windows.Devices.Bluetooth.Advertisement;
-using Windows.Foundation;
+using Acr.Logging;
 
 
 namespace Plugin.BluetoothLE
@@ -15,10 +12,10 @@ namespace Plugin.BluetoothLE
         readonly ConcurrentDictionary<ulong, IDevice> devices = new ConcurrentDictionary<ulong, IDevice>();
 
 
-        public IDevice AddDevice(ulong bluetoothAddress, BluetoothLEDevice native)
+        public IDevice AddDevice(BluetoothLEDevice native)
         {
-            var dev = new Device(native);
-            this.devices.TryAdd(bluetoothAddress, dev);
+            var dev = new Device(this, native);
+            this.devices.TryAdd(native.BluetoothAddress, dev);
             return dev;
         }
 
@@ -30,9 +27,9 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public IDevice AddOrGetDevice(ulong bluetoothAddress, BluetoothLEDevice native)
+        public IDevice AddOrGetDevice(BluetoothLEDevice native)
         {
-            var dev = this.devices.GetOrAdd(bluetoothAddress, id => new Device(native));
+            var dev = this.devices.GetOrAdd(native.BluetoothAddress, id => new Device(this, native));
             return dev;
         }
 
@@ -46,43 +43,5 @@ namespace Plugin.BluetoothLE
             .Where(x => x.Value.Status != ConnectionStatus.Connected)
             .ToList()
             .ForEach(x => this.devices.TryRemove(x.Key, out _));
-
-
-        public IList<IDevice> GetDiscoveredDevices() => this.devices.Values.ToList();
-
-
-       public IObservable<BluetoothLEAdvertisementReceivedEventArgs> CreateAdvertisementWatcher(ScanConfig config)
-            => Observable.Create<BluetoothLEAdvertisementReceivedEventArgs>(ob =>
-            {
-                config = config ?? new ScanConfig { ScanType = BleScanType.Balanced };
-                var adWatcher = new BluetoothLEAdvertisementWatcher();
-                if (config.ServiceUuids != null)
-                    foreach (var serviceUuid in config.ServiceUuids)
-                        adWatcher.AdvertisementFilter.Advertisement.ServiceUuids.Add(serviceUuid);
-
-                switch (config.ScanType)
-                {
-                    case BleScanType.Balanced:
-                        adWatcher.ScanningMode = BluetoothLEScanningMode.Active;
-                        break;
-
-                    case BleScanType.Background:
-                    case BleScanType.LowLatency:
-                    case BleScanType.LowPowered:
-                        adWatcher.ScanningMode = BluetoothLEScanningMode.Passive;
-                        break;
-                }
-                var handler = new TypedEventHandler<BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>
-                    ((sender, args) => ob.OnNext(args)
-                );
-                adWatcher.Received += handler;
-                adWatcher.Start();
-
-                return () =>
-                {
-                    adWatcher.Stop();
-                    adWatcher.Received -= handler;
-                };
-            });
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using Acr.Collections;
@@ -13,7 +14,6 @@ namespace Samples.Ble
     public class LogViewModel : ViewModel
     {
         readonly ILogService logs;
-        IDisposable logWatch;
 
 
         public LogViewModel()
@@ -33,19 +33,13 @@ namespace Samples.Ble
             if (l.Any())
                 this.Logs.AddRange(l);
 
-            this.logWatch = this.logs
+            this.logs
                 .WhenUpdated()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
                     this.Logs.Insert(0, x)
-                );
-        }
-
-
-        public override void OnDeactivated()
-        {
-            base.OnDeactivated();
-            this.logWatch?.Dispose();
+                )
+                .DisposeWith(this.DeactivateWith);
         }
 
 

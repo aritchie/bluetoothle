@@ -129,7 +129,7 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public override IGattServer CreateGattServer() => new GattServer();
+        public override IObservable<IGattServer> CreateGattServer() => Observable.Return(new GattServer());
 
 
         public override IObservable<IScanResult> Scan(ScanConfig config)

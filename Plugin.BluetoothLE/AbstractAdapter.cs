@@ -10,7 +10,7 @@ namespace Plugin.BluetoothLE
     {
         public abstract IObservable<IScanResult> Scan(ScanConfig config = null);
         public abstract IObservable<AdapterStatus> WhenStatusChanged();
-        public abstract IGattServer CreateGattServer();
+        public abstract IObservable<IGattServer> CreateGattServer();
         public abstract void StopScan();
 
         public virtual IAdvertiser Advertiser { get; protected set; }

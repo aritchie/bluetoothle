@@ -2,6 +2,7 @@
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Foundation;
@@ -75,7 +76,6 @@ namespace Plugin.BluetoothLE
             if (status != GattCommunicationStatus.Success)
                 throw new BleException($"Failed to write characteristic - {status}");
 
-            this.context.Ping();
             this.value = value;
             return new CharacteristicGattResult(this, value);
         });
@@ -92,7 +92,6 @@ namespace Plugin.BluetoothLE
             if (result.Status != GattCommunicationStatus.Success)
                 throw new BleException($"Failed to read characteristic - {result.Status}");
 
-            this.context.Ping();
             this.value = result.Value?.ToArray();
             return new CharacteristicGattResult(this, this.value);
         });
@@ -119,13 +118,13 @@ namespace Plugin.BluetoothLE
                 if (status != GattCommunicationStatus.Success)
                     throw new BleException($"Failed to write client characteristic configuration descriptor - {status}");
 
-                var enable = value != GattClientCharacteristicConfigurationDescriptorValue.None;
-                this.context.SetNotifyCharacteristic(this.Native, enable);
-                this.IsNotifying = enable;
+                this.IsNotifying = value != GattClientCharacteristicConfigurationDescriptorValue.None;
+                this.context.SetNotifyCharacteristic(this);
                 return new CharacteristicGattResult(this, null);
             });
 
 
+        IObserver<CharacteristicGattResult> currentOb;
         IObservable<CharacteristicGattResult> notificationOb;
         public override IObservable<CharacteristicGattResult> WhenNotificationReceived()
         {
@@ -133,25 +132,34 @@ namespace Plugin.BluetoothLE
 
             this.notificationOb = this.notificationOb ?? Observable.Create<CharacteristicGattResult>(ob =>
             {
+                this.currentOb = ob;
                 //var trigger = new GattCharacteristicNotificationTrigger(this.native);
-
-                var handler = new TypedEventHandler<Native, GattValueChangedEventArgs>((sender, args) =>
-                {
-                    if (sender.Equals(this.Native))
-                    {
-                        var bytes = args.CharacteristicValue.ToArray();
-                        var result = new CharacteristicGattResult(this, bytes);
-                        ob.OnNext(result);
-                    }
-                });
-                this.Native.ValueChanged += handler;
-
-                return () => this.Native.ValueChanged -= handler;
+                this.Native.ValueChanged += this.OnValueChanged;
+                return () => this.Native.ValueChanged -= this.OnValueChanged;
             })
             .Publish()
             .RefCount();
 
             return this.notificationOb;
+        }
+
+
+        internal async Task Disconnect()
+        {
+            await this.Native.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
+            this.Native.ValueChanged -= this.OnValueChanged;
+        }
+
+
+
+        void OnValueChanged(Native sender, GattValueChangedEventArgs args)
+        {
+            if (sender.Equals(this.Native))
+            {
+                var bytes = args.CharacteristicValue.ToArray();
+                var result = new CharacteristicGattResult(this, bytes);
+                this.currentOb.OnNext(result);
+            }
         }
     }
 }

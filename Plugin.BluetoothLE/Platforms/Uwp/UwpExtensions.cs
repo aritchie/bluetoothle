@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Characteristic = Windows.Devices.Bluetooth.GenericAttributeProfile.GattCharacteristic;
 
@@ -13,7 +16,7 @@ namespace Plugin.BluetoothLE
             ch.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify);
 
 
-        public static ulong ToMacAddress(this Guid deviceId)
+        public static ulong ToBluetoothAddress(this Guid deviceId)
         {
             var address = deviceId
                 .ToByteArray()
@@ -22,10 +25,49 @@ namespace Plugin.BluetoothLE
                 .ToArray();
 
             var hexAddress = BitConverter.ToString(address).Replace("-", "");
-            if (ulong.TryParse(hexAddress, System.Globalization.NumberStyles.HexNumber, null, out ulong mac))
+            if (ulong.TryParse(hexAddress, NumberStyles.HexNumber, null, out ulong mac))
                 return mac;
 
             return 0L;
+        }
+
+
+
+        static readonly Regex macRegex = new Regex("(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})");
+        const string REGEX_REPLACE = "$1:$2:$3:$4:$5:$6";
+
+
+        static string ToMacAddress(ulong address)
+        {
+            var tempMac = address.ToString("X");
+            //tempMac is now 'E7A1F7842F17'
+
+            //string.Join(":", BitConverter.GetBytes(BluetoothAddress).Reverse().Select(b => b.ToString("X2"))).Substring(6);
+            var leadingZeros = new string('0', 12 - tempMac.Length);
+            tempMac = leadingZeros + tempMac;
+
+            var macAddress = macRegex.Replace(tempMac, REGEX_REPLACE);
+            return macAddress;
+        }
+
+
+        public static Guid GetDeviceId(this BluetoothLEDevice native)
+        {
+            var address = ToMacAddress(native.BluetoothAddress);
+            var mac = address
+                .Replace("BluetoothLE#BluetoothLE", String.Empty)
+                .Replace(":", String.Empty)
+                .Replace("-", String.Empty);
+
+            var deviceGuid = new byte[16];
+            var macBytes = Enumerable
+                .Range(0, mac.Length)
+                .Where(x => x % 2 == 0)
+                .Select(x => Convert.ToByte(mac.Substring(x, 2), 16))
+                .ToArray();
+
+            macBytes.CopyTo(deviceGuid, 10); // 12 bytes here if off the BluetoothLEDevice
+            return new Guid(deviceGuid);
         }
     }
 }

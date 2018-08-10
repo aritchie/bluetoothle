@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive;
 using System.Reactive.Linq;
+using Plugin.BluetoothLE.Server;
 
 
 namespace Plugin.BluetoothLE
@@ -12,6 +13,28 @@ namespace Plugin.BluetoothLE
         public static bool CanControlAdapterState(this IAdapter adapter) => adapter.Features.HasFlag(AdapterFeatures.ControlAdapterState);
         public static bool CanPerformLowPoweredScans(this IAdapter adapter) => adapter.Features.HasFlag(AdapterFeatures.LowPoweredScan);
 
+
+        /// <summary>
+        /// Waits for bluetooth adapter to be in an acceptable state and then tries to create a gatt server
+        /// </summary>
+        /// <param name="adapter"></param>
+        /// <returns></returns>
+        public static IObservable<IGattServer> WhenReadyCreateServer(this IAdapter adapter) => adapter
+            .WhenStatusChanged()
+            .Where(x => x == AdapterStatus.PoweredOn)
+            .Select(_ => adapter.CreateGattServer())
+            .Switch();
+
+
+        /// <summary>
+        /// Fires when adapter is in a powered-on state
+        /// </summary>
+        /// <param name="adapter"></param>
+        /// <returns></returns>
+        public static IObservable<IAdapter> WhenReady(this IAdapter adapter) => adapter
+            .WhenStatusChanged()
+            .Where(x => x == AdapterStatus.PoweredOn)
+            .Select(_ => adapter);
 
         /// <summary>
         /// This will scan until the device a specific device is found, then cancel the scan

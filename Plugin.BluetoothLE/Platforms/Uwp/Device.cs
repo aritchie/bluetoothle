@@ -2,12 +2,10 @@
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Text.RegularExpressions;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
-using Acr.Reactive;
 
 
 namespace Plugin.BluetoothLE
@@ -17,102 +15,47 @@ namespace Plugin.BluetoothLE
         readonly DeviceContext context;
 
 
-        public Device(BluetoothLEDevice native)
+        public Device(AdapterContext adapterContext, BluetoothLEDevice native)
         {
-            this.context = new DeviceContext(this, native);
-
-            var mac = this.ToMacAddress(native.BluetoothAddress);
-            this.Uuid = this.GetDeviceId(mac);
+            this.context = new DeviceContext(adapterContext, this, native);
+            this.Name = native.Name;
+            this.Uuid = native.GetDeviceId();
         }
 
 
-        public override string Name => this.context.NativeDevice.Name;
         public override object NativeDevice => this.context.NativeDevice;
         public override DeviceFeatures Features => DeviceFeatures.PairingRequests | DeviceFeatures.ReliableTransactions;
         public override IGattReliableWriteTransaction BeginReliableWriteTransaction() => new GattReliableWriteTransaction();
 
-
         public override void Connect(ConnectionConfig config) => this.context.Connect();
-        public override async void CancelConnection() => await this.context.Disconnect();
+        public override void CancelConnection() => this.context.Disconnect();
+        public override ConnectionStatus Status => this.context.Status;
+        public override IObservable<ConnectionStatus> WhenStatusChanged() => this.context.WhenStatusChanged();
 
 
-        public override ConnectionStatus Status
+        public override IObservable<IGattService> GetKnownService(Guid serviceUuid) => Observable.FromAsync(async ct =>
         {
-            get
-            {
-                switch (this.context.NativeDevice?.ConnectionStatus)
-                {
-                    case BluetoothConnectionStatus.Connected:
-                        return ConnectionStatus.Connected;
+            var result = await this.context.NativeDevice.GetGattServicesForUuidAsync(serviceUuid, BluetoothCacheMode.Cached);
+            if (result.Status != GattCommunicationStatus.Success)
+                throw new ArgumentException("Could not find GATT service - " + result.Status);
 
-                    default:
-                        return ConnectionStatus.Disconnected;
-                }
+            var wrap = new GattService(this.context, result.Services.First());
+            return wrap;
+        });
+
+
+        public override IObservable<IGattService> DiscoverServices() => Observable.Create<IGattService>(async ob =>
+        {
+            var result = await this.context.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached);
+            foreach (var nservice in result.Services)
+            {
+                var service = new GattService(this.context, nservice);
+                ob.OnNext(service);
             }
-        }
+            ob.OnCompleted();
 
-
-        public override IObservable<IGattService> GetKnownService(Guid serviceUuid)
-            => Observable.FromAsync(async ct =>
-            {
-                var result = await this.context.NativeDevice.GetGattServicesForUuidAsync(serviceUuid, BluetoothCacheMode.Cached);
-                if (result.Status != GattCommunicationStatus.Success)
-                    throw new ArgumentException("Could not find GATT service - " + result.Status);
-
-                var wrap = new GattService(this.context, result.Services.First());
-                return wrap;
-            });
-
-
-        IObservable<ConnectionStatus> statusOb;
-        public override IObservable<ConnectionStatus> WhenStatusChanged()
-        {
-            this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
-            {
-                ob.OnNext(this.Status);
-                var handler = new TypedEventHandler<BluetoothLEDevice, object>(
-                    (sender, args) => ob.OnNext(this.Status)
-                );
-                this.context.NativeDevice.ConnectionStatusChanged += handler;
-
-                return () => this.context.NativeDevice.ConnectionStatusChanged -= handler;
-            })
-            .Replay(1)
-            .RefCount();
-
-            return this.statusOb;
-        }
-
-
-        IObservable<IGattService> serviceOb;
-        public override IObservable<IGattService> DiscoverServices()
-        {
-            this.serviceOb = this.serviceOb ?? Observable.Create<IGattService>(async ob =>
-            {
-                //var handler = new TypedEventHandler<BluetoothLEDevice, object>((sender, args) =>
-                //{
-                //    //if (this.native.Equals(sender))
-                //});
-                //this.context.NativeDevice.GattServicesChanged += handler;
-
-                var result = await this.context.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached);
-                foreach (var nservice in result.Services)
-                {
-                    var service = new GattService(this.context, nservice);
-                    ob.OnNext(service);
-                }
-
-                //return () => this.context.NativeDevice.GattServicesChanged -= handler;
-                return Disposable.Empty;
-            })
-            .ReplayWithReset(this.WhenStatusChanged()
-                .Skip(1)
-                .Where(x => x == ConnectionStatus.Disconnected)
-            )
-            .RefCount();
-
-            return this.serviceOb;
-        }
+            return Disposable.Empty;
+        });
 
 
         IObservable<string> nameOb;
@@ -120,14 +63,20 @@ namespace Plugin.BluetoothLE
         {
             this.nameOb = this.nameOb ?? Observable.Create<string>(ob =>
             {
-                ob.OnNext(this.Name);
                 var handler = new TypedEventHandler<BluetoothLEDevice, object>(
                     (sender, args) => ob.OnNext(this.Name)
                 );
-                this.context.NativeDevice.NameChanged += handler;
-
-                return () => this.context.NativeDevice.NameChanged -= handler;
+                var sub = this.WhenConnected().Subscribe(_ =>
+                    this.context.NativeDevice.NameChanged += handler
+                );
+                return () =>
+                {
+                    sub?.Dispose();
+                    if (this.context.NativeDevice != null)
+                        this.context.NativeDevice.NameChanged -= handler;
+                };
             })
+            .StartWith(this.Name)
             .Publish()
             .RefCount();
 
@@ -140,49 +89,11 @@ namespace Plugin.BluetoothLE
             : PairingStatus.NotPaired;
 
 
-        public override IObservable<bool> PairingRequest(string pin = null)
-            => Observable.FromAsync(async token =>
-            {
-                var result = await this.context.NativeDevice.DeviceInformation.Pairing.PairAsync(DevicePairingProtectionLevel.None);
-                var state = result.Status == DevicePairingResultStatus.Paired;
-                return state;
-            });
-
-
-        static readonly Regex macRegex = new Regex("(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})");
-        const string REGEX_REPLACE = "$1:$2:$3:$4:$5:$6";
-
-
-        string ToMacAddress(ulong address)
+        public override IObservable<bool> PairingRequest(string pin = null) => Observable.FromAsync(async token =>
         {
-            var tempMac = address.ToString("X");
-            //tempMac is now 'E7A1F7842F17'
-
-            //string.Join(":", BitConverter.GetBytes(BluetoothAddress).Reverse().Select(b => b.ToString("X2"))).Substring(6);
-            var leadingZeros = new string('0', 12 - tempMac.Length);
-            tempMac = leadingZeros + tempMac;
-
-            var macAddress = macRegex.Replace(tempMac, REGEX_REPLACE);
-            return macAddress;
-        }
-
-
-        protected Guid GetDeviceId(string address)
-        {
-            var mac = address
-                .Replace("BluetoothLE#BluetoothLE", String.Empty)
-                .Replace(":", String.Empty)
-                .Replace("-", String.Empty);
-
-            var deviceGuid = new byte[16];
-            var macBytes = Enumerable
-                .Range(0, mac.Length)
-                .Where(x => x % 2 == 0)
-                .Select(x => Convert.ToByte(mac.Substring(x, 2), 16))
-                .ToArray();
-
-            macBytes.CopyTo(deviceGuid, 10); // 12 bytes here if off the BluetoothLEDevice
-            return new Guid(deviceGuid);
-        }
+            var result = await this.context.NativeDevice.DeviceInformation.Pairing.PairAsync(DevicePairingProtectionLevel.None);
+            var state = result.Status == DevicePairingResultStatus.Paired;
+            return state;
+        });
     }
 }

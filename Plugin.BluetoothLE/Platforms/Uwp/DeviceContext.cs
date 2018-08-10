@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
@@ -14,60 +14,54 @@ namespace Plugin.BluetoothLE
     public class DeviceContext
     {
         readonly object syncLock;
-        readonly IList<NC> subscribers;
-        IDisposable keepAlive;
+        readonly AdapterContext adapterContext;
+        readonly IList<GattCharacteristic> subscribers;
+        readonly Subject<ConnectionStatus> connSubject;
+        readonly ulong bluetoothAddress;
 
-        public DeviceContext(IDevice device, BluetoothLEDevice native)
+
+        public DeviceContext(AdapterContext adapterContext,
+                             IDevice device,
+                             BluetoothLEDevice native)
         {
             this.syncLock = new object();
-            this.subscribers = new List<NC>();
+            this.connSubject = new Subject<ConnectionStatus>();
+            this.adapterContext = adapterContext;
+            this.subscribers = new List<GattCharacteristic>();
             this.Device = device;
             this.NativeDevice = native;
+            this.bluetoothAddress = native.BluetoothAddress;
         }
 
 
         public IDevice Device { get; }
         public BluetoothLEDevice NativeDevice { get; private set; }
+        public IObservable<ConnectionStatus> WhenStatusChanged() => this.connSubject.StartWith(this.Status);
 
 
-        void StartKeepAlive()
+        public async Task Connect()
         {
-            if (this.keepAlive != null)
+            if (this.NativeDevice != null && this.NativeDevice.ConnectionStatus == BluetoothConnectionStatus.Connected)
                 return;
 
-            this.keepAlive = Observable
-                .Interval(TimeSpan.FromSeconds(5))
-                .Subscribe(_ => this.Ping());
+            this.connSubject.OnNext(ConnectionStatus.Connecting);
+            this.NativeDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(this.bluetoothAddress);
+            this.NativeDevice.ConnectionStatusChanged += this.OnNativeConnectionStatusChanged;
+            await this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached); // HACK: kick the connection on
         }
 
-
-        void StopKeepAlive()
-        {
-            this.keepAlive?.Dispose();
-            this.keepAlive = null;
-        }
-
-
-        public void Ping() => this.NativeDevice?.GetGattServicesAsync(BluetoothCacheMode.Uncached); // fire and forget
-
-
-        public bool Connect()
-        {
-            if (this.NativeDevice == null)
-                new BleException("NativeDevice has been Disposed.");
-            this.StartKeepAlive();
-            return true;
-        }
 
         public async Task Disconnect()
         {
-            this.StopKeepAlive();
+            if (this.NativeDevice == null)
+                return;
 
+            this.connSubject.OnNext(ConnectionStatus.Disconnecting);
             foreach (var ch in this.subscribers)
             {
                 try
                 {
-                    await ch.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
+                    await ch.Disconnect();
                 }
                 catch (Exception e)
                 {
@@ -75,24 +69,21 @@ namespace Plugin.BluetoothLE
                 }
             }
             this.subscribers.Clear();
-            //var result = await this.NativeDevice?.GetGattServicesAsync(BluetoothCacheMode.Cached);
-            //foreach (var s in result.Services)
-            //{
-            //    s.Session.MaintainConnection = false;
-            //    s.Dispose();
-            //}
 
+            this.NativeDevice.ConnectionStatusChanged -= this.OnNativeConnectionStatusChanged;
             this.NativeDevice?.Dispose();
             this.NativeDevice = null;
             GC.Collect();
+            GC.WaitForPendingFinalizers();
+            this.connSubject.OnNext(ConnectionStatus.Disconnected);
         }
 
 
-        public void SetNotifyCharacteristic(NC characteristic, bool enable)
+        public void SetNotifyCharacteristic(GattCharacteristic characteristic)
         {
             lock (this.syncLock)
             {
-                if (enable)
+                if (characteristic.IsNotifying)
                 {
                     this.subscribers.Add(characteristic);
                 }
@@ -100,16 +91,30 @@ namespace Plugin.BluetoothLE
                 {
                     this.subscribers.Remove(characteristic);
                 }
+            }
+        }
 
-                if (this.subscribers.Any())
+
+        public ConnectionStatus Status
+        {
+            get
+            {
+                if (this.NativeDevice == null)
+                    return ConnectionStatus.Disconnected;
+
+                switch (this.NativeDevice.ConnectionStatus)
                 {
-                    this.StopKeepAlive();
-                }
-                else
-                {
-                    this.StartKeepAlive();
+                    case BluetoothConnectionStatus.Connected:
+                        return ConnectionStatus.Connected;
+
+                    default:
+                        return ConnectionStatus.Disconnected;
                 }
             }
         }
+
+
+        void OnNativeConnectionStatusChanged(BluetoothLEDevice sender, object args) =>
+            this.connSubject.OnNext(this.Status);
     }
 }
