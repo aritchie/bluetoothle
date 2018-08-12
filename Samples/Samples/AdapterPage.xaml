@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
-            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-            xmlns:ble="clr-namespace:Samples.Ble;assembly=Samples"
-            x:Class="Samples.Ble.AdapterPage"
-            Title="BLE Plugin">
-
-	<TabbedPage.Children>
-        <ble:ScanPage Title="Scan" />
-        <ble:LogPage Title="Logs" />
-        <ble:ServerPage Title="GATT Server" />
-	</TabbedPage.Children>
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:samples="clr-namespace:Samples;assembly=Samples"
+             xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             x:Class="Samples.AdapterPage"
+             Title="ACR BluetoothLE">
+    <samples:ScanPage />
+    <samples:LogPage />
+    <samples:ServerPage />
 </TabbedPage>

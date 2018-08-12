@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reactive.Subjects;
 
 
-namespace Samples
+namespace Samples.Infrastructure
 {
     public class LogItem
     {
@@ -33,8 +33,6 @@ namespace Samples
         readonly object syncLock = new object();
         readonly IList<LogItem> items = new List<LogItem>();
         readonly Subject<LogItem> logSubject = new Subject<LogItem>();
-
-        public static ILogService Instance { get; } = new LogService();
 
 
         public LogService()

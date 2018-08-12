@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 
 
-namespace Samples.Ble
+namespace Samples
 {
     public class Group<T> : ObservableCollection<T>
     {

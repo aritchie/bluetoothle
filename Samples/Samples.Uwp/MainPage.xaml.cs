@@ -8,7 +8,7 @@ namespace Samples.Uwp
         public MainPage()
         {
             this.InitializeComponent();
-            this.LoadApplication(new Samples.Ble.App());
+            this.LoadApplication(new Samples.App(new PlatformInitializer()));
         }
     }
 }

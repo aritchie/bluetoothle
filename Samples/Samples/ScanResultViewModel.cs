@@ -2,87 +2,26 @@
 using System.Diagnostics;
 using Plugin.BluetoothLE;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using Samples.Infrastructure;
 
 
-namespace Samples.Ble
+namespace Samples
 {
     public class ScanResultViewModel : ViewModel
     {
         //IDisposable nameOb;
         public IDevice Device { get; private set; }
 
-
-        string name;
-        public string Name
-        {
-            get => this.name;
-            private set => this.RaiseAndSetIfChanged(ref this.name, value);
-        }
-
-
-        bool connected;
-        public bool IsConnected
-        {
-            get => this.connected;
-            set => this.RaiseAndSetIfChanged(ref this.connected, value);
-        }
-
-
-        Guid uuid;
-        public Guid Uuid
-        {
-            get => this.uuid;
-            private set => this.RaiseAndSetIfChanged(ref this.uuid, value);
-        }
-
-
-        int rssi;
-        public int Rssi
-        {
-            get => this.rssi;
-            private set => this.RaiseAndSetIfChanged(ref this.rssi, value);
-        }
-
-
-        bool connectable;
-        public bool IsConnectable
-        {
-            get => this.connectable;
-            private set => this.RaiseAndSetIfChanged(ref this.connectable, value);
-        }
-
-
-        int serviceCount;
-        public int ServiceCount
-        {
-            get => this.serviceCount;
-            private set => this.RaiseAndSetIfChanged(ref this.serviceCount, value);
-        }
-
-
-        string manufacturerData;
-        public string ManufacturerData
-        {
-            get => this.manufacturerData;
-            private set => this.RaiseAndSetIfChanged(ref this.manufacturerData, value);
-        }
-
-
-        string localName;
-        public string LocalName
-        {
-            get => this.localName;
-            private set => this.RaiseAndSetIfChanged(ref this.localName, value);
-        }
-
-
-        int txPower;
-        public int TxPower
-        {
-            get => this.txPower;
-            private set => this.RaiseAndSetIfChanged(ref this.txPower, value);
-        }
+        [Reactive] public string Name { get; private set; }
+        [Reactive] public bool IsConnected { get; private set; }
+        [Reactive] public Guid Uuid { get; private set; }
+        [Reactive] public int Rssi { get; private set; }
+        [Reactive] public bool IsConnectable { get; private set; }
+        [Reactive] public int ServiceCount { get; private set; }
+        [Reactive] public string ManufacturerData { get; private set; }
+        [Reactive] public string LocalName { get; private set; }
+        [Reactive] public int TxPower { get; private set; }
 
 
         public bool TrySet(IScanResult result)

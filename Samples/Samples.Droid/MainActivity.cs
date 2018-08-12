@@ -4,7 +4,6 @@ using Android;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using Samples.Ble;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 
@@ -30,7 +29,7 @@ namespace Samples.Droid
 
             UserDialogs.Init(() => (Activity)Forms.Context);
 
-            this.LoadApplication(new App());
+            this.LoadApplication(new App(new PlatformInitializer()));
             this.RequestPermissions(new []
             {
                 Manifest.Permission.AccessCoarseLocation,

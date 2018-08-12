@@ -7,30 +7,26 @@ using System.Windows.Input;
 using Acr.UserDialogs;
 using Plugin.BluetoothLE;
 using Plugin.BluetoothLE.Server;
+using Prism.Navigation;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using Samples.Infrastructure;
 using Device = Xamarin.Forms.Device;
 
 
-namespace Samples.Ble
+namespace Samples
 {
     public class ServerViewModel : ViewModel
     {
-        readonly IAdapter adapter;
         readonly IUserDialogs dialogs;
+        IAdapter adapter;
         IDisposable timer;
         IGattServer server;
 
 
-        public ServerViewModel()
+        public ServerViewModel(IUserDialogs dialogs)
         {
-            this.adapter = CrossBleAdapter.Current;
-            this.dialogs = UserDialogs.Instance;
-
-            this.adapter
-                .WhenStatusChanged()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => this.Status = x);
+            this.dialogs = dialogs;
 
             this.ToggleServer = ReactiveCommand.CreateFromTask(async _ =>
             {
@@ -70,38 +66,16 @@ namespace Samples.Ble
         }
 
 
-        string serverText = "Start Server";
-        public string ServerText
+        public override void OnNavigatingTo(NavigationParameters parameters)
         {
-            get => this.serverText;
-            set => this.RaiseAndSetIfChanged(ref this.serverText, value);
+            base.OnNavigatingTo(parameters);
+            this.adapter = parameters.GetValue<IAdapter>("adapter");
         }
 
 
-        string chValue;
-        public string CharacteristicValue
-        {
-            get => this.chValue;
-            set => this.RaiseAndSetIfChanged(ref this.chValue, value);
-        }
-
-
-        string output;
-        public string Output
-        {
-            get => this.output;
-            private set => this.RaiseAndSetIfChanged(ref this.output, value);
-        }
-
-
-        AdapterStatus status;
-        public AdapterStatus Status
-        {
-            get => this.status;
-            set => this.RaiseAndSetIfChanged(ref this.status, value);
-        }
-
-
+        [Reactive] public string ServerText { get; set; } = "Start Server";
+        [Reactive] public string CharacteristicValue { get; set; }
+        [Reactive] public string Output { get; private set; }
         public ICommand ToggleServer { get; }
         public ICommand Clear { get; }
 

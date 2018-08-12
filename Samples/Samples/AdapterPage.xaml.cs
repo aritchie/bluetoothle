@@ -1,14 +1,25 @@
 ﻿using System;
+using Prism.Common;
+using Prism.Navigation;
 using Xamarin.Forms;
 
 
-namespace Samples.Ble
+namespace Samples
 {
-    public partial class AdapterPage : TabbedPage
+    public partial class AdapterPage : TabbedPage, INavigatingAware
     {
-        public AdapterPage()
+        public AdapterPage ()
         {
             this.InitializeComponent();
+        }
+
+
+        public void OnNavigatingTo(NavigationParameters parameters)
+        {
+            foreach (var child in this.Children)
+            {
+                PageUtilities.OnNavigatingTo(child, parameters);
+            }
         }
     }
 }

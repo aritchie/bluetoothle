@@ -12,7 +12,7 @@ using Xamarin.Forms;
 using Samples.Infrastructure;
 
 
-namespace Samples.Ble
+namespace Samples
 {
     public class GattCharacteristicViewModel : ViewModel
     {

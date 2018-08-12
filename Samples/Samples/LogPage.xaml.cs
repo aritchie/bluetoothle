@@ -1,8 +1,8 @@
 ﻿using System;
-using Acr.XamForms.Pages;
+using Xamarin.Forms;
 
 
-namespace Samples.Ble
+namespace Samples
 {
     public partial class LogPage : ContentPage
     {

@@ -1,35 +1,70 @@
 ﻿using System;
 using System.Reactive.Disposables;
-using Acr.XamForms;
+using System.Threading.Tasks;
+using Prism.AppModel;
+using Prism.Navigation;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 
 namespace Samples.Infrastructure
 {
-    public abstract class ViewModel : ReactiveObject, IViewModelLifecycle
+    public abstract class ViewModel : ReactiveObject,
+                                      INavigatingAware,
+                                      INavigatedAware,
+                                      IDestructible,
+                                      IPageLifecycleAware,
+                                      IConfirmNavigationAsync
     {
-        protected CompositeDisposable DeactivateWith { get; private set; }
-        protected CompositeDisposable DestroyWith { get; private set; }
-
-        public virtual void OnActivated()
+        CompositeDisposable deactivateWith;
+        protected CompositeDisposable DeactivateWith
         {
-            this.DeactivateWith = new CompositeDisposable();
+            get
+            {
+                if (this.deactivateWith == null)
+                    this.deactivateWith = new CompositeDisposable();
+
+                return this.deactivateWith;
+            }
         }
 
-        public virtual void OnDeactivated()
+        protected CompositeDisposable DestroyWith { get; } = new CompositeDisposable();
+
+
+        public virtual void OnNavigatingTo(NavigationParameters parameters)
         {
-            this.DeactivateWith?.Dispose();
-            if (this.DestroyWith == null)
-                this.DestroyWith = new CompositeDisposable();
         }
 
 
-        public virtual void OnOrientationChanged(bool isPortrait) {}
-        public virtual bool OnBackRequested() => true;
+        public virtual void OnNavigatedFrom(NavigationParameters parameters)
+        {
+        }
 
-        public virtual void OnDestroy()
+
+        public virtual void OnNavigatedTo(NavigationParameters parameters)
+        {
+        }
+
+
+        public virtual void OnAppearing()
+        {
+        }
+
+
+        public virtual void OnDisappearing()
+        {
+            this.deactivateWith?.Dispose();
+            this.deactivateWith = null;
+        }
+
+
+        public virtual void Destroy()
         {
             this.DestroyWith?.Dispose();
         }
+
+
+        public virtual Task<bool> CanNavigateAsync(NavigationParameters parameters) => Task.FromResult(true);
+        [Reactive] public bool IsBusy { get; protected set; }
     }
 }

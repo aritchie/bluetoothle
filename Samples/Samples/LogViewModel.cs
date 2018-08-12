@@ -9,24 +9,24 @@ using ReactiveUI;
 using Samples.Infrastructure;
 
 
-namespace Samples.Ble
+namespace Samples
 {
     public class LogViewModel : ViewModel
     {
         readonly ILogService logs;
 
 
-        public LogViewModel()
+        public LogViewModel(ILogService logs)
         {
-            this.logs = LogService.Instance;
+            this.logs = logs;
             this.Show = ReactiveCommand.Create<LogItem>(item => UserDialogs.Instance.Alert(item.Message));
             this.Clear = ReactiveCommand.Create(this.logs.Clear);
         }
 
 
-        public override void OnActivated()
+        public override void OnAppearing()
         {
-            base.OnActivated();
+            base.OnAppearing();
             var l = this.logs.GetLogs();
             this.Logs.Clear();
 

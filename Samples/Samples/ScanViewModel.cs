@@ -7,51 +7,49 @@ using System.Windows.Input;
 using Acr.Collections;
 using Acr.UserDialogs;
 using Plugin.BluetoothLE;
+using Prism.Navigation;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using Samples.Infrastructure;
 
 
-namespace Samples.Ble
+namespace Samples
 {
     public class ScanViewModel : ViewModel
     {
+        IAdapter adapter;
         IDisposable scan;
 
 
-        public ScanViewModel()
+        public ScanViewModel(INavigationService navigationService, IUserDialogs dialogs)
         {
-            this.SelectDevice = ReactiveCommand.CreateFromTask<ScanResultViewModel>(async x =>
-            {
-                this.scan?.Dispose();
-                await App.Current.MainPage.Navigation.PushAsync(new DevicePage
-                {
-                    BindingContext = new DeviceViewModel(x.Device)
-                });
-            });
+            this.SelectDevice = ReactiveCommand.CreateFromTask<ScanResultViewModel>(
+                x => navigationService.NavToDevice(x.Device)
+            );
 
             this.OpenSettings = ReactiveCommand.Create(() =>
             {
-                if (CrossBleAdapter.Current.Features.HasFlag(AdapterFeatures.OpenSettings))
+                if (this.adapter.Features.HasFlag(AdapterFeatures.OpenSettings))
                 {
-                    CrossBleAdapter.Current.OpenSettings();
+                    this.adapter.OpenSettings();
                 }
                 else
                 {
-                    UserDialogs.Instance.Alert("Cannot open bluetooth settings");
+                    dialogs.Alert("Cannot open bluetooth settings");
                 }
             });
 
-            this.ToggleAdapterState = ReactiveCommand.Create(
+            this.ToggleadapterState = ReactiveCommand.Create(
                 () =>
                 {
-                    if (CrossBleAdapter.Current.CanControlAdapterState())
+                    if (this.adapter.CanControlAdapterState())
                     {
-                        var poweredOn = CrossBleAdapter.Current.Status == AdapterStatus.PoweredOn;
-                        CrossBleAdapter.Current.SetAdapterState(!poweredOn);
+                        var poweredOn = this.adapter.Status == AdapterStatus.PoweredOn;
+                        this.adapter.SetAdapterState(!poweredOn);
                     }
                     else
                     {
-                        UserDialogs.Instance.Alert("Cannot change bluetooth adapter state");
+                        dialogs.Alert("Cannot change bluetooth adapter state");
                     }
                 }
             );
@@ -69,8 +67,8 @@ namespace Samples.Ble
                         this.Devices.Clear();
 
                         this.IsScanning = true;
-                        this.scan = CrossBleAdapter
-                            .Current
+                        this.scan = this
+                            .adapter
                             .Scan()
                             .Buffer(TimeSpan.FromSeconds(1))
                             .ObserveOn(RxApp.MainThreadScheduler)
@@ -81,6 +79,7 @@ namespace Samples.Ble
                                     foreach (var result in results)
                                     {
                                         var dev = this.Devices.FirstOrDefault(x => x.Uuid.Equals(result.Device.Uuid));
+
                                         if (dev != null)
                                         {
                                             dev.TrySet(result);
@@ -104,34 +103,29 @@ namespace Samples.Ble
         }
 
 
-        public override void OnActivated()
+        public override void OnNavigatingTo(NavigationParameters parameters)
         {
-            base.OnActivated();
-            CrossBleAdapter
-                .Current
-                .WhenStatusChanged()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => this.RaisePropertyChanged(nameof(this.Title)))
-                .DisposeWith(this.DeactivateWith);
+            base.OnNavigatedTo(parameters);
+            this.adapter = parameters.GetValue<IAdapter>("adapter");
+            this.Title = $"{this.adapter.DeviceName} ({this.adapter.Status})";
+        }
 
+
+        public override void OnAppearing()
+        {
+            base.OnAppearing();
+            this.IsScanning = false;
         }
 
 
         public ICommand ScanToggle { get; }
         public ICommand OpenSettings { get; }
-        public ICommand ToggleAdapterState { get; }
+        public ICommand ToggleadapterState { get; }
         public ICommand SelectDevice { get; }
         public ObservableList<ScanResultViewModel> Devices { get; } = new ObservableList<ScanResultViewModel>();
 
 
-        public string Title => $"{CrossBleAdapter.Current.DeviceName} ({CrossBleAdapter.Current.Status})";
-
-
-        bool scanning;
-        public bool IsScanning
-        {
-            get => this.scanning;
-            private set => this.RaiseAndSetIfChanged(ref this.scanning, value);
-        }
+        [Reactive] public string Title { get; private set; }
+        [Reactive] public bool IsScanning { get; private set; }
     }
 }

@@ -5,43 +5,49 @@ using System.Reactive.Linq;
 using System.Windows.Input;
 using Acr.UserDialogs;
 using Plugin.BluetoothLE;
+using Prism.Navigation;
 using ReactiveUI;
 using Samples.Infrastructure;
 
 
-namespace Samples.Ble
+namespace Samples
 {
     public class AdapterListViewModel : ViewModel
     {
-        public AdapterListViewModel()
+        readonly IAdapterScanner adapterScanner;
+        readonly INavigationService navigationService;
+
+
+        public AdapterListViewModel(INavigationService navigationService,
+                                    IAdapterScanner adapterScanner,
+                                    IUserDialogs dialogs)
         {
-            this.Select = ReactiveCommand.CreateFromTask<IAdapter>(async adapter =>
-            {
-                CrossBleAdapter.Current = adapter;
-                await App.Current.MainPage.Navigation.PushAsync(new AdapterPage());
-            });
+            this.adapterScanner = adapterScanner;
+            this.navigationService = navigationService;
+
+            this.Select = ReactiveCommand.CreateFromTask<IAdapter>(navigationService.NavToAdapter);
+
             this.Scan = ReactiveCommand.Create(() =>
             {
                 this.IsBusy = true;
-                CrossBleAdapter
-                    .AdapterScanner
+                adapterScanner
                     .FindAdapters()
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(
                         this.Adapters.Add,
-                        ex => UserDialogs.Instance.Alert(ex.ToString(), "Error"),
+                        ex => dialogs.Alert(ex.ToString(), "Error"),
                         async () =>
                         {
                             this.IsBusy = false;
                             switch (this.Adapters.Count)
                             {
                                 case 0:
-                                    UserDialogs.Instance.Alert("No BluetoothLE Adapters Found");
+                                    dialogs.Alert("No BluetoothLE Adapters Found");
                                     break;
 
                                 case 1:
-                                    CrossBleAdapter.Current = this.Adapters.First();
-                                    await App.Current.MainPage.Navigation.PushAsync(new AdapterPage());
+                                    var adapter = this.Adapters.First();
+                                    await navigationService.NavToAdapter(adapter);
                                     break;
                             }
                         }
@@ -51,23 +57,22 @@ namespace Samples.Ble
         }
 
 
-        public override void OnActivated()
+        public override void OnAppearing()
         {
-            base.OnActivated();
-            this.Scan.Execute(null);
+            base.OnAppearing();
+            if (this.adapterScanner.IsSupported)
+            {
+                this.Scan.Execute(null);
+            }
+            else
+            {
+                this.navigationService.NavToAdapter(CrossBleAdapter.Current);
+            }
         }
 
 
         public ObservableCollection<IAdapter> Adapters { get; } = new ObservableCollection<IAdapter>();
         public ICommand Select { get; }
         public ICommand Scan { get; }
-
-
-        bool busy;
-        public bool IsBusy
-        {
-            get => this.busy;
-            private set => this.RaiseAndSetIfChanged(ref this.busy, value);
-        }
     }
 }

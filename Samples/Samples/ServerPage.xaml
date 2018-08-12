@@ -1,13 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<pages:ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                   xmlns:pages="clr-namespace:Acr.XamForms.Pages;assembly=Acr.XamForms"
-                   xmlns:ble="clr-namespace:Samples.Ble;assembly=Samples"
-                   x:Class="Samples.Ble.ServerPage"
-                   Title="Server">
-    <ContentPage.BindingContext>
-        <ble:ServerViewModel />
-    </ContentPage.BindingContext>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Samples.ServerPage"
+             xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             Title="Server">
 
     <ContentPage.Content>
         <Grid>
@@ -31,4 +28,4 @@
         </Grid>
     </ContentPage.Content>
 
-</pages:ContentPage>
+</ContentPage>

@@ -6,21 +6,21 @@ using System.Reactive.Linq;
 using System.Windows.Input;
 using Acr.UserDialogs;
 using Plugin.BluetoothLE;
+using Prism.Navigation;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using Samples.Infrastructure;
 
 
-namespace Samples.Ble
+namespace Samples
 {
     public class DeviceViewModel : ViewModel
     {
-        readonly IDevice device;
+        IDevice device;
 
 
-        public DeviceViewModel(IDevice device)
+        public DeviceViewModel(IUserDialogs dialogs)
         {
-            this.device = device;
-
             this.SelectCharacteristic = ReactiveCommand.Create<GattCharacteristicViewModel>(x => x.Select());
 
             this.ConnectionToggle = ReactiveCommand.Create(() =>
@@ -40,11 +40,11 @@ namespace Samples.Ble
             {
                 if (!this.device.Features.HasFlag(DeviceFeatures.PairingRequests))
                 {
-                    UserDialogs.Instance.Toast("Pairing is not supported on this platform");
+                    dialogs.Toast("Pairing is not supported on this platform");
                 }
                 else if (this.device.PairingStatus == PairingStatus.Paired)
                 {
-                    UserDialogs.Instance.Toast("Device is already paired");
+                    dialogs.Toast("Device is already paired");
                 }
                 else
                 {
@@ -53,7 +53,7 @@ namespace Samples.Ble
                         .Subscribe(x =>
                         {
                             var txt = x ? "Device Paired Successfully" : "Device Pairing Failed";
-                            UserDialogs.Instance.Toast(txt);
+                            dialogs.Toast(txt);
                             this.RaisePropertyChanged(nameof(this.PairingText));
                         });
                 }
@@ -64,11 +64,11 @@ namespace Samples.Ble
                 {
                     if (!this.device.Features.HasFlag(DeviceFeatures.MtuRequests))
                     {
-                        UserDialogs.Instance.Alert("MTU Request not supported on this platform");
+                        dialogs.Alert("MTU Request not supported on this platform");
                     }
                     else
                     {
-                        var result = await UserDialogs.Instance.PromptAsync(new PromptConfig()
+                        var result = await dialogs.PromptAsync(new PromptConfig()
                             .SetTitle("MTU Request")
                             .SetMessage("Range 20-512")
                             .SetInputMode(InputType.Number)
@@ -92,7 +92,7 @@ namespace Samples.Ble
                         if (result.Ok)
                         {
                             var actual = await this.device.RequestMtu(Int32.Parse(result.Text));
-                            UserDialogs.Instance.Toast("MTU Changed to " + actual);
+                            dialogs.Toast("MTU Changed to " + actual);
                         }
                     }
                 },
@@ -104,9 +104,14 @@ namespace Samples.Ble
         }
 
 
-        public override void OnActivated()
+        public override void OnNavigatedTo(NavigationParameters parameters)
         {
-            base.OnActivated();
+            base.OnNavigatedTo(parameters);
+
+            this.device = parameters.GetValue<IDevice>("device");
+            this.Name = this.device.Name;
+            this.Uuid = this.device.Uuid;
+            this.PairingText = this.device.PairingStatus == PairingStatus.Paired ? "Device Paired" : "Pair Device";
 
             this.device
                 .WhenReadRssiContinuously(TimeSpan.FromSeconds(3))
@@ -179,25 +184,12 @@ namespace Samples.Ble
         public ICommand RequestMtu { get; }
         public ICommand SelectCharacteristic { get; }
 
-        public string Name => this.device.Name ?? "Unknown";
-        public Guid Uuid => this.device.Uuid;
-        public string PairingText => this.device.PairingStatus == PairingStatus.Paired ? "Device Paired" : "Pair Device";
+        [Reactive] public string Name { get; private set; }
+        [Reactive] public Guid Uuid { get; private set; }
+        [Reactive] public string PairingText { get; private set; }
         public ObservableCollection<Group<GattCharacteristicViewModel>> GattCharacteristics { get; } = new ObservableCollection<Group<GattCharacteristicViewModel>>();
 
-
-        string connectText = "Connect";
-        public string ConnectText
-        {
-            get => this.connectText;
-            private set => this.RaiseAndSetIfChanged(ref this.connectText, value);
-        }
-
-
-        int rssi;
-        public int Rssi
-        {
-            get => this.rssi;
-            private set => this.RaiseAndSetIfChanged(ref this.rssi, value);
-        }
+        [Reactive] public string ConnectText { get; private set; } = "Connect";
+        [Reactive] public int Rssi { get; private set; }
     }
 }
