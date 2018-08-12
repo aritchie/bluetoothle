@@ -45,7 +45,9 @@ namespace Plugin.BluetoothLE.Uwp.Tests
             adWatcher.Start();
 
             var bluetoothAddress = await tcs.Task;
+            adWatcher.Received -= handler;
             adWatcher.Stop();
+
             var device = await BluetoothLEDevice.FromBluetoothAddressAsync(bluetoothAddress);
             this.output.WriteLine($"Bluetooth DeviceId: {device.BluetoothDeviceId.Id} - {device.DeviceId} / {device.Name}");
 
