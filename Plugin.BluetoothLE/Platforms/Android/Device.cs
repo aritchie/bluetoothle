@@ -116,6 +116,7 @@ namespace Plugin.BluetoothLE
                         ob.OnCompleted();
                     });
 
+                this.context.RefreshServices();
                 this.context.Gatt.DiscoverServices();
 
                 return sub;

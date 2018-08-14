@@ -29,7 +29,7 @@ namespace Plugin.BluetoothLE.Internals
         public IObservable<ScanResult> Scan(ScanConfig config)
         {
             this.Devices.Clear();
-            var obs = CrossBleAdapter.UseNewScanner
+            var obs = CrossBleAdapter.AndroidConfiguration.UseNewScanner
                 ? this.NewScan(config)
                 : this.PreLollipopScan(config);
 

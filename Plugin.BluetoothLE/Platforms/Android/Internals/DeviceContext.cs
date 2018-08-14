@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
+using Acr;
 using Acr.Logging;
 using Acr.Reactive;
 using Android.App;
@@ -93,18 +94,33 @@ namespace Plugin.BluetoothLE.Internals
         //}
 
 
+        public void RefreshServices()
+        {
+            if (this.Gatt == null || !CrossBleAdapter.AndroidConfiguration.RefreshServices)
+                return;
+
+            // https://stackoverflow.com/questions/22596951/how-to-programmatically-force-bluetooth-low-energy-service-discovery-on-android
+            try
+            {
+                Log.Warn(BleLogCategory.Device, "Try to clear Android cache");
+                var method = this.Gatt.Class.GetMethod("refresh");
+                if (method != null)
+                {
+                    var result = (bool)method.Invoke(this.Gatt);
+                    Log.Warn(BleLogCategory.Device, "Cache result = " + result);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn(BleLogCategory.Device, "Failed to refresh services - " + ex);
+            }
+        }
+
         public void InvokeOnMainThread(Action action)
         {
-            if (CrossBleAdapter.ShouldInvokeOnMainThread)
+            if (CrossBleAdapter.AndroidConfiguration.ShouldInvokeOnMainThread)
             {
-                if (Application.SynchronizationContext == SynchronizationContext.Current)
-                {
-                    action();
-                }
-                else
-                {
-                    Application.SynchronizationContext.Post(_ => action(), null);
-                }
+                Platform.Current.InvokeOnMainThread(action);
             }
             else
             {
@@ -137,7 +153,7 @@ namespace Plugin.BluetoothLE.Internals
             try
             {
                 this.running = true;
-                var ts = CrossBleAdapter.PauseBetweenInvocations;
+                var ts = CrossBleAdapter.AndroidConfiguration.PauseBetweenInvocations;
                 while (this.Actions.TryDequeue(out Func<Task> task) && this.running)
                 {
                     await task();

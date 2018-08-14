@@ -31,5 +31,16 @@ namespace Plugin.BluetoothLE
             }
             set => current = value;
         }
+
+
+        static AndroidConfig config;
+        public static AndroidConfig AndroidConfiguration
+        {
+            get
+            {
+                config = config ?? new AndroidConfig();
+                return config;
+            }
+        }
     }
 }

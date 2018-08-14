@@ -32,7 +32,7 @@ namespace Plugin.BluetoothLE
         {
             get
             {
-                if (CrossBleAdapter.IsServerSupported)
+                if (CrossBleAdapter.AndroidConfiguration.IsServerSupported)
                     return AdapterFeatures.All;
 
                 return AdapterFeatures.AllClient | AdapterFeatures.AllControls;
