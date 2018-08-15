@@ -1,4 +1,5 @@
 using System;
+using System.Reactive.Linq;
 using Plugin.BluetoothLE.Server;
 
 
@@ -14,6 +15,7 @@ namespace Plugin.BluetoothLE
 
 
         public override AdapterFeatures Features => AdapterFeatures.AllServer;
-        public override IGattServer CreateGattServer() => new GattServer(this.context.PeripheralManager);
+        public override IObservable<IGattServer> CreateGattServer()
+            => Observable.Return(new GattServer(this.context.PeripheralManager));
 	}
 }

@@ -16,7 +16,7 @@ namespace Plugin.BluetoothLE.Server
 
         public override void Start(AdvertisementData adData)
         {
-            if (!CrossBleAdapter.IsServerSupported)
+            if (!CrossBleAdapter.AndroidConfiguration.IsServerSupported)
                 throw new BleException("BLE Advertiser needs API Level 23+");
 
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Context.BluetoothService);
