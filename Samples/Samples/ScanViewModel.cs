@@ -39,7 +39,7 @@ namespace Samples
                 }
             });
 
-            this.ToggleadapterState = ReactiveCommand.Create(
+            this.ToggleAdapterState = ReactiveCommand.Create(
                 () =>
                 {
                     if (this.adapter.CanControlAdapterState())
@@ -94,7 +94,7 @@ namespace Samples
                                     if (list.Any())
                                         this.Devices.AddRange(list);
                                 },
-                                ex => UserDialogs.Instance.Alert(ex.ToString(), "ERROR")
+                                ex => dialogs.Alert(ex.ToString(), "ERROR")
                             )
                             .DisposeWith(this.DeactivateWith);
                     }
@@ -120,7 +120,7 @@ namespace Samples
 
         public ICommand ScanToggle { get; }
         public ICommand OpenSettings { get; }
-        public ICommand ToggleadapterState { get; }
+        public ICommand ToggleAdapterState { get; }
         public ICommand SelectDevice { get; }
         public ObservableList<ScanResultViewModel> Devices { get; } = new ObservableList<ScanResultViewModel>();
 
