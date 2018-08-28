@@ -38,6 +38,25 @@ namespace Plugin.BluetoothLE.Tests
 
 
         [Fact]
+        public async Task RssiTests()
+        {
+            await this.Setup(false);
+            var task = this.device
+                .WhenReadRssiContinuously()
+                .Take(2)
+                .Timeout(TimeSpan.FromSeconds(30))
+                .ToTask();
+
+            await this.device
+                .ConnectWait()
+                .Timeout(Constants.ConnectTimeout)
+                .ToTask();
+
+            await task;
+        }
+
+
+        [Fact]
         public async Task Service_Rediscover()
         {
             await this.Setup(true);
