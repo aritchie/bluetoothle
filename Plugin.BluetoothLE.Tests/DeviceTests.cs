@@ -30,10 +30,33 @@ namespace Plugin.BluetoothLE.Tests
                 .ToTask();
 
             if (connect)
-                await this.device
-                    .ConnectWait()
-                    .Timeout(Constants.ConnectTimeout)
-                    .ToTask();
+                await this.Connect();
+        }
+
+
+        Task Connect() => this.device
+            .ConnectWait()
+            .Timeout(Constants.ConnectTimeout)
+            .ToTask();
+
+
+        [Fact]
+        public async Task RssiTests()
+        {
+            await this.Setup(false);
+            var obs = this.device
+                .WhenReadRssiContinuously()
+                .Take(2)
+                .Timeout(TimeSpan.FromSeconds(30));
+
+            await this.Connect();
+            await obs.ToTask();
+
+            this.device.CancelConnection();
+            await this.device.WhenDisconnected().Take(1).ToTask();
+
+            await this.Connect();
+            await obs.ToTask();
         }
 
 
