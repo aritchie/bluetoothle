@@ -63,13 +63,16 @@ Be sure to install the Plugin.BluetoothLE nuget package in all of your main plat
 **Android**
 
 Add the following to your AndroidManifest.xml
+_PLEASE NOTE THAT YOU HAVE TO REQUEST THESE PERMISSIONS USING [Activity.RequestPermission](https://developer.android.com/training/permissions/requesting)_ or a [Plugin](https://github.com/jamesmontemagno/PermissionsPlugin)
 
 ```xml
 <uses-permission android:name="android.permission.BLUETOOTH"/>
 <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 
 <!--this is necessary for Android v6+ to get the device name and address-->
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
 ```
 
 **iOS**
