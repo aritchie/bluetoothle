@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## 6.2.1
+* [fix][android] Fix threading issue on android characteristics
+* [fix][ios] Advertiser NRE
+
 ## 6.2.0
 * [fix][android] DiscoverServices issues a refresh call to internal methods
 * [fix][ios] DiscoverServices now completes and bubbles through errors properly

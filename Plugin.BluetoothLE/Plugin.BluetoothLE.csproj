@@ -1,10 +1,9 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/1.6.47">
+﻿<Project Sdk="MSBuild.Sdk.Extras/1.6.52">
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;MonoAndroid80;Xamarin.iOS10;xamarin.TVOS10;uap10.0</TargetFrameworks>
-        <!--<TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.TVOS10;uap10.0</TargetFrameworks>
-        <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.TVOS10</TargetFrameworks>-->
-        <GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+        <!--<TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;xamarin.TVOS10;uap10.0</TargetFrameworks>
+        <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;xamarin.TVOS10</TargetFrameworks>-->
         <Authors>aritchie</Authors>
         <Company />
         <AssemblyName>Plugin.BluetoothLE</AssemblyName>
@@ -19,13 +18,14 @@ Supported Platforms
 * macOS
 * UWP</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
-        <PackageVersion>6.2.0</PackageVersion>
+        <PackageVersion>6.2.1</PackageVersion>
         <RepositoryUrl>https://github.com/aritchie/bluetoothle</RepositoryUrl>
         <PackageProjectUrl>https://github.com/aritchie/bluetoothle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</PackageLicenseUrl>
         <PackageIconUrl>https://github.com/aritchie/bluetoothle/raw/master/icon.png</PackageIconUrl>
         <PackageReleaseNotes>https://github.com/aritchie/bluetoothle/blob/master/docs/changelog.md</PackageReleaseNotes>
         <PackageTags>ios android uwp windows tvos mac macos xamarin rx reactive ble bluetooth bluetoothle gattserver advertising</PackageTags>
+
         <RepositoryType>git</RepositoryType>
         <IncludeSymbols>True</IncludeSymbols>
         <IncludeSource>True</IncludeSource>
@@ -34,12 +34,14 @@ Supported Platforms
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
         <DebugType>full</DebugType>
         <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <DebugType>pdbonly</DebugType>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <PropertyGroup Condition=" $(TargetFramework.StartsWith('uap')) ">
@@ -72,6 +74,7 @@ Supported Platforms
     <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.Mac')) ">
         <Compile Include="Platforms\Apple\**\*.cs" />
         <Compile Include="Platforms\macOS\**\*.cs" />
+        <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     </ItemGroup>
 
     <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.TVOS')) ">

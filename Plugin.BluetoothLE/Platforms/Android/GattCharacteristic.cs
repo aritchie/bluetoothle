@@ -54,7 +54,7 @@ namespace Plugin.BluetoothLE
                 }
                 catch (Exception ex)
                 {
-                    ob.OnError(new BleException("Error during charactersitic write", ex));
+                    ob.OnError(new BleException("Error during characteristic write", ex));
                 }
             });
 
@@ -82,14 +82,21 @@ namespace Plugin.BluetoothLE
             Log.Debug(BleLogCategory.Characteristic, "Hooking for write response - " + this.Uuid);
             this.context.InvokeOnMainThread(() =>
             {
-                this.native.WriteType = GattWriteType.Default;
-                this.native.SetValue(value);
-                //if (!this.native.SetValue(value))
+                try
+                {
+                    this.native.WriteType = GattWriteType.Default;
+                    this.native.SetValue(value);
+                    //if (!this.native.SetValue(value))
                     //ob.OnError(new BleException("Failed to set characteristic value"));
 
-                //else if (!this.context.Gatt.WriteCharacteristic(this.native))
-                if (!this.context.Gatt?.WriteCharacteristic(this.native) ?? false)
-                    ob.OnError(new BleException("Failed to write to characteristic"));
+                    //else if (!this.context.Gatt.WriteCharacteristic(this.native))
+                    if (!this.context.Gatt?.WriteCharacteristic(this.native) ?? false)
+                        ob.OnError(new BleException("Failed to write to characteristic"));
+                }
+                catch (Exception ex)
+                {
+                    ob.OnError(ex);
+                }
             });
 
             return sub;
@@ -114,8 +121,15 @@ namespace Plugin.BluetoothLE
 
             this.context.InvokeOnMainThread(() =>
             {
-                if (!this.context.Gatt?.ReadCharacteristic(this.native) ?? false)
-                    ob.OnError(new BleException("Failed to read characteristic"));
+                try
+                {
+                    if (!this.context.Gatt?.ReadCharacteristic(this.native) ?? false)
+                        ob.OnError(new BleException("Failed to read characteristic"));
+                }
+                catch (Exception ex)
+                {
+                    ob.OnError(ex);
+                }
             });
 
             return sub;

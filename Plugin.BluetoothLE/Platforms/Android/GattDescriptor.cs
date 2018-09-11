@@ -45,11 +45,18 @@ namespace Plugin.BluetoothLE
 
             this.context.InvokeOnMainThread(() =>
             {
-                if (!this.native.SetValue(data))
-                    ob.OnError(new BleException("Failed to set descriptor value"));
+                try
+                {
+                    if (!this.native.SetValue(data))
+                        ob.OnError(new BleException("Failed to set descriptor value"));
 
-                else if (!this.context.Gatt?.WriteDescriptor(this.native) ?? false)
-                    ob.OnError(new BleException("Failed to write to descriptor"));
+                    else if (!this.context.Gatt?.WriteDescriptor(this.native) ?? false)
+                        ob.OnError(new BleException("Failed to write to descriptor"));
+                }
+                catch (Exception ex)
+                {
+                    ob.OnError(ex);
+                }
             });
 
             return sub;
@@ -72,8 +79,15 @@ namespace Plugin.BluetoothLE
 
             this.context.InvokeOnMainThread(() =>
             {
-                if (!this.context.Gatt?.ReadDescriptor(this.native) ?? false)
-                    ob.OnError(new BleException("Failed to read descriptor"));
+                try
+                {
+                    if (!this.context.Gatt?.ReadDescriptor(this.native) ?? false)
+                        ob.OnError(new BleException("Failed to read descriptor"));
+                }
+                catch (Exception ex)
+                {
+                    ob.OnError(ex);
+                }
             });
 
             return sub;

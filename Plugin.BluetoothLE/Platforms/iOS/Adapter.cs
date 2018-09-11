@@ -14,6 +14,7 @@ namespace Plugin.BluetoothLE
         public Adapter(BleAdapterConfiguration config = null)
         {
             this.context = new AdapterContext(config);
+            this.Advertiser = new Advertiser(this.context.PeripheralManager);
         }
 
 
