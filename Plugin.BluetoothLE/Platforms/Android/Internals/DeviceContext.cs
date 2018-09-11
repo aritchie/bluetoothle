@@ -6,7 +6,6 @@ using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
-using Acr;
 using Acr.Logging;
 using Acr.Reactive;
 using Android.App;
@@ -14,6 +13,7 @@ using Android.Bluetooth;
 using Android.OS;
 using Java.Lang;
 using Exception = System.Exception;
+using Platform = Acr.Platform;
 
 
 namespace Plugin.BluetoothLE.Internals
@@ -76,7 +76,7 @@ namespace Plugin.BluetoothLE.Internals
                         .ConfigureAwait(false);
                     ob.Respond(result);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     ob.OnError(ex);
                 }
@@ -116,17 +116,51 @@ namespace Plugin.BluetoothLE.Internals
             }
         }
 
+
         public void InvokeOnMainThread(Action action)
         {
             if (CrossBleAdapter.AndroidConfiguration.ShouldInvokeOnMainThread)
-            {
                 Platform.Current.InvokeOnMainThread(action);
-            }
             else
-            {
                 action();
-            }
         }
+
+        //public IObservable<Unit> InvokeOnMainThread(Action action)
+        //{
+        //    if (!CrossBleAdapter.AndroidConfiguration.ShouldInvokeOnMainThread)
+        //    {
+        //        return Observable.Create<Unit>(ob =>
+        //        {
+        //            try
+        //            {
+        //                action();
+        //                ob.Respond(Unit.Default);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                ob.OnError(ex);
+        //            }
+        //            return Disposable.Empty;
+        //        });
+        //    }
+        //    return Observable.Create<Unit>(ob =>
+        //    {
+        //        Platform.Current.InvokeOnMainThread(() =>
+        //        {
+        //            try
+        //            {
+        //                action();
+        //                ob.Respond(Unit.Default);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                ob.OnError(ex);
+        //            }
+        //        });
+
+        //        return Disposable.Empty;
+        //    });
+        //}
 
 
         public void Close()
@@ -137,7 +171,7 @@ namespace Plugin.BluetoothLE.Internals
                 this.Gatt?.Close();
                 this.Gatt = null;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Log.Warn(BleLogCategory.Device, "Unclean disconnect - " + ex);
             }
