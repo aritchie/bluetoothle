@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## 6.3.0
+* [feature][ios] Get connected devices supports service UUID filter which allows iOS to retrieve connected device list outside of application
+* [feature] RX/TX flow extensions
+
 ## 6.2.1
 * [fix][android] Fix threading issue on android characteristics
 * [fix][ios] Advertiser NRE

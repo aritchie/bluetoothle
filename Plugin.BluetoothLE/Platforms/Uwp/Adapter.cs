@@ -101,7 +101,7 @@ namespace Plugin.BluetoothLE
         });
 
 
-        public override IObservable<IEnumerable<IDevice>> GetConnectedDevices() => this.GetDevices(
+        public override IObservable<IEnumerable<IDevice>> GetConnectedDevices(Guid? serviceUuid = null) => this.GetDevices(
             BluetoothLEDevice.GetDeviceSelectorFromConnectionStatus(BluetoothConnectionStatus.Connected)
         );
 
