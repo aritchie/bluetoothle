@@ -11,7 +11,7 @@ namespace Plugin.BluetoothLE
 {
     public static partial class Extensions
     {
-        // TODO: finish bytes?
+        // maybe finish bytes later on
         /// <summary>
         ///
         /// </summary>
@@ -59,30 +59,42 @@ namespace Plugin.BluetoothLE
                         {
                             flowLoop = rx
                                 .WhenNotificationReceived()
-                                .Subscribe(y =>
-                                {
-                                    // TODO: error trap
-                                    writeStream.Write(y.Data, 0, y.Data.Length);
+                                .Subscribe(
+                                    y =>
+                                    {
+                                        writeStream.Write(y.Data, 0, y.Data.Length);
 
-                                    // don't need to await this will progress stream
-                                    tx.Write(txNextBytes).Subscribe();
-                                });
+                                        // don't need to await this will progress stream
+                                        tx.Write(txNextBytes).Subscribe();
+                                        //ob.OnNext(Unit.Default);
+                                    },
+                                    ob.OnError
+                                );
                         }
-                        // TODO: could leave read out of scope for now
-                        //else
-                        //{
-                        //    await tx.Write(txNextBytes).ToTask();
-                        //    if (rx.CanNotifyOrIndicate())
-                        //    {
-                        //        var bytes = await rx.Read().Select(y => y.Data).ToTask();
-                        //        writeStream.Write(bytes, 0, bytes.Length);
-                        //    }
-                        //}
+                        else
+                        {
+                            // TODO: need state hooks so this keeps going like notification pattern
+                            flowLoop = Observable
+                                .While(
+                                    () => device.IsConnected() && !disp.IsDisposed,
+                                    Observable.FromAsync(async ct =>
+                                    {
+                                        await tx.Write(txNextBytes).ToTask(ct);
+                                        var result = await rx.Read().ToTask(ct);
+                                        writeStream.Write(result.Data, 0, result.Data.Length);
+                                    })
+                                )
+                                .Subscribe(_ => { }, ob.OnError);
+                        }
                     }
                 })
             );
 
-            return disp;
+            return () =>
+            {
+                disp.Dispose();
+                flowLoop?.Dispose();
+            };
         });
 
 
