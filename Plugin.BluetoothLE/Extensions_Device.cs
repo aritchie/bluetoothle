@@ -220,6 +220,18 @@ namespace Plugin.BluetoothLE
 
 
         /// <summary>
+        /// Get a known service when the device is connected
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="serviceUuid"></param>
+        /// <returns></returns>
+        public static IObservable<IGattService> WhenConnectedGetKnownService(this IDevice device, Guid serviceUuid) =>
+            device
+                .WhenConnected()
+                .Select(x => x.GetKnownService(serviceUuid))
+                .Switch();
+
+        /// <summary>
         /// Will discover all services/characteristics when connected state occurs
         /// </summary>
         /// <param name="device"></param>
