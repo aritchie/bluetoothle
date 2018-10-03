@@ -128,12 +128,11 @@ namespace Plugin.BluetoothLE
                     .Subscribe(
                         async args => // CAREFUL
                         {
-                            var device = this.context.GetDevice(args.BluetoothAddress);
-                            if (device == null)
+                            IDevice device = null;
+                            var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
+                            if (btDevice != null)
                             {
-                                var btDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
-                                if (btDevice != null)
-                                    device = this.context.AddOrGetDevice(btDevice);
+                                device = this.context.AddOrGetDevice(btDevice);
                             }
                             if (device != null)
                             {

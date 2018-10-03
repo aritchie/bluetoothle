@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Linq;
 using Windows.Devices.Bluetooth;
-using Acr.Logging;
 
 
 namespace Plugin.BluetoothLE
@@ -19,6 +17,10 @@ namespace Plugin.BluetoothLE
             return dev;
         }
 
+        public bool RemoveDevice(ulong bluetoothAddress)
+        {
+            return this.devices.TryRemove(bluetoothAddress, out _);
+        }
 
         public IDevice GetDevice(ulong bluetoothAddress)
         {
