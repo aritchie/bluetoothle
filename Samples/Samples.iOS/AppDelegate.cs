@@ -14,7 +14,7 @@ namespace Samples.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             Forms.Init();
-            CrossBleAdapter.Init(BleAdapterConfiguration.DefaultBackgroudingConfig);
+            CrossBleAdapter.Init();
             this.LoadApplication(new App(new PlatformInitializer()));
 
             //UIApplication.SharedApplication.IdleTimerDisabled = false;
