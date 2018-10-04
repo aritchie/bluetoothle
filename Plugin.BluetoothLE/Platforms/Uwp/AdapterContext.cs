@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using Windows.Devices.Bluetooth;
-using Acr.Logging;
 
 
 namespace Plugin.BluetoothLE

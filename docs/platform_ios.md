@@ -40,8 +40,6 @@ _This feature is only provided on iOS.  It allows for a CBCentralManager to be r
 _There is additional configuration required to use this event_
 
 ```csharp
-// in your iOS application AppDelegate, do the following:
-BleAdapter.Init(BleAdapterConfiguration.DefaultBackgroudingConfig);
 
 // then in your shared code (somewhere near your initialization)
 BleAdapter.Current.WhenDeviceStateRestored().Subscribe(device => 

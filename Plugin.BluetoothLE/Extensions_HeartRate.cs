@@ -24,7 +24,7 @@ namespace Plugin.BluetoothLE
 
 
         public static IObservable<ushort> WhenHeartRateBpm(this IDevice device) => device
-            .GetKnownService(HeartRateServiceUuid)
+            .WhenConnectedGetKnownService(HeartRateServiceUuid)
             .Select(x => x.DiscoverCharacteristics())
             .Switch()
             .Take(1)

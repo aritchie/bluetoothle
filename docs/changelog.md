@@ -1,5 +1,17 @@
 # CHANGE LOG
 
+## 6.3.0
+* [feature] RX/TX flow extensions
+
+## 6.2.3
+* [fix][ios] CBPeripheralManager restoration is now enabled by default and requires no user setting
+* [fix][android] Characteristic equality safety checks
+
+## 6.2.2
+* [feature][ios] Get connected devices supports service UUID filter which allows iOS to retrieve connected device list outside of application
+* [fix][macos] Fix valuetuple issue that was preventing compile
+* [breaking] BlobWrite has been moved to extension method in preparation for updates in 6.3
+
 ## 6.2.1
 * [fix][android] Fix threading issue on android characteristics
 * [fix][ios] Advertiser NRE

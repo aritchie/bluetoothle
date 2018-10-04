@@ -21,7 +21,7 @@ namespace Plugin.BluetoothLE
         /// <summary>
         /// You should call this before calling BleAdapter.Current!
         /// </summary>
-        public static void Init(BleAdapterConfiguration configuration)
+        public static void Init(BleAdapterConfiguration configuration = null)
         {
             Current = new Adapter(configuration);
         }

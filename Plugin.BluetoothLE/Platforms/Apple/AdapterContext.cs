@@ -19,16 +19,16 @@ namespace Plugin.BluetoothLE
         public AdapterContext(BleAdapterConfiguration config)
         {
             this.PeripheralManager = new CBPeripheralManager();
+            var queue = config?.DispatchQueue ?? DispatchQueue.CurrentQueue;
 
-            this.Manager = config == null
-                ? new CBCentralManager(this, DispatchQueue.CurrentQueue)
-                : new CBCentralManager(this, config.DispatchQueue, new CBCentralInitOptions
-                {
-                    ShowPowerAlert = config.ShowPowerAlert,
+            var opts = new CBCentralInitOptions
+            {
+                ShowPowerAlert = config?.ShowPowerAlert ?? false,
 #if __IOS__
-                    RestoreIdentifier = config.RestoreIdentifier
+                RestoreIdentifier = config?.RestoreIdentifier ?? "acrble"
 #endif
-                });
+            };
+            this.Manager = new CBCentralManager(this, queue, opts);
         }
 
 

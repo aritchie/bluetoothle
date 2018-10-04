@@ -51,10 +51,11 @@ namespace Plugin.BluetoothLE
         void StopScan();
 
         /// <summary>
-        /// Gets a list of connected devices
+        /// Gets a list of connected devices by your app
         /// </summary>
+        /// <param name="serviceUuid">(iOS only) Service UUID filter to see devices that were connected outside of application</param>
         /// <returns></returns>
-        IObservable<IEnumerable<IDevice>> GetConnectedDevices();
+        IObservable<IEnumerable<IDevice>> GetConnectedDevices(Guid? serviceUuid = null);
 
         /// <summary>
         /// Get the list of paired devices
