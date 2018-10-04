@@ -119,6 +119,7 @@ namespace Plugin.BluetoothLE
             return Observable.Create<IScanResult>(ob =>
             {
                 this.IsScanning = true;
+                this.context.Clear();
 
                 var sub = this
                     .WhenRadioReady()
