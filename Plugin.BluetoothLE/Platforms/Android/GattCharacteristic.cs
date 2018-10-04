@@ -263,29 +263,28 @@ namespace Plugin.BluetoothLE
 
         bool NativeEquals(GattCharacteristicEventArgs args)
         {
-            try
-            {
-                if (this.context.Gatt == null || args.Characteristic?.Service == null)
-                    return false;
-
-                if (this.native.Equals(args.Characteristic))
-                    return true;
-
-                if (!this.native.Uuid.Equals(args.Characteristic.Uuid))
-                    return false;
-
-                if (!this.native.Service?.Uuid.Equals(args.Characteristic?.Service.Uuid) ?? false)
-                    return false;
-
-                if (!this.context.Gatt.Equals(args.Gatt))
-                    return false;
-
-                return true;
-            }
-            catch
-            {
+            if (this.context?.Gatt == null)
                 return false;
-            }
+
+            if (args?.Characteristic?.Service == null)
+                return false;
+
+            if (args.Gatt == null)
+                return false;
+
+            if (this.native.Equals(args.Characteristic))
+                return true;
+
+            if (!this.native.Uuid.Equals(args.Characteristic.Uuid))
+                return false;
+
+            if (!this.native.Service.Uuid.Equals(args.Characteristic.Service.Uuid))
+                return false;
+
+            if (!this.context.Gatt.Equals(args.Gatt))
+                return false;
+
+            return true;
         }
 
 
