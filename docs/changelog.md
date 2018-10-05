@@ -1,8 +1,5 @@
 # CHANGE LOG
 
-## 6.3.0
-* [feature] RX/TX flow extensions
-
 ## 6.2.3
 * [fix][ios] CBPeripheralManager restoration is now enabled by default and requires no user setting
 * [fix][android] Characteristic equality safety checks
