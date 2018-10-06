@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Samples.AdapterListPage"
-             xmlns:behaviors="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
+             xmlns:acr="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
              Title="BLE Plugin (Adapter List)">
 
     <ContentPage.ToolbarItems>
@@ -14,7 +14,7 @@
             <ActivityIndicator IsRunning="{Binding IsBusy}" VerticalOptions="Center" />
             <ListView ItemsSource="{Binding Adapters}">
                 <ListView.Behaviors>
-                    <behaviors:ItemTappedCommandBehavior Command="{Binding Select}" />
+                    <acr:ItemTappedCommandBehavior Command="{Binding Select}" />
                 </ListView.Behaviors>
 
                 <ListView.ItemTemplate>

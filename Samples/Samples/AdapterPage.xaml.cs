@@ -14,7 +14,7 @@ namespace Samples
         }
 
 
-        public void OnNavigatingTo(NavigationParameters parameters)
+        public void OnNavigatingTo(INavigationParameters parameters)
         {
             foreach (var child in this.Children)
             {

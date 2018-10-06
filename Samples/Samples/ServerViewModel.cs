@@ -66,7 +66,7 @@ namespace Samples
         }
 
 
-        public override void OnNavigatingTo(NavigationParameters parameters)
+        public override void OnNavigatingTo(INavigationParameters parameters)
         {
             base.OnNavigatingTo(parameters);
             this.adapter = parameters.GetValue<IAdapter>("adapter");

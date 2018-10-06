@@ -1,5 +1,4 @@
 ﻿using System;
-using Plugin.BluetoothLE;
 using Foundation;
 using UIKit;
 using Xamarin.Forms;
@@ -14,9 +13,8 @@ namespace Samples.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             Forms.Init();
-            CrossBleAdapter.Init();
             this.LoadApplication(new App(new PlatformInitializer()));
-
+            new Acr.XamForms.Behaviors.ItemTappedCommandBehavior();
             //UIApplication.SharedApplication.IdleTimerDisabled = false;
             return base.FinishedLaunching(app, options);
         }

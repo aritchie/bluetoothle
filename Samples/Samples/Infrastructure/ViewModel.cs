@@ -31,17 +31,17 @@ namespace Samples.Infrastructure
         protected CompositeDisposable DestroyWith { get; } = new CompositeDisposable();
 
 
-        public virtual void OnNavigatingTo(NavigationParameters parameters)
+        public virtual void OnNavigatingTo(INavigationParameters parameters)
         {
         }
 
 
-        public virtual void OnNavigatedFrom(NavigationParameters parameters)
+        public virtual void OnNavigatedFrom(INavigationParameters parameters)
         {
         }
 
 
-        public virtual void OnNavigatedTo(NavigationParameters parameters)
+        public virtual void OnNavigatedTo(INavigationParameters parameters)
         {
         }
 
@@ -64,7 +64,7 @@ namespace Samples.Infrastructure
         }
 
 
-        public virtual Task<bool> CanNavigateAsync(NavigationParameters parameters) => Task.FromResult(true);
+        public virtual Task<bool> CanNavigateAsync(INavigationParameters parameters) => Task.FromResult(true);
         [Reactive] public bool IsBusy { get; protected set; }
     }
 }
