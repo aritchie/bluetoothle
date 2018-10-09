@@ -5,9 +5,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Acr.Core" Version="2.2.1" />
+        <PackageReference Include="Acr.Core" Version="3.0.0" />
         <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
-        <PackageReference Include="Acr.XamForms" Version="3.2.0" />
+        <PackageReference Include="Acr.XamForms" Version="4.0.0" />
         <PackageReference Include="Prism.Autofac.Forms" Version="7.1.0.279-pre" />
         <PackageReference Include="ReactiveUI.Fody" Version="9.0.1" />
         <PackageReference Include="System.Reactive" Version="4.1.1" />

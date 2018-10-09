@@ -14,7 +14,7 @@ namespace Samples.iOS
         {
             Forms.Init();
             this.LoadApplication(new App(new PlatformInitializer()));
-            new Acr.XamForms.Behaviors.ItemTappedCommandBehavior();
+            new Acr.XamForms.ItemTappedCommandBehavior();
             //UIApplication.SharedApplication.IdleTimerDisabled = false;
             return base.FinishedLaunching(app, options);
         }

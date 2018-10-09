@@ -1,9 +1,8 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/1.6.55">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;MonoAndroid80;Xamarin.iOS10;xamarin.TVOS10;Xamarin.Mac20;uap10.0</TargetFrameworks>
-        <!--<TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;xamarin.TVOS10;uap10.0</TargetFrameworks>
-        <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;xamarin.TVOS10</TargetFrameworks>-->
+        <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;xamarin.TVOS10;uap10.0</TargetFrameworks>
+        <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;xamarin.TVOS10</TargetFrameworks>
         <Authors>aritchie</Authors>
         <Company />
         <AssemblyName>Plugin.BluetoothLE</AssemblyName>
@@ -52,7 +51,7 @@ Supported Platforms
     <ItemGroup>
         <Compile Remove="Platforms\**\*.cs" />
         <None Include="Platforms\**\*.cs" />
-        <PackageReference Include="Acr.Core" Version="2.2.1" />
+        <PackageReference Include="Acr.Core" Version="3.0.0" />
         <PackageReference Include="System.Reactive" Version="4.0.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
     </ItemGroup>

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:behaviors="clr-namespace:Acr.XamForms.Behaviors;assembly=Acr.XamForms"
+             xmlns:acr="clr-namespace:Acr.XamForms;assembly=Acr.XamForms"
              x:Class="Samples.ScanPage"
              Title="{Binding Title}">
 
@@ -22,7 +22,7 @@
 
             <ListView ItemsSource="{Binding Devices}" RowHeight="160">
 			    <ListView.Behaviors>
-			        <behaviors:ItemTappedCommandBehavior Command="{Binding SelectDevice}" />
+			        <acr:ItemTappedCommandBehavior Command="{Binding SelectDevice}" />
 			    </ListView.Behaviors>
 
                 <ListView.ItemTemplate>
