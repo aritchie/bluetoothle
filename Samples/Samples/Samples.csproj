@@ -5,13 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Acr.Core" Version="3.0.0" />
         <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
-        <PackageReference Include="Acr.XamForms" Version="4.0.0" />
-        <PackageReference Include="Prism.Autofac.Forms" Version="7.1.0.279-pre" />
+        <PackageReference Include="Acr.XamForms" Version="4.0.1" />
+        <PackageReference Include="Prism.Autofac.Forms" Version="7.1.0.431" />
         <PackageReference Include="ReactiveUI.Fody" Version="9.0.1" />
-        <PackageReference Include="System.Reactive" Version="4.1.1" />
-        <PackageReference Include="Xamarin.Forms" Version="3.2.0.871581" />
+        <PackageReference Include="System.Reactive" Version="4.1.2" />
+        <PackageReference Include="Xamarin.Forms" Version="3.3.0.912540" />
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">

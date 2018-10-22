@@ -25,7 +25,7 @@ namespace Plugin.BluetoothLE
             {
                 ShowPowerAlert = config?.ShowPowerAlert ?? false,
 #if __IOS__
-                RestoreIdentifier = config?.RestoreIdentifier ?? "acrble"
+                RestoreIdentifier = config?.RestoreIdentifier ?? "pluginbluetoothle"
 #endif
             };
             this.Manager = new CBCentralManager(this, queue, opts);
