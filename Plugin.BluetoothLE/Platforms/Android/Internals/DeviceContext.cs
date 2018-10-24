@@ -191,8 +191,12 @@ namespace Plugin.BluetoothLE.Internals
                 while (this.Actions.TryDequeue(out Func<Task> task) && this.running)
                 {
                     await task();
-                    if (ts.TotalMilliseconds > 0)
-                        await Task.Delay(ts, this.cancelSrc.Token);
+                    
+                    // There's no need of this delay anymore, since now await task() run on the current thread, 
+                    // so there is no reason to wait for completion with a fixed amout of time
+                    // In case, just to be sure, it can be moved inside WriteWithoutResponse method, just before leaving it
+                    //if (ts.TotalMilliseconds > 0)
+                    //    await Task.Delay(ts, this.cancelSrc.Token);
                 }
             }
             catch (TaskCanceledException)
