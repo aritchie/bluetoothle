@@ -38,8 +38,9 @@ namespace Plugin.BluetoothLE
         {
             this.AssertWrite(false);
 
-            this.context.InvokeOnMainThread(() =>
-            {
+            // Run the writing on the current thread, in order to brake the writing serialization done by ProcessQueue
+            //this.context.InvokeOnMainThread(() =>
+            //{
                 try
                 {
                     this.native.WriteType = GattWriteType.NoResponse;
@@ -56,7 +57,7 @@ namespace Plugin.BluetoothLE
                 {
                     ob.OnError(new BleException("Error during characteristic write", ex));
                 }
-            });
+            //});
 
             return Disposable.Empty;
         }));
@@ -80,8 +81,10 @@ namespace Plugin.BluetoothLE
                 });
 
             Log.Debug(BleLogCategory.Characteristic, "Hooking for write response - " + this.Uuid);
-            this.context.InvokeOnMainThread(() =>
-            {
+            
+            // Run the writing on the current thread, in order to brake the writing serialization done by ProcessQueue
+            //this.context.InvokeOnMainThread(() =>
+            //{
                 try
                 {
                     this.native.WriteType = GattWriteType.Default;
@@ -97,7 +100,7 @@ namespace Plugin.BluetoothLE
                 {
                     ob.OnError(ex);
                 }
-            });
+            //});
 
             return sub;
         }));
@@ -119,8 +122,9 @@ namespace Plugin.BluetoothLE
                         ob.OnError(new BleException($"Failed to read characteristic - {args.Status}"));
                 });
 
-            this.context.InvokeOnMainThread(() =>
-            {
+            // Run the reading on the current thread, in order to brake the writing serialization done by ProcessQueue
+            //this.context.InvokeOnMainThread(() =>
+            //{
                 try
                 {
                     if (!this.context.Gatt?.ReadCharacteristic(this.native) ?? false)
@@ -130,7 +134,7 @@ namespace Plugin.BluetoothLE
                 {
                     ob.OnError(ex);
                 }
-            });
+            //});
 
             return sub;
         }));
