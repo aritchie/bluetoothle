@@ -47,11 +47,16 @@ namespace Plugin.BluetoothLE
 
                     if (!this.native.SetValue(value))
                         throw new BleException("Failed to write characteristic value");
-
+                        
                     if (!this.context.Gatt.WriteCharacteristic(this.native))
                         throw new BleException("Failed to write to characteristic");
 
                     ob.Respond( new CharacteristicGattResult(this, value));
+                    
+                    // Write without response need some delay before the next BLE operation
+                    var ts = CrossBleAdapter.AndroidConfiguration.PauseBetweenInvocations;
+                    if (ts.TotalMilliseconds > 0)
+                        Task.Delay(ts).Wait();
                 }
                 catch (Exception ex)
                 {
