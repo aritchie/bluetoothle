@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
+using Acr.Collections;
 using Acr.Logging;
 using Acr.Reactive;
 using Android.App;
@@ -63,6 +64,9 @@ namespace Plugin.BluetoothLE.Internals
 
         public IObservable<T> Invoke<T>(IObservable<T> observable) => Observable.Create<T>(ob =>
         {
+            if (!CrossBleAdapter.AndroidConfiguration.UseInternalSyncQueue)
+                return ob;
+            
             var cancel = false;
             this.Actions.Enqueue(async () =>
             {
@@ -188,6 +192,7 @@ namespace Plugin.BluetoothLE.Internals
             {
                 this.running = true;
                 var ts = CrossBleAdapter.AndroidConfiguration.PauseBetweenInvocations;
+                // TODO: consider 
                 while (this.Actions.TryDequeue(out Func<Task> task) && this.running)
                 {
                     await task();

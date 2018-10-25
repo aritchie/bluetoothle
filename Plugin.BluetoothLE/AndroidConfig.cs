@@ -6,6 +6,12 @@ namespace Plugin.BluetoothLE
     public class AndroidConfig
     {
         /// <summary>
+        /// Allows you to disable the internal sync queue
+        /// DO NOT CHANGE this if you don't know what this is!
+        /// </summary>
+        public bool UseInternalSyncQueue { get; set; } = true;
+        
+        /// <summary>
         /// This is only necessary on niche cases and thus must be enabled by default
         /// </summary>
         public bool RefreshServices { get; set; }
