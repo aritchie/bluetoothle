@@ -17,14 +17,14 @@ CrossBleAdapter.Current.WhenStatusChanged().Subscribe(status => {});
 **Scan for Devices**
 
 ```csharp
-var scanner = CrossBleAdapter.Current.Scan().Subscribe(scanResult => 
+CrossBleAdapter.Current.Scan().Subscribe(scanResult =>
 {
     // do something with it
     // the scanresult contains the device, RSSI, and advertisement packet
         
 });
 
-scanner.Dispose(); // to stop scanning
+CrossBleAdapter.Current.StopScan(); // to stop scanning
 ```
 
 
