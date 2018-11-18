@@ -241,7 +241,7 @@ Q. Why can't I disconnect devices selectively in the GATT server?
 
 Q. Why can't I configure the device name on Android?
 
-> Please read the [advertising docs](docs/server_advertising.md) on this
+> Please read the [advertising docs](docs/advertising.md) on this
 
 
 ## GENERAL RULES TO FOLLOW
