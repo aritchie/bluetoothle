@@ -62,33 +62,36 @@ namespace Plugin.BluetoothLE.Internals
         });
 
 
-        public IObservable<T> Invoke<T>(IObservable<T> observable) => Observable.Create<T>(ob =>
+        public IObservable<T> Invoke<T>(IObservable<T> observable)
         {
             if (!CrossBleAdapter.AndroidConfiguration.UseInternalSyncQueue)
-                return ob;
-            
-            var cancel = false;
-            this.Actions.Enqueue(async () =>
+                return observable;
+
+            return Observable.Create<T>(ob =>
             {
-                if (cancel)
-                    return;
+                var cancel = false;
+                this.Actions.Enqueue(async () =>
+                {
+                    if (cancel)
+                        return;
 
-                try
-                {
-                    var result = await observable
-                        .ToTask(this.cancelSrc.Token)
-                        .ConfigureAwait(false);
-                    ob.Respond(result);
-                }
-                catch (Exception ex)
-                {
-                    ob.OnError(ex);
-                }
+                    try
+                    {
+                        var result = await observable
+                            .ToTask(this.cancelSrc.Token)
+                            .ConfigureAwait(false);
+                        ob.Respond(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        ob.OnError(ex);
+                    }
+                });
+                this.ProcessQueue(); // fire and forget
+
+                return () => cancel = true;
             });
-            this.ProcessQueue(); // fire and forget
-
-            return () => cancel = true;
-        });
+        }
 
 
         //public async Task OpPause(CancellationToken? cancelToken = null)
@@ -192,7 +195,7 @@ namespace Plugin.BluetoothLE.Internals
             {
                 this.running = true;
                 var ts = CrossBleAdapter.AndroidConfiguration.PauseBetweenInvocations;
-                // TODO: consider 
+                // TODO: consider
                 while (this.Actions.TryDequeue(out Func<Task> task) && this.running)
                 {
                     await task();
