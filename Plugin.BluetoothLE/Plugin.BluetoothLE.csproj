@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/1.6.55">
+﻿<Project Sdk="MSBuild.Sdk.Extras/1.6.60">
 
     <PropertyGroup>
         <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.TVOS10;uap10.0</TargetFrameworks>
@@ -48,12 +48,17 @@ Supported Platforms
         <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
     </PropertyGroup>
 
+    <ItemGroup Condition=" '$(OS)' == 'Windows_NT' AND '$(Configuration)' == 'Release' " >
+        <PackageReference Include="Microsoft.SourceLink.GitHub"
+                          Version="1.0.0-beta-63127-02"
+                          PrivateAssets="All" />
+    </ItemGroup>
+
     <ItemGroup>
         <Compile Remove="Platforms\**\*.cs" />
         <None Include="Platforms\**\*.cs" />
         <PackageReference Include="Acr.Core" Version="3.0.1" />
         <PackageReference Include="System.Reactive" Version="4.0.0" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" Condition=" '$(OS)' == 'Windows_NT' " />
     </ItemGroup>
 
     <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">

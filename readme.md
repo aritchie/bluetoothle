@@ -3,7 +3,7 @@ Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
 
 ## [SUPPORT THIS PROJECT](https://github.com/aritchie/home)
 
-[Change Log - October 12, 2018](docs/changelog.md)
+[Change Log - November 9, 2018](docs/changelog.md)
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
 [![Build status](https://dev.azure.com/allanritchie/Plugins/_apis/build/status/BLE)](https://dev.azure.com/allanritchie/Plugins/_build/latest?definitionId=0)

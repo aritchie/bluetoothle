@@ -2,6 +2,7 @@
 
 ## 6.2.3
 * [fix][ios] CBPeripheralManager restoration is now enabled by default and requires no user setting
+* [fix][ios] WriteWithoutResponse shouldn't be swapping to write
 * [fix][android] Characteristic equality safety checks
 
 ## 6.2.2
