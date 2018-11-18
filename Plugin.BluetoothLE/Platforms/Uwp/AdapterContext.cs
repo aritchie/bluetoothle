@@ -32,6 +32,11 @@ namespace Plugin.BluetoothLE
             return dev;
         }
 
+
+        public bool RemoveDevice(ulong bluetoothAddress)
+            => this.devices.TryRemove(bluetoothAddress, out _);
+
+
         //public IEnumerable<IDevice> GetConnectedDevices() => this.devices
         //    .Where(x => x.Value.Status == ConnectionStatus.Connected)
         //    .Select(x => x.Value)

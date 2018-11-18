@@ -70,9 +70,11 @@ namespace Plugin.BluetoothLE
             }
             this.subscribers.Clear();
 
+            this.adapterContext.RemoveDevice(this.NativeDevice.BluetoothAddress);
             this.NativeDevice.ConnectionStatusChanged -= this.OnNativeConnectionStatusChanged;
             this.NativeDevice?.Dispose();
             this.NativeDevice = null;
+
             GC.Collect();
             GC.WaitForPendingFinalizers();
             this.connSubject.OnNext(ConnectionStatus.Disconnected);
