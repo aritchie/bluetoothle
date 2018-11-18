@@ -4,6 +4,7 @@
 * [fix][ios] CBPeripheralManager restoration is now enabled by default and requires no user setting
 * [fix][ios] WriteWithoutResponse shouldn't be swapping to write
 * [fix][android] Characteristic equality safety checks
+* [fix][uwp] upon disconnect, the device is removed from the adapter queue
 
 ## 6.2.2
 * [feature][ios] Get connected devices supports service UUID filter which allows iOS to retrieve connected device list outside of application
