@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using Plugin.BluetoothLE.Server;
 
 namespace Plugin.BluetoothLE.Internals
 {
@@ -10,6 +11,8 @@ namespace Plugin.BluetoothLE.Internals
         public static InternalScanRecord Parse(byte[] scanRecord)
         {
             var sr = new InternalScanRecord();
+            var mfData = new List<ManufacturerData>();
+            sr.ManufacturerData = mfData;
             var index = 0;
             var others = new List<AdRecord>();
 
@@ -48,7 +51,11 @@ namespace Plugin.BluetoothLE.Internals
                         break;
 
                     case AdvertisementRecordType.ManufacturerSpecificData:
-                        sr.ManufacturerData = data;
+                        int manufacturerId = ((data[1] & 0xFF) << 8) + (data[0] & 0xFF);
+                        byte[] manufacturerDataBytes = new byte[data.Length - 2];
+                        Array.Copy(data, 2, manufacturerDataBytes, 0, data.Length-2);
+
+                        mfData.Add(new Server.ManufacturerData((ushort) manufacturerId, manufacturerDataBytes));
                         break;
 
                     default:
@@ -69,7 +76,7 @@ namespace Plugin.BluetoothLE.Internals
 
 
         public string LocalName { get; private set; }
-        public byte[] ManufacturerData { get; private set; }
+        public IEnumerable<ManufacturerData> ManufacturerData { get; private set; }
         public bool IsConnectable { get; private set; }
         public int TxPower { get; private set; }
         public IList<Guid> ServiceUuids { get; } = new List<Guid>();

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Android.Bluetooth.LE;
 using Plugin.BluetoothLE.Internals;
-
+using Plugin.BluetoothLE.Server;
 
 namespace Plugin.BluetoothLE
 {
@@ -25,7 +25,7 @@ namespace Plugin.BluetoothLE
 
         public string LocalName => this.lazyParse.Value.LocalName;
         public bool IsConnectable => this.lazyParse.Value.IsConnectable;
-        public byte[] ManufacturerData => this.lazyParse.Value.ManufacturerData;
+        public IEnumerable<ManufacturerData> ManufacturerData => this.lazyParse.Value.ManufacturerData;
         public Guid[] ServiceUuids => this.lazyParse.Value.ServiceUuids.ToArray();
         public IReadOnlyList<byte[]> ServiceData => this.lazyParse.Value.ServiceData;
         public int TxPower => this.lazyParse.Value.TxPower;

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using Plugin.BluetoothLE.Server;
 
 namespace Plugin.BluetoothLE
 {
@@ -9,7 +9,7 @@ namespace Plugin.BluetoothLE
         string LocalName { get; }
         bool IsConnectable { get; }
         IReadOnlyList<byte[]> ServiceData { get; }
-        byte[] ManufacturerData { get; }
+        IEnumerable<ManufacturerData> ManufacturerData { get; }
         Guid[] ServiceUuids { get; }
         int TxPower { get; }
     }
