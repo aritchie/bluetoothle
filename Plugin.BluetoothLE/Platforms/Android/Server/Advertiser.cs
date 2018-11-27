@@ -10,13 +10,13 @@ namespace Plugin.BluetoothLE.Server
 {
     public class Advertiser : AbstractAdvertiser
     {
-        private BluetoothManager manager;
+        private readonly BluetoothManager manager;
         private readonly AdvertisementCallbacks adCallbacks;
 
         public Advertiser()
         {
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Context.BluetoothService);
-            this.adCallbacks = new AdvertisementCallbacks()
+            this.adCallbacks = new AdvertisementCallbacks
             {
                 Failed = (err) => IsStarted = false,
                 Started = () => IsStarted = true
