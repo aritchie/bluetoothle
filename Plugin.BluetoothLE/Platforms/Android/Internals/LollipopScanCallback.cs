@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Acr.Logging;
 using Android.Bluetooth;
 using Android.Bluetooth.LE;
+using Android.Runtime;
 using SR = Android.Bluetooth.LE.ScanResult;
 
 
@@ -23,6 +25,12 @@ namespace Plugin.BluetoothLE.Internals
         {
             if (results == null) return;
             foreach (SR result in results) this.callback(result.Device, result.Rssi, result.ScanRecord);
+        }
+
+        public override void OnScanFailed([GeneratedEnum] ScanFailure errorCode)
+        {
+            Log.Error(BleLogCategory.Adapter, $"Scan failed: {errorCode}");
+            base.OnScanFailed(errorCode);
         }
     }
 }
