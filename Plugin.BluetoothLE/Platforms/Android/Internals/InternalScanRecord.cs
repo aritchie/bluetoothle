@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
-using Plugin.BluetoothLE.Server;
+
 
 namespace Plugin.BluetoothLE.Internals
 {
@@ -51,11 +51,11 @@ namespace Plugin.BluetoothLE.Internals
                         break;
 
                     case AdvertisementRecordType.ManufacturerSpecificData:
-                        int manufacturerId = ((data[1] & 0xFF) << 8) + (data[0] & 0xFF);
-                        byte[] manufacturerDataBytes = new byte[data.Length - 2];
+                        var manufacturerId = ((data[1] & 0xFF) << 8) + (data[0] & 0xFF);
+                        var manufacturerDataBytes = new byte[data.Length - 2];
                         Array.Copy(data, 2, manufacturerDataBytes, 0, data.Length-2);
 
-                        mfData.Add(new Server.ManufacturerData((ushort) manufacturerId, manufacturerDataBytes));
+                        mfData.Add(new ManufacturerData((ushort) manufacturerId, manufacturerDataBytes));
                         break;
 
                     default:
