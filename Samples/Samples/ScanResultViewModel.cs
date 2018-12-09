@@ -54,9 +54,9 @@ namespace Samples
                     this.IsConnectable = ad.IsConnectable;
                     this.LocalName = ad.LocalName;
                     this.TxPower = ad.TxPower;
-                    this.ManufacturerData = ad.ManufacturerData == null
-                        ? null
-                        : BitConverter.ToString(ad.ManufacturerData);
+                    //this.ManufacturerData = ad.ManufacturerData == null
+                    //    ? null
+                    //    : BitConverter.ToString(ad.ManufacturerData);
                 }
             }
             catch (Exception ex)

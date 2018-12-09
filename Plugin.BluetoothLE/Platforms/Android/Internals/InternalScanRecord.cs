@@ -12,7 +12,6 @@ namespace Plugin.BluetoothLE.Internals
         {
             var sr = new InternalScanRecord();
             var mfData = new List<ManufacturerData>();
-            sr.ManufacturerData = mfData;
             var index = 0;
             var others = new List<AdRecord>();
 
@@ -71,12 +70,14 @@ namespace Plugin.BluetoothLE.Internals
                 .ToList()
                 .ForEach(sr.ServiceUuids.Add);
 
+            sr.ManufacturerData = mfData.ToArray();
+
             return sr;
         }
 
 
         public string LocalName { get; private set; }
-        public IEnumerable<ManufacturerData> ManufacturerData { get; private set; }
+        public ManufacturerData[] ManufacturerData { get; private set; }
         public bool IsConnectable { get; private set; }
         public int TxPower { get; private set; }
         public IList<Guid> ServiceUuids { get; } = new List<Guid>();
