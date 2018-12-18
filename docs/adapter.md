@@ -68,10 +68,13 @@ BleAdapter.Current.ScanListen().Subscribe(scanResult => {});
 
 ```csharp
 var devices = CrossBleAdapter.Current.GetConnectedDevices();
-foreach (var device in devices)
+devices.Subscribe(deviceResult =>
 {
-    // do something
-}
+    foreach (var device in deviceResult)
+    {
+        // do something
+    }   
+}    
 ```
 
 ## Extensions
