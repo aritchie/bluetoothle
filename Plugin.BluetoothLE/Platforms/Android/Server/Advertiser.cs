@@ -10,15 +10,16 @@ namespace Plugin.BluetoothLE.Server
 {
     public class Advertiser : AbstractAdvertiser
     {
-        private readonly BluetoothManager manager;
-        private readonly AdvertisementCallbacks adCallbacks;
+        readonly BluetoothManager manager;
+        readonly AdvertisementCallbacks adCallbacks;
+
 
         public Advertiser()
         {
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Context.BluetoothService);
             this.adCallbacks = new AdvertisementCallbacks
             {
-                Failed = (err) => IsStarted = false,
+                Failed = e => IsStarted = false,
                 Started = () => IsStarted = true
             };
         }
@@ -26,36 +27,29 @@ namespace Plugin.BluetoothLE.Server
         public override void Start(AdvertisementData adData)
         {
             if (!CrossBleAdapter.AndroidConfiguration.IsServerSupported)
-            {
                 throw new BleException("BLE Advertiser needs API Level 21+");
-            }
 
-            if (IsStarted)
-            {
+            if (this.IsStarted)
                 throw new BleException("BLE Advertiser is already started");
-            }
 
             var settings = new AdvertiseSettings.Builder()
                 .SetAdvertiseMode(AdvertiseMode.Balanced)
                 .SetConnectable(true);
 
             var data = new AdvertiseData.Builder()
-                .SetIncludeDeviceName(adData.ManufacturerData == null && !(adData.ServiceUuids?.Any() ?? false)) //only when there is no other data, we'll get Data Too Long error otherwise
+                //.SetIncludeDeviceName(adData.ManufacturerData == null && !(adData.ServiceUuids?.Any() ?? false)) //only when there is no other data, we'll get Data Too Long error otherwise
                 .SetIncludeTxPowerLevel(true);
 
             if (adData.ManufacturerData != null)
-            {
                 data.AddManufacturerData(adData.ManufacturerData.CompanyId, adData.ManufacturerData.Data);
-            }
 
             foreach (var serviceUuid in adData.ServiceUuids)
-            {
                 data.AddServiceUuid(serviceUuid.ToParcelUuid());
-            }
 
             if (!string.IsNullOrEmpty(adData.LocalName))
             {
-                manager.Adapter.SetName(adData.LocalName);
+                data.SetIncludeDeviceName(true);
+                this.manager.Adapter.SetName(adData.LocalName);
             }
 
             this.manager
@@ -72,10 +66,8 @@ namespace Plugin.BluetoothLE.Server
 
         public override void Stop()
         {
-            if (this.manager?.Adapter?.BluetoothLeAdvertiser != null && adCallbacks != null)
-            {
-                this.manager.Adapter.BluetoothLeAdvertiser.StopAdvertising(adCallbacks);
-            }
+            if (this.adCallbacks != null)
+                this.manager.Adapter.BluetoothLeAdvertiser.StopAdvertising(this.adCallbacks);
 
             base.Stop();
         }

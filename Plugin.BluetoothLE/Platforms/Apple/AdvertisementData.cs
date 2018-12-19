@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using CoreBluetooth;
 using Foundation;
-using Plugin.BluetoothLE.Server;
+
 
 namespace Plugin.BluetoothLE
 {
@@ -25,12 +25,15 @@ namespace Plugin.BluetoothLE
             this.txpower = this.GetLazy(CBAdvertisement.DataTxPowerLevelKey, x => Convert.ToInt32(((NSNumber)x).Int16Value));
             this.manufacturerData = this.GetLazy(CBAdvertisement.DataManufacturerDataKey, x =>
             {
-                byte[] data = ((NSData)x).ToArray();
-                int manufacturerId = ((data[1] & 0xFF) << 8) + (data[0] & 0xFF);
-                byte[] manufacturerDataBytes = new byte[data.Length - 2];
+                var data = ((NSData)x).ToArray();
+                var manufacturerId = ((data[1] & 0xFF) << 8) + (data[0] & 0xFF);
+                var manufacturerDataBytes = new byte[data.Length - 2];
                 Array.Copy(data, 2, manufacturerDataBytes, 0, data.Length-2);
 
-                return new[] { new Server.ManufacturerData((ushort)manufacturerId, manufacturerDataBytes) } as IEnumerable<ManufacturerData>;
+                return new[]
+                {
+                    new ManufacturerData((ushort)manufacturerId, manufacturerDataBytes)
+                } as IEnumerable<ManufacturerData>;
             });
             this.serviceData = this.GetLazy(CBAdvertisement.DataServiceDataKey, item =>
             {

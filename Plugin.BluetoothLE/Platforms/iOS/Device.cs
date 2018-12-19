@@ -9,6 +9,6 @@ namespace Plugin.BluetoothLE
         public override DeviceFeatures Features => DeviceFeatures.MtuRequests;
 
 
-        public override int MtuSize => (int)this.peripheral.GetMaximumWriteValueLength(CBCharacteristicWriteType.WithResponse);
+        public override int MtuSize => (int)this.peripheral.GetMaximumWriteValueLength(CBCharacteristicWriteType.WithoutResponse);
     }
 }
