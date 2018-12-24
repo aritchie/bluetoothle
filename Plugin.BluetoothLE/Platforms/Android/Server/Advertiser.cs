@@ -37,7 +37,6 @@ namespace Plugin.BluetoothLE.Server
                 .SetConnectable(true);
 
             var data = new AdvertiseData.Builder()
-                //.SetIncludeDeviceName(adData.ManufacturerData == null && !(adData.ServiceUuids?.Any() ?? false)) //only when there is no other data, we'll get Data Too Long error otherwise
                 .SetIncludeTxPowerLevel(true);
 
             if (adData.ManufacturerData != null)
@@ -67,7 +66,7 @@ namespace Plugin.BluetoothLE.Server
         public override void Stop()
         {
             if (this.adCallbacks != null)
-                this.manager.Adapter.BluetoothLeAdvertiser.StopAdvertising(this.adCallbacks);
+                this.manager?.Adapter?.BluetoothLeAdvertiser?.StopAdvertising(this.adCallbacks);
 
             base.Stop();
         }
