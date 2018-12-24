@@ -9,7 +9,7 @@ namespace Plugin.BluetoothLE
         string LocalName { get; }
         bool IsConnectable { get; }
         IReadOnlyList<byte[]> ServiceData { get; }
-        ManufacturerData[] ManufacturerData { get; }
+        IEnumerable<ManufacturerData> ManufacturerData { get; }
         Guid[] ServiceUuids { get; }
         int TxPower { get; }
     }
