@@ -56,7 +56,7 @@ namespace Plugin.BluetoothLE.Server
 
         void DoAdvertise(AdvertisementData adData)
         {
-            this.manager.StartAdvertising(new StartAdvertisingOptions
+            this.manager?.StartAdvertising(new StartAdvertisingOptions
             {
                 LocalName = adData.LocalName,
                 ServicesUUID = adData
@@ -70,7 +70,7 @@ namespace Plugin.BluetoothLE.Server
 
         public override void Stop()
         {
-            this.manager.StopAdvertising();
+            this.manager?.StopAdvertising();
             base.Stop();
         }
     }
