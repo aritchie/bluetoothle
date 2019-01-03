@@ -19,7 +19,7 @@ namespace Plugin.BluetoothLE.Server
             this.manager = (BluetoothManager)Application.Context.GetSystemService(Context.BluetoothService);
             this.adCallbacks = new AdvertisementCallbacks
             {
-                Failed = e => IsStarted = false,
+                Failed = e => throw e,
                 Started = () => IsStarted = true
             };
         }
@@ -49,6 +49,10 @@ namespace Plugin.BluetoothLE.Server
             {
                 data.SetIncludeDeviceName(true);
                 this.manager.Adapter.SetName(adData.LocalName);
+            }
+            else
+            {
+                data.SetIncludeDeviceName(false);
             }
 
             this.manager

@@ -23,7 +23,8 @@ namespace Plugin.BluetoothLE.Server.Internals
         {
             Log.Warn(BleLogCategory.Advertiser, $"Failed to start BLE advertising - {errorCode}");
             base.OnStartFailure(errorCode);
-            this.Failed?.Invoke(new ArgumentException($"Failed to start BLE advertising - {errorCode}"));
+            if (errorCode != AdvertiseFailure.AlreadyStarted) //doesn't seem to matter?
+                this.Failed?.Invoke(new BleException($"Failed to start BLE advertising - {errorCode}"));
         }
     }
 }
