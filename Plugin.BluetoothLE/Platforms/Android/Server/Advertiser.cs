@@ -70,7 +70,9 @@ namespace Plugin.BluetoothLE.Server
         public override void Stop()
         {
             if (this.adCallbacks != null)
+            {
                 this.manager?.Adapter?.BluetoothLeAdvertiser?.StopAdvertising(this.adCallbacks);
+            }
 
             base.Stop();
         }
