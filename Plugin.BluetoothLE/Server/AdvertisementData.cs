@@ -11,8 +11,8 @@ namespace Plugin.BluetoothLE.Server
         public List<Guid> ServiceUuids { get; set; } = new List<Guid>();
 
         // ANDROID ONLY
-        //public bool IncludeDeviceName { get; set; }
-        //public bool IncludeTxPower { get; set; }
+        public bool AndroidIncludeDeviceName { get; set; }
+        public bool AndroidIncludeTxPower { get; set; }
         //public IDictionary<Guid, byte[]> ServiceData { get; set; } = new Dictionary<Guid, byte[]>();
     }
 }

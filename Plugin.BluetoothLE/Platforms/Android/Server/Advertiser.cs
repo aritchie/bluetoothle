@@ -37,8 +37,8 @@ namespace Plugin.BluetoothLE.Server
                 .SetConnectable(true);
 
             var data = new AdvertiseData.Builder()
-                //.SetIncludeDeviceName(adData.ManufacturerData == null && !(adData.ServiceUuids?.Any() ?? false)) //only when there is no other data, we'll get Data Too Long error otherwise
-                .SetIncludeTxPowerLevel(true);
+                .SetIncludeDeviceName(adData.AndroidIncludeDeviceName)
+                .SetIncludeTxPowerLevel(adData.AndroidIncludeTxPower);
 
             if (adData.ManufacturerData != null)
                 data.AddManufacturerData(adData.ManufacturerData.CompanyId, adData.ManufacturerData.Data);

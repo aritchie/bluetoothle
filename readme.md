@@ -1,9 +1,14 @@
 # <img src="icon.png" width="71" height="71"/> ACR Reactive BluetoothLE Plugin
 Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
 
-## [SUPPORT THIS PROJECT](https://github.com/aritchie/home)
+# [![BSI Labs](bsilabs.png)](https://bsilabs.ca) 
+This project is financially and technically supported by BSI Labs.
 
-[Change Log - November 17, 2018](docs/changelog.md)
+## [OTHER ACR PROJECTS](https://github.com/aritchie/home)
+
+---
+
+[Change Log - January 2019](docs/changelog.md)
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
 [![Build status](https://dev.azure.com/allanritchie/Plugins/_apis/build/status/BLE)](https://dev.azure.com/allanritchie/Plugins/_build/latest?definitionId=0)

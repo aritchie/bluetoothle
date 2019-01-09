@@ -29,8 +29,8 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public static IEnumerable<ManufacturerData> GetManufacturerSpecificData(this BluetoothLEAdvertisement adv)
-            => adv.ManufacturerData.Select(md => new ManufacturerData(md.CompanyId, md.Data.ToArray()));
+        public static ManufacturerData[] GetManufacturerSpecificData(this BluetoothLEAdvertisement adv)
+            => adv.ManufacturerData.Select(md => new ManufacturerData(md.CompanyId, md.Data.ToArray())).ToArray();
 
 
         static byte[] GetSectionDataOrNull(this BluetoothLEAdvertisement adv, byte recType)

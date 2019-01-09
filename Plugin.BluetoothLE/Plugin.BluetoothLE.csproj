@@ -17,7 +17,7 @@ Supported Platforms
 * macOS
 * UWP</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
-        <PackageVersion>6.2.3</PackageVersion>
+        <PackageVersion>6.3.0</PackageVersion>
         <RepositoryUrl>https://github.com/aritchie/bluetoothle</RepositoryUrl>
         <PackageProjectUrl>https://github.com/aritchie/bluetoothle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</PackageLicenseUrl>
