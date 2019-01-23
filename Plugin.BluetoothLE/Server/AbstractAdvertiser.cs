@@ -12,6 +12,7 @@ namespace Plugin.BluetoothLE.Server
         public virtual void Start(AdvertisementData adData)
         {
             this.CurrentAdvertisementData = adData;
+            this.IsStarted = true;
         }
 
 

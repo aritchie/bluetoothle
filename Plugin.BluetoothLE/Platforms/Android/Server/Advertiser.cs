@@ -37,7 +37,8 @@ namespace Plugin.BluetoothLE.Server
                 .SetConnectable(true);
 
             var data = new AdvertiseData.Builder()
-                .SetIncludeTxPowerLevel(true);
+                .SetIncludeDeviceName(adData.AndroidIncludeDeviceName)
+                .SetIncludeTxPowerLevel(adData.AndroidIncludeTxPower);
 
             if (adData.ManufacturerData != null)
                 data.AddManufacturerData(adData.ManufacturerData.CompanyId, adData.ManufacturerData.Data);
@@ -49,10 +50,6 @@ namespace Plugin.BluetoothLE.Server
             {
                 data.SetIncludeDeviceName(true);
                 this.manager.Adapter.SetName(adData.LocalName);
-            }
-            else
-            {
-                data.SetIncludeDeviceName(false);
             }
 
             this.manager

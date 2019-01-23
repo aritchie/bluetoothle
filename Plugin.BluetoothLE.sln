@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E72A2C1E-F
 	ProjectSection(SolutionItems) = preProject
 		docs\adapter.md = docs\adapter.md
 		docs\advertising.md = docs\advertising.md
+		bsilabs.png = bsilabs.png
 		docs\changelog.md = docs\changelog.md
 		docs\characteristics.md = docs\characteristics.md
 		docs\descriptors.md = docs\descriptors.md

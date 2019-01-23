@@ -11,7 +11,7 @@ namespace Plugin.BluetoothLE
         readonly NSDictionary adData;
         readonly Lazy<string> localName;
         readonly Lazy<bool> connectable;
-        readonly Lazy<IEnumerable<ManufacturerData>> manufacturerData;
+        readonly Lazy<ManufacturerData[]> manufacturerData;
         readonly Lazy<int> txpower;
         readonly Lazy<Guid[]> serviceUuids;
         readonly Lazy<List<byte[]>> serviceData;
@@ -32,8 +32,8 @@ namespace Plugin.BluetoothLE
 
                 return new[]
                 {
-                    new ManufacturerData((ushort)manufacturerId, manufacturerDataBytes)
-                } as IEnumerable<ManufacturerData>;
+                    new ManufacturerData((ushort) manufacturerId, manufacturerDataBytes)
+                };
             });
             this.serviceData = this.GetLazy(CBAdvertisement.DataServiceDataKey, item =>
             {
@@ -70,7 +70,7 @@ namespace Plugin.BluetoothLE
 
         public string LocalName => this.localName.Value;
         public bool IsConnectable => this.connectable.Value;
-        public IEnumerable<ManufacturerData> ManufacturerData => this.manufacturerData.Value;
+        public ManufacturerData[] ManufacturerData => this.manufacturerData.Value;
         public Guid[] ServiceUuids => this.serviceUuids.Value;
         public IReadOnlyList<byte[]> ServiceData => this.serviceData.Value;
         public int TxPower => this.txpower.Value;
