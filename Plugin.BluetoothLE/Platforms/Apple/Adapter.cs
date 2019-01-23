@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using CoreBluetooth;
 
 
@@ -9,11 +10,13 @@ namespace Plugin.BluetoothLE
 {
     public partial class Adapter : AbstractAdapter
     {
-        readonly AdapterContext context;
+        public static int WaitForPeripheralManagerStatusTimeOut = 3000;
 
+        readonly AdapterContext context;
 
         public override string DeviceName => "Default Bluetooth Device";
         public override bool IsScanning => this.context.Manager.IsScanning;
+        public virtual CBPeripheralManager PeripheralManager  => this.context?.PeripheralManager;
 
 
         public override AdapterStatus Status
@@ -128,6 +131,25 @@ namespace Plugin.BluetoothLE
 
 
         public override void StopScan() => this.context.Manager.StopScan();
+
+        internal void WaitForPeripheralManagerIfNeedeed()
+        {
+            if (!IsPeripheralManagerTurnedOn())
+            {
+                Thread.Sleep(WaitForPeripheralManagerStatusTimeOut);
+            }
+        }
+
+        internal bool IsPeripheralManagerTurnedOn()
+        {
+            var cb = this.context?.PeripheralManager;
+            if (cb == null)
+                return false;
+
+            if (cb.State == CBPeripheralManagerState.Unknown) //CBPeripheralManagerState is deprecated according to apple docs. use cbcentralmanagerstate instead
+                return context.Manager.State == CBCentralManagerState.PoweredOn;
+            return cb.State == CBPeripheralManagerState.PoweredOn;
+        }
 
 
         //IObservable<IDevice> deviceStatusOb;

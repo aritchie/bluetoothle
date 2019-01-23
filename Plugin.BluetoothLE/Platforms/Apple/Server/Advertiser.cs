@@ -8,21 +8,21 @@ namespace Plugin.BluetoothLE.Server
 {
     public class Advertiser : AbstractAdvertiser
     {
-        readonly CBPeripheralManager manager;
+        readonly Adapter adapter;
 
-
-        public Advertiser(CBPeripheralManager peripheralManager)
-            => this.manager = peripheralManager;
+        public Advertiser(Adapter adapter)
+            => this.adapter = this.adapter;
 
 
         // needs to be async for errors
         public override void Start(AdvertisementData adData)
         {
-            if (this.manager.Advertising)
+            if (this.adapter?.PeripheralManager?.Advertising ?? true)
                 return;
 
-            if (this.manager.State != CBPeripheralManagerState.PoweredOn)
-                throw new ArgumentException("Perhipheral not ready");
+            adapter.WaitForPeripheralManagerIfNeedeed();
+            if (!adapter.IsPeripheralManagerTurnedOn())
+                throw new BleException("Invalid Adapter State - " + adapter.PeripheralManager.State);
 
             this.DoAdvertise(adData);
             //switch (this.manager.State)
@@ -50,13 +50,13 @@ namespace Plugin.BluetoothLE.Server
             //        // TODO: exception?
             //        break;
             //}
-
+            base.Start(adData);
         }
 
 
         void DoAdvertise(AdvertisementData adData)
         {
-            this.manager?.StartAdvertising(new StartAdvertisingOptions
+            this.adapter?.PeripheralManager?.StartAdvertising(new StartAdvertisingOptions
             {
                 LocalName = adData.LocalName,
                 ServicesUUID = adData
@@ -64,13 +64,12 @@ namespace Plugin.BluetoothLE.Server
                     .Select(x => CBUUID.FromString(x.ToString()))
                     .ToArray()
             });
-            base.Start(adData);
         }
 
 
         public override void Stop()
         {
-            this.manager?.StopAdvertising();
+            this.adapter?.PeripheralManager?.StopAdvertising();
             base.Stop();
         }
     }
