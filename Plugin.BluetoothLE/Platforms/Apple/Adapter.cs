@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using CoreBluetooth;
 
 
@@ -132,25 +133,24 @@ namespace Plugin.BluetoothLE
 
         public override void StopScan() => this.context.Manager.StopScan();
 
-        internal void WaitForPeripheralManagerIfNeedeed()
+        internal IObservable<CBPeripheralManagerState> GetPeripheralManagerState()
         {
-            if (!IsPeripheralManagerTurnedOn())
+            if (context.PeripheralManager == null)
+                return Observable.Return(CBPeripheralManagerState.PoweredOff);
+
+            if (context.PeripheralManager.State != CBPeripheralManagerState.Unknown)
             {
-                Thread.Sleep(WaitForPeripheralManagerStatusTimeOut);
+                // If we can detect state out of box just returning in
+                return Observable.Return(context.PeripheralManager.State);
+            }
+            else
+            {
+                return Observable.FromEventPattern<EventHandler, EventArgs>(
+                            h => context.PeripheralManager.StateUpdated += h,
+                            h => context.PeripheralManager.StateUpdated -= h)
+                        .Select(a => context.PeripheralManager.State);
             }
         }
-
-        internal bool IsPeripheralManagerTurnedOn()
-        {
-            var cb = this.context?.PeripheralManager;
-            if (cb == null)
-                return false;
-
-            if (cb.State == CBPeripheralManagerState.Unknown) //CBPeripheralManagerState is deprecated according to apple docs. use cbcentralmanagerstate instead
-                return context.Manager.State == CBCentralManagerState.PoweredOn;
-            return cb.State == CBPeripheralManagerState.PoweredOn;
-        }
-
 
         //IObservable<IDevice> deviceStatusOb;
         //public override IObservable<IDevice> WhenDeviceStatusChanged()

@@ -9,66 +9,46 @@ namespace Plugin.BluetoothLE.Server
     public class Advertiser : AbstractAdvertiser
     {
         readonly Adapter adapter;
+        IDisposable currentStartSubscription;
 
         public Advertiser(Adapter adapter)
-            => this.adapter = this.adapter;
-
+            => this.adapter = adapter;
 
         // needs to be async for errors
         public override void Start(AdvertisementData adData)
         {
-            if (this.adapter?.PeripheralManager?.Advertising ?? true)
+            if (this.adapter?.PeripheralManager == null)
+                throw new BleException("PeripheralManager is not found!");
+            
+            if (this.adapter.PeripheralManager.Advertising)
                 return;
 
-            adapter.WaitForPeripheralManagerIfNeedeed();
-            if (!adapter.IsPeripheralManagerTurnedOn())
-                throw new BleException("Invalid Adapter State - " + adapter.PeripheralManager.State);
+            currentStartSubscription?.Dispose();
 
-            this.DoAdvertise(adData);
-            //switch (this.manager.State)
-            //{
-            //    case CBPeripheralManagerState.Resetting:
-            //    case CBPeripheralManagerState.Unknown:
-            //        this.manager.StateUpdated += (sender, args) =>
-            //        {
-            //            if (!this.manager.Advertising && this.manager.State == CBPeripheralManagerState.PoweredOn)
-            //                this.DoAdvertise(adData);
-            //        };
-            //        break;
+            currentStartSubscription = adapter.GetPeripheralManagerState()
+                .Subscribe(state =>
+                {
+                    if (state != CBPeripheralManagerState.PoweredOn)
+                        throw new BleException("Invalid Adapter State - " + adapter.PeripheralManager.State);
 
-            //    case CBPeripheralManagerState.PoweredOn:
-            //        this.DoAdvertise(adData);
-            //        break;
+                    this.adapter?.PeripheralManager?.StartAdvertising(new StartAdvertisingOptions
+                    {
+                        LocalName = adData.LocalName,
+                        ServicesUUID = adData
+                            .ServiceUuids
+                            .Select(x => CBUUID.FromString(x.ToString()))
+                            .ToArray()
+                    });
 
-            //    case CBPeripheralManagerState.PoweredOff:
-            //        break;
-
-            //    case CBPeripheralManagerState.Unsupported:
-            //        break;
-
-            //    case CBPeripheralManagerState.Unauthorized:
-            //        // TODO: exception?
-            //        break;
-            //}
-            base.Start(adData);
-        }
-
-
-        void DoAdvertise(AdvertisementData adData)
-        {
-            this.adapter?.PeripheralManager?.StartAdvertising(new StartAdvertisingOptions
-            {
-                LocalName = adData.LocalName,
-                ServicesUUID = adData
-                    .ServiceUuids
-                    .Select(x => CBUUID.FromString(x.ToString()))
-                    .ToArray()
-            });
+                    base.Start(adData);
+                });
         }
 
 
         public override void Stop()
         {
+            currentStartSubscription?.Dispose();
+
             this.adapter?.PeripheralManager?.StopAdvertising();
             base.Stop();
         }

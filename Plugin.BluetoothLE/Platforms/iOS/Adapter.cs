@@ -20,16 +20,12 @@ namespace Plugin.BluetoothLE
 
         public override AdapterFeatures Features => AdapterFeatures.AllServer;
 
-        public override IObservable<IGattServer> CreateGattServer() => Observable.Start(() =>
+        public override IObservable<IGattServer> CreateGattServer() => GetPeripheralManagerState().Select(state =>
         {
-            var cb = this.context?.PeripheralManager;
-            if (cb == null)
-                return null;
-            WaitForPeripheralManagerIfNeedeed();
-            if (!IsPeripheralManagerTurnedOn())
-                throw new BleException("Invalid Adapter State - " + cb.State);
+            if (state != CBPeripheralManagerState.PoweredOn)
+                throw new BleException("Invalid Adapter State - " + state);
 
-            return new GattServer(cb);
+            return new GattServer(context?.PeripheralManager);
         });
     }
 }
