@@ -11,8 +11,6 @@ namespace Plugin.BluetoothLE
 {
     public partial class Adapter : AbstractAdapter
     {
-        public static int WaitForPeripheralManagerStatusTimeOut = 3000;
-
         readonly AdapterContext context;
 
         public override string DeviceName => "Default Bluetooth Device";
