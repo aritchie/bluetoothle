@@ -118,9 +118,8 @@ namespace Plugin.BluetoothLE
         /// <param name="stream">The stream to send</param>
         /// <param name="reliableWrite">Use reliable write atomic writing if available (windows and android)</param>
         public static IObservable<BleWriteSegment> BlobWrite(this IGattCharacteristic ch, Stream stream, bool reliableWrite)
-            => Observable.Create<BleWriteSegment>(async ob =>
+            => Observable.Create<BleWriteSegment>(async (ob, cancellationToken) =>
             {
-                var cts = new CancellationTokenSource();
                 var trans = reliableWrite
                     ? ch.Service.Device.BeginReliableWriteTransaction()
                     : new VoidGattReliableWriteTransaction();
@@ -133,11 +132,11 @@ namespace Plugin.BluetoothLE
                     var pos = read;
                     var len = Convert.ToInt32(stream.Length);
 
-                    while (!cts.IsCancellationRequested && read > 0)
+                    while (!cancellationToken.IsCancellationRequested && read > 0)
                     {
                         await trans
                             .Write(ch, buffer)
-                            .ToTask(cts.Token)
+                            .ToTask(cancellationToken)
                             .ConfigureAwait(false);
 
                         //if (this.Value != buffer)
@@ -163,12 +162,6 @@ namespace Plugin.BluetoothLE
                     await trans.Commit();
                 }
                 ob.OnCompleted();
-
-                return () =>
-                {
-                    cts.Cancel();
-                    trans.Dispose();
-                };
             });
     }
 }
