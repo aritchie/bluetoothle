@@ -121,14 +121,17 @@ namespace Plugin.BluetoothLE.Server
             {
                 var handler = new TypedEventHandler<GattLocalCharacteristic, GattWriteRequestedEventArgs>(async (sender, args) =>
                 {
-                    var request = await args.GetRequestAsync();
-                    var bytes = request.Value.ToArray();
-                    var respond = request.Option == GattWriteOption.WriteWithResponse;
-                    ob.OnNext(new WriteRequest(null, bytes, (int)request.Offset, respond));
-
-                    if (respond)
+                    using(args.GetDeferral())
                     {
-                        request.Respond();
+                        var request = await args.GetRequestAsync();
+                        var bytes = request.Value.ToArray();
+                        var respond = request.Option == GattWriteOption.WriteWithResponse;
+                        ob.OnNext(new WriteRequest(null, bytes, (int)request.Offset, respond));
+
+                        if (respond)
+                        {
+                            request.Respond();
+                        }
                     }
                 });
                 var sub = this.nativeReady.Subscribe(dev => this.native.WriteRequested += handler);
@@ -153,15 +156,18 @@ namespace Plugin.BluetoothLE.Server
             {
                 var handler = new TypedEventHandler<GattLocalCharacteristic, GattReadRequestedEventArgs>(async (sender, args) =>
                 {
-                    var request = await args.GetRequestAsync();
-                    var dev = this.FindDevice(args.Session);
-                    var read = new ReadRequest(dev, (int)request.Length);
-                    ob.OnNext(read);
+                    using(args.GetDeferral())
+                    {
+                        var request = await args.GetRequestAsync();
+                        var dev = this.FindDevice(args.Session);
+                        var read = new ReadRequest(dev, (int)request.Length);
+                        ob.OnNext(read);
 
-                    if (read.Status == GattStatus.Success)
-                        request.RespondWithValue(read.Value.AsBuffer());
-                    else
-                        request.RespondWithProtocolError((byte) read.Status);
+                        if (read.Status == GattStatus.Success)
+                            request.RespondWithValue(read.Value.AsBuffer());
+                        else
+                            request.RespondWithProtocolError((byte) read.Status);
+                    }
                 });
                 var sub = this.nativeReady.Subscribe(dev => this.native.ReadRequested += handler);
                 return () =>
