@@ -36,6 +36,7 @@ namespace Plugin.BluetoothLE
 
         public IDevice Device { get; }
         public BluetoothLEDevice NativeDevice { get; private set; }
+        public List<GattDeviceService> Services { get; set; } = new List<GattDeviceService>();
         public IObservable<ConnectionStatus> WhenStatusChanged() => this.connSubject.StartWith(this.Status);
 
 
@@ -47,10 +48,19 @@ namespace Plugin.BluetoothLE
             this.connSubject.OnNext(ConnectionStatus.Connecting);
             this.NativeDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(this.bluetoothAddress);
             this.NativeDevice.ConnectionStatusChanged += this.OnNativeConnectionStatusChanged;
-            await this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached); // HACK: kick the connection on
+            var result = await this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached); // HACK: kick the connection on
+            this.Services.AddRange(result.Services);
         }
 
 
+        /// <summary>
+        /// Disposes of all references to the <see cref="BluetoothLEDevice"/> object,
+        /// which triggers an automatic disconnect after a small timeout period.
+        /// </summary>
+        /// <references>
+        /// <a href="https://stackoverflow.com/a/47708793">Bluetooth LE device cannot disconnect in Win 10 IoT UWP application</a>
+        /// <a href="https://docs.microsoft.com/en-us/windows/uwp/devices-sensors/gatt-client#connecting-to-the-device">Bluetooth GATT Client</a>
+        /// </references>
         public async Task Disconnect()
         {
             if (this.NativeDevice == null)
@@ -69,6 +79,12 @@ namespace Plugin.BluetoothLE
                 }
             }
             this.subscribers.Clear();
+
+            foreach (var service in this.Services)
+            {
+                service?.Dispose();
+            }
+            this.Services.Clear();
 
             this.adapterContext.RemoveDevice(this.NativeDevice.BluetoothAddress);
             this.NativeDevice.ConnectionStatusChanged -= this.OnNativeConnectionStatusChanged;
