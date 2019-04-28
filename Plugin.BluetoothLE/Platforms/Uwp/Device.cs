@@ -36,6 +36,7 @@ namespace Plugin.BluetoothLE
         public override IObservable<IGattService> GetKnownService(Guid serviceUuid) => Observable.FromAsync(async ct =>
         {
             var result = await this.context.NativeDevice.GetGattServicesForUuidAsync(serviceUuid, BluetoothCacheMode.Cached);
+            this.context.Services.AddRange(result.Services);
             if (result.Status != GattCommunicationStatus.Success)
                 throw new ArgumentException("Could not find GATT service - " + result.Status);
 
@@ -47,6 +48,7 @@ namespace Plugin.BluetoothLE
         public override IObservable<IGattService> DiscoverServices() => Observable.Create<IGattService>(async ob =>
         {
             var result = await this.context.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached);
+            this.context.Services.AddRange(result.Services);
             foreach (var nservice in result.Services)
             {
                 var service = new GattService(this.context, nservice);
