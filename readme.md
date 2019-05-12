@@ -1,3 +1,6 @@
+# UPDATE - This library is moving to the Shiny Framework at https://github.com/shinyorg/shiny but is continuing support for now
+
+
 # <img src="icon.png" width="71" height="71"/> ACR Reactive BluetoothLE Plugin
 Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
 
