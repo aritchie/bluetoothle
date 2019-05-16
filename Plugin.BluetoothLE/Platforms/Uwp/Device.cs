@@ -97,5 +97,9 @@ namespace Plugin.BluetoothLE
             var state = result.Status == DevicePairingResultStatus.Paired;
             return state;
         });
+
+        public override IObservable<int> WhenMtuChanged() => this.context.WhenMtuChanged();
+
+        public override int MtuSize => this.context.MtuSize ?? base.MtuSize;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -17,6 +18,7 @@ namespace Plugin.BluetoothLE
         readonly AdapterContext adapterContext;
         readonly IList<GattCharacteristic> subscribers;
         readonly Subject<ConnectionStatus> connSubject;
+        readonly Subject<int> mtuSizeSubject;
         readonly ulong bluetoothAddress;
 
 
@@ -26,6 +28,8 @@ namespace Plugin.BluetoothLE
         {
             this.syncLock = new object();
             this.connSubject = new Subject<ConnectionStatus>();
+            this.mtuSizeSubject = new Subject<int>();
+            this.currentMtuSize = null;
             this.adapterContext = adapterContext;
             this.subscribers = new List<GattCharacteristic>();
             this.Device = device;
@@ -38,6 +42,7 @@ namespace Plugin.BluetoothLE
         public BluetoothLEDevice NativeDevice { get; private set; }
         public List<GattDeviceService> Services { get; set; } = new List<GattDeviceService>();
         public IObservable<ConnectionStatus> WhenStatusChanged() => this.connSubject.StartWith(this.Status);
+        public IObservable<int> WhenMtuChanged() => this.mtuSizeSubject;
 
 
         public async Task Connect()
@@ -50,6 +55,11 @@ namespace Plugin.BluetoothLE
             this.NativeDevice.ConnectionStatusChanged += this.OnNativeConnectionStatusChanged;
             var result = await this.NativeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached); // HACK: kick the connection on
             this.Services.AddRange(result.Services);
+
+            // the PDU aka MTU size should be the same on each service instance, nevertheless we determine the minimum value
+            this.MtuSize = (int?)this.Services.DefaultIfEmpty(null).Min(service => service?.Session?.MaxPduSize);
+
+            this.connSubject.OnNext(this.Status);
         }
 
 
@@ -90,6 +100,7 @@ namespace Plugin.BluetoothLE
             this.NativeDevice.ConnectionStatusChanged -= this.OnNativeConnectionStatusChanged;
             this.NativeDevice?.Dispose();
             this.NativeDevice = null;
+            this.MtuSize = null;
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -132,7 +143,28 @@ namespace Plugin.BluetoothLE
         }
 
 
-        void OnNativeConnectionStatusChanged(BluetoothLEDevice sender, object args) =>
+        void OnNativeConnectionStatusChanged(BluetoothLEDevice sender, object args)
+        {
+            // Connected will be triggered by the Connect method
+            if (this.Status == ConnectionStatus.Connected)
+                return;
+
             this.connSubject.OnNext(this.Status);
+        }
+
+
+        int? currentMtuSize;
+        public int? MtuSize
+        {
+            get => currentMtuSize;
+            private set
+            {
+                if (this.currentMtuSize != value)
+                {
+                    this.currentMtuSize = value;
+                    this.mtuSizeSubject.OnNext(value ?? -1);
+                }
+            }
+        }
     }
 }
