@@ -24,10 +24,10 @@ namespace Plugin.BluetoothLE.Server
 
             var settings = new AdvertiseSettings.Builder()
                 .SetAdvertiseMode(AdvertiseMode.Balanced)
-                .SetConnectable(true);
+                .SetConnectable(adData.AndroidIsConnectable);
 
             var data = new AdvertiseData.Builder()
-                .SetIncludeDeviceName(true)
+                .SetIncludeDeviceName(adData.AndroidUseDeviceName)
                 .SetIncludeTxPowerLevel(true);
 
             if (adData.ManufacturerData != null)
