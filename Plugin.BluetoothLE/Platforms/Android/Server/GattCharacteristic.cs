@@ -115,6 +115,21 @@ namespace Plugin.BluetoothLE.Server
                 {
                     if (args.Descriptor.Equals(this.NotificationDescriptor))
                     {
+                        if (args.ResponseNeeded)
+                        {
+                            lock (this.context.ServerReadWriteLock)
+                            {
+                                this.context.Server.SendResponse
+                                (
+                                    args.Device,
+                                    args.RequestId,
+                                    ProfileState.Connected,
+                                    args.Offset,
+                                    args.Value
+                                );
+                            }
+                        }
+
                         if (args.Value.SequenceEqual(NotifyEnabledBytes) || args.Value.SequenceEqual(IndicateEnableBytes))
                         {
                             var device = this.GetOrAdd(args.Device);
