@@ -1,8 +1,8 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/1.6.60">
+﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.24">
 
     <PropertyGroup>
-        <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.TVOS10;uap10.0</TargetFrameworks>
-        <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0;MonoAndroid80;Xamarin.iOS10;Xamarin.Mac20;xamarin.TVOS10</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;MonoAndroid80;monoandroid90;Xamarin.iOS10;Xamarin.Mac20;xamarin.TVOS10;uap10.0</TargetFrameworks>
+        <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">uap10.0.16299;$(TargetFrameworks)</TargetFrameworks>
         <Authors>aritchie</Authors>
         <Company />
         <AssemblyName>Plugin.BluetoothLE</AssemblyName>
@@ -17,7 +17,7 @@ Supported Platforms
 * macOS
 * UWP</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
-        <PackageVersion>6.2.3</PackageVersion>
+        <PackageVersion>6.2.4</PackageVersion>
         <RepositoryUrl>https://github.com/aritchie/bluetoothle</RepositoryUrl>
         <PackageProjectUrl>https://github.com/aritchie/bluetoothle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</PackageLicenseUrl>
