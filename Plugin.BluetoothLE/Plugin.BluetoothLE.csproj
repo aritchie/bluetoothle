@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.24">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;MonoAndroid80;monoandroid90;Xamarin.iOS10;Xamarin.Mac20;xamarin.TVOS10;uap10.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;MonoAndroid81;monoandroid90;Xamarin.iOS10;Xamarin.Mac20;xamarin.TVOS10;uap10.0</TargetFrameworks>
         <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">uap10.0.16299;$(TargetFrameworks)</TargetFrameworks>
         <Authors>aritchie</Authors>
         <Company />
@@ -58,7 +58,7 @@ Supported Platforms
         <Compile Remove="Platforms\**\*.cs" />
         <None Include="Platforms\**\*.cs" />
         <PackageReference Include="Acr.Core" Version="3.0.1" />
-        <PackageReference Include="System.Reactive" Version="4.0.0" />
+        <PackageReference Include="System.Reactive" Version="4.1.5" />
     </ItemGroup>
 
     <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
