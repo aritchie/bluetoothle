@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+## 6.2.6
+* [cleanup] Remove dependency on Acr.Core
+
+## 6.2.5
+* [fix][android][server] Additional fix to notification
+
 ## 6.2.4
 * [android][advertising] Device name is now a settable property - false by default
 * [android][advertising] IsConnectable is now a settable property - true by default

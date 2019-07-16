@@ -8,9 +8,9 @@
         <PackageReference Include="Acr.UserDialogs" Version="7.0.4" />
         <PackageReference Include="Acr.XamForms" Version="4.0.1" />
         <PackageReference Include="Prism.Autofac.Forms" Version="7.1.0.431" />
-        <PackageReference Include="ReactiveUI.Fody" Version="9.17.4" />
+        <PackageReference Include="ReactiveUI.Fody" Version="9.19.5" />
         <PackageReference Include="System.Reactive" Version="4.1.5" />
-        <PackageReference Include="Xamarin.Forms" Version="4.0.0.497661" />
+        <PackageReference Include="Xamarin.Forms" Version="4.1.0.581479" />
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">

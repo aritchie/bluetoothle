@@ -64,9 +64,6 @@
     <PackageReference Include="Xamarin.Android.Support.Compat" Version="28.0.0.1" />
     <PackageReference Include="Xamarin.Android.Support.v4" Version="28.0.0.1" />
     <PackageReference Include="Xamarin.Android.Support.Design" Version="28.0.0.1" />
-    <PackageReference Include="Xamarin.Build.Download">
-      <Version>0.4.11</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Java.Interop" />
@@ -84,7 +81,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />
-    <Compile Include="PlatformInitializer.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

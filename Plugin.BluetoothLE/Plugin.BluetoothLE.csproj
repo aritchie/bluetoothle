@@ -17,7 +17,7 @@ Supported Platforms
 * macOS
 * UWP</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
-        <PackageVersion>6.2.5</PackageVersion>
+        <PackageVersion>6.2.6</PackageVersion>
         <RepositoryUrl>https://github.com/aritchie/bluetoothle</RepositoryUrl>
         <PackageProjectUrl>https://github.com/aritchie/bluetoothle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</PackageLicenseUrl>
@@ -48,15 +48,14 @@ Supported Platforms
         <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
     </PropertyGroup>
 
-    <ItemGroup Condition=" '$(OS)' == 'Windows_NT' AND '$(Configuration)' == 'Release' " >
-        <PackageReference Include="Microsoft.SourceLink.GitHub"
-                          Version="1.0.0-beta-63127-02"
-                          PrivateAssets="All" />
+    <ItemGroup Condition=" '$(OS)' == 'Windows_NT' AND '$(Configuration)' == 'Release' ">
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>
         <Compile Remove="Platforms\**\*.cs" />
         <None Include="Platforms\**\*.cs" />
+        <None Remove="Platforms\Uwp\Platform.cs" />
         <PackageReference Include="System.Reactive" Version="4.1.5" />
     </ItemGroup>
 

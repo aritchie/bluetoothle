@@ -15,8 +15,7 @@ namespace Samples
 {
     public class App : PrismApplication
     {
-        public App() : this(null) { }
-        public App(IPlatformInitializer initializer) : base(initializer) { }
+        public App() : base(null) { }
 
 
         protected override async void OnInitialized()

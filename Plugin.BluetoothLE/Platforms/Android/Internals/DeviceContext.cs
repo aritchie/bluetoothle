@@ -14,7 +14,6 @@ using Android.Bluetooth;
 using Android.OS;
 using Java.Lang;
 using Exception = System.Exception;
-using Platform = Acr.Platform;
 
 
 namespace Plugin.BluetoothLE.Internals
@@ -127,7 +126,7 @@ namespace Plugin.BluetoothLE.Internals
         public void InvokeOnMainThread(Action action)
         {
             if (CrossBleAdapter.AndroidConfiguration.ShouldInvokeOnMainThread)
-                Platform.Current.InvokeOnMainThread(action);
+                Platform.InvokeOnMainThread(action);
             else
                 action();
         }

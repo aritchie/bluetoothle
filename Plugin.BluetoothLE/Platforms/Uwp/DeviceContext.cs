@@ -5,8 +5,8 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
-using Acr.Logging;
 using NC = Windows.Devices.Bluetooth.GenericAttributeProfile.GattCharacteristic;
+using Acr.Logging;
 
 
 namespace Plugin.BluetoothLE

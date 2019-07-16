@@ -29,7 +29,7 @@ namespace Samples.Droid
 
             UserDialogs.Init(() => (Activity)Forms.Context);
 
-            this.LoadApplication(new App(new PlatformInitializer()));
+            this.LoadApplication(new App());
             this.RequestPermissions(new []
             {
                 Manifest.Permission.AccessCoarseLocation,

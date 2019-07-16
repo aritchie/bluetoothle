@@ -13,7 +13,7 @@ namespace Samples.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             Forms.Init();
-            this.LoadApplication(new App(new PlatformInitializer()));
+            this.LoadApplication(new App());
             new Acr.XamForms.ItemTappedCommandBehavior();
             //UIApplication.SharedApplication.IdleTimerDisabled = false;
             return base.FinishedLaunching(app, options);
