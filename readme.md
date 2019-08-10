@@ -1,4 +1,4 @@
-# UPDATE - This library is moving to the Shiny Framework at https://github.com/shinyorg/shiny but is continuing support for now
+# UPDATE - This library is moving to the Shiny Framework at https://github.com/shinyorg/shiny Support will remain until Shiny is out of beta
 
 
 # <img src="icon.png" width="71" height="71"/> ACR Reactive BluetoothLE Plugin
