@@ -114,5 +114,12 @@ namespace Plugin.BluetoothLE
         /// </summary>
         /// <returns>Transaction session</returns>
         IGattReliableWriteTransaction BeginReliableWriteTransaction();
+
+        /// <summary>
+        /// Opens L2CAP channel to give psm
+        /// </summary>
+        /// <param name="psm">port to open L2CAP channel eg. OTS (0x025)</param>
+        /// <returns></returns>
+        IObservable<IChannel> OpenChannel(int psm);
     }
 }

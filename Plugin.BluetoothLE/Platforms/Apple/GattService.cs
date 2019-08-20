@@ -17,6 +17,7 @@ namespace Plugin.BluetoothLE
         {
             this.Peripherial = device.Peripheral;
             this.Service = native;
+            
         }
 
 

@@ -24,6 +24,16 @@ namespace Plugin.BluetoothLE.Tests.Mocks
             return  this.Transaction ?? new MockGattReliableWriteTransaction(); 
         }
 
+        public IObservable<IChannel> GetOpenChannel()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IObservable<IChannel> OpenChannel(int psm)
+        {
+            throw new NotImplementedException();
+        }
+
         public void CancelConnection()
         {
             throw new NotImplementedException();

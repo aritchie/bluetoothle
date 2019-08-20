@@ -34,5 +34,7 @@ namespace Plugin.BluetoothLE
         public virtual IObservable<int> RequestMtu(int size) => Observable.Return(this.MtuSize);
         public virtual IObservable<int> WhenMtuChanged() => Observable.Empty<int>();
         public virtual IGattReliableWriteTransaction BeginReliableWriteTransaction() => new VoidGattReliableWriteTransaction();
+        public virtual IObservable<IChannel> OpenChannel(int psm) => Observable.Return(new NullChannel());
+
     }
 }

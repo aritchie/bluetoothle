@@ -14,7 +14,7 @@ namespace Plugin.BluetoothLE
         readonly AdapterContext context;
         readonly CBPeripheral peripheral;
         IDisposable autoReconnectSub;
-
+     
 
         public Device(AdapterContext context, CBPeripheral peripheral) : base(peripheral.Name,
             peripheral.Identifier.ToGuid())
@@ -216,7 +216,28 @@ namespace Plugin.BluetoothLE
             this.peripheral.RssiRead += handler;
             this.peripheral.ReadRSSI();
 
-            return () => this.peripheral.RssiRead += handler;
+            return () => this.peripheral.RssiRead -= handler;
+        });
+
+
+        public override IObservable<IChannel> OpenChannel(int psm) => Observable.Create<IChannel>(ob =>
+        {
+            var handler = new EventHandler<CBPeripheralOpenL2CapChannelEventArgs>((sender, args) =>
+            {
+                if (args.Error == null)
+                {
+                    ob.Respond((IChannel) new L2CapChannel(args.Channel));
+                }
+                else
+                {
+                    ob.OnError(new BleException(args.Error.LocalizedDescription));
+                }
+                
+            });
+            this.peripheral.DidOpenL2CapChannel += handler;
+            this.peripheral.OpenL2CapChannel((ushort) psm);
+
+            return () => this.peripheral.DidOpenL2CapChannel -= handler;
         });
 
 
