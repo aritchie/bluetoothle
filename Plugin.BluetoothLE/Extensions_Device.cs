@@ -15,10 +15,11 @@ namespace Plugin.BluetoothLE
         /// Starts connection process if not already connecteds
         /// </summary>
         /// <param name="device"></param>
-        public static void ConnectIf(this IDevice device)
+        /// <param name="config"></param>
+        public static void ConnectIf(this IDevice device, ConnectionConfig config = null)
         {
             if (device.Status == ConnectionStatus.Disconnected)
-                device.Connect();
+                device.Connect(config);
         }
 
 
@@ -52,8 +53,9 @@ namespace Plugin.BluetoothLE
         /// Waits for connection to actually happen
         /// </summary>
         /// <param name="device"></param>
+        /// <param name="config"></param>
         /// <returns></returns>
-        public static IObservable<IDevice> ConnectWait(this IDevice device)
+        public static IObservable<IDevice> ConnectWait(this IDevice device, ConnectionConfig config = null)
             => Observable.Create<IDevice>(ob =>
             {
                 var sub1 = device
@@ -65,7 +67,7 @@ namespace Plugin.BluetoothLE
                     .WhenConnectionFailed()
                     .Subscribe(ob.OnError);
 
-                device.ConnectIf();
+                device.ConnectIf(config);
                 return () =>
                 {
                     sub1.Dispose();
