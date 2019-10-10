@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29403.142
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Droid", "Samples\Samples.Droid\Samples.Droid.csproj", "{8E1028CB-C0CC-4FD8-B205-A5E46E96AD33}"
 EndProject
@@ -17,7 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E72A2C1E-F
 	ProjectSection(SolutionItems) = preProject
 		docs\adapter.md = docs\adapter.md
 		docs\advertising.md = docs\advertising.md
-		bsilabs.png = bsilabs.png
 		docs\changelog.md = docs\changelog.md
 		docs\characteristics.md = docs\characteristics.md
 		docs\descriptors.md = docs\descriptors.md

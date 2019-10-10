@@ -11,6 +11,12 @@ Make sure to add the following to your Info.plist
 </array>
 ```
 
+For iOS 13 - you also need to add the below OR YOUR APP WILL TRIGGER A NATIVE CRASH WHICH CANNOT BE CAUGHT
+```xml
+<key>NSBluetoothAlwaysUsageDescription</key>
+<string>YOUR CUSTOM MESSAGE</string>
+```
+
 To add a description to the Bluetooth request message (on iOS 10 this is required!)
 ```xml
 <key>NSBluetoothPeripheralUsageDescription</key>
