@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace Plugin.BluetoothLE.Server
+namespace Plugin.BluetoothLE
 {
     public class ManufacturerData
     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Acr.Logging;
 using Acr.Reactive;
@@ -110,39 +111,24 @@ namespace Plugin.BluetoothLE
         }
 
 
-        IObservable<ConnectionStatus> statusOb;
         public override IObservable<ConnectionStatus> WhenStatusChanged()
-        {
-            this.statusOb = this.statusOb ?? Observable.Create<ConnectionStatus>(ob =>
-            {
-                ob.OnNext(this.Status);
-
-                var sub1 = this.context
+            => Observable.Create<ConnectionStatus>(ob => new CompositeDisposable(
+                this.context
                     .PeripheralConnected
                     .Where(x => x.Equals(this.peripheral))
-                    .Subscribe(x => ob.OnNext(this.Status));
+                    .Subscribe(x => ob.OnNext(this.Status)),
 
-                //var sub = this.context
-                //    .FailedConnection
-                //    .Where(x => x.Equals(this.peripheral))
-                //    .Subscribe(x => ob.OnNext(ConnectionStatus.Failed));
+                this.context
+                    .FailedConnection
+                    .Where(x => x.Equals(this.peripheral))
+                    .Subscribe(x => ob.OnNext(ConnectionStatus.Disconnected)),
 
-                var sub2 = this.context
+                this.context
                     .PeripheralDisconnected
                     .Where(x => x.Equals(this.peripheral))
-                    .Subscribe(x => ob.OnNext(this.Status));
-
-                return () =>
-                {
-                    sub1.Dispose();
-                    sub2.Dispose();
-                };
-            })
-            .Replay(1)
-            .RefCount();
-
-            return this.statusOb;
-        }
+                    .Subscribe(x => ob.OnNext(this.Status))
+            ))
+            .StartWith(this.Status);
 
 
         public override IObservable<IGattService> GetKnownService(Guid serviceUuid)

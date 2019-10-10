@@ -1,4 +1,5 @@
 ﻿using System;
+using Acr.Logging;
 using Android.Bluetooth.LE;
 
 
@@ -12,6 +13,7 @@ namespace Plugin.BluetoothLE.Server.Internals
 
         public override void OnStartSuccess(AdvertiseSettings settingsInEffect)
         {
+            Log.Info(BleLogCategory.Advertiser, $"Succeeded to start BLE advertising - {settingsInEffect.Mode}");
             base.OnStartSuccess(settingsInEffect);
             this.Started?.Invoke();
         }
@@ -19,6 +21,7 @@ namespace Plugin.BluetoothLE.Server.Internals
 
         public override void OnStartFailure(AdvertiseFailure errorCode)
         {
+            Log.Warn(BleLogCategory.Advertiser, $"Failed to start BLE advertising - {errorCode}");
             base.OnStartFailure(errorCode);
             this.Failed?.Invoke(new ArgumentException($"Failed to start BLE advertising - {errorCode}"));
         }

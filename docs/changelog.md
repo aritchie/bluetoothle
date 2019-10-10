@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+## 6.3.0
+* [android][server] Add ability to control android power tx
+* [android] Bond errors are now bubbled out
+* Log scan failures on Android
+* Log advertising states
+
 ## 6.2.6
 * [cleanup] Remove dependency on Acr.Core
 

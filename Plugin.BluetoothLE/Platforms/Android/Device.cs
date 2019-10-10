@@ -160,7 +160,8 @@ namespace Plugin.BluetoothLE
                             var bytes = ConvertPinToBytes(pin);
                             x.SetPin(bytes);
                             x.SetPairingConfirmation(true);
-                        });
+                        },
+                        ob.OnError);
                 }
                 istatusOb = BluetoothObservables
                     .WhenBondStatusChanged()
@@ -201,49 +202,24 @@ namespace Plugin.BluetoothLE
 
 
         int currentMtu = 20;
-        public override IObservable<int> RequestMtu(int size)
+        public override IObservable<int> RequestMtu(int size) => Observable.Create<int>(ob =>
         {
-            if (!this.IsMtuRequestAvailable())
-                return base.RequestMtu(size);
+            var sub = this.WhenMtuChanged().Skip(1).Subscribe(ob.Respond);
+            this.context.Gatt.RequestMtu(size);
+            return sub;
+        });
 
-            return Observable.Create<int>(ob =>
+
+        public override IObservable<int> WhenMtuChanged() => this.context
+            .Callbacks
+            .MtuChanged
+            .Where(x => x.Gatt.Equals(this.context.Gatt))
+            .Select(x =>
             {
-                var sub1 = this.WhenStatusChanged()
-                    .Where(x => x == ConnectionStatus.Connected)
-                    .Subscribe(x => this.context.Gatt.RequestMtu(size));
-
-                var sub2 = this.WhenMtuChanged()
-                    .Take(1)
-                    .Subscribe(ob.Respond);
-
-                return () =>
-                {
-                    sub1.Dispose();
-                    sub2.Dispose();
-                };
-            });
-        }
-
-
-        IObservable<int> mtuOb;
-        public override IObservable<int> WhenMtuChanged()
-        {
-            this.mtuOb = this.mtuOb ?? Observable.Create<int>(ob =>
-                this.context
-                    .Callbacks
-                    .MtuChanged
-                    .Where(x => x.Gatt.Equals(this.context.Gatt))
-                    .Subscribe(x =>
-                    {
-                        this.currentMtu = x.Mtu;
-                        ob.OnNext(x.Mtu);
-                    })
-            )
-            .Replay(1)
-            .RefCount();
-
-            return this.mtuOb;
-        }
+                this.currentMtu = x.Mtu;
+                return x.Mtu;
+            })
+            .StartWith(this.currentMtu);
 
 
         public override int MtuSize => this.currentMtu;

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using Plugin.BluetoothLE.Server;
 using Windows.Devices.Bluetooth.Advertisement;
 
 
@@ -27,8 +29,8 @@ namespace Plugin.BluetoothLE
         }
 
 
-        public static byte[] GetManufacturerSpecificData(this BluetoothLEAdvertisement adv)
-            => adv.GetSectionDataOrNull(BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData);
+        public static ManufacturerData[] GetManufacturerSpecificData(this BluetoothLEAdvertisement adv)
+            => adv.ManufacturerData.Select(md => new ManufacturerData(md.CompanyId, md.Data.ToArray())).ToArray();
 
 
         static byte[] GetSectionDataOrNull(this BluetoothLEAdvertisement adv, byte recType)

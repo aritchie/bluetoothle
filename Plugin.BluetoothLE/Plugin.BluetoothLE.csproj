@@ -17,7 +17,8 @@ Supported Platforms
 * macOS
 * UWP</Description>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
-        <PackageVersion>6.2.6</PackageVersion>
+        <PackageVersion>6.3.0</PackageVersion>
+
         <RepositoryUrl>https://github.com/aritchie/bluetoothle</RepositoryUrl>
         <PackageProjectUrl>https://github.com/aritchie/bluetoothle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/aritchie/bluetoothle/blob/master/LICENSE.md</PackageLicenseUrl>
@@ -85,20 +86,4 @@ Supported Platforms
         <EmbeddedResource Include="Platforms\Uwp\Plugin.BluetoothLE.rd.xml" />
     </ItemGroup>
 
-    <!--
-    <ItemGroup Condition=" $(TargetFramework.StartsWith('net')) ">
-        <Compile Include="Platforms\NETFramework\**\*.cs" />
-        <PackageReference Include="Tmds.DBus" Version="0.5.0" />
-    </ItemGroup>
-
-    <ItemGroup Condition=" $(TargetFramework.StartsWith('tizen')) ">
-        <Compile Include="Platforms\Shared\**\*.cs" />
-        <Compile Include="Platforms\Tizen\**\*.cs" />
-        <PackageReference Include="Tizen.NET" Version="4.0.0">
-            <ExcludeAssets>Runtime</ExcludeAssets>
-        </PackageReference>
-        <PackageReference Include="Tizen.NET.Sdk" Version="1.0.1" />
-        <PackageReference Include="Tizen.Network.Bluetooth" Version="1.0.9" />
-    </ItemGroup>
-    -->
 </Project>

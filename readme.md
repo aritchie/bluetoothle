@@ -4,9 +4,14 @@
 # <img src="icon.png" width="71" height="71"/> ACR Reactive BluetoothLE Plugin
 Easy to use, cross platform, REACTIVE BluetoothLE Plugin for ALL platforms!
 
-## [SUPPORT THIS PROJECT](https://github.com/aritchie/home)
+# [![BSI Labs](bsilabs.png)](https://bsilabs.ca) 
+This project is financially and technically supported by BSI Labs.
 
-[Change Log - November 17, 2018](docs/changelog.md)
+## [OTHER ACR PROJECTS](https://github.com/aritchie/home)
+
+---
+
+[Change Log - October 2019](docs/changelog.md)
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BluetoothLE.svg?maxAge=2592000)](https://www.nuget.org/packages/Plugin.BluetoothLE/)
 [![Build status](https://dev.azure.com/allanritchie/Plugins/_apis/build/status/BLE)](https://dev.azure.com/allanritchie/Plugins/_build/latest?definitionId=0)
@@ -98,6 +103,13 @@ If you want to use background BLE periperhals, add the following to your Info.pl
 
 <!--To add a description to the Bluetooth request message (on iOS 10 this is required!)-->
 <key>NSBluetoothPeripheralUsageDescription</key>
+<string>YOUR CUSTOM MESSAGE</string>
+```
+
+
+**For iOS 13 - you also need to add the below OR YOUR APP WILL TRIGGER A NATIVE CRASH WHICH CANNOT BE CAUGHT**
+```xml
+<key>NSBluetoothAlwaysUsageDescription</key>
 <string>YOUR CUSTOM MESSAGE</string>
 ```
 

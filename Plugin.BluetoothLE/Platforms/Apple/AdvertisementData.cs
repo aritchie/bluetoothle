@@ -11,7 +11,7 @@ namespace Plugin.BluetoothLE
         readonly NSDictionary adData;
         readonly Lazy<string> localName;
         readonly Lazy<bool> connectable;
-        readonly Lazy<byte[]> manufacturerData;
+        readonly Lazy<ManufacturerData[]> manufacturerData;
         readonly Lazy<int> txpower;
         readonly Lazy<Guid[]> serviceUuids;
         readonly Lazy<List<byte[]>> serviceData;
@@ -23,7 +23,18 @@ namespace Plugin.BluetoothLE
             this.localName = this.GetLazy(CBAdvertisement.DataLocalNameKey, x => x.ToString());
             this.connectable = this.GetLazy(CBAdvertisement.IsConnectable, x => ((NSNumber)x).Int16Value == 1);
             this.txpower = this.GetLazy(CBAdvertisement.DataTxPowerLevelKey, x => Convert.ToInt32(((NSNumber)x).Int16Value));
-            this.manufacturerData = this.GetLazy(CBAdvertisement.DataManufacturerDataKey, x => ((NSData)x).ToArray());
+            this.manufacturerData = this.GetLazy(CBAdvertisement.DataManufacturerDataKey, x =>
+            {
+                var data = ((NSData)x).ToArray();
+                var manufacturerId = ((data[1] & 0xFF) << 8) + (data[0] & 0xFF);
+                var manufacturerDataBytes = new byte[data.Length - 2];
+                Array.Copy(data, 2, manufacturerDataBytes, 0, data.Length-2);
+
+                return new[]
+                {
+                    new ManufacturerData((ushort) manufacturerId, manufacturerDataBytes)
+                };
+            });
             this.serviceData = this.GetLazy(CBAdvertisement.DataServiceDataKey, item =>
             {
                 var data = (NSDictionary)item;
@@ -59,7 +70,7 @@ namespace Plugin.BluetoothLE
 
         public string LocalName => this.localName.Value;
         public bool IsConnectable => this.connectable.Value;
-        public byte[] ManufacturerData => this.manufacturerData.Value;
+        public ManufacturerData[] ManufacturerData => this.manufacturerData.Value;
         public Guid[] ServiceUuids => this.serviceUuids.Value;
         public IReadOnlyList<byte[]> ServiceData => this.serviceData.Value;
         public int TxPower => this.txpower.Value;
