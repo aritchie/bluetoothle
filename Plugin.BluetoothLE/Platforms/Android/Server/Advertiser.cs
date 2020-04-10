@@ -36,14 +36,33 @@ namespace Plugin.BluetoothLE.Server
             foreach (var serviceUuid in adData.ServiceUuids)
                 data.AddServiceUuid(serviceUuid.ToParcelUuid());
 
-            this.manager
-                .Adapter
-                .BluetoothLeAdvertiser
-                .StartAdvertising(
-                    settings.Build(),
-                    data.Build(),
-                    this.adCallbacks
-                );
+            if (string.IsNullOrEmpty(adData.LocalName) || adData.AndroidUseDeviceName)
+            {
+                this.manager
+                    .Adapter
+                    .BluetoothLeAdvertiser
+                    .StartAdvertising(
+                        settings.Build(),
+                        data.Build(),
+                        this.adCallbacks
+                    );
+            }
+            else
+            {
+                this.manager
+                    .Adapter.SetName(adData.LocalName);
+                var scanResponse = new AdvertiseData.Builder()
+                    .SetIncludeDeviceName(true);
+                this.manager
+                    .Adapter
+                    .BluetoothLeAdvertiser
+                    .StartAdvertising(
+                        settings.Build(),
+                        data.Build(),
+                        scanResponse.Build(),
+                        this.adCallbacks
+                    );
+            }
 
             base.Start(adData);
         }
